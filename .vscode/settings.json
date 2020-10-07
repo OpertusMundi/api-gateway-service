@@ -1,0 +1,18 @@
+{
+  "editor.tabSize": 2,
+  "beautify.tabSize": 2,
+  "vetur.format.defaultFormatterOptions": {
+    "prettier": {
+      "arrowParens": "always",
+      "trailingComma": "all",
+      "detectIndentation": false,
+      "printWidth": 140,
+      "singleQuote": true
+    }
+  },
+  "prettier.arrowParens": "always",
+  "prettier.trailingComma": "all",
+  "editor.detectIndentation": false,
+  "prettier.printWidth": 140,
+  "prettier.singleQuote": true
+}

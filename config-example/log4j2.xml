@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    
+    <Properties>
+        <Property name="baseDir">./logs</Property>
+    </Properties>
+    
+    <Appenders>
+        <Console name="console" target="SYSTEM_ERR">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId},%X{spanExportable}] %-16X{client.remote-address} %-14.16X{client.username} %-5p %c{1.}:%L - %m%n" />
+        </Console>
+
+        <RollingFile name="file" filename="${baseDir}/api-gateway.log"
+            filepattern="${baseDir}/api-gateway-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId},%X{spanExportable}] %-16X{client.remote-address} %-14.16X{client.username} %-5p %c{1.}:%L - %m%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="25MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+
+        <JDBC name="table" tableName="web.log4j_message">
+            <ConnectionFactory 
+                class="eu.opertusmundi.common.logging.jdbc.ConnectionFactory" method="dataSource" />
+            <Column name="application" literal="'api-gateway'" />
+            <Column name="generated" isEventTimestamp="true" />
+            <Column name="level" pattern="%level" isUnicode="false" />
+            <Column name="logger" pattern="%logger" isUnicode="false" />
+            <Column name="message" pattern="%message" isUnicode="false" />
+            <Column name="throwable" pattern="%ex{full}" isUnicode="false" />
+            <Column name="client_address" pattern="%X{client.remote-address}" isUnicode="false" />
+            <Column name="username" pattern="%X{client.username}" isUnicode="false" />
+        </JDBC>
+
+    </Appenders>
+    
+    <Loggers>
+        <Logger name="org.hibernate.SQL" level="INFO"></Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="table" />
+            <AppenderRef ref="file" />
+        </Root>
+    </Loggers>
+
+</Configuration>

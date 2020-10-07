@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="baseDir">./logs</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_ERR">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss} %16X{client.remote-address} %-5p %c{1}:%L - %m%n" />
+        </Console>
+
+        <RollingFile name="file" filename="${baseDir}/api-gateway-testing.log"
+            filepattern="${baseDir}/api-gateway-testing-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss} %16X{client.remote-address} %-5p %c{1}:%L - %m%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+
+    </Appenders>
+    
+    <Loggers>
+        <Logger name="org.hibernate.SQL" level="WARN">
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file" />
+        </Root>
+    </Loggers>
+
+</Configuration>

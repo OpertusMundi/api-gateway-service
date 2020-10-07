@@ -1,0 +1,49 @@
+.collection{
+  &__menu{
+    margin-bottom: 45px;
+    ul{
+      li{
+        display: inline-block;
+        padding: 10px 13px;
+        font-size: em(20);
+        font-weight: 500;
+        margin-right: 5px;
+        color:#000;
+        a{
+          color:inherit;
+        }
+        &.active{
+          border-bottom: 3px solid $secondColor;
+          color: $secondColor;
+        }
+      }
+    }  
+  }
+
+  &__total{
+    margin-bottom: 30px;
+  }
+
+  &__main{
+    margin: 0 -20px;
+    .asset_card{
+      &__top__right{
+        svg{
+          width: 25px;
+          path{
+            fill: $darkColor;
+          }
+        }
+      }
+      .asset_card__view{
+        width: 140px;
+      }
+      &:hover{
+        .asset_card__inner{
+          width: calc(100% - 120px);
+        }
+      }
+    }
+
+  }
+}

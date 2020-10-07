@@ -1,0 +1,123 @@
+// @import "../../node_modules/aos/src/sass/aos.scss";
+@import "fonts";
+@import "reset";
+@import "variables";
+@import "mixins";
+@import "header";
+@import "footer";
+@import "btns";
+@import "loader";
+@import "tooltips";
+@import "arrows";
+// @import "select";
+// @import "homepage";
+// @import "search";
+// @import "acarousel";
+// @import "page";
+@import "about";
+@import "terms";
+// @import "settings";
+@import "filters";
+@import "modals";
+// @import "dashboard";
+// @import "forms";
+// @import "assets";
+// @import "shape";
+// @import "thankyou";
+
+html {
+    scroll-behavior: smooth;
+}
+body {
+    font-size: #{$baseFontSize}px;
+    -webkit-font-smoothing: antialiased;
+    font-family: $mainFont;
+    color: $mainFontColor;
+    font-weight: 400;
+}
+
+a,a:focus, a:visited {
+    // color: $mainFontColor;
+    text-decoration: none;
+    transition: color 0.2s ease;;
+    &:hover {
+        // color: $mainColor;
+    }
+}
+
+h1, h2, h3, h4, h4, h6 {
+    font-family: $titleFont;
+}
+
+.wrapper {
+    // margin-top: $header_height;
+}
+
+.f_container {
+    width: 100%;
+    position: relative;
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 0 25px;
+    @media(max-width: 576px) {
+        padding: 0 15px;
+    }
+}
+
+.m_container {
+    width: 100%;
+    max-width: 1650px;
+    position: relative;
+    margin: 0 auto;
+    padding: 0 25px;
+    @media(max-width: 576px) {
+        padding: 0 15px;
+    }
+}
+
+.s_container {
+    width: 100%;
+    max-width: 1350px;
+    position: relative;
+    margin: 0 auto;
+    padding: 0 25px;
+    @media(max-width: 576px) {
+        padding: 0 15px;
+    }
+}
+
+
+.rating {
+    color: #fff;
+    i {
+        font-style: normal;
+        padding-left: 10px;
+    }
+    span {
+        letter-spacing: 0.1em;
+        &.active {
+            color: $mainColor;
+        }        
+    }
+    &--dark {
+        span {
+            color: #BCBCBC;
+            letter-spacing: 0.1em;
+            &.active {
+                color: $darkColor;
+            }        
+        }   
+    }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition-duration: 0.3s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+  opacity: 0
+}

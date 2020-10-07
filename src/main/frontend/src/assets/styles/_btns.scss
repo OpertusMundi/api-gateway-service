@@ -1,0 +1,67 @@
+.btn {
+    outline: none;
+    border: none;
+    box-shadow: none;
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &--outlineblue {     
+        font-size: em(15);
+        padding: 7px 25px 6px;
+        text-transform: uppercase;
+        border-radius: 25px;
+        letter-spacing: 0.08em;   
+        font-weight: 500;
+        border: 2px solid $secondColor;
+        min-width: 100px;
+        display: inline-block;
+        text-align: center;
+        transition: all 0.2s ease;
+        color: $secondColor;
+        span{
+            font-weight: 500;
+        }
+        &:hover {
+            background: $secondColor;
+            color: #fff;
+        }
+    }
+    &--std {        
+        font-size: em(15);
+        padding: 10px 25px 10px;
+        text-transform: uppercase;
+        border-radius: 25px;
+        letter-spacing: 0.08em;   
+        font-weight: 500;
+        outline: none;
+        box-shadow: none;
+        border: none;
+        transition: all 0.4s ease;
+        span{
+            font-weight: 500;
+        }
+    }
+
+    &--blue {
+        color: #fff;
+        background: $secondColor;
+    }
+
+    &--dark {
+        color: #fff;
+        background: $darkColor;
+        &:hover {
+            background: $secondColor;
+        }
+    }
+    &--teal {
+        color: $secondColor;
+        background: $mainColor;
+        &:hover {
+            background: #fff;
+        }
+    }
+}

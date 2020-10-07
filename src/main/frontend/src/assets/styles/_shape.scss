@@ -1,0 +1,52 @@
+.shape {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+  width: 100vw;
+  height: 100%;
+  overflow: hidden;
+  @media(max-width: 768px) {
+    //   width: 150vw;
+  } 
+  @media(max-width: 576px) {     
+    //   top: 55%;
+    //   width: 180vw;
+  }
+  svg {
+      position: absolute;
+      bottom: -15%;
+      height: 140%;
+      right: 0;
+      transform: translateX(15%);
+      @media(max-width: 768px) {
+          top: unset;
+          bottom: 5%;
+          right: -5%;
+      }
+      @media(max-width: 576px) {    
+          bottom: -10%;
+          right: -20%;
+          height: 120%;
+      }
+      #circles {
+          circle {
+              filter: url(#blur);
+          }
+      }
+      #lines {
+          rect {
+              // transform-box: fill-box;
+              // transform-origin: 50% 50%;
+              opacity: 0;
+              // height: 0;
+          }
+          clipPath {
+              // transform: translateY(100%);
+          }
+          circle {
+              opacity: 0;
+          }
+      }
+  }
+}

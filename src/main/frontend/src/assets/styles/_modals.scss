@@ -1,0 +1,64 @@
+.backdrop{
+  position: fixed;
+  height: 100vh;
+  width: 100%;
+  top:0;
+  left:0;
+  background: rgba($color: #000000, $alpha: 0.5);
+  z-index: 10000;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  display: none;
+}
+
+.modal{
+  width: 980px;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 10px;
+  padding: 50px;
+  text-align: center;
+  &__close{
+    margin-bottom: 50px;
+  }
+  &__message{
+    padding: 30px;
+    margin-bottom: 50px;
+    @include fluid-type(22px, 45px);
+    font-weight: bold;
+  }
+  &__buttons{
+    margin-bottom: 100px;
+    a{
+      margin: 10px;
+    }
+  }
+}
+
+.modal-search{
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  background: red;
+  padding: 0 15px;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transform: translateY(-100%);
+  transition: transform 0.4s ease;
+  background: $gradient_main;
+  &.open{
+    transform: translateY(0%);
+  }
+  &__header{
+    position: relative;
+    padding:15px 0;
+    margin-bottom: 50px;
+    display: flex;
+    .header__mobile__logo--open{
+      opacity: 1;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+$baseFontSize: 18;
+
+$titleFont: 'Space Grotesk';
+$mainFont: 'Roboto', sans-serif;
+$mainColor: #55F4F0;
+$secondColor: #190AFF;
+$header_color: #20206E;
+$mainFontColor: #333333;
+$darkColor: #333333;
+
+// $gradient_main: linear-gradient(180deg, rgba(16,6,153,1) 0%, rgba(50,143,140,1) 100%);
+$gradient_main: linear-gradient(180deg, rgba(32,29,111,1) 0%, rgba(50,143,140,1) 100%);
+
+$header_height: 85px;
+
+$sidebar_size: 220px;
+$sidebar_size_closed: 90px;
+
+
+:root {
+    --asset-head-height: 550px;
+}
