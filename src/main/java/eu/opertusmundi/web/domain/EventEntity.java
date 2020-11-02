@@ -17,7 +17,7 @@ import eu.opertusmundi.web.model.EnumEventLevel;
 import eu.opertusmundi.web.model.EventRecord;
 
 @Entity(name = "Event")
-@Table(schema = "web", name = "log4j_message")
+@Table(schema = "logging", name = "log4j_message")
 public class EventEntity {
 
     @Id
@@ -57,50 +57,50 @@ public class EventEntity {
     }
 
     public long getId() {
-        return id;
+        return this.id;
     }
 
     public String getApplication() {
-        return application;
+        return this.application;
     }
 
     public ZonedDateTime getGenerated() {
-        return generated;
+        return this.generated;
     }
 
     public EnumEventLevel getLevel() {
-        return level;
+        return this.level;
     }
 
     public String getMessage() {
-        return message;
+        return this.message;
     }
 
     public String getThrowable() {
-        return throwable;
+        return this.throwable;
     }
 
     public String getLogger() {
-        return logger;
+        return this.logger;
     }
 
     public String getClientAddress() {
-        return clientAddress;
+        return this.clientAddress;
     }
 
     public String getUserName() {
-        return userName;
+        return this.userName;
     }
 
     public EventRecord toEventRecord() {
-        EventRecord record = new EventRecord();
+        final EventRecord record = new EventRecord();
 
         record.setClientAddress(this.clientAddress);
-        record.setCreatedOn(generated);
-        record.setLevel(level);
-        record.setMessage(message);
-        record.setModule(application);
-        record.setUserName(userName);
+        record.setCreatedOn(this.generated);
+        record.setLevel(this.level);
+        record.setMessage(this.message);
+        record.setModule(this.application);
+        record.setUserName(this.userName);
 
         return record;
     }

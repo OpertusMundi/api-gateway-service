@@ -26,11 +26,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity(name = "Cart")
-@Table(name = "`cart`", schema = "public")
+@Table(schema = "`order`", name = "`cart`")
 public class CartEntity {
 
     @Id
-    @SequenceGenerator(sequenceName = "cart_id_seq", name = "cart_id_seq", allocationSize = 1)
+    @SequenceGenerator(sequenceName = "`order.cart_id_seq`", name = "cart_id_seq", allocationSize = 1)
     @GeneratedValue(generator = "cart_id_seq", strategy = GenerationType.SEQUENCE)
     @Column(name = "`id`")
     @Getter
@@ -55,7 +55,7 @@ public class CartEntity {
     )
     @Getter
     @Setter
-    List<CartItemEntity> items = new ArrayList<>();
+    private List<CartItemEntity> items = new ArrayList<>();
 
     @Column(name = "`total_price`", columnDefinition = "numeric", precision = 20, scale = 6)
     @Getter
@@ -79,12 +79,12 @@ public class CartEntity {
 
     @Column(name = "`created_on`")
     @Getter
-    ZonedDateTime createdAt = ZonedDateTime.now();
+    private final ZonedDateTime createdAt = ZonedDateTime.now();
 
     @Column(name = "`modified_on`")
     @Getter
     @Setter
-    ZonedDateTime modifiedAt = ZonedDateTime.now();
+    private ZonedDateTime modifiedAt = ZonedDateTime.now();
 
     public CartEntity() {
 

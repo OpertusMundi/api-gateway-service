@@ -16,8 +16,8 @@ public class ClientRecipientDto {
     public ClientRecipientDto(AccountEntity e) {
         this.id   = e.getKey();
         this.name = e.getFullName();
-        this.logoImage = e.getProfile().getLogoImage();
-        this.logoImageMimeType = e.getProfile().getLogoImageMimeType();
+        this.logoImage = e.getProfile().getProvider().getLogoImage();
+        this.logoImageMimeType = e.getProfile().getProvider().getLogoImageMimeType();
     }
 
     @Schema(description = "User unique id")

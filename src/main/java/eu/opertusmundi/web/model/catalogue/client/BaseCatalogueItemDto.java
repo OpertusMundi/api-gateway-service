@@ -26,6 +26,7 @@ public class BaseCatalogueItemDto {
         this.additionalResources         = props.getAdditionalResources();
         this.conformity                  = props.getConformity();
         this.coupledResource             = props.getCoupledResource();
+        this.creationDate                = props.getCreationDate();
         this.dateEnd                     = props.getDateEnd();
         this.dateStart                   = props.getDateStart();
         this.format                      = props.getFormat();
@@ -51,6 +52,7 @@ public class BaseCatalogueItemDto {
         this.title                       = props.getTitle();
         this.topicCategory               = props.getTopicCategory();
         this.type                        = props.getType();
+        this.version                     = props.getVersion();
 
         this.geometry = feature.getGeometry();
 

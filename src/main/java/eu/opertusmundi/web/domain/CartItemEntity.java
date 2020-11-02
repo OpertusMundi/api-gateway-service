@@ -20,11 +20,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity(name = "CartItem")
-@Table(name = "`cart_item`", schema = "public")
+@Table(name = "`cart_item`", schema = "order")
 public class CartItemEntity {
 
     @Id
-    @SequenceGenerator(sequenceName = "cart_item_id_seq", name = "cart_item_id_seq", allocationSize = 1)
+    @SequenceGenerator(sequenceName = "order.cart_item_id_seq", name = "cart_item_id_seq", allocationSize = 1)
     @GeneratedValue(generator = "cart_item_id_seq", strategy = GenerationType.SEQUENCE)
     @Column(name = "`id`")
     @Getter

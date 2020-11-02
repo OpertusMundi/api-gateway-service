@@ -26,13 +26,15 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.NaturalId;
 
 import eu.opertusmundi.common.model.EnumActivationStatus;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
+import eu.opertusmundi.common.model.dto.AccountProfileUpdateCommandDto;
 import eu.opertusmundi.common.model.dto.PublisherDto;
+import eu.opertusmundi.common.model.dto.SimplAccountDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -53,6 +55,7 @@ public class AccountEntity {
     Integer id;
 
     @NotNull
+    @NaturalId
     @Column(name = "key", updatable = false, columnDefinition = "uuid")
     @Getter
     private final UUID key = UUID.randomUUID();
@@ -195,6 +198,13 @@ public class AccountEntity {
         return false;
     }
 
+    public ProviderRegistrationEntity getRegistration() {
+        if (this.profile == null) {
+            return null;
+        }
+        return this.profile.getProviderRegistration();
+    }
+
     public void grant(EnumRole role, AccountEntity grantedBy) {
         if (!this.hasRole(role)) {
             this.roles.add(new AccountRoleEntity(this, role, null, grantedBy));
@@ -227,9 +237,7 @@ public class AccountEntity {
         a.setEmail(this.email);
         a.setEmailVerified(this.emailVerified);
         a.setEmailVerifiedAt(this.emailVerifiedAt);
-        a.setFirstName(this.firstName);
         a.setId(this.id);
-        a.setLastName(this.lastName);
         a.setIdpName(this.idpName);
         a.setIdpUserAlias(this.idpUserAlias);
         a.setIdpUserImage(this.idpUserImage);
@@ -241,10 +249,6 @@ public class AccountEntity {
 
         if (this.profile != null) {
             a.setProfile(this.profile.toDto());
-
-            // Set profile properties from account object
-            a.getProfile().setFirstName(this.firstName);
-            a.getProfile().setLastName(this.lastName);
         }
 
         return a;
@@ -256,27 +260,47 @@ public class AccountEntity {
      * @return a new {@link PublisherDto} instance
      */
     public PublisherDto toPublisherDto() {
-        final PublisherDto p = new PublisherDto();
+        final PublisherDto publisher = new PublisherDto();
 
-        p.setJoinedAt(this.profile.getProviderVerifiedAt());
-        p.setKey(this.key);
-        p.setLogoImage(this.profile.getLogoImage());
-        p.setLogoImageMimeType(this.profile.getLogoImageMimeType());
-        p.setName(this.profile.company);
-        p.setRating(this.profile.getRating());
+        final ProfileProviderEmbeddable provider = this.profile.getProvider();
+
+        if (!this.hasRole(EnumRole.ROLE_PROVIDER)) {
+            return null;
+        }
+
+        publisher.setJoinedAt(provider.getRegisteredOn());
+        publisher.setKey(this.key);
+        publisher.setLogoImage(provider.getLogoImage());
+        publisher.setLogoImageMimeType(provider.getLogoImageMimeType());
+        publisher.setName(provider.getCompany());
+        publisher.setRating(provider.getRating());
 
         if (!this.profile.getAddresses().isEmpty()) {
             final AddressEntity address = this.profile.getAddresses().get(0);
 
-            p.setCity(address.city);
-            p.setCountry(address.country);
+            publisher.setCity(address.getCity());
+            publisher.setCountry(address.getCountry());
         }
 
-        if(this.profile.isEmailVerified()) {
-            p.setEmail(this.profile.email);
+        if(provider.isEmailVerified()) {
+            publisher.setEmail(provider.getEmail());
         }
 
-        return p;
+        return publisher;
+    }
+
+    /**
+     * Convert to a simple account DTO object
+     *
+     * @return a new {@link SimplAccountDto} instance
+     */
+    public SimplAccountDto toSimpleDto() {
+        final SimplAccountDto a = new SimplAccountDto();
+
+        a.setKey(this.key);
+        a.setUsername(this.username);
+
+        return a;
     }
 
     /**
@@ -284,12 +308,15 @@ public class AccountEntity {
      *
      * @param command The command object
      */
-    public void update(AccountProfileCommandDto command) {
+    public void update(AccountProfileUpdateCommandDto command) {
         if (!StringUtils.isBlank(command.getFirstName())) {
             this.firstName = command.getFirstName();
         }
         if (!StringUtils.isBlank(command.getLastName())) {
             this.lastName = command.getLastName();
+        }
+        if (!StringUtils.isBlank(command.getLocale())) {
+            this.locale = command.getLocale();
         }
     }
 
