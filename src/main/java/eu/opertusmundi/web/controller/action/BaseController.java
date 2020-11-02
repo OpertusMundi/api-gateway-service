@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.opertusmundi.web.service.AuthenticationFacade;
+import eu.opertusmundi.web.security.AuthenticationFacade;
 
 public abstract class BaseController {
 

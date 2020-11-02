@@ -18,12 +18,12 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.Message;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
+import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
 import eu.opertusmundi.web.model.security.Token;
-import eu.opertusmundi.web.service.UserService;
+import eu.opertusmundi.web.security.UserService;
 import eu.opertusmundi.web.validation.AccountValidator;
 
 @RestController
@@ -59,7 +59,7 @@ public class AccountControllerImpl extends BaseController implements AccountCont
     }
 
     @Override
-    public BaseResponse register(AccountCommandDto command, BindingResult validationResult) {
+    public BaseResponse register(AccountCreateCommandDto command, BindingResult validationResult) {
         this.accountValidator.validate(command, validationResult);
 
         if (validationResult.hasErrors()) {
@@ -90,7 +90,7 @@ public class AccountControllerImpl extends BaseController implements AccountCont
 
     @Override
     public BaseResponse verifyActivationToken(UUID token) {
-        logger.info("Reddem token {}", token);
+        logger.info("Redeem token {}", token);
 
         final ServiceResponse<Void> response = this.userService.redeemToken(token);
 

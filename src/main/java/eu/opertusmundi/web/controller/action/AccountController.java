@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
+import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.web.model.security.AccountRegisterResponse;
@@ -124,12 +124,15 @@ public interface AccountController {
     BaseResponse register(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Account registration command",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountCommandDto.class)),
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = AccountCreateCommandDto.class)
+            ),
             required = true
         )
         @Valid
         @RequestBody
-        AccountCommandDto command,
+        AccountCreateCommandDto command,
         @Parameter(
             hidden = true
         )
