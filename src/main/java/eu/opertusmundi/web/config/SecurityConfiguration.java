@@ -46,9 +46,9 @@ import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.web.logging.filter.MappedDiagnosticContextFilter;
 import eu.opertusmundi.web.model.security.ClientResources;
 import eu.opertusmundi.web.repository.AccountRepository;
-import eu.opertusmundi.web.service.CustomUserDetailsService;
-import eu.opertusmundi.web.service.CustomUserInfoTokenServices;
-import eu.opertusmundi.web.service.UserService;
+import eu.opertusmundi.web.security.CustomUserDetailsService;
+import eu.opertusmundi.web.security.CustomUserInfoTokenServices;
+import eu.opertusmundi.web.security.UserService;
 
 @Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
