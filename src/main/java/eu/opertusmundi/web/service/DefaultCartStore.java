@@ -11,7 +11,7 @@ import eu.opertusmundi.web.model.order.CartDto;
 import eu.opertusmundi.web.repository.CartRepository;
 
 @Component
-public class JpaCartStore implements CartStore {
+public class DefaultCartStore implements CartStore {
 
     @Autowired
     CartRepository cartRepository;

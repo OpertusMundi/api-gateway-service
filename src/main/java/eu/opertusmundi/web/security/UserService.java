@@ -1,4 +1,4 @@
-package eu.opertusmundi.web.service;
+package eu.opertusmundi.web.security;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -8,11 +8,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
+import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
+import eu.opertusmundi.common.model.dto.AccountProfileUpdateCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
+import eu.opertusmundi.common.model.dto.AddressCommandDto;
 
 public interface UserService {
 
@@ -41,7 +42,7 @@ public interface UserService {
      * @param command Account creation command
      * @return The new account
      */
-    AccountDto createAccount(AccountCommandDto command);
+    AccountDto createAccount(AccountCreateCommandDto command);
 
     /**
      * Create activation token
@@ -65,7 +66,7 @@ public interface UserService {
      * @param command The profile update command
      * @return
      */
-    AccountDto updateProfile(AccountProfileCommandDto command);
+    AccountDto updateProfile(AccountProfileUpdateCommandDto command);
 
     /**
      * Grant roles to an account
@@ -82,5 +83,26 @@ public interface UserService {
      * @param roles
      */
     void revoke(AccountDto account, EnumRole... roles);
+
+    /**
+     * Add address to user profile
+     *
+     * @return
+     */
+    AccountDto createAddress(AddressCommandDto command);
+
+    /**
+     * Update address in user profile
+     *
+     * @return
+     */
+    AccountDto updateAddress(AddressCommandDto command);
+
+    /**
+     * Remove address from user profile
+     *
+     * @return
+     */
+    AccountDto deleteAddress(AddressCommandDto command);
 
 }

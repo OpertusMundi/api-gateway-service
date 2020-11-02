@@ -1,8 +1,10 @@
-package eu.opertusmundi.web.service;
+package eu.opertusmundi.web.security;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.persistence.EntityNotFoundException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,18 +25,20 @@ import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
+import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
-import eu.opertusmundi.common.model.dto.AccountProfileDto;
+import eu.opertusmundi.common.model.dto.AccountProfileUpdateCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
+import eu.opertusmundi.common.model.dto.AddressCommandDto;
 import eu.opertusmundi.web.domain.AccountEntity;
-import eu.opertusmundi.web.domain.AccountProfileEntity;
 import eu.opertusmundi.web.domain.ActivationTokenEntity;
+import eu.opertusmundi.web.domain.AddressEntity;
+import eu.opertusmundi.web.domain.ProfileProviderEmbeddable;
 import eu.opertusmundi.web.feign.client.EmailServiceFeignClient;
 import eu.opertusmundi.web.model.email.MailActivationModel;
 import eu.opertusmundi.web.model.email.MessageDto;
+import eu.opertusmundi.web.repository.AccountProfileHistoryRepository;
 import eu.opertusmundi.web.repository.AccountRepository;
 import eu.opertusmundi.web.repository.ActivationTokenRepository;
 import feign.FeignException;
@@ -51,12 +55,16 @@ public class DefaultUserService implements UserService {
     private AccountRepository accountRepository;
 
     @Autowired
+    private AccountProfileHistoryRepository accountProfileHistoryRepository;
+
+    @Autowired
     private ActivationTokenRepository activationTokenRepository;
 
     @Autowired
     private ObjectProvider<EmailServiceFeignClient> emailClient;
 
     @Override
+    @Transactional
     public Optional<AccountDto> findOneByUserName(String username) throws UsernameNotFoundException {
         final AccountEntity account = this.accountRepository.findOneByEmail(username).orElse(null);
 
@@ -64,6 +72,7 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
+    @Transactional
     public Optional<AccountDto> findOneByUserName(String username, EnumAuthProvider provider) throws UsernameNotFoundException {
         final AccountEntity account = this.accountRepository.findOneByEmailAndProvider(username, provider).orElse(null);
 
@@ -71,7 +80,7 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public AccountDto createAccount(AccountCommandDto command) {
+    public AccountDto createAccount(AccountCreateCommandDto command) {
         // Create account
         final AccountDto account = this.accountRepository.create(command);
 
@@ -80,7 +89,7 @@ public class DefaultUserService implements UserService {
             account.getId(), account.getEmail(), 1, EnumActivationTokenType.ACCOUNT
         );
         // Send activation link to client
-        this.sendMail(account.getFullName(), accountToken);
+        this.sendMail(account.getProfile().getFullName(), accountToken);
 
         return account;
     }
@@ -96,7 +105,7 @@ public class DefaultUserService implements UserService {
         }
 
         final boolean                 activated = account.getActivationStatus() == EnumActivationStatus.COMPLETED;
-        final EnumActivationTokenType type      = activated ? EnumActivationTokenType.MAIL : EnumActivationTokenType.ACCOUNT;
+        final EnumActivationTokenType type      = activated ? EnumActivationTokenType.PROVIDER : EnumActivationTokenType.ACCOUNT;
 
         switch (type) {
             case ACCOUNT :
@@ -105,8 +114,8 @@ public class DefaultUserService implements UserService {
                     return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the account");
                 }
                 break;
-            case MAIL :
-                if (!command.getEmail().equals(account.getProfile().getEmail())) {
+            case PROVIDER :
+                if (!command.getEmail().equals(account.getProfile().getProvider().getEmail())) {
                     // Invalid email
                     return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the profile");
                 }
@@ -157,15 +166,16 @@ public class DefaultUserService implements UserService {
                 accountEntity.setEmailVerified(true);
                 accountEntity.setEmailVerifiedAt(now);
                 break;
-            case MAIL :
-                final AccountProfileEntity profileEntity = accountEntity.getProfile();
+            case PROVIDER :
+                final ProfileProviderEmbeddable providerEntity = accountEntity.getProfile().getProvider();
 
-                if (!tokenEntity.getEmail().equals(profileEntity.getEmail())) {
-                    return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the profile");
+                if (!tokenEntity.getEmail().equals(providerEntity.getEmail())) {
+                    return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the provider");
                 }
+                // Verify email only for registered accounts
                 if (accountEntity.getActivationStatus() == EnumActivationStatus.COMPLETED) {
-                    profileEntity.setEmailVerified(true);
-                    profileEntity.setEmailVerifiedAt(now);
+                    providerEntity.setEmailVerified(true);
+                    providerEntity.setEmailVerifiedAt(now);
                 }
                 break;
         }
@@ -177,21 +187,14 @@ public class DefaultUserService implements UserService {
 
     @Override
     @Transactional
-    public AccountDto updateProfile(AccountProfileCommandDto command) {
+    public AccountDto updateProfile(AccountProfileUpdateCommandDto command) {
+        final AccountEntity accountEntity = this.accountRepository.findById(command.getId()).orElse(null);
+
+        // Create history record
+        this.accountProfileHistoryRepository.createSnapshot(accountEntity.getProfile().getId());
+
+        // Update profile data
         final AccountDto account = this.accountRepository.updateProfile(command);
-        final AccountProfileDto profile = account.getProfile();
-
-        Assert.isTrue(profile != null, "Profile must not be null");
-
-        // Check if profile (public) email requires validation
-        if (!StringUtils.isBlank(profile.getEmail()) && !profile.isEmailVerified()) {
-            // Create activation token
-            final ActivationTokenDto token = this.activationTokenRepository.create(
-                account.getId(), profile.getEmail(), 1, EnumActivationTokenType.MAIL
-            );
-            // Send activation link to client
-            this.sendMail(account.getFullName(), token);
-        }
 
         return account;
     }
@@ -203,9 +206,8 @@ public class DefaultUserService implements UserService {
         Assert.notEmpty(roles, "Expected at least 1 role");
 
         final Optional<AccountEntity> accountEntity = this.accountRepository.findById(account.getId());
-        if (!accountEntity.isPresent())
-         {
-            return; // no such account
+        if (!accountEntity.isPresent()) {
+            return;
         }
 
         final Optional<AccountEntity> grantedbyEntity = grantedby != null ? this.accountRepository.findById(grantedby.getId())
@@ -225,9 +227,8 @@ public class DefaultUserService implements UserService {
         Assert.notEmpty(roles, "Expected at least 1 role");
 
         final Optional<AccountEntity> accountEntity = this.accountRepository.findById(account.getId());
-        if (!accountEntity.isPresent())
-         {
-            return; // no such account
+        if (!accountEntity.isPresent()) {
+            return;
         }
 
         for (final EnumRole role : roles) {
@@ -235,6 +236,65 @@ public class DefaultUserService implements UserService {
         }
 
         this.accountRepository.saveAndFlush(accountEntity.get());
+    }
+
+
+    @Override
+    @Transactional
+    public AccountDto createAddress(AddressCommandDto command) {
+        Assert.notNull(command, "Expected a non-null command");
+
+        final AccountEntity account = this.accountRepository.findById(command.getId()).orElse(null);
+        if (account == null) {
+            throw new EntityNotFoundException();
+        }
+
+        account.getProfile().addAddress(command);
+
+        this.accountRepository.saveAndFlush(account);
+
+        return account.toDto();
+    }
+
+    @Override
+    @Transactional
+    public AccountDto updateAddress(AddressCommandDto command) {
+        Assert.notNull(command, "Expected a non-null command");
+
+        Assert.notNull(command, "Expected a non-null command");
+
+        final AccountEntity account = this.accountRepository.findById(command.getId()).orElse(null);
+        if (account == null) {
+            throw new EntityNotFoundException();
+        }
+
+        final AddressEntity address = account.getProfile().getAddressByKey(command.getKey()).orElse(null);
+        if (address == null) {
+            throw new EntityNotFoundException();
+        }
+
+        address.update(command);
+
+        this.accountRepository.saveAndFlush(account);
+
+        return account.toDto();
+    }
+
+    @Override
+    @Transactional
+    public AccountDto deleteAddress(AddressCommandDto command) {
+        Assert.notNull(command, "Expected a non-null command");
+
+        final AccountEntity account = this.accountRepository.findById(command.getId()).orElse(null);
+        if (account == null) {
+            throw new EntityNotFoundException();
+        }
+
+        account.getProfile().removeAddress(command.getKey());
+
+        this.accountRepository.saveAndFlush(account);
+
+        return account.toDto();
     }
 
     private void sendMail(String name, ActivationTokenDto token) {
@@ -268,7 +328,7 @@ public class DefaultUserService implements UserService {
                 // TODO: Handle error ...
             }
         } catch (final FeignException fex) {
-            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
+            // final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
 
             // TODO: Add logging ...
             // TODO: Handle error ...

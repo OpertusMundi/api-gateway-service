@@ -1,4 +1,4 @@
-package eu.opertusmundi.web.service;
+package eu.opertusmundi.web.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

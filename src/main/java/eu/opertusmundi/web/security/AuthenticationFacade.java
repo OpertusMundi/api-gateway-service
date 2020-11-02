@@ -1,4 +1,4 @@
-package eu.opertusmundi.web.service;
+package eu.opertusmundi.web.security;
 
 import java.util.UUID;
 
