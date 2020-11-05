@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import brave.Span;
 import brave.Tracer;
 import eu.opertusmundi.common.model.BasicMessageCode;
-import eu.opertusmundi.common.model.QueryResultPage;
+import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.PublisherDto;
 import eu.opertusmundi.web.domain.AccountEntity;
@@ -67,9 +67,7 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
 
             // Convert 404 errors to empty results
             if (code == BasicMessageCode.NotFound) {
-                return RestResponse.result(
-                    new QueryResultPage<CatalogueItemDto>(request.toPageRequest())
-                );
+                return RestResponse.result(PageResultDto.<CatalogueItemDto>empty(request.toPageRequest()));
             }
 
             // TODO: Add logging ...
@@ -99,16 +97,17 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
             .collect(Collectors.toList());
 
 
-        final QueryResultPage<CatalogueItemDto> result = new QueryResultPage<CatalogueItemDto>(
-            request.toPageRequest(),
-            features.getTotal(),
-            items
+        final PageResultDto<CatalogueItemDto> result = PageResultDto.of(
+            request.getPage(),
+            request.getSize(),
+            items,
+            features.getTotal()
         );
 
         // Get all publishers in the result
         final Span span = this.tracer.nextSpan().name("database-publisher").start();
 
-        List<PublisherDto> publishers;
+        final List<PublisherDto> publishers;
 
         try {
             final UUID[] publisherKeys = items.stream().map(i -> i.getPublisherId()).distinct().toArray(UUID[]::new);

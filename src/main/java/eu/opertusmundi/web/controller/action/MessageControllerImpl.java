@@ -16,7 +16,7 @@ import brave.Tracer;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
-import eu.opertusmundi.common.model.QueryResultPage;
+import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.web.feign.client.MessageServiceFeignClient;
 import eu.opertusmundi.web.model.message.client.ClientMessageCollectionResponse;
@@ -46,7 +46,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
 
     @Override
     public RestResponse<?> findMessages(Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read) {
-        ResponseEntity<RestResponse<QueryResultPage<ServerMessageDto>>> e;
+        ResponseEntity<RestResponse<PageResultDto<ServerMessageDto>>> e;
 
         // Override user key
         if (userKey == null || !this.authenticationFacade.hasRole(EnumRole.ROLE_HELPDESK)) {
@@ -64,7 +64,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
             return RestResponse.error(code, "An error has occurred");
         }
 
-        final RestResponse<QueryResultPage<ServerMessageDto>> serviceResponse = e.getBody();
+        final RestResponse<PageResultDto<ServerMessageDto>> serviceResponse = e.getBody();
 
         if(!serviceResponse.getSuccess()) {
             // TODO: Add logging ...
@@ -93,7 +93,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
         }
 
         // Compose response and send
-        final QueryResultPage<ClientMessageDto> serviceResult = serviceResponse.getResult().convert(m -> {
+        final PageResultDto<ClientMessageDto> serviceResult = serviceResponse.getResult().convert(m -> {
             return new ClientMessageDto(m);
         });
 
@@ -104,7 +104,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
 
     @Override
     public RestResponse<?> findNotifications(Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read) {
-        ResponseEntity<RestResponse<QueryResultPage<ServerNotificationDto>>> e;
+        ResponseEntity<RestResponse<PageResultDto<ServerNotificationDto>>> e;
 
         try {
             e = this.messageClient.getObject().findNotifications(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
@@ -116,14 +116,14 @@ public class MessageControllerImpl extends BaseController implements MessageCont
             return RestResponse.error(code, "An error has occurred");
         }
 
-        final RestResponse<QueryResultPage<ServerNotificationDto>> serviceResponse = e.getBody();
+        final RestResponse<PageResultDto<ServerNotificationDto>> serviceResponse = e.getBody();
 
         if(!serviceResponse.getSuccess()) {
             // TODO: Add logging ...
             return RestResponse.failure();
         }
 
-        final QueryResultPage<ClientNotificationDto> result = serviceResponse.getResult().convert(n -> {
+        final PageResultDto<ClientNotificationDto> result = serviceResponse.getResult().convert(n -> {
             return new ClientNotificationDto(n);
         });
 

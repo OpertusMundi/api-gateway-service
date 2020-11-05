@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.QueryResultPage;
+import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.web.feign.client.config.MessageServiceFeignClientConfiguration;
 import eu.opertusmundi.web.model.message.server.ServerMessageCommandDto;
@@ -42,7 +42,7 @@ public interface MessageServiceFeignClient {
      * @return An instance of {@link MessageEndPointTypes.MessageListResponseDto}
      */
     @GetMapping(value = "/v1/messages")
-    ResponseEntity<RestResponse<QueryResultPage<ServerMessageDto>>> findMessages(
+    ResponseEntity<RestResponse<PageResultDto<ServerMessageDto>>> findMessages(
         @RequestParam(name = "page",      required = false) Integer       pageIndex,
         @RequestParam(name = "size",      required = false) Integer       pageSize,
         @RequestParam(name = "user",      required = true)  UUID          userKey,
@@ -90,7 +90,7 @@ public interface MessageServiceFeignClient {
      * @return An instance of {@link BaseResponse}
      */
     @GetMapping(value = "/v1/notifications")
-    ResponseEntity<RestResponse<QueryResultPage<ServerNotificationDto>>> findNotifications(
+    ResponseEntity<RestResponse<PageResultDto<ServerNotificationDto>>> findNotifications(
         @RequestParam(name = "page",      required = false) Integer       pageIndex,
         @RequestParam(name = "size",      required = false) Integer       pageSize,
         @RequestParam(name = "user",      required = true)  UUID          userKey,

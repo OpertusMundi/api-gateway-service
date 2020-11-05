@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.MDC;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,14 +16,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import eu.opertusmundi.web.logging.MappedDiagnosticContextKeys;
 
 public class MappedDiagnosticContextFilter extends OncePerRequestFilter {
+
     @Override
     protected void doFilterInternal(
         HttpServletRequest request, HttpServletResponse response, FilterChain chain
     ) throws ServletException, IOException {
-    	
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authn = securityContext.getAuthentication();
-        
+
+        final SecurityContext securityContext = SecurityContextHolder.getContext();
+        final Authentication authn = securityContext.getAuthentication();
+
         // Set current user (if any)
         MDC.put(MappedDiagnosticContextKeys.USERNAME, authn == null? "-" : authn.getName());
 

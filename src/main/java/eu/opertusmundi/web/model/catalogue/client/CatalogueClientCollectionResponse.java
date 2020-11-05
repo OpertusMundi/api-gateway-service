@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import eu.opertusmundi.common.model.QueryResultPage;
+import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.PublisherDto;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,9 +15,9 @@ import lombok.Setter;
 
 @Schema(description = "Catalogue asset response")
 @NoArgsConstructor
-public class CatalogueClientCollectionResponse extends RestResponse<QueryResultPage<CatalogueItemDto>> {
+public class CatalogueClientCollectionResponse extends RestResponse<PageResultDto<CatalogueItemDto>> {
 
-    public CatalogueClientCollectionResponse(QueryResultPage<CatalogueItemDto> result, List<PublisherDto> publishers) {
+    public CatalogueClientCollectionResponse(PageResultDto<CatalogueItemDto> result, List<PublisherDto> publishers) {
         super(result);
 
         this.publishers = new HashMap<UUID, PublisherDto>();

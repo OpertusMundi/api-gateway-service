@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import eu.opertusmundi.common.model.QueryResultPage;
+import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -14,9 +14,9 @@ import lombok.Setter;
 
 @Schema(description = "Message collection response")
 @NoArgsConstructor
-public class ClientMessageCollectionResponse extends RestResponse<QueryResultPage<ClientMessageDto>> {
+public class ClientMessageCollectionResponse extends RestResponse<PageResultDto<ClientMessageDto>> {
 
-    public ClientMessageCollectionResponse(QueryResultPage<ClientMessageDto> result, List<ClientRecipientDto> recipients) {
+    public ClientMessageCollectionResponse(PageResultDto<ClientMessageDto> result, List<ClientRecipientDto> recipients) {
         super(result);
 
         this.recipients = new HashMap<UUID, ClientRecipientDto>();
