@@ -22,7 +22,6 @@
 		
 		<spring-cloud.version>Hoxton.SR8</spring-cloud.version>
 
-        <com.stripe.version>20.8.0</com.stripe.version>
         <io.jsonwebtoken.version>0.11.2</io.jsonwebtoken.version>        
         <org.camunda.bpm.version>7.13.0</org.camunda.bpm.version>
         <org.jadira.usertype.core.version>6.0.1.GA</org.jadira.usertype.core.version>
@@ -227,14 +226,7 @@
 	      <artifactId>camunda-engine-rest-core</artifactId>
 	      <version>${org.camunda.bpm.version}</version>
 	    </dependency>
-	    
-	    <!-- Stripe dependencies -->
-		<dependency>
-			<groupId>com.stripe</groupId>
-			<artifactId>stripe-java</artifactId>
-			<version>${com.stripe.version}</version>
-		</dependency>
-		
+
         <!-- Geomtry types -->
         <dependency>
             <groupId>org.locationtech.jts</groupId>
