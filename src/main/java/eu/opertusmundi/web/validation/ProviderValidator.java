@@ -5,15 +5,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import eu.opertusmundi.common.domain.CustomerEntity;
 import eu.opertusmundi.common.model.dto.AccountProfileProviderCommandDto;
-import eu.opertusmundi.web.domain.AccountEntity;
-import eu.opertusmundi.web.repository.AccountRepository;
+import eu.opertusmundi.common.model.dto.ProviderProfessionalCommandDto;
+import eu.opertusmundi.common.repository.AccountRepository;
+import eu.opertusmundi.common.repository.CustomerRepository;
 
 @Component
 public class ProviderValidator implements Validator {
 
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    CustomerRepository customerRepository;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -22,15 +27,14 @@ public class ProviderValidator implements Validator {
 
     @Override
     public void validate(Object o, Errors e) {
-        final AccountProfileProviderCommandDto c = (AccountProfileProviderCommandDto) o;
+        final ProviderProfessionalCommandDto c = (ProviderProfessionalCommandDto) o;
 
-        // Email must be unique
-        AccountEntity entity = this.accountRepository.findOneByEmailAndIdNot(c.getEmail(), c.getId()).orElse(null);
+        // Email must be unique for all providers
+        final CustomerEntity otherConsumer = this.customerRepository
+            .findProviderByEmailAndAccountIdNot(c.getEmail(), c.getUserId())
+            .orElse(null);
 
-        entity = this.accountRepository.findOneByEmail(c.getEmail()).orElse(null);
-
-        if (entity != null) {
-            // A user with the same email already exists
+        if (otherConsumer != null) {
             e.rejectValue("email", "not-unique");
         }
     }

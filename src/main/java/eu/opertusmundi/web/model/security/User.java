@@ -68,7 +68,7 @@ public class User implements UserDetails {
     }
 
     public String getLocale() {
-        return this.account.getLocale();
+        return this.account.getProfile().getLocale();
     }
 
     public String getEmail() {

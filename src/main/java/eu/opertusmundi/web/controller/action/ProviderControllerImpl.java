@@ -1,5 +1,7 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +12,8 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileDto;
-import eu.opertusmundi.common.model.dto.AccountProfileProviderCommandDto;
-import eu.opertusmundi.web.service.ProviderService;
+import eu.opertusmundi.common.model.dto.ProviderProfessionalCommandDto;
+import eu.opertusmundi.common.service.ProviderService;
 import eu.opertusmundi.web.validation.ProviderValidator;
 
 @RestController
@@ -26,58 +28,43 @@ public class ProviderControllerImpl extends BaseController implements ProviderCo
     private ProviderValidator providerValidator;
 
     @Override
-    public RestResponse<AccountProfileDto> submitRegistration(
-        AccountProfileProviderCommandDto command, BindingResult validationResult
+    public RestResponse<AccountProfileDto> updateRegistration(
+        ProviderProfessionalCommandDto command, BindingResult validationResult
     ) {
-        return this.updateRegistration(command, validationResult, true);
+        return this.update(command, validationResult, true);
     }
 
     @Override
-    public RestResponse<AccountProfileDto> updateRegistration(
-        AccountProfileProviderCommandDto command, BindingResult validationResult
+    public RestResponse<AccountProfileDto> submitRegistration(
+        ProviderProfessionalCommandDto command, BindingResult validationResult
     ) {
-        return this.updateRegistration(command, validationResult, false);
+        return this.update(command, validationResult, false);
     }
 
     @Override
     public RestResponse<AccountProfileDto> cancelRegistration() {
-        final Integer id = this.authenticationFacade.getCurrentUserId();
+        final UUID userKey = this.authenticationFacade.getCurrentUserKey();
 
         try {
-            final AccountDto account = this.providerService.cancelProviderRegistration(id);
-
-            return RestResponse.result(account.getProfile());
-        } catch (final Exception ex) {
-            logger.error("Cancel operation has failed", ex);
-
-            return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
-        }
-    }
-
-    @Override
-    public RestResponse<AccountProfileDto> completeRegistration() {
-        final Integer id = this.authenticationFacade.getCurrentUserId();
-
-        try {
-            final AccountDto account = this.providerService.completeProviderRegistration(id);
+            final AccountDto account = this.providerService.cancelRegistration(userKey);
 
             return RestResponse.result(account.getProfile());
         } catch (final IllegalArgumentException argEx) {
             return RestResponse.error(BasicMessageCode.InternalServerError, argEx.getMessage());
         } catch (final Exception ex) {
-            logger.error("Complete operation has failed", ex);
+            logger.error("Provider update has failed", ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
         }
     }
 
-    private RestResponse<AccountProfileDto> updateRegistration(
-        AccountProfileProviderCommandDto command, BindingResult validationResult, boolean submit
+    private RestResponse<AccountProfileDto> update(
+        ProviderProfessionalCommandDto command, BindingResult validationResult, boolean draft
     ) {
         final Integer id = this.authenticationFacade.getCurrentUserId();
 
         // Inject user id (id property is always ignored during serialization)
-        command.setId(id);
+        command.setUserId(id);
 
         this.providerValidator.validate(command, validationResult);
 
@@ -86,7 +73,9 @@ public class ProviderControllerImpl extends BaseController implements ProviderCo
         }
 
         try {
-            final AccountDto account = this.providerService.updateProviderRegistration(command, submit);
+            final AccountDto account = draft ?
+                this.providerService.updateRegistration(command) :
+                this.providerService.submitRegistration(command);
 
             return RestResponse.result(account.getProfile());
         } catch (final IllegalArgumentException argEx) {

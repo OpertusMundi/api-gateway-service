@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import brave.Span;
 import brave.Tracer;
+import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.PublisherDto;
-import eu.opertusmundi.web.domain.AccountEntity;
 import eu.opertusmundi.web.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueAddItemCommandDto;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueClientCollectionResponse;

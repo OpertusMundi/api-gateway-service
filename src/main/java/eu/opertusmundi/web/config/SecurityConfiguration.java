@@ -45,7 +45,6 @@ import org.springframework.web.filter.CompositeFilter;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.web.logging.filter.MappedDiagnosticContextFilter;
 import eu.opertusmundi.web.model.security.ClientResources;
-import eu.opertusmundi.web.repository.AccountRepository;
 import eu.opertusmundi.web.security.CustomUserDetailsService;
 import eu.opertusmundi.web.security.CustomUserInfoTokenServices;
 import eu.opertusmundi.web.security.UserService;
@@ -71,9 +70,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String ACTION_REG_EX = "/action/.*";
 
     private final Pattern csrfMethods = Pattern.compile("^(POST|PUT|DELETE)$");
-
-    @Autowired
-    AccountRepository accountRepository;
 
     @Autowired
     @Qualifier("defaultUserDetailsService")

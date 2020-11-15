@@ -9,16 +9,20 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.opertusmundi.web.domain.AccountEntity;
+import eu.opertusmundi.common.domain.AccountEntity;
 
 @Repository
 @Transactional(readOnly = true)
 public interface AssetProviderRepository extends JpaRepository<AccountEntity, Integer> {
 
-    @Query("SELECT distinct a FROM Account a LEFT OUTER JOIN FETCH a.profile p LEFT OUTER JOIN FETCH p.addresses addr WHERE a.key in :keys")
+    @Query("SELECT distinct a FROM Account a "
+            + "LEFT OUTER JOIN FETCH a.profile p "
+            + "WHERE a.key in :keys")
     List<AccountEntity> findAllByKey(@Param("keys") UUID[] keys);
 
-    @Query("SELECT a FROM Account a LEFT OUTER JOIN FETCH a.profile p LEFT OUTER JOIN FETCH p.addresses addr WHERE a.key = :key")
+    @Query("SELECT a FROM Account a "
+            + "LEFT OUTER JOIN FETCH a.profile p "
+            + "WHERE a.key = :key")
     AccountEntity findOneByKey(@Param("key") UUID key);
 
 }

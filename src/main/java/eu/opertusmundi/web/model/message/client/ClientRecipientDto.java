@@ -2,7 +2,7 @@ package eu.opertusmundi.web.model.message.client;
 
 import java.util.UUID;
 
-import eu.opertusmundi.web.domain.AccountEntity;
+import eu.opertusmundi.common.domain.AccountEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

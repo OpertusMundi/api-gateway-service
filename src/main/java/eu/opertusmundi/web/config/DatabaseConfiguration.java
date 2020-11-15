@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableJpaRepositories(
     basePackageClasses = {
+        eu.opertusmundi.common.repository._Marker.class,
         eu.opertusmundi.web.repository._Marker.class,
     }
 )

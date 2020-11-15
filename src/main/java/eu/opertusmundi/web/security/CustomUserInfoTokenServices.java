@@ -43,44 +43,48 @@ public class CustomUserInfoTokenServices extends UserInfoTokenServices {
     @Override
     @SuppressWarnings("unchecked")
     public OAuth2Authentication loadAuthentication(String accessToken) throws AuthenticationException, InvalidTokenException {
-        // Get default authentication
+        //  Load the credentials for the specified access token
         final OAuth2Authentication authentication = super.loadAuthentication(accessToken);
 
         // Create custom user details
         final AccountCreateCommandDto command = new AccountCreateCommandDto();
 
-        command.setIdpUserAlias(authentication.getPrincipal().toString());
+        // Identity provider addition
+        String idpUserName = authentication.getPrincipal().toString();
+        String idpUserImage = null;
 
         final AbstractMap<String, String> details = (AbstractMap<String, String>) authentication.getUserAuthentication().getDetails();
 
-        details.keySet().stream().forEach(key -> {
+        for (final String key : details.keySet()) {
             final String property = this.userInfoDetailResolver.resolve(key);
 
-            if(!StringUtils.isBlank(property)) {
+            if (!StringUtils.isBlank(property)) {
                 switch (property) {
-                    case OAuthUserInfoDetailResolver.NAME_PROPERTY:
-                        command.setIdpUserAlias(details.get(key));
+                    case OAuthUserInfoDetailResolver.NAME_PROPERTY :
+                        idpUserName = details.get(key);
                         break;
-                    case OAuthUserInfoDetailResolver.EMAIL_PROPERTY:
+                    case OAuthUserInfoDetailResolver.EMAIL_PROPERTY :
                         command.setEmail(details.get(key));
                         break;
-                    case OAuthUserInfoDetailResolver.IMAGE_PROPERTY:
-                        command.setIdpUserImage(details.get(key));
+                    case OAuthUserInfoDetailResolver.IMAGE_PROPERTY :
+                        idpUserImage = details.get(key);
                         break;
-                    case OAuthUserInfoDetailResolver.LOCALE_PROPERTY:
-                        command.setLocale(details.get(key));
+                    case OAuthUserInfoDetailResolver.LOCALE_PROPERTY :
+                        command.getProfile().setLocale(details.get(key));
                         break;
                 }
             }
-        });
+        }
 
         // An email is required
         if (StringUtils.isBlank(command.getEmail())) {
             throw new UsernameNotFoundException("A valid email address is required.");
         }
 
+        // Find account by email
         AccountDto account = this.userService.findOneByUserName(command.getEmail(), this.provider).orElse(null);
 
+        // If the account does not exists, register the user
         if (account == null) {
             // Create user
             command.setActive(true);
@@ -90,6 +94,10 @@ public class CustomUserInfoTokenServices extends UserInfoTokenServices {
 
             account = this.userService.createAccount(command);
         }
+
+        // Inject identity provider information
+        account.setIdpUserName(idpUserName);
+        account.setIdpUserImage(idpUserImage);
 
         final UserDetails principal = new User(account, "");
 

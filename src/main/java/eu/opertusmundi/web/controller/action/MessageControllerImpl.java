@@ -18,6 +18,7 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.web.feign.client.MessageServiceFeignClient;
 import eu.opertusmundi.web.model.message.client.ClientMessageCollectionResponse;
 import eu.opertusmundi.web.model.message.client.ClientMessageCommandDto;
@@ -29,7 +30,6 @@ import eu.opertusmundi.web.model.message.server.ServerMessageCommandDto;
 import eu.opertusmundi.web.model.message.server.ServerMessageDto;
 import eu.opertusmundi.web.model.message.server.ServerNotificationCommandDto;
 import eu.opertusmundi.web.model.message.server.ServerNotificationDto;
-import eu.opertusmundi.web.repository.AccountRepository;
 import feign.FeignException;
 
 @RestController

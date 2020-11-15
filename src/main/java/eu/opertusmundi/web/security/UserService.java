@@ -13,7 +13,6 @@ import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileUpdateCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
-import eu.opertusmundi.common.model.dto.AddressCommandDto;
 
 public interface UserService {
 
@@ -83,26 +82,5 @@ public interface UserService {
      * @param roles
      */
     void revoke(AccountDto account, EnumRole... roles);
-
-    /**
-     * Add address to user profile
-     *
-     * @return
-     */
-    AccountDto createAddress(AddressCommandDto command);
-
-    /**
-     * Update address in user profile
-     *
-     * @return
-     */
-    AccountDto updateAddress(AddressCommandDto command);
-
-    /**
-     * Remove address from user profile
-     *
-     * @return
-     */
-    AccountDto deleteAddress(AddressCommandDto command);
 
 }

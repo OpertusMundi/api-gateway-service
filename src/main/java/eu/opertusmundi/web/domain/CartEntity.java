@@ -21,6 +21,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.web.model.order.CartDto;
 import lombok.Getter;
 import lombok.Setter;

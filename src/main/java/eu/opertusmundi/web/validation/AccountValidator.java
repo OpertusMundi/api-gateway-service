@@ -1,15 +1,13 @@
 package eu.opertusmundi.web.validation;
 
-import javax.persistence.EntityNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
-import eu.opertusmundi.web.domain.AccountEntity;
-import eu.opertusmundi.web.repository.AccountRepository;
+import eu.opertusmundi.common.repository.AccountRepository;
 
 @Component
 public class AccountValidator implements Validator {
@@ -29,24 +27,12 @@ public class AccountValidator implements Validator {
         AccountEntity account;
 
         // Email must be unique
-        if (a.getId() == null) {
-            account = this.accountRepository.findOneByEmail(a.getEmail()).orElse(null);
+        account = this.accountRepository.findOneByEmail(a.getEmail()).orElse(null);
 
-            if (account != null) {
-                e.rejectValue("email", "not-unique");
-            }
+        if (account != null) {
+            e.rejectValue("email", "not-unique");
         }
-        // Email cannot be updated
-        if (a.getId() != null) {
-            account = this.accountRepository.findById(a.getId()).orElse(null);
 
-            if (account == null) {
-                throw new EntityNotFoundException();
-            }
-            if (!a.getEmail().equals(account.getEmail())) {
-                e.rejectValue("email", "read-only");
-            }
-        }
         // Check password
         if (!a.getPassword().equals(a.getVerifyPassword())) {
             e.rejectValue("password", "not-equal");

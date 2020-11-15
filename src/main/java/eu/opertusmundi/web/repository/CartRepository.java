@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.opertusmundi.web.domain.AccountEntity;
+import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.web.domain.CartEntity;
 import eu.opertusmundi.web.domain.CartItemEntity;
 import eu.opertusmundi.web.model.order.CartAddCommandDto;

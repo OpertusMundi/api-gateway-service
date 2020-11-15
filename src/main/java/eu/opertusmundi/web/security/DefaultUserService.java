@@ -4,8 +4,6 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.persistence.EntityNotFoundException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.opertusmundi.common.domain.AccountEntity;
+import eu.opertusmundi.common.domain.ActivationTokenEntity;
+import eu.opertusmundi.common.domain.CustomerEntity;
+import eu.opertusmundi.common.domain.CustomerProfessionalEntity;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumActivationStatus;
@@ -30,17 +32,11 @@ import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileUpdateCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
-import eu.opertusmundi.common.model.dto.AddressCommandDto;
-import eu.opertusmundi.web.domain.AccountEntity;
-import eu.opertusmundi.web.domain.ActivationTokenEntity;
-import eu.opertusmundi.web.domain.AddressEntity;
-import eu.opertusmundi.web.domain.ProfileProviderEmbeddable;
+import eu.opertusmundi.common.repository.AccountRepository;
+import eu.opertusmundi.common.repository.ActivationTokenRepository;
 import eu.opertusmundi.web.feign.client.EmailServiceFeignClient;
 import eu.opertusmundi.web.model.email.MailActivationModel;
 import eu.opertusmundi.web.model.email.MessageDto;
-import eu.opertusmundi.web.repository.AccountProfileHistoryRepository;
-import eu.opertusmundi.web.repository.AccountRepository;
-import eu.opertusmundi.web.repository.ActivationTokenRepository;
 import feign.FeignException;
 
 @Service
@@ -53,9 +49,6 @@ public class DefaultUserService implements UserService {
 
     @Autowired
     private AccountRepository accountRepository;
-
-    @Autowired
-    private AccountProfileHistoryRepository accountProfileHistoryRepository;
 
     @Autowired
     private ActivationTokenRepository activationTokenRepository;
@@ -114,6 +107,12 @@ public class DefaultUserService implements UserService {
                     return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the account");
                 }
                 break;
+            case CONSUMER :
+                if (!command.getEmail().equals(account.getProfile().getConsumer().getEmail())) {
+                    // Invalid email
+                    return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the profile");
+                }
+                break;
             case PROVIDER :
                 if (!command.getEmail().equals(account.getProfile().getProvider().getEmail())) {
                     // Invalid email
@@ -166,8 +165,20 @@ public class DefaultUserService implements UserService {
                 accountEntity.setEmailVerified(true);
                 accountEntity.setEmailVerifiedAt(now);
                 break;
+            case CONSUMER:
+                final CustomerEntity consumerEntity = accountEntity.getProfile().getConsumer();
+
+                if (!tokenEntity.getEmail().equals(consumerEntity.getEmail())) {
+                    return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the consumer");
+                }
+                // Verify email only for registered accounts
+                if (accountEntity.getActivationStatus() == EnumActivationStatus.COMPLETED) {
+                    consumerEntity.setEmailVerified(true);
+                    consumerEntity.setEmailVerifiedAt(now);
+                }
+                break;
             case PROVIDER :
-                final ProfileProviderEmbeddable providerEntity = accountEntity.getProfile().getProvider();
+                final CustomerProfessionalEntity providerEntity = accountEntity.getProfile().getProvider();
 
                 if (!tokenEntity.getEmail().equals(providerEntity.getEmail())) {
                     return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the provider");
@@ -188,12 +199,6 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional
     public AccountDto updateProfile(AccountProfileUpdateCommandDto command) {
-        final AccountEntity accountEntity = this.accountRepository.findById(command.getId()).orElse(null);
-
-        // Create history record
-        this.accountProfileHistoryRepository.createSnapshot(accountEntity.getProfile().getId());
-
-        // Update profile data
         final AccountDto account = this.accountRepository.updateProfile(command);
 
         return account;
@@ -236,65 +241,6 @@ public class DefaultUserService implements UserService {
         }
 
         this.accountRepository.saveAndFlush(accountEntity.get());
-    }
-
-
-    @Override
-    @Transactional
-    public AccountDto createAddress(AddressCommandDto command) {
-        Assert.notNull(command, "Expected a non-null command");
-
-        final AccountEntity account = this.accountRepository.findById(command.getId()).orElse(null);
-        if (account == null) {
-            throw new EntityNotFoundException();
-        }
-
-        account.getProfile().addAddress(command);
-
-        this.accountRepository.saveAndFlush(account);
-
-        return account.toDto();
-    }
-
-    @Override
-    @Transactional
-    public AccountDto updateAddress(AddressCommandDto command) {
-        Assert.notNull(command, "Expected a non-null command");
-
-        Assert.notNull(command, "Expected a non-null command");
-
-        final AccountEntity account = this.accountRepository.findById(command.getId()).orElse(null);
-        if (account == null) {
-            throw new EntityNotFoundException();
-        }
-
-        final AddressEntity address = account.getProfile().getAddressByKey(command.getKey()).orElse(null);
-        if (address == null) {
-            throw new EntityNotFoundException();
-        }
-
-        address.update(command);
-
-        this.accountRepository.saveAndFlush(account);
-
-        return account.toDto();
-    }
-
-    @Override
-    @Transactional
-    public AccountDto deleteAddress(AddressCommandDto command) {
-        Assert.notNull(command, "Expected a non-null command");
-
-        final AccountEntity account = this.accountRepository.findById(command.getId()).orElse(null);
-        if (account == null) {
-            throw new EntityNotFoundException();
-        }
-
-        account.getProfile().removeAddress(command.getKey());
-
-        this.accountRepository.saveAndFlush(account);
-
-        return account.toDto();
     }
 
     private void sendMail(String name, ActivationTokenDto token) {
