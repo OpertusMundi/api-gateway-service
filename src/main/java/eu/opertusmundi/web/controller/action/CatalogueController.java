@@ -42,6 +42,7 @@ public interface CatalogueController {
      * @return An instance of {@link CatalogueClientCollectionResponse} class
      */
     @Operation(
+        operationId = "catalogue-01",
         summary     = "Search catalogue items",
         description = "Search catalogue items based on one or more criteria. Supports data paging and sorting.",
         tags        = { "Catalogue" }
@@ -68,6 +69,7 @@ public interface CatalogueController {
      * @return A response with a result of type {@link CatalogueItemDto}
      */
     @Operation(
+        operationId = "catalogue-02",
         summary     = "Get catalogue item",
         description = "Get a single catalogue item by its unique identifier.",
         tags        = { "Catalogue" }
@@ -94,6 +96,7 @@ public interface CatalogueController {
      * @return A response with a result of type {@link CatalogueItemDto}
      */
     @Operation(
+        operationId = "catalogue-03",
         summary     = "Create",
         description = "Create catalogue item.",
         tags        = { "Catalogue" }

@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -22,6 +24,9 @@ import io.swagger.v3.oas.models.tags.Tag;
 
 @Configuration
 public class OpenApiConfiguration {
+
+    @Value("${application.version}")
+    private String version;
 
     @Value("${springdoc.api-docs.server:http://localhost:8080}")
     private String serverUrl;
@@ -38,7 +43,7 @@ public class OpenApiConfiguration {
         return new OpenAPI()
             .info(new Info()
                 .title("Opertus Mundi API Gateway")
-                .version("1.0.0")
+                .version(this.version)
                 .description(
                     "Opertus Mundi development server"
                 )
@@ -95,5 +100,30 @@ public class OpenApiConfiguration {
         };
     }
 
+    @Bean
+    public OpenApiCustomiser orderedOperationsOpenApiCustomiser() {
+        return openapi -> {
+            final Paths paths = new Paths();
+
+            openapi.getPaths().entrySet().stream()
+                .sorted(Comparator.comparing(p -> this.extractOperationId(p.getValue())))
+                .forEachOrdered(p -> paths.addPathItem(p.getKey(), p.getValue()));
+
+            openapi.setPaths(paths);
+        };
+    }
+
+    private String extractOperationId(PathItem p) {
+        if (p.getGet() != null) {
+            return p.getGet().getOperationId();
+        } else if (p.getPost() != null) {
+            return p.getPost().getOperationId();
+        } else if (p.getPut() != null) {
+            return p.getPut().getOperationId();
+        } else if (p.getDelete() != null) {
+            return p.getDelete().getOperationId();
+        }
+        return null;
+    }
 
 }

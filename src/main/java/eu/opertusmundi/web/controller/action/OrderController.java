@@ -32,6 +32,7 @@ public interface OrderController {
      * @return A {@link RestResponse} with a result of type {@link OrderDto}
      */
     @Operation(
+        operationId = "order-01",
         summary     = "Create a new order",
         tags        = { "Order" },
         hidden      = true

@@ -35,6 +35,7 @@ public interface RecommenderController {
      * @return An instance of {@link RecommenderClientResponse} class
      */
     @Operation(
+        operationId = "recommended-01",
         summary     = "Get recommended assets",
         description = "Get a list of recommended assets for the currently authenticated user.",
         tags        = { "Catalogue", "Recommender" }

@@ -50,6 +50,7 @@ public interface MessageController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "message-01",
         summary     = "Find messages",
         tags        = { "Message" }
     )
@@ -117,6 +118,7 @@ public interface MessageController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "notification-01",
         summary     = "Find notifications",
         tags        = { "Notification" }
     )
@@ -180,6 +182,7 @@ public interface MessageController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "message-04",
         summary     = "Send a message to a platform user",
         description = "Sends a message to the specified user from a Helpdesk account",
         tags        = { "Message" }
@@ -221,6 +224,7 @@ public interface MessageController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "message-05",
         summary     = "Send a message to a provider",
         description = "Sends a message to the specified provider from the authenticated user",
         tags        = { "Message" }
@@ -258,6 +262,7 @@ public interface MessageController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "message-06",
         summary     = "Send a message to Helpdesk",
         description = "Sends a message to Helpdesk from the authenticated user",
         tags        = { "Message" }
@@ -287,6 +292,7 @@ public interface MessageController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "message-03",
         summary     = "Reply to a message",
         description = "Reply to a message accessible to the authenticated user",
         tags        = { "Message" }
@@ -321,6 +327,7 @@ public interface MessageController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "message-02",
         summary     = "Read message",
         description = "Marks a message as read",
         tags        = { "Message" }
@@ -349,6 +356,7 @@ public interface MessageController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "notification-02",
         summary     = "Read notification",
         description = "Marks a notification as read",
         tags        = { "Message" }

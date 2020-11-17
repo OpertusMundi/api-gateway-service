@@ -26,6 +26,7 @@ public interface ConfigurationController {
      * @return An instance of {@link ClientConfiguration} class
      */
     @Operation(
+        operationId = "configuration-01",
         summary     = "Get application configuration",
         description = "Get application configuration with optional localized resources",
         tags        = { "Configuration" }

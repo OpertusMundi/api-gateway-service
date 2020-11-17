@@ -37,6 +37,7 @@ public interface ProfileController {
      * @return The user profile
      */
     @Operation(
+        operationId = "profile-01",
         summary     = "Get profile. Roles required: ROLE_USER",
         description = "Get profile data for the authenticated user.",
         tags        = { "Profile" },
@@ -55,6 +56,7 @@ public interface ProfileController {
      * @return The updated user profile
      */
     @Operation(
+        operationId = "profile-02",
         summary     = "Update profile. Roles required: ROLE_USER",
         description = "Update the profile of the authenticated user",
         tags        = { "Profile" },

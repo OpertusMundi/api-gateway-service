@@ -35,6 +35,7 @@ public interface ProviderController {
      * @return The updated user profile
      */
     @Operation(
+        operationId = "provider-01",
         summary     = "Update provider registration. Roles required: ROLE_USER",
         description =
             "Save a provider registration request as a draft. "
@@ -72,6 +73,7 @@ public interface ProviderController {
      * @return The updated user profile
      */
     @Operation(
+        operationId = "provider-02",
         summary     = "Submit provider registration. Roles required: ROLE_USER",
         description = "Submit a provider registration request to the OP platform",
         tags        = { "Provider" },
@@ -105,6 +107,7 @@ public interface ProviderController {
      * @return The updated user profile
      */
     @Operation(
+        operationId = "provider-03",
         summary     = "Cancel provider registration. Roles required: ROLE_USER",
         description = "Cancel any pending provider registration request",
         tags        = { "Provider" },

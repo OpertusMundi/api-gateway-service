@@ -52,7 +52,7 @@ public interface AccountController {
      *         {@link BasicMessageCode#Unauthorized} if {@code error} is
      *         present; Otherwise an empty response is returned.
      */
-    @Operation(hidden = true)
+    @Operation(operationId = "account-01", hidden = true)
     @GetMapping(value = "/login")
     RestResponse<Void> login(HttpSession session, @RequestParam(required = false) String error);
 
@@ -64,6 +64,7 @@ public interface AccountController {
      * @return An instance of {@link RestResponse} with the new CSRF token
      */
     @Operation(
+        operationId = "account-02",
         summary     = "Successful login redirect endpoint",
         description = "Default redirect endpoint for successful forms login operations, used for refreshing the CSRF token",
         tags        = { "Account" },
@@ -89,10 +90,11 @@ public interface AccountController {
      * @return An instance of {@link RestResponse} with the new CSRF token
      */
     @Operation(
-            summary     = "Successful logout redirect endpoint",
-            description = "Default redirect endpoint for successful logout operations, used for refreshing the CSRF token",
-            tags        = { "Account" }
-        )
+        operationId = "account-03",
+        summary     = "Successful logout redirect endpoint",
+        description = "Default redirect endpoint for successful logout operations, used for refreshing the CSRF token",
+        tags        = { "Account" }
+    )
     @GetMapping(value = "/logged-out")
     public RestResponse<Token> loggedOut(
         HttpSession session,
@@ -110,6 +112,7 @@ public interface AccountController {
      * @return
      */
     @Operation(
+        operationId = "account-05",
         summary     = "Register account",
         description = "Register a new account",
         tags        = { "Account" }
@@ -147,6 +150,7 @@ public interface AccountController {
      * @return
      */
     @Operation(
+        operationId = "account-06",
         summary     = "Request activation token",
         description = "Request an activation token for verifying an email or activating an account",
         tags        = { "Account" }
@@ -180,6 +184,7 @@ public interface AccountController {
      * @return
      */
     @Operation(
+        operationId = "account-07",
         summary     = "Verify activation token",
         description = "Redeem an activation token to verify an email or activate an account",
         tags        = { "Account" }
@@ -210,6 +215,7 @@ public interface AccountController {
      * @return User data
      */
     @Operation(
+        operationId = "account-04",
         summary     = "Get user data. Roles required: ROLE_USER",
         tags        = { "Account" },
         security    = {

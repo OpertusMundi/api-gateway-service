@@ -38,6 +38,7 @@ public interface ConsumerController {
      * @return The updated user profile
      */
     @Operation(
+        operationId = "consumer-01",
         summary     = "Update consumer registration. Roles required: ROLE_USER",
         description =
             "Create or update consumer draft data in the profile of the authenticated user. "
@@ -75,6 +76,7 @@ public interface ConsumerController {
      * @return The updated user profile
      */
     @Operation(
+        operationId = "consumer-02",
         summary     = "Submit consumer registration. Roles required: ROLE_USER",
         description = "Update consumer data in the profile of the authenticated user.",
         tags        = { "Consumer" },
@@ -109,6 +111,7 @@ public interface ConsumerController {
      * @return The updated user profile
      */
     @Operation(
+        operationId = "consumer-03",
         summary     = "Cancel consumer registration. Roles required: ROLE_USER",
         description = "Cancel any pending consumer registration request",
         tags        = { "Consumer" },

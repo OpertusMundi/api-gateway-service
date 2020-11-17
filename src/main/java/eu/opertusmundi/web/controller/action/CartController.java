@@ -39,6 +39,7 @@ public interface CartController {
      * @return An instance of {@link CartEndpointTypes.CartResponse}
      */
     @Operation(
+        operationId = "cart-01",
         summary     = "Get shopping cart",
         description = "Get shopping cart for the current user session",
         tags        = { "Cart" }
@@ -59,6 +60,7 @@ public interface CartController {
      * @return An instance of {@link CartEndpointTypes.CartResponse}
      */
     @Operation(
+        operationId = "cart-02",
         summary     = "Add item",
         description = "Add item to cart",
         tags        = { "Cart" }
@@ -80,6 +82,7 @@ public interface CartController {
     );
 
     @Operation(
+        operationId = "cart-03",
         summary     = "Remove item",
         description = "Remove item from cart",
         tags        = { "Cart" }
@@ -101,6 +104,7 @@ public interface CartController {
     );
 
     @Operation(
+        operationId = "cart-04",
         summary     = "Clear cart",
         description = "Remove all items from the cart",
         tags        = { "Cart" }

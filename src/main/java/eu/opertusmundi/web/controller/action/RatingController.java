@@ -41,6 +41,7 @@ public interface RatingController {
      * @return An instance of {@link RatingEndpointTypes.AssetResponse}
      */
     @Operation(
+        operationId = "rating-01",
         summary     = "Get asset ratings",
         description = "Get all ratings for a specific asset",
         tags        = { "Rating" }
@@ -69,6 +70,7 @@ public interface RatingController {
      * @return An instance of {@link RatingEndpointTypes.ProviderResponse}
      */
     @Operation(
+        operationId = "rating-03",
         summary     = "Get provider ratings",
         description = "Get all ratings for a specific provider",
         tags        = { "Rating" }
@@ -97,6 +99,7 @@ public interface RatingController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "rating-02",
         summary     = "Add asset rating",
         description = "Adds a new rating for a specific asset",
         tags        = { "Rating" }
@@ -133,6 +136,7 @@ public interface RatingController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
+        operationId = "rating-03",
         summary     = "Add provider rating",
         description = "Adds a new rating for a specific provider",
         tags        = { "Rating" }
