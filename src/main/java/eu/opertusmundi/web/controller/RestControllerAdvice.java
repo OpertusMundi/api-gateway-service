@@ -41,7 +41,7 @@ public class RestControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ApiResponse(
-        responseCode = "404",
+        responseCode = "400",
         description = "Bad Request",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
