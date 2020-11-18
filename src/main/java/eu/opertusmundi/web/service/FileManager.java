@@ -1,18 +1,23 @@
 package eu.opertusmundi.web.service;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 
-import eu.opertusmundi.web.model.filemanager.FileDeleteCommand;
-import eu.opertusmundi.web.model.filemanager.FileDownloadCommand;
-import eu.opertusmundi.web.model.filemanager.FileUploadCommand;
+import eu.opertusmundi.web.model.file.DirectoryDto;
+import eu.opertusmundi.web.model.file.FilePathCommand;
+import eu.opertusmundi.web.model.file.FileSystemException;
+import eu.opertusmundi.web.model.file.FileUploadCommand;
 
 public interface FileManager {
 
-    void uploadFile(FileUploadCommand command) throws IOException;
+    DirectoryDto browse(FilePathCommand command) throws FileSystemException;
 
-    void deleteFile(FileDeleteCommand command) throws IOException;
+    void createPath(FilePathCommand command) throws FileSystemException;
 
-    Path getFileAbsolutePath(FileDownloadCommand command);
+    void uploadFile(InputStream input, FileUploadCommand command) throws FileSystemException;
+
+    void deletePath(FilePathCommand command) throws FileSystemException;
+
+    Path resolveFilePath(FilePathCommand command) throws FileSystemException;
 
 }

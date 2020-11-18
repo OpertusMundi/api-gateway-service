@@ -6,7 +6,6 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.CustomerEntity;
-import eu.opertusmundi.common.model.dto.AccountProfileProviderCommandDto;
 import eu.opertusmundi.common.model.dto.ProviderProfessionalCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.CustomerRepository;
@@ -22,7 +21,7 @@ public class ProviderValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return AccountProfileProviderCommandDto.class.isAssignableFrom(clazz);
+        return ProviderProfessionalCommandDto.class.isAssignableFrom(clazz);
     }
 
     @Override
