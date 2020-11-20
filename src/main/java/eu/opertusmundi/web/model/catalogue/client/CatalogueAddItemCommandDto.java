@@ -30,6 +30,12 @@ public class CatalogueAddItemCommandDto extends BaseCatalogueItemDto {
     private List<BasePricingModelCommandDto> pricingModels;
 
     /**
+     * Asset unique id. This value is injected by the controller.
+     */
+    @JsonIgnore
+    private UUID id;
+
+    /**
      * Publisher unique id.
      *
      * This value is ignored during serialization/deserialization. Instead, it

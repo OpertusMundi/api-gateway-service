@@ -90,6 +90,8 @@ public class CatalogueFeatureProperties {
 
     private String scale;
 
+    private String status;
+
     @JsonProperty("spatial_data_service_type")
     private String spatialDataServiceType;
 

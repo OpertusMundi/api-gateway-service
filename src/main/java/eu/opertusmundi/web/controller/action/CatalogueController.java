@@ -2,21 +2,18 @@ package eu.opertusmundi.web.controller.action;
 
 import java.util.UUID;
 
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueAddItemCommandDto;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueClientCollectionResponse;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueClientItemResponse;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueSearchQuery;
+import eu.opertusmundi.web.model.openapi.schema.CatalogueEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -36,24 +33,26 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface CatalogueController {
 
     /**
-     * Search catalogue items
+     * Search catalogue published items
      *
      * @param request The search criteria
      * @return An instance of {@link CatalogueClientCollectionResponse} class
      */
     @Operation(
         operationId = "catalogue-01",
-        summary     = "Search catalogue items",
-        description = "Search catalogue items based on one or more criteria. Supports data paging and sorting.",
+        summary     = "Search assets",
+        description = "Search catalogue published items based on one or more criteria. Supports data paging and sorting.",
         tags        = { "Catalogue" }
     )
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueClientCollectionResponse.class))
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
+        )
     )
     @PostMapping(value = "/catalogue", consumes = "application/json")
-    RestResponse<?> find(
+    RestResponse<?> findAll(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Search criteria",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueSearchQuery.class)),
@@ -70,14 +69,14 @@ public interface CatalogueController {
      */
     @Operation(
         operationId = "catalogue-02",
-        summary     = "Get catalogue item",
+        summary     = "Get asset",
         description = "Get a single catalogue item by its unique identifier.",
         tags        = { "Catalogue" }
     )
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueClientItemResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.ItemResponse.class))
     )
     @GetMapping(value = "/catalogue/items/{id}")
     RestResponse<CatalogueItemDetailsDto> findOne(
@@ -89,31 +88,4 @@ public interface CatalogueController {
         @PathVariable UUID id
     );
 
-    /**
-     * Create catalogue item
-     *
-     * @param request The item to create
-     * @return A response with a result of type {@link CatalogueItemDto}
-     */
-    @Operation(
-        operationId = "catalogue-03",
-        summary     = "Create",
-        description = "Create catalogue item.",
-        tags        = { "Catalogue" }
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
-    )
-    @PostMapping(value = "/catalogue/items", consumes = "application/json")
-    @Secured({"ROLE_PROVIDER"})
-    BaseResponse create(
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "New catalogue item.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueAddItemCommandDto.class)),
-            required = true
-        )
-        @RequestBody CatalogueAddItemCommandDto command
-    );
 }

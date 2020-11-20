@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueClientItemResponse;
 import eu.opertusmundi.web.model.order.OrderDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,7 +40,7 @@ public interface OrderController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueClientItemResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
     @PostMapping(value = "/orders", consumes = "application/json")
     RestResponse<?> create(

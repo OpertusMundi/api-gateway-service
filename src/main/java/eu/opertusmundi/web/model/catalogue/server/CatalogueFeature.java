@@ -17,9 +17,8 @@ import lombok.Setter;
 public class CatalogueFeature {
 
     public CatalogueFeature(CatalogueAddItemCommandDto command) {
-        // TODO : id must be created by the PID service
-        this.id = "";
-        this.type = "Feature";
+        this.id       = command.getId() == null ? "" : command.getId().toString();
+        this.type     = "Feature";
         this.geometry = command.getGeometry();
 
         this.properties = new CatalogueFeatureProperties();

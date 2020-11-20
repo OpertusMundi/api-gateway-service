@@ -13,11 +13,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Schema(description = "Catalogue asset response")
 @NoArgsConstructor
-public class CatalogueClientCollectionResponse extends RestResponse<PageResultDto<CatalogueItemDto>> {
+public class CatalogueClientCollectionResponse<T> extends RestResponse<PageResultDto<T>> {
 
-    public CatalogueClientCollectionResponse(PageResultDto<CatalogueItemDto> result, List<PublisherDto> publishers) {
+    public CatalogueClientCollectionResponse(PageResultDto<T> result, List<PublisherDto> publishers) {
         super(result);
 
         this.publishers = new HashMap<UUID, PublisherDto>();

@@ -13,7 +13,7 @@ import eu.opertusmundi.common.domain.AccountEntity;
 
 @Repository
 @Transactional(readOnly = true)
-public interface AssetProviderRepository extends JpaRepository<AccountEntity, Integer> {
+public interface ProviderRepository extends JpaRepository<AccountEntity, Integer> {
 
     @Query("SELECT distinct a FROM Account a "
             + "LEFT OUTER JOIN FETCH a.profile p "
