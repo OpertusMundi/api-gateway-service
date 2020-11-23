@@ -241,12 +241,6 @@
             <version>${org.locationtech.jts.spatial4j.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.bedatadriven</groupId>
-            <artifactId>jackson-datatype-jts</artifactId>
-            <version>${jackson-datatype-jts.version}</version>
-        </dependency>
-
 		<!-- Money types -->
 		<dependency>
 			<groupId>org.joda</groupId>
