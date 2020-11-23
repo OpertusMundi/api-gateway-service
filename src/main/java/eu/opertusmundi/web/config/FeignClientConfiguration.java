@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableFeignClients(
     basePackageClasses = {
+        eu.opertusmundi.common.feign.client._Marker.class,
         eu.opertusmundi.web.feign.client._Marker.class,
     }
 )

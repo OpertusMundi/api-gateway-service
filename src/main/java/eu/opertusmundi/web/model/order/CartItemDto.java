@@ -6,9 +6,9 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import eu.opertusmundi.web.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.web.model.openapi.schema.PricingModelAsJson;
-import eu.opertusmundi.web.model.pricing.BasePricingModelDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.openapi.schema.PricingModelAsJson;
+import eu.opertusmundi.common.model.pricing.BasePricingModelDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

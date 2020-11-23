@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueClientCollectionResponse;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueItemDetailsDto;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueSearchQuery;
-import eu.opertusmundi.web.model.openapi.schema.CatalogueEndpointTypes;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueSearchQuery;
+import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

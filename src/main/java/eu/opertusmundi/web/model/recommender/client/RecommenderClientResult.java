@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.dto.PublisherDto;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueItemDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 

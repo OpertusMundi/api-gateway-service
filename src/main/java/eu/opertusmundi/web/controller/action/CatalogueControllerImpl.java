@@ -9,19 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueSearchQuery;
+import eu.opertusmundi.common.model.catalogue.server.CatalogueCollection;
+import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
+import eu.opertusmundi.common.model.catalogue.server.CatalogueResponse;
 import eu.opertusmundi.common.model.dto.PublisherDto;
 import eu.opertusmundi.web.controller.support.CatalogueUtils;
-import eu.opertusmundi.web.feign.client.CatalogueFeignClient;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueClientCollectionResponse;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueItemDetailsDto;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.web.model.catalogue.client.CatalogueSearchQuery;
-import eu.opertusmundi.web.model.catalogue.server.CatalogueCollection;
-import eu.opertusmundi.web.model.catalogue.server.CatalogueFeature;
-import eu.opertusmundi.web.model.catalogue.server.CatalogueResponse;
 import eu.opertusmundi.web.repository.ProviderRepository;
 import feign.FeignException;
 
