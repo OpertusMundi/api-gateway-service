@@ -20,7 +20,7 @@ import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileDto;
 import eu.opertusmundi.common.model.dto.ProviderProfessionalCommandDto;
 import eu.opertusmundi.common.model.dto.PublisherDto;
-import eu.opertusmundi.common.service.ProviderService;
+import eu.opertusmundi.common.service.ProviderRegistrationService;
 import eu.opertusmundi.web.controller.support.CatalogueUtils;
 import eu.opertusmundi.web.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueAddItemCommandDto;
@@ -45,7 +45,7 @@ public class ProviderControllerImpl extends BaseController implements ProviderCo
     private static final Logger logger = LoggerFactory.getLogger(ProviderControllerImpl.class);
 
     @Autowired
-    private ProviderService providerService;
+    private ProviderRegistrationService providerService;
 
     @Autowired
     private ProviderValidator providerValidator;

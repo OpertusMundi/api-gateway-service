@@ -13,7 +13,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileDto;
 import eu.opertusmundi.common.model.dto.CustomerCommandDto;
-import eu.opertusmundi.common.service.ConsumerService;
+import eu.opertusmundi.common.service.ConsumerRegistrationService;
 import eu.opertusmundi.web.validation.ConsumerValidator;
 
 @RestController
@@ -22,7 +22,7 @@ public class ConsumerControllerImpl extends BaseController implements ConsumerCo
     private static final Logger logger = LoggerFactory.getLogger(ConsumerControllerImpl.class);
 
     @Autowired
-    private ConsumerService consumerService;
+    private ConsumerRegistrationService consumerService;
 
     @Autowired
     private ConsumerValidator consumerValidator;
