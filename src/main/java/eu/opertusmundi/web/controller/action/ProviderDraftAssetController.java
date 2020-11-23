@@ -2,11 +2,7 @@ package eu.opertusmundi.web.controller.action;
 
 import java.util.UUID;
 
-import javax.validation.Valid;
-
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.dto.AccountProfileDto;
-import eu.opertusmundi.common.model.dto.ProviderProfessionalCommandDto;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueAddItemCommandDto;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueClientSetStatusCommandDto;
@@ -33,110 +27,14 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = "Provider",
-    description = "The asset provider API"
+    name        = "Provider Drafts",
+    description = "The provider asset publication API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
-public interface ProviderController {
-
-    /**
-     * Save a provider registration request as a draft
-     *
-     * @param request Updates to apply to the provider profile of the authenticated user
-     *
-     * @return The updated user profile
-     */
-    @Operation(
-        operationId = "provider-01",
-        summary     = "Update registration",
-        description =
-            "Save a provider registration request as a draft. "
-            + "When saving draft data, validation errors are ignored. "
-            + "Required roles: ROLE_USER",
-        tags        = { "Provider" },
-        security    = {
-            @SecurityRequirement(name = "cookie")
-        }
-    )
-    @PostMapping(value = "/provider/registration", consumes = { "application/json" })
-    @Secured({ "ROLE_USER" })
-    @Validated
-    RestResponse<AccountProfileDto> updateRegistration(
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Provider registration command",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ProviderProfessionalCommandDto.class)
-            ),
-            required = true
-        )
-        @Valid
-        @RequestBody
-        ProviderProfessionalCommandDto command,
-        @Parameter(
-            hidden = true
-        )
-        BindingResult validationResult);
-
-    /**
-     * Submit a provider registration request to the OP platform
-     *
-     * @param request Updates to apply to the provider profile of the authenticated user
-     *
-     * @return The updated user profile
-     */
-    @Operation(
-        operationId = "provider-02",
-        summary     = "Submit registration",
-        description = "Submit a provider registration request to the OP platform. "
-                      + "Required roles: ROLE_USER",
-        tags        = { "Provider" },
-        security    = {
-            @SecurityRequirement(name = "cookie")
-        }
-    )
-    @PutMapping(value = "/provider/registration", consumes = { "application/json" })
-    @Secured({ "ROLE_USER" })
-    @Validated
-    RestResponse<AccountProfileDto> submitRegistration(
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Provider registration command",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ProviderProfessionalCommandDto.class)
-            ),
-            required = true
-        )
-        @Valid
-        @RequestBody
-        ProviderProfessionalCommandDto command,
-        @Parameter(
-            hidden = true
-        )
-        BindingResult validationResult);
-
-    /**
-     * Cancel any pending registration request
-     *
-     * @return The updated user profile
-     */
-    @Operation(
-        operationId = "provider-03",
-        summary     = "Cancel registration",
-        description = "Cancel any pending provider registration request. "
-                      + "Required roles: ROLE_USER",
-        tags        = { "Provider" },
-        security    = {
-            @SecurityRequirement(name = "cookie")
-        }
-    )
-    @DeleteMapping(value = "/provider/registration")
-    @Secured({ "ROLE_USER" })
-    RestResponse<AccountProfileDto> cancelRegistration();
+public interface ProviderDraftAssetController {
 
     /**
      * Search catalogue draft items
@@ -148,11 +46,10 @@ public interface ProviderController {
      * @return An instance of {@link CatalogueClientCollectionResponse} class
      */
     @Operation(
-        operationId = "provider-04",
+        operationId = "provider-draft-asset-01",
         summary     = "Search draft items",
         description = "Search catalogue for provider's draft items based on one or more criteria. Supports data paging and sorting. "
-                      + "Required roles: ROLE_PROVIDER",
-        tags        = { "Provider" }
+                      + "Required roles: ROLE_PROVIDER"
     )
     @ApiResponse(
         responseCode = "200",
@@ -191,10 +88,9 @@ public interface ProviderController {
      * @return
      */
     @Operation(
-        operationId = "provider-05",
+        operationId = "provider-draft-asset-02",
         summary     = "Create draft",
-        description = "Create draft item. Required roles: ROLE_PROVIDER",
-        tags        = { "Provider" }
+        description = "Create draft item. Required roles: ROLE_PROVIDER"
     )
     @ApiResponse(
         responseCode = "200",
@@ -219,11 +115,10 @@ public interface ProviderController {
      * @return A response with a result of type {@link CatalogueItemDto}
      */
     @Operation(
-        operationId = "provider-06",
+        operationId = "provider-draft-asset-03",
         summary     = "Get draft",
         description = "Get a single catalogue draft item by its unique identifier. "
-                      + "Required roles: ROLE_PROVIDER",
-        tags        = { "Provider" }
+                      + "Required roles: ROLE_PROVIDER"
     )
     @ApiResponse(
         responseCode = "200",
@@ -250,10 +145,9 @@ public interface ProviderController {
      * @return
      */
     @Operation(
-        operationId = "provider-07",
+        operationId = "provider-draft-asset-04",
         summary     = "Update draft",
-        description = "Update an existing draft item. Required roles: ROLE_PROVIDER",
-        tags        = { "Provider" }
+        description = "Update an existing draft item. Required roles: ROLE_PROVIDER"
     )
     @ApiResponse(
         responseCode = "200",
@@ -285,10 +179,9 @@ public interface ProviderController {
      * @return
      */
     @Operation(
-        operationId = "provider-08",
+        operationId = "provider-draft-asset-05",
         summary     = "Set status",
-        description = "Set the status of a draft item. Required roles: ROLE_PROVIDER",
-        tags        = { "Provider" }
+        description = "Set the status of a draft item. Required roles: ROLE_PROVIDER"
     )
     @ApiResponse(
         responseCode = "200",
@@ -319,10 +212,9 @@ public interface ProviderController {
      * @return
      */
     @Operation(
-        operationId = "provider-09",
+        operationId = "provider-draft-asset-06",
         summary     = "Delete draft",
-        description = "Delete a draft item. Required roles: ROLE_PROVIDER",
-        tags        = { "Provider" }
+        description = "Delete a draft item. Required roles: ROLE_PROVIDER"
     )
     @ApiResponse(
         responseCode = "200",
@@ -332,34 +224,6 @@ public interface ProviderController {
     @DeleteMapping(value = "/provider/drafts/{id}")
     @Secured({"ROLE_PROVIDER"})
     BaseResponse deleteDraft(
-        @Parameter(
-            in          = ParameterIn.PATH,
-            required    = true,
-            description = "Item unique id"
-        )
-        @PathVariable UUID id
-    );
-
-    /**
-     * Delete catalogue item
-     *
-     * @param id The item unique id
-     * @return
-     */
-    @Operation(
-        operationId = "catalogue-11",
-        summary     = "Delete asset",
-        description = "Delete asset from catalogue. Required roles: ROLE_PROVIDER",
-        tags        = { "Catalogue" }
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
-    )
-    @DeleteMapping(value = "/provider/assets/{id}")
-    @Secured({"ROLE_PROVIDER"})
-    BaseResponse deleteAsset(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,

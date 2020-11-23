@@ -17,9 +17,9 @@ import eu.opertusmundi.common.service.ConsumerRegistrationService;
 import eu.opertusmundi.web.validation.ConsumerValidator;
 
 @RestController
-public class ConsumerControllerImpl extends BaseController implements ConsumerController {
+public class ConsumerRegistrationControllerImpl extends BaseController implements ConsumerRegistrationController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConsumerControllerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConsumerRegistrationControllerImpl.class);
 
     @Autowired
     private ConsumerRegistrationService consumerService;

@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.BaseResponse;
@@ -16,11 +15,7 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.PageRequestDto;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileDto;
-import eu.opertusmundi.common.model.dto.ProviderProfessionalCommandDto;
 import eu.opertusmundi.common.model.dto.PublisherDto;
-import eu.opertusmundi.common.service.ProviderRegistrationService;
 import eu.opertusmundi.web.controller.support.CatalogueUtils;
 import eu.opertusmundi.web.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.web.model.catalogue.client.CatalogueAddItemCommandDto;
@@ -36,19 +31,12 @@ import eu.opertusmundi.web.model.catalogue.server.CatalogueFeature;
 import eu.opertusmundi.web.model.catalogue.server.CatalogueResponse;
 import eu.opertusmundi.web.model.pricing.BasePricingModelCommandDto;
 import eu.opertusmundi.web.repository.ProviderRepository;
-import eu.opertusmundi.web.validation.ProviderValidator;
 import feign.FeignException;
 
 @RestController
-public class ProviderControllerImpl extends BaseController implements ProviderController {
+public class ProviderDraftAssetControllerImpl extends BaseController implements ProviderDraftAssetController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProviderControllerImpl.class);
-
-    @Autowired
-    private ProviderRegistrationService providerService;
-
-    @Autowired
-    private ProviderValidator providerValidator;
+    private static final Logger logger = LoggerFactory.getLogger(ProviderDraftAssetControllerImpl.class);
 
     @Autowired
     private ObjectProvider<CatalogueFeignClient> catalogueClient;
@@ -58,66 +46,6 @@ public class ProviderControllerImpl extends BaseController implements ProviderCo
 
     @Autowired
     private ProviderRepository providerRepository;
-
-    @Override
-    public RestResponse<AccountProfileDto> updateRegistration(
-        ProviderProfessionalCommandDto command, BindingResult validationResult
-    ) {
-        return this.update(command, validationResult, true);
-    }
-
-    @Override
-    public RestResponse<AccountProfileDto> submitRegistration(
-        ProviderProfessionalCommandDto command, BindingResult validationResult
-    ) {
-        return this.update(command, validationResult, false);
-    }
-
-    @Override
-    public RestResponse<AccountProfileDto> cancelRegistration() {
-        final UUID userKey = this.authenticationFacade.getCurrentUserKey();
-
-        try {
-            final AccountDto account = this.providerService.cancelRegistration(userKey);
-
-            return RestResponse.result(account.getProfile());
-        } catch (final IllegalArgumentException argEx) {
-            return RestResponse.error(BasicMessageCode.InternalServerError, argEx.getMessage());
-        } catch (final Exception ex) {
-            logger.error("Provider update has failed", ex);
-
-            return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
-        }
-    }
-
-    private RestResponse<AccountProfileDto> update(
-        ProviderProfessionalCommandDto command, BindingResult validationResult, boolean draft
-    ) {
-        final Integer id = this.authenticationFacade.getCurrentUserId();
-
-        // Inject user id (id property is always ignored during serialization)
-        command.setUserId(id);
-
-        this.providerValidator.validate(command, validationResult);
-
-        if (validationResult.hasErrors()) {
-            return RestResponse.invalid(validationResult.getFieldErrors());
-        }
-
-        try {
-            final AccountDto account = draft ?
-                this.providerService.updateRegistration(command) :
-                this.providerService.submitRegistration(command);
-
-            return RestResponse.result(account.getProfile());
-        } catch (final IllegalArgumentException argEx) {
-            return RestResponse.error(BasicMessageCode.InternalServerError, argEx.getMessage());
-        } catch (final Exception ex) {
-            logger.error("Provider update has failed", ex);
-
-            return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
-        }
-    }
 
     @Override
     public RestResponse<?> findAllDraft(EnumDraftStatus status, int pageIndex, int pageSize) {
@@ -291,21 +219,6 @@ public class ProviderControllerImpl extends BaseController implements ProviderCo
     public BaseResponse deleteDraft(UUID id) {
         try {
             this.catalogueClient.getObject().deleteDraft(id);
-
-            return RestResponse.success();
-        } catch (final FeignException fex) {
-            logger.error("[Feign Client][Catalogue] Operation has failed", fex);
-        } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
-        }
-
-        return RestResponse.failure();
-    }
-
-    @Override
-    public BaseResponse deleteAsset(UUID id) {
-        try {
-            this.catalogueClient.getObject().deletePublished(id);
 
             return RestResponse.success();
         } catch (final FeignException fex) {

@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -23,11 +24,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = "Consumer",
+    name        = "Consumer Registration",
     description = "The consumer API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
-public interface ConsumerController {
+public interface ConsumerRegistrationController {
 
     /**
      * Create a new or update an existing draft for consumer data in the profile
@@ -38,17 +39,16 @@ public interface ConsumerController {
      * @return The updated user profile
      */
     @Operation(
-        operationId = "consumer-01",
+        operationId = "consumer-registration-01",
         summary     = "Update consumer registration. Roles required: ROLE_USER",
         description =
             "Create or update consumer draft data in the profile of the authenticated user. "
             + "When saving draft data, validation errors are ignored",
-        tags        = { "Consumer" },
         security    = {
             @SecurityRequirement(name = "cookie")
         }
     )
-    @PostMapping(value = "/consumer/registration/update", consumes = { "application/json" })
+    @PostMapping(value = "/consumer/registration", consumes = { "application/json" })
     @Secured({ "ROLE_USER" })
     @Validated
     RestResponse<AccountProfileDto> updateRegistration(
@@ -76,15 +76,14 @@ public interface ConsumerController {
      * @return The updated user profile
      */
     @Operation(
-        operationId = "consumer-02",
+        operationId = "consumer-registration-02",
         summary     = "Submit consumer registration. Roles required: ROLE_USER",
         description = "Update consumer data in the profile of the authenticated user.",
-        tags        = { "Consumer" },
         security    = {
             @SecurityRequirement(name = "cookie")
         }
     )
-    @PostMapping(value = "/consumer/registration/submit", consumes = { "application/json" })
+    @PutMapping(value = "/consumer/registration", consumes = { "application/json" })
     @Secured({ "ROLE_USER" })
     @Validated
     RestResponse<AccountProfileDto> submitRegistration(
@@ -111,15 +110,14 @@ public interface ConsumerController {
      * @return The updated user profile
      */
     @Operation(
-        operationId = "consumer-03",
+        operationId = "consumer-registration-03",
         summary     = "Cancel consumer registration. Roles required: ROLE_USER",
         description = "Cancel any pending consumer registration request",
-        tags        = { "Consumer" },
         security    = {
             @SecurityRequirement(name = "cookie")
         }
     )
-    @DeleteMapping(value = "/consumer/registration/cancel")
+    @DeleteMapping(value = "/consumer/registration")
     @Secured({ "ROLE_USER" })
     RestResponse<AccountProfileDto> cancelRegistration();
 
