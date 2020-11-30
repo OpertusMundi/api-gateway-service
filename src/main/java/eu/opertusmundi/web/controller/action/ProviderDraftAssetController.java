@@ -1,8 +1,13 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.util.Set;
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,12 +19,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueAddItemCommandDto;
+import eu.opertusmundi.common.model.asset.AssetDraftDto;
+import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
+import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueClientSetStatusCommandDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDetailsDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +39,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The provider asset publication API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
+@Secured({"ROLE_PROVIDER"})
 public interface ProviderDraftAssetController {
 
     /**
@@ -49,7 +55,7 @@ public interface ProviderDraftAssetController {
         operationId = "provider-draft-asset-01",
         summary     = "Search draft items",
         description = "Search catalogue for provider's draft items based on one or more criteria. Supports data paging and sorting. "
-                      + "Required roles: ROLE_PROVIDER"
+                      + "Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -59,14 +65,13 @@ public interface ProviderDraftAssetController {
         )
     )
     @GetMapping(value = "/provider/drafts", consumes = "application/json")
-    @Secured({"ROLE_PROVIDER"})
     RestResponse<?> findAllDraft(
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,
             description = "Draft status"
         )
-        @RequestParam(name = "status", required = true) EnumDraftStatus status,
+        @RequestParam(name = "status", required = true) Set<EnumProviderAssetDraftStatus> status,
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,
@@ -90,22 +95,28 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "provider-draft-asset-02",
         summary     = "Create draft",
-        description = "Create draft item. Required roles: ROLE_PROVIDER"
+        description = "Create draft item. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
     @PostMapping(value = "/provider/drafts", consumes = "application/json")
-    @Secured({"ROLE_PROVIDER"})
-    BaseResponse createDraft(
+    @Validated
+    RestResponse<AssetDraftDto> createDraft(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "New draft item.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueAddItemCommandDto.class)),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueItemCommandDto.class)),
             required = true
         )
-        @RequestBody CatalogueAddItemCommandDto command
+        @Valid
+        @RequestBody
+        CatalogueItemCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
     );
 
     /**
@@ -118,7 +129,7 @@ public interface ProviderDraftAssetController {
         operationId = "provider-draft-asset-03",
         summary     = "Get draft",
         description = "Get a single catalogue draft item by its unique identifier. "
-                      + "Required roles: ROLE_PROVIDER"
+                      + "Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -127,14 +138,14 @@ public interface ProviderDraftAssetController {
             mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class)
         )
     )
-    @GetMapping(value = "/provider/drafts/{id}")
-    RestResponse<CatalogueItemDraftDetailsDto> findOneDraft(
+    @GetMapping(value = "/provider/drafts/{key}")
+    RestResponse<AssetDraftDto> findOneDraft(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
-            description = "Item unique id"
+            description = "Item unique key"
         )
-        @PathVariable UUID id
+        @PathVariable UUID key
     );
 
     /**
@@ -147,28 +158,34 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "provider-draft-asset-04",
         summary     = "Update draft",
-        description = "Update an existing draft item. Required roles: ROLE_PROVIDER"
+        description = "Update an existing draft item. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
-    @PutMapping(value = "/provider/drafts/{id}", consumes = "application/json")
-    @Secured({"ROLE_PROVIDER"})
-    BaseResponse updateDraft(
+    @PutMapping(value = "/provider/drafts/{key}", consumes = "application/json")
+    @Validated
+    RestResponse<AssetDraftDto> updateDraft(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
-            description = "Item unique id"
+            description = "Item unique key"
         )
-        @PathVariable UUID id,
+        @PathVariable UUID key,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Updated item.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueAddItemCommandDto.class)),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueItemCommandDto.class)),
             required = true
         )
-        @RequestBody CatalogueAddItemCommandDto command
+        @Valid
+        @RequestBody
+        CatalogueItemCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
     );
 
     /**
@@ -180,17 +197,58 @@ public interface ProviderDraftAssetController {
      */
     @Operation(
         operationId = "provider-draft-asset-05",
-        summary     = "Set status",
-        description = "Set the status of a draft item. Required roles: ROLE_PROVIDER"
+        summary     = "Submit draft",
+        description = "Update draft and submit for review and publication. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
-    @PutMapping(value = "/provider/drafts/{id}/status")
-    @Secured({"ROLE_PROVIDER"})
-    BaseResponse setDraftStatus(
+    @PutMapping(value = "/provider/drafts/{key}/submit")
+    @Validated
+    BaseResponse submitDraft(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Item unique id"
+        )
+        @PathVariable UUID key,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Update command.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueItemCommandDto.class)),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        CatalogueItemCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+
+    /**
+     * Review draft
+     *
+     * @param id The item unique id
+     * @param command The status update command
+     * @return
+     */
+    @Operation(
+        operationId = "provider-draft-asset-06",
+        summary     = "Review draft",
+        description = "Accept or reject draft by a provider. "
+                      + "The draft status must be <b>PENDING_PROVIDER_REVIEW</b>. "
+                      + "Required roles: <b>ROLE_PROVIDER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
+    )
+    @PutMapping(value = "/provider/drafts/{id}/review")
+    BaseResponse reviewDraft(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -198,11 +256,11 @@ public interface ProviderDraftAssetController {
         )
         @PathVariable UUID id,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Update command.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueClientSetStatusCommandDto.class)),
+            description = "Review command.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AssetDraftReviewCommandDto.class)),
             required = true
         )
-        @RequestBody CatalogueClientSetStatusCommandDto command
+        @RequestBody AssetDraftReviewCommandDto command
     );
 
     /**
@@ -212,24 +270,23 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "provider-draft-asset-06",
+        operationId = "provider-draft-asset-07",
         summary     = "Delete draft",
-        description = "Delete a draft item. Required roles: ROLE_PROVIDER"
+        description = "Delete a draft item. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
-    @DeleteMapping(value = "/provider/drafts/{id}")
-    @Secured({"ROLE_PROVIDER"})
+    @DeleteMapping(value = "/provider/drafts/{key}")
     BaseResponse deleteDraft(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
             description = "Item unique id"
         )
-        @PathVariable UUID id
+        @PathVariable UUID key
     );
 
 }

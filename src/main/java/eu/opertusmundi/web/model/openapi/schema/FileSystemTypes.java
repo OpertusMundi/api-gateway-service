@@ -1,7 +1,7 @@
 package eu.opertusmundi.web.model.openapi.schema;
 
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.web.model.file.DirectoryDto;
+import eu.opertusmundi.common.model.file.DirectoryDto;
 
 public class FileSystemTypes {
 

@@ -16,8 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.web.model.file.FilePathCommand;
-import eu.opertusmundi.web.model.file.FileUploadCommand;
+import eu.opertusmundi.common.model.file.FilePathCommand;
+import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.web.model.openapi.schema.FileSystemTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

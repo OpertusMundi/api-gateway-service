@@ -51,3 +51,6 @@ jspm_packages
 
 # Default index.html template is generated when maven plugin npm goal builds the client application
 src/main/resources/templates/index.html
+
+# Test controller
+TestController.java

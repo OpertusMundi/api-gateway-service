@@ -22,11 +22,11 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.FileSystemMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.web.model.file.DirectoryDto;
-import eu.opertusmundi.web.model.file.FilePathCommand;
-import eu.opertusmundi.web.model.file.FileSystemException;
-import eu.opertusmundi.web.model.file.FileUploadCommand;
-import eu.opertusmundi.web.service.FileManager;
+import eu.opertusmundi.common.model.file.DirectoryDto;
+import eu.opertusmundi.common.model.file.FilePathCommand;
+import eu.opertusmundi.common.model.file.FileSystemException;
+import eu.opertusmundi.common.model.file.FileUploadCommand;
+import eu.opertusmundi.common.service.FileManager;
 
 @RestController
 public class FileSystemControllerImpl extends BaseController implements FileSystemController {

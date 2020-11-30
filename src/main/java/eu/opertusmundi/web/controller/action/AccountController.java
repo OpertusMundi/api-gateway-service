@@ -195,7 +195,6 @@ public interface AccountController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
     @PostMapping(value = "/action/account/token/verify/{token}")
-    @Validated
     BaseResponse verifyActivationToken(
         @Parameter(
             in          = ParameterIn.PATH,

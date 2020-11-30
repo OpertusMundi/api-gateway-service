@@ -1,6 +1,6 @@
 package eu.opertusmundi.web.controller.action;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
@@ -16,9 +17,12 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.PageRequestDto;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueAddItemCommandDto;
+import eu.opertusmundi.common.model.asset.AssetDraftDto;
+import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
+import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientSetStatusCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDto;
@@ -28,9 +32,11 @@ import eu.opertusmundi.common.model.catalogue.server.CatalogueCollection;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueResponse;
 import eu.opertusmundi.common.model.dto.PublisherDto;
-import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
+import eu.opertusmundi.common.service.AssetDraftException;
+import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.web.controller.support.CatalogueUtils;
 import eu.opertusmundi.web.repository.ProviderRepository;
+import eu.opertusmundi.web.validation.AssetDraftValidator;
 import feign.FeignException;
 
 @RestController
@@ -42,22 +48,189 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     private ObjectProvider<CatalogueFeignClient> catalogueClient;
 
     @Autowired
+    private AssetDraftValidator assetDraftValidator;
+
+    @Autowired
     private CatalogueUtils catalogueUtils;
 
     @Autowired
     private ProviderRepository providerRepository;
 
-    @Override
-    public RestResponse<?> findAllDraft(EnumDraftStatus status, int pageIndex, int pageSize) {
-        // Query service
-        ResponseEntity<CatalogueResponse<CatalogueCollection>> e;
+    @Autowired
+    private ProviderAssetService providerAssetService;
 
+    @Override
+    public RestResponse<?> findAllDraft(Set<EnumProviderAssetDraftStatus> status, int pageIndex, int pageSize) {
         try {
-            final UUID publisherId = this.currentUserKey();
+            final UUID publisherKey = this.currentUserKey();
+
+            final PageResultDto<AssetDraftDto> result = this.providerAssetService.findAllDraft(
+                publisherKey, status, pageIndex, pageSize
+            );
+
+            return RestResponse.result(result);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+
+            return RestResponse.failure();
+        }
+    }
+
+    @Override
+    public RestResponse<AssetDraftDto> createDraft(CatalogueItemCommandDto command, BindingResult validationResult) {
+        try {
+            command.setUserId(this.currentUserId());
+            command.setPublisherKey(this.currentUserKey());
+
+            command.getPricingModels().stream().forEach(m-> {
+                // Always override the key with a value generated at the server
+                m.setKey(UUID.randomUUID());
+            });
+
+            this.assetDraftValidator.validate(command, validationResult);
+
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors());
+            }
+
+            final AssetDraftDto result = this.providerAssetService.updateDraft(command);
+
+            return RestResponse.result(result);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    @Override
+    public RestResponse<AssetDraftDto> findOneDraft(UUID key) {
+        try {
+            final UUID publisherKey = this.currentUserKey();
+
+            final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, key);
+
+            if(draft ==null) {
+                return RestResponse.notFound();
+            }
+
+            return RestResponse.result(draft);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+
+            return RestResponse.failure();
+        }
+    }
+
+    @Override
+    public RestResponse<AssetDraftDto> updateDraft(UUID key, CatalogueItemCommandDto command, BindingResult validationResult) {
+        try {
+            command.setUserId(this.currentUserId());
+            command.setPublisherKey(this.currentUserKey());
+            command.setAssetKey(key);
+
+            command.getPricingModels().stream().forEach(m-> {
+                // Always override the key with a value generated at the server
+                m.setKey(UUID.randomUUID());
+            });
+
+            this.assetDraftValidator.validate(command, validationResult);
+
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors());
+            }
+
+            final AssetDraftDto result = this.providerAssetService.updateDraft(command);
+
+            return RestResponse.result(result);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    @Override
+    public BaseResponse submitDraft(UUID key, CatalogueItemCommandDto command, BindingResult validationResult) {
+        try {
+            command.setUserId(this.currentUserId());
+            command.setPublisherKey(this.currentUserKey());
+            command.setAssetKey(key);
+
+            this.assetDraftValidator.validate(command, validationResult);
+
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors());
+            }
+
+            this.providerAssetService.submitDraft(command);
+
+            return RestResponse.success();
+        } catch (final AssetDraftException ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    @Override
+    public BaseResponse reviewDraft(UUID id, AssetDraftReviewCommandDto command) {
+        try {
+            command.setAssetKey(id);
+            command.setPublisherKey(this.currentUserKey());
+
+            if (command.isRejected()) {
+                this.providerAssetService.rejectProvider(command);
+            } else {
+                this.providerAssetService.acceptProvider(command);
+            }
+
+            return RestResponse.success();
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    @Override
+    public BaseResponse deleteDraft(UUID key) {
+        try {
+            final UUID publisherKey = this.currentUserKey();
+
+            this.providerAssetService.deleteDraft(publisherKey, key);
+
+            return RestResponse.success();
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    public RestResponse<?> findAllDraftTemp(EnumDraftStatus status, int pageIndex, int pageSize) {
+        try {
+            final UUID publisherKey = this.currentUserKey();
 
             // Catalogue service data page index is 1-based
-            e = this.catalogueClient.getObject().findAllDraft(
-                publisherId, status.getValue(), pageIndex + 1, pageSize
+            final ResponseEntity<CatalogueResponse<CatalogueCollection>> e = this.catalogueClient.getObject().findAllDraft(
+                publisherKey, status.getValue(), pageIndex + 1, pageSize
             );
 
             // Check if catalogue response is successful
@@ -90,25 +263,19 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         }
     }
 
-    @Override
-    public RestResponse<Void> createDraft(CatalogueAddItemCommandDto command) {
+    public RestResponse<Void> createDraftTemp(CatalogueItemCommandDto command) {
         try {
             // TODO : id must be created by the PID service
 
             // Inject provider (current user) key
-            command.setPublisherId(this.currentUserKey());
+            command.setPublisherKey(this.currentUserKey());
 
             // Create feature
             final CatalogueFeature feature = command.toFeature();
 
-            // Compute effective pricing models
-            final List<BasePricingModelCommandDto> featurePricingModels = feature.getProperties().getPricingModels();
-
             command.getPricingModels().stream().forEach(m-> {
                 // Always override the key with a value generated at the server
                 m.setKey(UUID.randomUUID());
-
-                featurePricingModels.add(m);
             });
 
             // Insert new asset
@@ -124,8 +291,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
-    @Override
-    public RestResponse<CatalogueItemDraftDetailsDto> findOneDraft(UUID id) {
+    public RestResponse<CatalogueItemDraftDetailsDto> findOneDraftTemp(UUID id) {
         try {
             final ResponseEntity<CatalogueResponse<CatalogueFeature>> e = this.catalogueClient.getObject().findOneDraftById(id);
 
@@ -165,30 +331,24 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         }
     }
 
-    @Override
-    public RestResponse<CatalogueItemDetailsDto> updateDraft(UUID id, CatalogueAddItemCommandDto command) {
+    public RestResponse<CatalogueItemDetailsDto> updateDraftTemp(UUID key, CatalogueItemCommandDto command) {
         try {
-            final UUID publisherId = this.currentUserKey();
+            final UUID publisherKey = this.currentUserKey();
 
-            // Inject asset and provider identifiers
-            command.setId(id);
-            command.setPublisherId(publisherId);
+            // Inject provider and asset identifiers
+            command.setPublisherKey(publisherKey);
+            command.setAssetKey(key);
 
             // Create feature
             final CatalogueFeature feature = command.toFeature();
 
-            // Compute effective pricing models
-            final List<BasePricingModelCommandDto> featurePricingModels = feature.getProperties().getPricingModels();
-
             command.getPricingModels().stream().forEach(m-> {
                 // Always override the key with a value generated at the server
                 m.setKey(UUID.randomUUID());
-
-                featurePricingModels.add(m);
             });
 
             // Update draft
-            this.catalogueClient.getObject().updateDraft(id, feature);
+            this.catalogueClient.getObject().updateDraft(key, feature);
 
             return RestResponse.success();
         } catch (final FeignException fex) {
@@ -200,8 +360,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
-    @Override
-    public BaseResponse setDraftStatus(UUID id, CatalogueClientSetStatusCommandDto command) {
+    public BaseResponse setDraftStatusTemp(UUID id, CatalogueClientSetStatusCommandDto command) {
         try {
             this.catalogueClient.getObject().setDraftStatus(id, command.getStatus().getValue());
 
@@ -215,8 +374,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
-    @Override
-    public BaseResponse deleteDraft(UUID id) {
+    public BaseResponse deleteDraftTemp(UUID id) {
         try {
             this.catalogueClient.getObject().deleteDraft(id);
 
