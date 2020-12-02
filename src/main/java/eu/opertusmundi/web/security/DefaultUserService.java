@@ -27,9 +27,9 @@ import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
+import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileUpdateCommandDto;
+import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
 import eu.opertusmundi.common.repository.AccountRepository;
@@ -73,7 +73,7 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public AccountDto createAccount(AccountCreateCommandDto command) {
+    public AccountDto createAccount(AccountCommandDto command) {
         // Create account
         final AccountDto account = this.accountRepository.create(command);
 
@@ -198,7 +198,7 @@ public class DefaultUserService implements UserService {
 
     @Override
     @Transactional
-    public AccountDto updateProfile(AccountProfileUpdateCommandDto command) {
+    public AccountDto updateProfile(AccountProfileCommandDto command) {
         final AccountDto account = this.accountRepository.updateProfile(command);
 
         return account;

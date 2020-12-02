@@ -6,7 +6,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AccountEntity;
-import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
+import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 
 @Component
@@ -17,12 +17,12 @@ public class AccountValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return AccountCreateCommandDto.class.isAssignableFrom(clazz);
+        return AccountCommandDto.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void validate(Object obj, Errors e) {
-        final AccountCreateCommandDto a = (AccountCreateCommandDto) obj;
+        final AccountCommandDto a = (AccountCommandDto) obj;
 
         AccountEntity account;
 

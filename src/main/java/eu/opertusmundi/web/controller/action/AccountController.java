@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
+import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.web.model.security.AccountRegisterResponse;
@@ -129,13 +129,13 @@ public interface AccountController {
             description = "Account registration command",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = AccountCreateCommandDto.class)
+                schema = @Schema(implementation = AccountCommandDto.class)
             ),
             required = true
         )
         @Valid
         @RequestBody
-        AccountCreateCommandDto command,
+        AccountCommandDto command,
         @Parameter(
             hidden = true
         )

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountProfileDto;
-import eu.opertusmundi.common.model.dto.AccountProfileUpdateCommandDto;
+import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -71,13 +71,13 @@ public interface ProfileController {
             description = "Profile update command",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = AccountProfileUpdateCommandDto.class)
+                schema = @Schema(implementation = AccountProfileCommandDto.class)
             ),
             required = true
         )
         @Valid
         @RequestBody
-        AccountProfileUpdateCommandDto command,
+        AccountProfileCommandDto command,
         @Parameter(
             hidden = true
         )

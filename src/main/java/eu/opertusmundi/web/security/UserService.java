@@ -8,9 +8,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
+import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileUpdateCommandDto;
+import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
 
@@ -41,7 +41,7 @@ public interface UserService {
      * @param command Account creation command
      * @return The new account
      */
-    AccountDto createAccount(AccountCreateCommandDto command);
+    AccountDto createAccount(AccountCommandDto command);
 
     /**
      * Create activation token
@@ -65,7 +65,7 @@ public interface UserService {
      * @param command The profile update command
      * @return
      */
-    AccountDto updateProfile(AccountProfileUpdateCommandDto command);
+    AccountDto updateProfile(AccountProfileCommandDto command);
 
     /**
      * Grant roles to an account

@@ -9,7 +9,7 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileDto;
-import eu.opertusmundi.common.model.dto.AccountProfileUpdateCommandDto;
+import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.web.security.UserService;
 import eu.opertusmundi.web.validation.ProfileValidator;
@@ -42,7 +42,7 @@ public class ProfileControllerImpl extends BaseController implements ProfileCont
     }
 
     @Override
-    public RestResponse<AccountProfileDto> updateProfile(AccountProfileUpdateCommandDto command, BindingResult validationResult) {
+    public RestResponse<AccountProfileDto> updateProfile(AccountProfileCommandDto command, BindingResult validationResult) {
         final Integer id = this.authenticationFacade.getCurrentUserId();
 
         // Inject user id (id property is always ignored during serialization)

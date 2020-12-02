@@ -18,7 +18,7 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.Message;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.dto.AccountCreateCommandDto;
+import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
@@ -59,7 +59,7 @@ public class AccountControllerImpl extends BaseController implements AccountCont
     }
 
     @Override
-    public BaseResponse register(AccountCreateCommandDto command, BindingResult validationResult) {
+    public BaseResponse register(AccountCommandDto command, BindingResult validationResult) {
         this.accountValidator.validate(command, validationResult);
 
         if (validationResult.hasErrors()) {
