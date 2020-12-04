@@ -19,6 +19,7 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
+import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientSetStatusCommandDto;
@@ -31,6 +32,7 @@ import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueCollection;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueResponse;
+import eu.opertusmundi.common.model.dto.EnumSortingOrder;
 import eu.opertusmundi.common.model.dto.PublisherDto;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
@@ -60,12 +62,15 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     private ProviderAssetService providerAssetService;
 
     @Override
-    public RestResponse<?> findAllDraft(Set<EnumProviderAssetDraftStatus> status, int pageIndex, int pageSize) {
+    public RestResponse<?> findAllDraft(
+        Set<EnumProviderAssetDraftStatus> status, int pageIndex, int pageSize,
+        EnumProviderAssetDraftSortField orderBy, EnumSortingOrder order
+    ) {
         try {
             final UUID publisherKey = this.currentUserKey();
 
             final PageResultDto<AssetDraftDto> result = this.providerAssetService.findAllDraft(
-                publisherKey, status, pageIndex, pageSize
+                publisherKey, status, pageIndex, pageSize, orderBy, order
             );
 
             return RestResponse.result(result);
@@ -108,11 +113,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> findOneDraft(UUID key) {
+    public RestResponse<AssetDraftDto> findOneDraft(UUID draftKey) {
         try {
             final UUID publisherKey = this.currentUserKey();
 
-            final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, key);
+            final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, draftKey);
 
             if(draft ==null) {
                 return RestResponse.notFound();
@@ -129,11 +134,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> updateDraft(UUID key, CatalogueItemCommandDto command, BindingResult validationResult) {
+    public RestResponse<AssetDraftDto> updateDraft(UUID draftKey, CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
             command.setUserId(this.currentUserId());
             command.setPublisherKey(this.currentUserKey());
-            command.setAssetKey(key);
+            command.setAssetKey(draftKey);
 
             command.getPricingModels().stream().forEach(m-> {
                 // Always override the key with a value generated at the server
@@ -159,11 +164,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public BaseResponse submitDraft(UUID key, CatalogueItemCommandDto command, BindingResult validationResult) {
+    public BaseResponse submitDraft(UUID draftKey, CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
             command.setUserId(this.currentUserId());
             command.setPublisherKey(this.currentUserKey());
-            command.setAssetKey(key);
+            command.setAssetKey(draftKey);
 
             this.assetDraftValidator.validate(command, validationResult);
 
@@ -186,9 +191,35 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public BaseResponse reviewDraft(UUID id, AssetDraftReviewCommandDto command) {
+    public BaseResponse saveAndSubmitDraft(CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
-            command.setAssetKey(id);
+            command.setUserId(this.currentUserId());
+            command.setPublisherKey(this.currentUserKey());
+
+            this.assetDraftValidator.validate(command, validationResult);
+
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors());
+            }
+
+            this.providerAssetService.submitDraft(command);
+
+            return RestResponse.success();
+        } catch (final AssetDraftException ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    @Override
+    public BaseResponse reviewDraft(UUID draftKey, AssetDraftReviewCommandDto command) {
+        try {
+            command.setAssetKey(draftKey);
             command.setPublisherKey(this.currentUserKey());
 
             if (command.isRejected()) {
@@ -208,11 +239,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public BaseResponse deleteDraft(UUID key) {
+    public BaseResponse deleteDraft(UUID draftKey) {
         try {
             final UUID publisherKey = this.currentUserKey();
 
-            this.providerAssetService.deleteDraft(publisherKey, key);
+            this.providerAssetService.deleteDraft(publisherKey, draftKey);
 
             return RestResponse.success();
         } catch (final AssetDraftException ex) {
@@ -291,9 +322,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
-    public RestResponse<CatalogueItemDraftDetailsDto> findOneDraftTemp(UUID id) {
+    public RestResponse<CatalogueItemDraftDetailsDto> findOneDraftTemp(UUID draftKey) {
         try {
-            final ResponseEntity<CatalogueResponse<CatalogueFeature>> e = this.catalogueClient.getObject().findOneDraftById(id);
+            final ResponseEntity<CatalogueResponse<CatalogueFeature>> e = this.catalogueClient.getObject().findOneDraftById(draftKey);
 
             final CatalogueResponse<CatalogueFeature> catalogueResponse = e.getBody();
 
@@ -331,13 +362,13 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         }
     }
 
-    public RestResponse<CatalogueItemDetailsDto> updateDraftTemp(UUID key, CatalogueItemCommandDto command) {
+    public RestResponse<CatalogueItemDetailsDto> updateDraftTemp(UUID draftKey, CatalogueItemCommandDto command) {
         try {
             final UUID publisherKey = this.currentUserKey();
 
             // Inject provider and asset identifiers
             command.setPublisherKey(publisherKey);
-            command.setAssetKey(key);
+            command.setAssetKey(draftKey);
 
             // Create feature
             final CatalogueFeature feature = command.toFeature();
@@ -348,7 +379,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             });
 
             // Update draft
-            this.catalogueClient.getObject().updateDraft(key, feature);
+            this.catalogueClient.getObject().updateDraft(draftKey, feature);
 
             return RestResponse.success();
         } catch (final FeignException fex) {
@@ -360,9 +391,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
-    public BaseResponse setDraftStatusTemp(UUID id, CatalogueClientSetStatusCommandDto command) {
+    public BaseResponse setDraftStatusTemp(UUID draftKey, CatalogueClientSetStatusCommandDto command) {
         try {
-            this.catalogueClient.getObject().setDraftStatus(id, command.getStatus().getValue());
+            this.catalogueClient.getObject().setDraftStatus(draftKey, command.getStatus().getValue());
 
             return RestResponse.success();
         } catch (final FeignException fex) {
@@ -374,9 +405,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
-    public BaseResponse deleteDraftTemp(UUID id) {
+    public BaseResponse deleteDraftTemp(UUID draftKey) {
         try {
-            this.catalogueClient.getObject().deleteDraft(id);
+            this.catalogueClient.getObject().deleteDraft(draftKey);
 
             return RestResponse.success();
         } catch (final FeignException fex) {
