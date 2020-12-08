@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
+import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.Message;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
@@ -79,7 +80,7 @@ public class AccountControllerImpl extends BaseController implements AccountCont
 
         command.setUserId(this.currentUserId());
 
-        final ServiceResponse<ActivationTokenDto> response = this.userService.createToken(command);
+        final ServiceResponse<ActivationTokenDto> response = this.userService.createToken(EnumActivationTokenType.ACCOUNT, command);
 
         if (response.getResult() == null) {
             return RestResponse.error(response.getMessages());

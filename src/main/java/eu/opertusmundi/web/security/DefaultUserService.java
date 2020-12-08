@@ -88,7 +88,7 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public ServiceResponse<ActivationTokenDto> createToken(ActivationTokenCommandDto command) {
+    public ServiceResponse<ActivationTokenDto> createToken(EnumActivationTokenType type, ActivationTokenCommandDto command) {
         final AccountEntity account = this.accountRepository.findOneByEmail(command.getEmail()).orElse(null);
 
         logger.info("Request token for email {}", command.getEmail());
@@ -96,9 +96,6 @@ public class DefaultUserService implements UserService {
         if (account == null) {
             return ServiceResponse.success();
         }
-
-        final boolean                 activated = account.getActivationStatus() == EnumActivationStatus.COMPLETED;
-        final EnumActivationTokenType type      = activated ? EnumActivationTokenType.PROVIDER : EnumActivationTokenType.ACCOUNT;
 
         switch (type) {
             case ACCOUNT :
@@ -110,13 +107,13 @@ public class DefaultUserService implements UserService {
             case CONSUMER :
                 if (!command.getEmail().equals(account.getProfile().getConsumer().getEmail())) {
                     // Invalid email
-                    return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the profile");
+                    return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the consumer profile");
                 }
                 break;
             case PROVIDER :
                 if (!command.getEmail().equals(account.getProfile().getProvider().getEmail())) {
                     // Invalid email
-                    return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the profile");
+                    return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the provider profile");
                 }
                 break;
         }

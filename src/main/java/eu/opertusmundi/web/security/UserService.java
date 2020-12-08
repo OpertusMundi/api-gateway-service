@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.ServiceResponse;
@@ -46,10 +47,11 @@ public interface UserService {
     /**
      * Create activation token
      *
+     * @param type Type of token to create
      * @param command Token creation command
      * @return Instance of {@link ServiceResponse} with a result of type {@link ActivationTokenDto}
      */
-    ServiceResponse<ActivationTokenDto> createToken(ActivationTokenCommandDto command);
+    ServiceResponse<ActivationTokenDto> createToken(EnumActivationTokenType type, ActivationTokenCommandDto command);
 
     /**
      * Redeem activation token
