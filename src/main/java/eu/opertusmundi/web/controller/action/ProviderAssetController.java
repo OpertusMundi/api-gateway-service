@@ -32,7 +32,7 @@ public interface ProviderAssetController {
     @Operation(
         operationId = "provider-assets-01",
         summary     = "Delete asset",
-        description = "Delete asset from catalogue. Required roles: ROLE_PROVIDER",
+        description = "Delete asset from catalogue. Required roles: <b>ROLE_PROVIDER</b>",
         tags        = { "Provider Assets" }
     )
     @ApiResponse(

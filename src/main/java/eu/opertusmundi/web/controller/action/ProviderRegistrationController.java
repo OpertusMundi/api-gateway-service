@@ -41,7 +41,7 @@ public interface ProviderRegistrationController {
         description =
             "Save a provider registration request as a draft. "
             + "When saving draft data, validation errors are ignored. "
-            + "Required roles: ROLE_USER",
+            + "Required roles: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -77,7 +77,7 @@ public interface ProviderRegistrationController {
         operationId = "provider-registration-02",
         summary     = "Submit registration",
         description = "Submit a provider registration request to the OP platform. "
-                      + "Required roles: ROLE_USER",
+                      + "Required roles: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -111,7 +111,7 @@ public interface ProviderRegistrationController {
         operationId = "provider-registration-03",
         summary     = "Cancel registration",
         description = "Cancel any pending provider registration request. "
-                      + "Required roles: ROLE_USER",
+                      + "Required roles: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }

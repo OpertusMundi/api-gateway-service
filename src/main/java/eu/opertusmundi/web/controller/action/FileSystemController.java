@@ -46,9 +46,8 @@ public interface FileSystemController {
      */
     @Operation(
         operationId = "file-system-01",
-        summary     = "Get file system. Roles required: ROLE_USER",
-        description = "List (recursively) files and folders for user's directory",
-        tags        = { "File System" },
+        summary     = "Get file system",
+        description = "List (recursively) files and folders for user's directory. Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -69,9 +68,9 @@ public interface FileSystemController {
      */
     @Operation(
         operationId = "file-system-02",
-        summary     = "Create a new folder. Roles required: ROLE_USER",
-        description = "Creates a directory in the user's remote file system by creating all nonexistent parent directories first",
-        tags        = { "File System" },
+        summary     = "Create a new folder",
+        description = "Creates a directory in the user's remote file system by creating all nonexistent parent directories first."
+                    + " Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -92,9 +91,8 @@ public interface FileSystemController {
      */
     @Operation(
         operationId = "file-system-04",
-        summary     = "Download a file. Roles required: ROLE_USER",
-        description = "Downloads a file",
-        tags        = { "File System" },
+        summary     = "Download a file",
+        description = "Downloads a file. Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -125,9 +123,8 @@ public interface FileSystemController {
      */
     @Operation(
         operationId = "file-system-05",
-        summary     = "Delete a file or directory. Roles required: ROLE_USER",
-        description = "Deletes a file or directory. A directory must be empty before deletion",
-        tags        = { "File System" },
+        summary     = "Delete a file or directory",
+        description = "Deletes a file or directory. A directory must be empty before deletion. Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -157,10 +154,10 @@ public interface FileSystemController {
      */
     @Operation(
         operationId = "file-system-03",
-        summary     = "Upload a file. Roles required: ROLE_USER",
+        summary     = "Upload a file",
         description = "Uploads a file to the user's remote file system. If the path does not exist, it is created. "
-                      + "If the file already exists, the overwite attribute must be set to true, or an error is returned.",
-        tags        = { "File System" },
+                      + "If the file already exists, the overwite attribute must be set to true, or an error is returned. "
+                      + "Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }

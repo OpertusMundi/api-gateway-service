@@ -215,7 +215,8 @@ public interface AccountController {
      */
     @Operation(
         operationId = "account-04",
-        summary     = "Get user data. Roles required: ROLE_USER",
+        summary     = "Get user data",
+        description = "Get user data. Roles required: <b>ROLE_USER</b>",
         tags        = { "Account" },
         security    = {
             @SecurityRequirement(name = "cookie")
