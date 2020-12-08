@@ -223,7 +223,6 @@
 		    <groupId>org.camunda.bpm</groupId>
 		    <artifactId>camunda-engine</artifactId>
 		    <version>${org.camunda.bpm.version}</version>
-		    <scope>provided</scope>
 		</dependency>
 
 	    <dependency>
