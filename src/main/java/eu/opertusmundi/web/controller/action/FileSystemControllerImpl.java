@@ -15,11 +15,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.BasicMessageCode;
+import eu.opertusmundi.common.model.EnumActivationStatus;
 import eu.opertusmundi.common.model.FileSystemMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.file.DirectoryDto;
@@ -27,6 +30,7 @@ import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.common.service.FileManager;
+import eu.opertusmundi.web.model.security.User;
 
 @RestController
 public class FileSystemControllerImpl extends BaseController implements FileSystemController {
@@ -37,36 +41,31 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     private FileManager fileManager;
 
     @Override
-    public RestResponse<?> browseDirectory() {
-        try {
-            final FilePathCommand command = FilePathCommand.builder()
-                .userId(this.currentUserId())
-                .path("/")
-                .build();
+    public RestResponse<?> browseDirectory(Authentication auth) {
+        this.checkAccount(auth);
 
-            final DirectoryDto result = this.fileManager.browse(command);
-
-            return RestResponse.result(result);
-        } catch (final FileSystemException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
-        }
+        return this.browse();
     }
 
     @Override
-    public RestResponse<?> createFolder(FilePathCommand command) {
+    public RestResponse<?> createFolder(FilePathCommand command, Authentication auth) {
+        this.checkAccount(auth);
+
         try {
             command.setUserId(this.currentUserId());
 
             this.fileManager.createPath(command);
 
-            return this.browseDirectory();
+            return this.browse();
         } catch (final FileSystemException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<StreamingResponseBody> downloadFile(String relativePath, HttpServletResponse response) {
+    public ResponseEntity<StreamingResponseBody> downloadFile(String relativePath, HttpServletResponse response, Authentication auth) {
+        this.checkAccount(auth);
+
         try {
             final FilePathCommand command = FilePathCommand.builder()
                 .userId(this.currentUserId())
@@ -105,7 +104,9 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     }
 
     @Override
-    public RestResponse<?> deletePath(String path) {
+    public RestResponse<?> deletePath(String path, Authentication auth) {
+        this.checkAccount(auth);
+
         try {
             final FilePathCommand command = FilePathCommand.builder()
                 .userId(this.currentUserId())
@@ -114,7 +115,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
 
             this.fileManager.deletePath(command);
 
-            return this.browseDirectory();
+            return this.browse();
         } catch (final FileSystemException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
@@ -126,20 +127,45 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     }
 
     @Override
-    public RestResponse<?> uploadFile(MultipartFile file, FileUploadCommand command) {
+    public RestResponse<?> uploadFile(MultipartFile file, FileUploadCommand command, Authentication auth) {
+        this.checkAccount(auth);
+
         try (final InputStream input = new ByteArrayInputStream(file.getBytes())) {
             command.setUserId(this.currentUserId());
             command.setSize(file.getSize());
 
             this.fileManager.uploadFile(input, command);
 
-            return this.browseDirectory();
+            return this.browse();
         } catch (final FileSystemException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
             logger.error("[FileSystem] Failed to upload file", ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
+        }
+    }
+
+    private RestResponse<?> browse() {
+        try {
+            final FilePathCommand command = FilePathCommand.builder()
+                .userId(this.currentUserId())
+                .path("/")
+                .build();
+
+            final DirectoryDto result = this.fileManager.browse(command);
+
+            return RestResponse.result(result);
+        } catch (final FileSystemException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        }
+    }
+
+    private void checkAccount(Authentication auth) throws AccessDeniedException {
+        final User details = (User) auth.getPrincipal();
+
+        if (details.getAccount().getActivationStatus() != EnumActivationStatus.COMPLETED) {
+            throw new AccessDeniedException("Access Denied");
         }
     }
 
