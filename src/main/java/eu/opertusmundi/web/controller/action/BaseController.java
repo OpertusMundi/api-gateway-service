@@ -3,6 +3,7 @@ package eu.opertusmundi.web.controller.action;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 
 import eu.opertusmundi.web.security.AuthenticationFacade;
 
@@ -25,6 +26,12 @@ public abstract class BaseController {
 
     protected String currentUserEmail() {
         return this.authenticationFacade.getCurrentUserEmail();
+    }
+
+    protected void ensureRegistered() throws AccessDeniedException {
+        if (!this.authenticationFacade.isRegistered()) {
+            throw new AccessDeniedException("Access Denied");
+        }
     }
 
 }

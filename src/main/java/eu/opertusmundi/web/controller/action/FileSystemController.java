@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,7 +59,7 @@ public interface FileSystemController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemTypes.FileSystemResponse.class))
     )
     @GetMapping(value = "/file-system")
-    RestResponse<?> browseDirectory(@Parameter(hidden = true) Authentication auth) throws AccessDeniedException;
+    RestResponse<?> browseDirectory() throws AccessDeniedException;
 
     /**
      * Create a new folder
@@ -83,9 +82,7 @@ public interface FileSystemController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemTypes.FileSystemResponse.class))
     )
     @PostMapping(value = "/file-system/folders")
-    RestResponse<?> createFolder(
-        @RequestBody FilePathCommand command, @Parameter(hidden = true) Authentication auth
-    ) throws AccessDeniedException;
+    RestResponse<?> createFolder(@RequestBody FilePathCommand command) throws AccessDeniedException;
 
     /**
      * Download a file
@@ -115,9 +112,7 @@ public interface FileSystemController {
         )
         @RequestParam(name = "path", required = true) String relativePath,
         @Parameter(hidden = true)
-        HttpServletResponse response,
-        @Parameter(hidden = true)
-        Authentication auth
+        HttpServletResponse response
     ) throws AccessDeniedException;
 
     /**
@@ -147,9 +142,7 @@ public interface FileSystemController {
             required    = true,
             description = "Relative path in user's remote file system"
         )
-        @RequestParam(name = "path", required = true) String path,
-        @Parameter(hidden = true)
-        Authentication auth
+        @RequestParam(name = "path", required = true) String path
     ) throws AccessDeniedException;
 
     /**
@@ -181,8 +174,7 @@ public interface FileSystemController {
             name = "file", type = "string", format = "binary", description = "Uploaded file"
         ))
         @RequestPart(name = "file", required = true) MultipartFile file,
-        @RequestPart(name = "data", required = true) FileUploadCommand command,
-        @Parameter(hidden = true) Authentication auth
+        @RequestPart(name = "data", required = true) FileUploadCommand command
     ) throws AccessDeniedException;
 
 }

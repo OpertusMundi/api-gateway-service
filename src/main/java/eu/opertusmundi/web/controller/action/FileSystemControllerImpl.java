@@ -15,14 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.BasicMessageCode;
-import eu.opertusmundi.common.model.EnumActivationStatus;
 import eu.opertusmundi.common.model.FileSystemMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.file.DirectoryDto;
@@ -30,7 +27,6 @@ import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.common.service.FileManager;
-import eu.opertusmundi.web.model.security.User;
 
 @RestController
 public class FileSystemControllerImpl extends BaseController implements FileSystemController {
@@ -41,15 +37,15 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     private FileManager fileManager;
 
     @Override
-    public RestResponse<?> browseDirectory(Authentication auth) {
-        this.checkAccount(auth);
+    public RestResponse<?> browseDirectory() {
+        this.ensureRegistered();
 
         return this.browse();
     }
 
     @Override
-    public RestResponse<?> createFolder(FilePathCommand command, Authentication auth) {
-        this.checkAccount(auth);
+    public RestResponse<?> createFolder(FilePathCommand command) {
+        this.ensureRegistered();
 
         try {
             command.setUserId(this.currentUserId());
@@ -63,8 +59,8 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     }
 
     @Override
-    public ResponseEntity<StreamingResponseBody> downloadFile(String relativePath, HttpServletResponse response, Authentication auth) {
-        this.checkAccount(auth);
+    public ResponseEntity<StreamingResponseBody> downloadFile(String relativePath, HttpServletResponse response) {
+        this.ensureRegistered();
 
         try {
             final FilePathCommand command = FilePathCommand.builder()
@@ -104,8 +100,8 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     }
 
     @Override
-    public RestResponse<?> deletePath(String path, Authentication auth) {
-        this.checkAccount(auth);
+    public RestResponse<?> deletePath(String path) {
+        this.ensureRegistered();
 
         try {
             final FilePathCommand command = FilePathCommand.builder()
@@ -127,8 +123,8 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     }
 
     @Override
-    public RestResponse<?> uploadFile(MultipartFile file, FileUploadCommand command, Authentication auth) {
-        this.checkAccount(auth);
+    public RestResponse<?> uploadFile(MultipartFile file, FileUploadCommand command) {
+        this.ensureRegistered();
 
         try (final InputStream input = new ByteArrayInputStream(file.getBytes())) {
             command.setUserId(this.currentUserId());
@@ -158,14 +154,6 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
             return RestResponse.result(result);
         } catch (final FileSystemException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
-        }
-    }
-
-    private void checkAccount(Authentication auth) throws AccessDeniedException {
-        final User details = (User) auth.getPrincipal();
-
-        if (details.getAccount().getActivationStatus() != EnumActivationStatus.COMPLETED) {
-            throw new AccessDeniedException("Access Denied");
         }
     }
 

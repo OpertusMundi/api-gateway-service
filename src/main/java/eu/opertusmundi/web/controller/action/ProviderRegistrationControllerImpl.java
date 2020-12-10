@@ -31,6 +31,8 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
     public RestResponse<AccountProfileDto> updateRegistration(
         ProviderProfessionalCommandDto command, BindingResult validationResult
     ) {
+        this.ensureRegistered();
+
         return this.update(command, validationResult, true);
     }
 
@@ -38,11 +40,15 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
     public RestResponse<AccountProfileDto> submitRegistration(
         ProviderProfessionalCommandDto command, BindingResult validationResult
     ) {
+        this.ensureRegistered();
+
         return this.update(command, validationResult, false);
     }
 
     @Override
     public RestResponse<AccountProfileDto> cancelRegistration() {
+        this.ensureRegistered();
+
         final UUID userKey = this.authenticationFacade.getCurrentUserKey();
 
         try {

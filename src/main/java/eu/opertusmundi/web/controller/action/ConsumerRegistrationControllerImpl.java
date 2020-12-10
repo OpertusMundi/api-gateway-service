@@ -29,16 +29,22 @@ public class ConsumerRegistrationControllerImpl extends BaseController implement
 
     @Override
     public RestResponse<AccountProfileDto> updateRegistration(CustomerCommandDto command, BindingResult validationResult) {
+        this.ensureRegistered();
+
         return this.update(command, validationResult, true);
     }
 
     @Override
     public RestResponse<AccountProfileDto> submitRegistration(CustomerCommandDto command, BindingResult validationResult) {
+        this.ensureRegistered();
+
         return this.update(command, validationResult, false);
     }
 
     @Override
     public RestResponse<AccountProfileDto> cancelRegistration() {
+        this.ensureRegistered();
+
         final UUID userKey = this.authenticationFacade.getCurrentUserKey();
 
         try {

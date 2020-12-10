@@ -10,16 +10,28 @@ import eu.opertusmundi.common.model.EnumRole;
 public interface AuthenticationFacade {
 
     /**
-     * Get the current {@link Authentication} object from the {@link SecurityContextHolder}
+     * Get the current {@link Authentication} object from the
+     * {@link SecurityContextHolder}
+     *
      * @return An instance of {@link Authentication}
      */
     Authentication getAuthentication();
 
     /**
      * Get user authentication status
-     * @return True if there is an authenticated user for the current session; Otherwise, False is returned
+     *
+     * @return True if there is an authenticated user for the current session;
+     *         Otherwise, False is returned
      */
     boolean isAuthenticated();
+
+    /**
+     * Get user registration status
+     *
+     * @return True if the user is authenticated and the email address has been
+     *         verified
+     */
+    boolean isRegistered();
 
     /**
      * Get the user id

@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import eu.opertusmundi.common.model.EnumActivationStatus;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.web.model.security.User;
 
@@ -27,6 +28,17 @@ public class DefaultAuthenticationFacade implements AuthenticationFacade {
     @Override
     public boolean isAuthenticated() {
         return this.getCurrentUserId() != null;
+    }
+
+    @Override
+    public boolean isRegistered() {
+        final Authentication authentication = this.getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+        final User details = (User) authentication.getPrincipal();
+
+        return details.getAccount().getActivationStatus() == EnumActivationStatus.COMPLETED;
     }
 
     @Override
