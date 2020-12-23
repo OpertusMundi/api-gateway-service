@@ -63,7 +63,7 @@ public class HomeController {
      * Request handler for verifying tokens
      */
     @GetMapping("/token/verify")
-    public String verifyToken(@RequestParam(name = "id", required = true) UUID token) {
+    public String verifyToken(@RequestParam(name = "token", required = true) UUID token) {
         return "index";
     }
 
