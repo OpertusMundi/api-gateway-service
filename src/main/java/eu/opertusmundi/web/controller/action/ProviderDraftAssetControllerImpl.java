@@ -1,5 +1,9 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,15 +14,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
+import eu.opertusmundi.common.model.Message;
 import eu.opertusmundi.common.model.PageRequestDto;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
+import eu.opertusmundi.common.model.asset.AssetRepositoryException;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
@@ -34,6 +41,7 @@ import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueResponse;
 import eu.opertusmundi.common.model.dto.EnumSortingOrder;
 import eu.opertusmundi.common.model.dto.PublisherDto;
+import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.web.controller.support.CatalogueUtils;
@@ -148,7 +156,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             this.assetDraftValidator.validate(command, validationResult);
 
             if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors());
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
 
             final AssetDraftDto result = this.providerAssetService.updateDraft(command);
@@ -173,7 +181,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             this.assetDraftValidator.validate(command, validationResult);
 
             if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors());
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
 
             this.providerAssetService.submitDraft(command);
@@ -414,6 +422,49 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             logger.error("[Feign Client][Catalogue] Operation has failed", fex);
         } catch (final Exception ex) {
             logger.error("[Catalogue] Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    @Override
+    public RestResponse<AssetDraftDto> uploadFiles(UUID draftKey, MultipartFile[] files) {
+        final UUID          publisherKey = this.currentUserKey();
+        final List<Message> messages     = new ArrayList<Message>();
+
+        for (final MultipartFile f : files) {
+            try (final InputStream input = new ByteArrayInputStream(f.getBytes())) {
+                this.providerAssetService.addFile(publisherKey, draftKey, f.getOriginalFilename(), input);
+            } catch (final FileSystemException | AssetRepositoryException ex) {
+                messages.add(new Message(ex.getCode(), ex.getMessage()));
+            } catch (final Exception ex) {
+                logger.error("[FileSystem] Failed to upload file", ex);
+
+                messages.add(new Message(BasicMessageCode.InternalServerError, ex.getMessage()));
+            }
+        }
+
+        if (messages.isEmpty()) {
+            final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, draftKey);
+
+            return RestResponse.result(draft);
+        }
+
+        return RestResponse.error(messages);
+    }
+
+    @Override
+    public RestResponse<?> deleteFile(UUID draftKey, String path) {
+        try {
+            final UUID publisherKey = this.currentUserKey();
+
+            final AssetDraftDto r = this.providerAssetService.deleteFile(publisherKey, draftKey, path);
+
+            return RestResponse.result(r);
+        } catch (final AssetDraftException | FileSystemException | AssetRepositoryException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[FileSystem] Failed to delete file", ex);
         }
 
         return RestResponse.failure();

@@ -26,7 +26,7 @@ import eu.opertusmundi.common.model.file.DirectoryDto;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
-import eu.opertusmundi.common.service.FileManager;
+import eu.opertusmundi.common.service.UserFileManager;
 
 @RestController
 public class FileSystemControllerImpl extends BaseController implements FileSystemController {
@@ -34,7 +34,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     private static final Logger logger = LoggerFactory.getLogger(FileSystemController.class);
 
     @Autowired
-    private FileManager fileManager;
+    private UserFileManager fileManager;
 
     @Override
     public RestResponse<?> browseDirectory() {
@@ -119,7 +119,6 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
 
             return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
         }
-
     }
 
     @Override

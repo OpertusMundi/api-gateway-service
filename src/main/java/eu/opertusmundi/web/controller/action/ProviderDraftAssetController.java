@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
@@ -31,9 +35,11 @@ import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
@@ -177,7 +183,7 @@ public interface ProviderDraftAssetController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
     @PutMapping(value = "/provider/drafts/{draftKey}", consumes = "application/json")
     @Validated
@@ -335,5 +341,77 @@ public interface ProviderDraftAssetController {
         )
         @PathVariable UUID draftKey
     );
+
+    /**
+     * Uploads a file
+     *
+     * @param files An array of {@link MultipartFile} with the uploaded files.
+     * @return the updated draft
+     */
+    @Operation(
+        operationId = "provider-draft-asset-09",
+        summary     = "Upload files",
+        description = "Uploads one or more files and links them to selected draft instance. Roles required: <b>ROLE_PROVIDER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
+    )
+    @PostMapping(value = "/provider/drafts/{draftKey}/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    RestResponse<AssetDraftDto> uploadFiles(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(
+            description = "Array of uploaded files",
+            array = @ArraySchema(
+                arraySchema = @Schema(name = "file", type = "string", format = "binary", description = "Uploaded file"),
+                minItems = 1
+            )
+        )
+        @RequestPart(name = "files", required = true) MultipartFile[] files
+    ) throws AccessDeniedException;
+
+    /**
+     * Delete a file
+     *
+     * @param fileName Name of the file to delete
+     * @return the updated draft
+     */
+    @Operation(
+        operationId = "provider-draft-asset-10",
+        summary     = "Delete file",
+        description = "Deletes a file. Roles required: <b>ROLE_PROVIDER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
+    )
+    @DeleteMapping(value = "/provider/drafts/{draftKey}/files", params = {"path"})
+    public RestResponse<?> deleteFile(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(
+            in          = ParameterIn.QUERY,
+            required    = true,
+            description = "Path of the file to delete. The file must exist in the draft files collection"
+        )
+        @RequestParam(name = "path", required = true) String path
+    ) throws AccessDeniedException;
 
 }
