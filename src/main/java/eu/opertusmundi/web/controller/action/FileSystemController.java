@@ -167,7 +167,7 @@ public interface FileSystemController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemTypes.FileSystemResponse.class))
     )
-    @PostMapping(value = "/file-manager/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/file-system/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     RestResponse<?> uploadFile(
         @Parameter(schema = @Schema(
             name = "file", type = "string", format = "binary", description = "Uploaded file"
