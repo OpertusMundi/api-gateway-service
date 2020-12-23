@@ -306,16 +306,38 @@
 
 	<build>
 		<plugins>
-			<!-- Inject build information -->
+			<!-- Spring boot plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<executions>
+					<!-- Inject build information -->
 					<execution>
 						<goals>
 							<goal>build-info</goal>
 						</goals>
 					</execution>
+					<!-- Start application before integration tests (required for generating OpenAPI document) -->
+					<!--
+					<execution>
+						<id>pre-integration-test</id>
+						<goals>
+							<goal>start</goal>
+						</goals>
+						<configuration>
+							<profiles>development</profiles>
+						</configuration>
+					</execution>
+					-->
+					<!-- Stop application after integration tests -->
+					<!--
+					<execution>
+						<id>post-integration-test</id>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+					-->
 				</executions>
 			</plugin>
 
@@ -418,12 +440,54 @@
 
 				</executions>
 			</plugin>
+
+			<!-- Configure unit tests -->
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>eu.opertusmundi.web.integration.**</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			
+			<!-- Configure integration tests -->
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>eu.opertusmundi.web.integration.**</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
+            <!-- Export OpenAPI specifications -->
+            <!--
+			<plugin>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-maven-plugin</artifactId>
+				<version>1.1</version>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<apiDocsUrl>http://localhost:8080/api-docs</apiDocsUrl>
+					<outputFileName>openapi.json</outputFileName>
+					<outputDir>${project.basedir}/docs</outputDir>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			-->
 		</plugins>
 
 		<pluginManagement>
-
 			<plugins>
-
+				<!-- Disable frontend-maven-plugin in eclipse -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -431,7 +495,6 @@
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
-							
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>com.github.eirslett</groupId>
@@ -459,16 +522,25 @@
 										<ignore />
 									</action>
 								</pluginExecution>
-
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
 
 			</plugins>
-
 		</pluginManagement>
 
 	</build>
 
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+				</configuration>
+			</plugin>     
+		</plugins>
+	</reporting>
+    
 </project>
