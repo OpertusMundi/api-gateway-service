@@ -79,7 +79,7 @@ public class OpenApiConfiguration {
             LogoExtension.builder()
                 .altText("OpertusMundi")
                 .backgroundColor("#FAFAFA")
-                .url("/assets/img/logo-black.svg")
+                .url("./assets/img/logo-black.svg")
                 .build()
         );
 
