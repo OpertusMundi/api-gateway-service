@@ -40,7 +40,7 @@ public interface ConsumerRegistrationController {
      */
     @Operation(
         operationId = "consumer-registration-01",
-        summary     = "Update consumer registration",
+        summary     = "Update registration",
         description =
             "Create or update consumer draft data in the profile of the authenticated user. "
             + "When saving draft data, validation errors are ignored. Roles required: <b>ROLE_USER</b>",
@@ -77,7 +77,7 @@ public interface ConsumerRegistrationController {
      */
     @Operation(
         operationId = "consumer-registration-02",
-        summary     = "Submit consumer registration",
+        summary     = "Submit registration",
         description = "Update consumer data in the profile of the authenticated user. Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
@@ -111,7 +111,7 @@ public interface ConsumerRegistrationController {
      */
     @Operation(
         operationId = "consumer-registration-03",
-        summary     = "Cancel consumer registration",
+        summary     = "Cancel registration",
         description = "Cancel any pending consumer registration request. Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")

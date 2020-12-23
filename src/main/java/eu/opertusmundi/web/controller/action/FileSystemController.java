@@ -69,7 +69,7 @@ public interface FileSystemController {
      */
     @Operation(
         operationId = "file-system-02",
-        summary     = "Create a new folder",
+        summary     = "Create new folder",
         description = "Creates a directory in the user's remote file system by creating all nonexistent parent directories first."
                     + " Roles required: <b>ROLE_USER</b>",
         security    = {
@@ -92,7 +92,7 @@ public interface FileSystemController {
      */
     @Operation(
         operationId = "file-system-04",
-        summary     = "Download a file",
+        summary     = "Download file",
         description = "Downloads a file. Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
@@ -124,7 +124,7 @@ public interface FileSystemController {
      */
     @Operation(
         operationId = "file-system-05",
-        summary     = "Delete a file or directory",
+        summary     = "Delete file or directory",
         description = "Deletes a file or directory. A directory must be empty before deletion. Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
@@ -146,8 +146,7 @@ public interface FileSystemController {
     ) throws AccessDeniedException;
 
     /**
-     * Uploads a file and links it to the entity of the specified type with the
-     * given key
+     * Uploads a file to user's remote file system
      *
      * @param file An instance of {@link MultipartFile} with the uploaded file.
      * @param command Instance of {@link FileUploadCommand} with file metadata and upload settings.
@@ -155,9 +154,9 @@ public interface FileSystemController {
      */
     @Operation(
         operationId = "file-system-03",
-        summary     = "Upload a file",
+        summary     = "Upload file",
         description = "Uploads a file to the user's remote file system. If the path does not exist, it is created. "
-                      + "If the file already exists, the overwite attribute must be set to true, or an error is returned. "
+                      + "If the file already exists, the overwrite attribute must be set to true, or an error is returned. "
                       + "Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")

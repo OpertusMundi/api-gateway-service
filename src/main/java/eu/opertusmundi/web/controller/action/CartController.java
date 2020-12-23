@@ -40,7 +40,7 @@ public interface CartController {
      */
     @Operation(
         operationId = "cart-01",
-        summary     = "Get shopping cart",
+        summary     = "Get cart",
         description = "Get shopping cart for the current user session",
         tags        = { "Cart" }
     )
