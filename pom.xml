@@ -140,6 +140,13 @@
 			<scope>test</scope>
 		</dependency>
 	
+		<dependency>
+		    <groupId>com.github.tomakehurst</groupId>
+		    <artifactId>wiremock</artifactId>
+		    <version>2.27.2</version>
+		    <scope>test</scope>
+		</dependency>
+
 		<!-- Spring Cloud -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -483,6 +490,49 @@
 				</configuration>
 			</plugin>
 			-->
+			
+			<!-- Crete test coverage reports -->
+			<!--
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.6</version>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>COMPLEXITY</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.90</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			-->
 		</plugins>
 
 		<pluginManagement>
@@ -539,7 +589,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<configuration>
 				</configuration>
-			</plugin>     
+			</plugin>
 		</plugins>
 	</reporting>
     
