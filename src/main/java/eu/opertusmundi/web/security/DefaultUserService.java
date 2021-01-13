@@ -37,6 +37,7 @@ import eu.opertusmundi.common.repository.ActivationTokenRepository;
 import eu.opertusmundi.web.feign.client.EmailServiceFeignClient;
 import eu.opertusmundi.web.model.email.MailActivationModel;
 import eu.opertusmundi.web.model.email.MessageDto;
+import eu.opertusmundi.web.model.security.CreateAccountResult;
 import feign.FeignException;
 
 @Service
@@ -73,27 +74,30 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public AccountDto createAccount(AccountCommandDto command) {
+    @Transactional
+    public ServiceResponse<CreateAccountResult> createAccount(AccountCommandDto command) {
         // Create account
         final AccountDto account = this.accountRepository.create(command);
 
         // Create activation token for account email
-        final ActivationTokenDto accountToken = this.activationTokenRepository.create(
-            account.getId(), account.getEmail(), 1, EnumActivationTokenType.ACCOUNT
-        );
-        // Send activation link to client
-        this.sendMail(account.getProfile().getFullName(), accountToken);
+        final ActivationTokenCommandDto tokenCommand = new ActivationTokenCommandDto();
+        tokenCommand.setEmail(command.getEmail());
 
-        return account;
+        final ServiceResponse<ActivationTokenDto> tokenResponse = this.createToken(EnumActivationTokenType.ACCOUNT, tokenCommand);
+
+        return ServiceResponse.result(CreateAccountResult.of(account, tokenResponse.getResult()));
     }
 
     @Override
+    @Transactional
     public ServiceResponse<ActivationTokenDto> createToken(EnumActivationTokenType type, ActivationTokenCommandDto command) {
         final AccountEntity account = this.accountRepository.findOneByEmail(command.getEmail()).orElse(null);
 
         logger.info("Request token for email {}", command.getEmail());
 
         if (account == null) {
+            logger.info("Request token for email {} has failed. Account was not found", command.getEmail());
+
             return ServiceResponse.success();
         }
 

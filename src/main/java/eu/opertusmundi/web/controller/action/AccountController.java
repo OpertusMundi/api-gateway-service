@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
@@ -44,19 +42,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface AccountController {
 
     /**
-     * Handles form authentication errors
-     *
-     * @param session The injected Spring HTTP session
-     * @param error Marker parameter for detecting authentication errors
-     * @return An instance of {@link RestResponse} with an error of code
-     *         {@link BasicMessageCode#Unauthorized} if {@code error} is
-     *         present; Otherwise an empty response is returned.
-     */
-    @Operation(operationId = "account-01", hidden = true)
-    @GetMapping(value = "/login")
-    RestResponse<Void> login(HttpSession session, @RequestParam(required = false) String error);
-
-    /**
      * Redirect endpoint after a successful forms login operation
      *
      * @param session The injected Spring HTTP session
@@ -64,7 +49,7 @@ public interface AccountController {
      * @return An instance of {@link RestResponse} with the new CSRF token
      */
     @Operation(
-        operationId = "account-02",
+        operationId = "account-01",
         summary     = "Successful login redirect endpoint",
         description = "Default redirect endpoint for successful forms login operations, used for refreshing the CSRF token",
         tags        = { "Account" },
@@ -90,7 +75,7 @@ public interface AccountController {
      * @return An instance of {@link RestResponse} with the new CSRF token
      */
     @Operation(
-        operationId = "account-03",
+        operationId = "account-02",
         summary     = "Successful logout redirect endpoint",
         description = "Default redirect endpoint for successful logout operations, used for refreshing the CSRF token",
         tags        = { "Account" }
@@ -112,7 +97,7 @@ public interface AccountController {
      * @return
      */
     @Operation(
-        operationId = "account-05",
+        operationId = "account-04",
         summary     = "Register account",
         description = "Register a new account",
         tags        = { "Account" }
@@ -150,7 +135,7 @@ public interface AccountController {
      * @return
      */
     @Operation(
-        operationId = "account-06",
+        operationId = "account-05",
         summary     = "Request activation token",
         description = "Request an activation token for verifying an email or activating an account",
         tags        = { "Account" }
@@ -184,7 +169,7 @@ public interface AccountController {
      * @return
      */
     @Operation(
-        operationId = "account-07",
+        operationId = "account-06",
         summary     = "Verify activation token",
         description = "Redeem an activation token to verify an email or activate an account",
         tags        = { "Account" }
@@ -214,7 +199,7 @@ public interface AccountController {
      * @return User data
      */
     @Operation(
-        operationId = "account-04",
+        operationId = "account-03",
         summary     = "Get user data",
         description = "Get user data. Roles required: <b>ROLE_USER</b>",
         tags        = { "Account" },

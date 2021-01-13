@@ -86,6 +86,7 @@ public class CatalogueUtils {
 
             publishers = this.providerRepository.findAllByKey(publisherKeys).stream()
                 .map(AccountEntity::toPublisherDto)
+                .filter(p -> p != null)
                 .collect(Collectors.toList());
 
             // TODO: Check that all publishers exists

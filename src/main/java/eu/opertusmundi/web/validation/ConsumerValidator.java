@@ -40,7 +40,7 @@ public class ConsumerValidator implements Validator {
 
         // Consumer type cannot be modified once set
         if (consumer != null && consumer.getType() != c.getType()) {
-            e.rejectValue("type", "not-updatable");
+            e.rejectValue("type", "NotUpdatable");
         }
 
         // Email must be unique for all consumers
@@ -49,7 +49,7 @@ public class ConsumerValidator implements Validator {
             .orElse(null);
 
         if (otherConsumer != null) {
-            e.rejectValue("email", "not-unique");
+            e.rejectValue("email", "NotUnique");
         }
 
         switch (c.getType()) {

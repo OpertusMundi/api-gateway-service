@@ -14,6 +14,7 @@ import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
+import eu.opertusmundi.web.model.security.CreateAccountResult;
 
 public interface UserService {
 
@@ -40,9 +41,9 @@ public interface UserService {
      * Create new account
      *
      * @param command Account creation command
-     * @return The new account
+     * @return
      */
-    AccountDto createAccount(AccountCommandDto command);
+    ServiceResponse<CreateAccountResult> createAccount(AccountCommandDto command);
 
     /**
      * Create activation token

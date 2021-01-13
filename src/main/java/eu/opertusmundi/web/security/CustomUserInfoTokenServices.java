@@ -93,7 +93,7 @@ public class CustomUserInfoTokenServices extends UserInfoTokenServices {
             command.setIdpName(this.provider);
             command.setProfile(new AccountProfileCommandDto());
 
-            account = this.userService.createAccount(command);
+            account = this.userService.createAccount(command).getResult().getAccount();
         }
 
         // Inject identity provider information

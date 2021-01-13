@@ -1,5 +1,7 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.MediaType;
@@ -113,7 +115,7 @@ public interface FileSystemController {
         @RequestParam(name = "path", required = true) String relativePath,
         @Parameter(hidden = true)
         HttpServletResponse response
-    ) throws AccessDeniedException;
+    ) throws IOException;
 
     /**
      * Delete a file
@@ -174,6 +176,6 @@ public interface FileSystemController {
         ))
         @RequestPart(name = "file", required = true) MultipartFile file,
         @RequestPart(name = "data", required = true) FileUploadCommand command
-    ) throws AccessDeniedException;
+    ) throws IOException;
 
 }

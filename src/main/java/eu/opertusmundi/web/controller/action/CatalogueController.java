@@ -2,6 +2,7 @@ package eu.opertusmundi.web.controller.action;
 
 import java.util.UUID;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +30,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     name        = "Catalogue",
     description = "The catalogue API"
 )
-@RequestMapping(path = "/action", produces = "application/json")
+@RequestMapping(path = "/action", produces = MediaType.APPLICATION_JSON_VALUE)
 public interface CatalogueController {
 
     /**
@@ -48,14 +49,14 @@ public interface CatalogueController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
+            mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
         )
     )
-    @PostMapping(value = "/catalogue", consumes = "application/json")
+    @PostMapping(value = "/catalogue", consumes = MediaType.APPLICATION_JSON_VALUE)
     RestResponse<?> findAll(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Search criteria",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueSearchQuery.class)),
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueSearchQuery.class)),
             required = true
         )
         @RequestBody CatalogueSearchQuery query
@@ -76,7 +77,7 @@ public interface CatalogueController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.ItemResponse.class))
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.ItemResponse.class))
     )
     @GetMapping(value = "/catalogue/items/{id}")
     RestResponse<CatalogueItemDetailsDto> findOne(

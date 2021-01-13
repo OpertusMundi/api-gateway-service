@@ -25,8 +25,6 @@ import io.swagger.v3.oas.models.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Configuration
 public class OpenApiConfiguration {
@@ -114,12 +112,8 @@ public class OpenApiConfiguration {
                 .sorted(Comparator.comparing(tag -> StringUtils.stripAccents(tag.getName())))
                 .collect(Collectors.toList());
 
-            if (profileTag.isPresent()) {
-                tags.add(0, profileTag.get());
-            }
-            if (accountTag.isPresent()) {
-                tags.add(0, accountTag.get());
-            }
+            tags.add(0, profileTag.get());
+            tags.add(0, accountTag.get());
 
             openApi.setTags(tags);
         };
@@ -154,17 +148,14 @@ public class OpenApiConfiguration {
     @Builder
     @AllArgsConstructor
     @Getter
-    @Setter
     public static class LogoExtension {
         String altText;
         String backgroundColor;
         String url;
     }
 
-    @NoArgsConstructor
     @AllArgsConstructor
     @Getter
-    @Setter
     public static class TagGroup {
         String       name;
         List<String> tags;

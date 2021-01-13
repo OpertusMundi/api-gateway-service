@@ -5,11 +5,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.domain.AccountEntity;
-import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileDto;
 import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
+import eu.opertusmundi.common.model.dto.AccountProfileDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.web.security.UserService;
 import eu.opertusmundi.web.validation.ProfileValidator;
@@ -36,9 +35,9 @@ public class ProfileControllerImpl extends BaseController implements ProfileCont
 
         // Refresh profile for each request since the account object stored in the
         // security context may have stale data
-        final AccountEntity account = this.accountRepository.findOneByEmail(email).orElse(null);
+        final AccountEntity account = this.accountRepository.findOneByEmail(email).get();
 
-        return RestResponse.result(account == null || account.getProfile() == null ? null : account.getProfile().toDto());
+        return RestResponse.result(account.getProfile().toDto());
     }
 
     @Override
@@ -54,13 +53,9 @@ public class ProfileControllerImpl extends BaseController implements ProfileCont
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        try {
-            final AccountDto account = this.userService.updateProfile(command);
+        final AccountDto account = this.userService.updateProfile(command);
 
-            return RestResponse.result(account.getProfile());
-        } catch (final Exception ex) {
-            return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
-        }
+        return RestResponse.result(account.getProfile());
     }
 
 }

@@ -1,5 +1,6 @@
 package eu.opertusmundi.web.validation;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -30,12 +31,12 @@ public class AccountValidator implements Validator {
         account = this.accountRepository.findOneByEmail(a.getEmail()).orElse(null);
 
         if (account != null) {
-            e.rejectValue("email", "not-unique");
+            e.rejectValue("email", "NotUnique");
         }
 
         // Check password
-        if (!a.getPassword().equals(a.getVerifyPassword())) {
-            e.rejectValue("password", "not-equal");
+        if (!StringUtils.isBlank(a.getPassword()) && !a.getPassword().equals(a.getVerifyPassword())) {
+            e.rejectValue("password", "NotEqual");
         }
     }
 

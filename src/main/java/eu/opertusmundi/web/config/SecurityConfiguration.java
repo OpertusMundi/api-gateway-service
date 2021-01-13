@@ -58,7 +58,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Value("${springdoc.api-docs.path}")
     private String openApiSpec;
 
-    @Value("${opertus-mundi.oauth.callback-uri:/callback}")
+    @Value("${opertus-mundi.oauth.callback-uri:/}")
     private String callbackUri;
 
     @Value("${opertus-mundi.oauth.failure-uri:/error/401}")

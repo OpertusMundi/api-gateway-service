@@ -52,14 +52,6 @@ public class HomeController {
     }
 
     /**
-     * Handles authentication success handler callback
-     */
-    @GetMapping("/callback")
-    public String callback() {
-        return "index";
-    }
-
-    /**
      * Request handler for verifying tokens
      */
     @GetMapping("/token/verify")
@@ -71,7 +63,7 @@ public class HomeController {
     /**
      * Handles HTML error pages
      */
-    @GetMapping(path = "/error/{id}", produces = MediaType.TEXT_HTML_VALUE )
+    @GetMapping(path = "/error/{id}", produces = MediaType.TEXT_HTML_VALUE)
     public String errorHtml(@PathVariable(name = "id", required = true) int id) {
         return "index";
     }
@@ -81,11 +73,9 @@ public class HomeController {
      */
     @GetMapping(path = "/error/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> error(@PathVariable(name = "id", required = true) int id) {
-        final HttpStatus status = HttpStatus.valueOf(id) == null ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.valueOf(id);
-
-        final MessageCode code = BasicMessageCode.fromStatusCode(status);
-
-        final String description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
+        final HttpStatus  status      = HttpStatus.valueOf(id);
+        final MessageCode code        = BasicMessageCode.fromStatusCode(status);
+        final String      description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
 
         final RestResponse<?> response = RestResponse.error(code, description);
 

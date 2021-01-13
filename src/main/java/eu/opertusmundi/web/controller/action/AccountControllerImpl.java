@@ -7,16 +7,12 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumActivationTokenType;
-import eu.opertusmundi.common.model.Message;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
 import eu.opertusmundi.common.model.dto.AccountCommandDto;
@@ -39,17 +35,6 @@ public class AccountControllerImpl extends BaseController implements AccountCont
     private AccountValidator accountValidator;
 
     @Override
-    public RestResponse<Void> login(HttpSession session, String error) {
-        if (error != null) {
-            final AuthenticationException ex = (AuthenticationException) session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
-            final Message                 e  = new Message(BasicMessageCode.Unauthorized, ex.getMessage());
-
-            return RestResponse.error(e);
-        }
-        return RestResponse.result(null);
-    }
-
-    @Override
     public RestResponse<Token> loggedIn(HttpSession session, CsrfToken token) {
         return RestResponse.result(new Token(token));
     }
@@ -67,7 +52,7 @@ public class AccountControllerImpl extends BaseController implements AccountCont
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        final AccountDto account = this.userService.createAccount(command);
+        final AccountDto account = this.userService.createAccount(command).getResult().getAccount();
 
         return RestResponse.result(account);
     }
@@ -77,8 +62,6 @@ public class AccountControllerImpl extends BaseController implements AccountCont
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
-
-        command.setUserId(this.currentUserId());
 
         final ServiceResponse<ActivationTokenDto> response = this.userService.createToken(EnumActivationTokenType.ACCOUNT, command);
 

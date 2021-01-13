@@ -34,7 +34,7 @@ public class ProviderValidator implements Validator {
             .orElse(null);
 
         if (otherConsumer != null) {
-            e.rejectValue("email", "not-unique");
+            e.rejectValue("email", "NotUnique");
         }
     }
 
