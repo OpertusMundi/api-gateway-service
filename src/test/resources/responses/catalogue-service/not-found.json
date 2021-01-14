@@ -1,0 +1,7 @@
+{
+  "success": false,
+  "message": {
+    "code": 404,
+    "description": "No items found"
+  }
+}

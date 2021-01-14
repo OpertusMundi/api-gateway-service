@@ -1,0 +1,118 @@
+{
+  "result": {
+    "id": "0cd1b294-0cc5-445a-aa4c-2eac58e03ba8",
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            20.94818115234375,
+            36.40359962073253
+          ],
+          [
+            20.94818115234375,
+            38.31795595794451
+          ],
+          [
+            23.57940673828125,
+            38.31795595794451
+          ],
+          [
+            23.57940673828125,
+            36.40359962073253
+          ],
+          [
+            20.94818115234375,
+            36.40359962073253
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "type": "Vector Dataset",
+      "scale": "1:10000",
+      "title": "Test Data",
+      "format": "ESRI Shapefile",
+      "license": "Apache 2.0",
+      "lineage": null,
+      "version": "1.0.0",
+      "abstract": "Test Data",
+      "date_end": null,
+      "keywords": [
+        "keyword"
+      ],
+      "language": "el",
+      "parent_id": null,
+      "conformity": "ISO",
+      "created_at": "2020-12-17T18:31:07.950115",
+      "date_start": null,
+      "visibility": null,
+      "accepted_at": null,
+      "modified_at": null,
+      "publisher_id": "db50feb4-85d6-46cb-bfe7-b1ca30f43e10",
+      "submitted_at": null,
+      "creation_date": "2020-11-19",
+      "metadata_date": "2020-06-02",
+      "revision_date": "2020-06-02",
+      "pricing_models": [
+        {
+          "key": null,
+          "type": "FREE"
+        },
+        {
+          "key": null,
+          "type": "FIXED",
+          "yearsOfUpdates": 0,
+          "includesUpdates": false,
+          "totalPriceExcludingTax": 200
+        },
+        {
+          "key": null,
+          "type": "FIXED",
+          "yearsOfUpdates": 1,
+          "includesUpdates": true,
+          "totalPriceExcludingTax": 350
+        },
+        {
+          "key": null,
+          "type": "FIXED",
+          "yearsOfUpdates": 2,
+          "includesUpdates": true,
+          "totalPriceExcludingTax": 480
+        },
+        {
+          "key": null,
+          "type": "SUBSCRIPTION",
+          "duration": 12,
+          "monthlyPrice": 10.99
+        }
+      ],
+      "publisher_name": "OpertusMundi",
+      "topic_category": "environment",
+      "publisher_email": "info@opertusmundi.eu",
+      "coupled_resource": null,
+      "publication_date": "2020-12-17T18:31:08.167101",
+      "reference_system": "EPSG:4326",
+      "resource_locator": null,
+      "store_statistics": {
+        "sales": 0,
+        "rating": null,
+        "downloads": 0
+      },
+      "metadata_language": "en",
+      "automated_metadata": null,
+      "spatial_resolution": null,
+      "additional_resources": null,
+      "public_access_limitations": "Apache 2.0",
+      "spatial_data_service_type": "WMS",
+      "metadata_point_of_contact_name": "OpertusMundi",
+      "metadata_point_of_contact_email": "info@opertusmundi.eu"
+    }
+  },
+  "success": true,
+  "message": {
+    "code": 200,
+    "description": "Item found"
+  }
+}

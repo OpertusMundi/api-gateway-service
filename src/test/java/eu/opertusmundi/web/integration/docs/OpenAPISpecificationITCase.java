@@ -15,17 +15,15 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
+
 @SpringBootTest
-@ActiveProfiles("testing")
-@AutoConfigureMockMvc
-public class OpenAPISpecificationITCase {
+public class OpenAPISpecificationITCase extends AbstractIntegrationTest {
 
     @Value("${application.project.base-dir}")
     private String baseDir;
@@ -41,8 +39,8 @@ public class OpenAPISpecificationITCase {
 
     @Test
     @Tag(value = "Documentation")
-    @DisplayName(value = "When valid URL, method and content-type, return 200")
-    void whenValidUrlAndMethodAndContentType_thenReturns200() throws Exception {
+    @DisplayName(value = "When valid URL, method and content-type, return OpenAPI specification")
+    void whenValidUrlAndMethodAndContentType_returnOpenAPISpecification() throws Exception {
         final MvcResult result = this.mockMvc.perform(get(this.endpoint)
             .contentType("application/json"))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
