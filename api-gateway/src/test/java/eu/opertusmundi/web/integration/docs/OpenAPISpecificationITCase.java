@@ -25,7 +25,7 @@ import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
 @SpringBootTest
 public class OpenAPISpecificationITCase extends AbstractIntegrationTest {
 
-    @Value("${application.project.base-dir}")
+    @Value("${application.parent.project.base-dir}")
     private String baseDir;
 
     @Value("${springdoc.api-docs.path}")
