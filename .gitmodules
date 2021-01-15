@@ -1,0 +1,6 @@
+[submodule "common"]
+	path = common
+	url = https://github.com/OpertusMundi/java-commons.git
+[submodule "api-gateway/src/main/frontend"]
+	path = api-gateway/src/main/frontend
+	url = https://github.com/OpertusMundi/frontend-marketplace.git
