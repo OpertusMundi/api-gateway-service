@@ -211,3 +211,7 @@ Ensure that the following section is not commented (to avoid packaging an embedd
 ```
 
 Rebuild, and deploy generated `target/opertus-mundi-api-gateway-1.0.0.war` on a Tomcat 9.x servlet container.
+
+### Endpoints
+
+You can browse the full OpenAPI documentation [here](https://opertusmundi.github.io/api-gateway-service/).
