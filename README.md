@@ -6,9 +6,9 @@ Backend for OpertusMundi marketplace frontend
 
 ### Configure the Web Application
 
-Copy configuration example files from `config-example/` into `src/main/resources/`, and edit to adjust to your needs.
+Copy configuration example files from `api-gateway/config-example/` into `api-gateway/src/main/resources/`, and edit to adjust to your needs.
 
-`cp -r config-example/* src/main/resources/`
+`cp -r api-gateway/config-example/* api-gateway/src/main/resources/`
 
 ### Database configuration
 
@@ -53,12 +53,12 @@ spring.datasource.driver-class-name = org.postgresql.Driver
 
 OpertusMundi supports the following authentication methods:
 
-| Provider    | Key           | Description                                         |
-| ----------- | ------------- |---------------------------------------------------- |
-| API Gateway | forms         | Forms login using username/password                 |
-| Google      | google        | OAuth using Google                                  |
-| GitHub      | github        | OAuth using GitHub                                  |
-| Keycloak    | opertusmundi  |OAuth/OpenID Connect using OpertusMundi Keycloak IDP |
+| Provider    | Key           | Description                                          |
+| ----------- | ------------- |----------------------------------------------------- |
+| API Gateway | forms         | Forms login using username/password                  |
+| Google      | google        | OAuth using Google                                   |
+| GitHub      | github        | OAuth using GitHub                                   |
+| Keycloak    | opertusmundi  | OAuth/OpenID Connect using OpertusMundi Keycloak IDP |
 
 ```properties
 # Authentication Providers (comma-separated list of authentication provider keys)
@@ -84,7 +84,7 @@ opertus-mundi.client.preEstablishedRedirectUri =
 
 ### Configure keystore
 
-Email service requires a private/public key pair for signing/parsing JWT tokens. Create a new store in folder `srs/main/resources/jwt`
+Email service requires a private/public key pair for signing/parsing JWT tokens. Create a new store in folder `api-gateway/src/main/resources/jwt`
 
 ```bash
 keytool -genkey \
@@ -106,9 +106,9 @@ API Gateway is using [Feign](https://cloud.spring.io/spring-cloud-openfeign/refe
 #
 
 # Path to the key store with private keys for signing JWT tokens
-opertusmundi.feign.key-store.path=classpath:jwt/jwt_keystore
+opertusmundi.feign.key-store.path=
 # Password for the key store
-opertusmundi.feign.key-store.password=password
+opertusmundi.feign.key-store.password=
 # Global secret for signing JWT tokens shared by all services
 opertusmundi.feign.jwt.secret=
 
@@ -132,11 +132,51 @@ opertusmundi.feign.email-service.url=
 # Message service (JWT token authentication)
 # Uses opertusmundi.feign.jwt.secret for signing tokens.
 opertusmundi.feign.message-service.url=
+
+# Ingest service
+opertusmundi.feign.ingest.url=
+
+# Transform service
+opertusmundi.feign.transform.url=
+
+# Data Profiler service
+opertusmundi.feign.data-profiler.url=
+```
+
+### Configure file system
+
+API Gateway application requires access to asset repository and user file system. The following directories must be accessible to the application:
+
+```properties
+#
+# File system
+#
+
+# Folder for creating temporary files
+opertusmundi.file-system.temp-dir=
+# Root folder for storing user file system
+opertusmundi.file-system.data-dir=
+# Root folder for storing files for the asset repository
+opertusmundi.file-system.asset-dir=
+```
+
+### Configure Payment service
+
+API Gateway implements payments using the MANGOPAY payment solution.
+
+```properties
+#
+# MangoPay
+#
+
+opertusmundi.payments.mangopay.base-url=https://api.mangopay.com
+opertusmundi.payments.mangopay.client-id=
+opertusmundi.payments.mangopay.client-password=
 ```
 
 ### Configure the Web Client
 
-Details on configuring and running the web client application can be found [here](src/main/frontend/README.md).
+Details on configuring and running the web client application can be found [here](https://github.com/OpertusMundi/frontend-marketplace).
 
 ### Build
 
@@ -148,11 +188,11 @@ Build the project:
 
 Run application (with an embedded Tomcat 9.x server) as a standalone application:
 
-`java -jar target/opertus-mundi-api-gateway-1.0.0.jar`
+`java -jar api-gateway/target/opertus-mundi-api-gateway-1.0.0.jar`
 
 or using the Spring Boot plugin:
 
-`mvn spring-boot:run`
+`cd api-gateway && mvn spring-boot:run`
 
 ### Run as WAR on a servlet container
 
