@@ -94,7 +94,6 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public RestResponse<AssetDraftDto> createDraft(CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
-            command.setUserId(this.currentUserId());
             command.setPublisherKey(this.currentUserKey());
 
             command.getPricingModels().stream().forEach(m-> {
@@ -144,7 +143,6 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public RestResponse<AssetDraftDto> updateDraft(UUID draftKey, CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
-            command.setUserId(this.currentUserId());
             command.setPublisherKey(this.currentUserKey());
             command.setAssetKey(draftKey);
 
@@ -174,7 +172,6 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public BaseResponse submitDraft(UUID draftKey, CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
-            command.setUserId(this.currentUserId());
             command.setPublisherKey(this.currentUserKey());
             command.setAssetKey(draftKey);
 
@@ -201,13 +198,12 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public BaseResponse saveAndSubmitDraft(CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
-            command.setUserId(this.currentUserId());
             command.setPublisherKey(this.currentUserKey());
 
             this.assetDraftValidator.validate(command, validationResult);
 
             if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors());
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
 
             this.providerAssetService.submitDraft(command);

@@ -11,6 +11,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
+import eu.opertusmundi.common.model.asset.AssetRepositoryException;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.file.FileDto;
 import eu.opertusmundi.common.model.file.FileSystemException;
@@ -73,7 +74,7 @@ public class AssetDraftValidator implements Validator {
                     if (p == null || !p.toFile().exists()) {
                         e.rejectValue("source", "NotFound");
                     }
-                } catch (final FileSystemException ex) {
+                } catch (final FileSystemException | AssetRepositoryException ex) {
                     e.rejectValue("source", "NotFound");
                 }
             }

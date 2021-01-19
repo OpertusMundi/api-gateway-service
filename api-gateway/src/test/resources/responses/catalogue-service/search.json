@@ -33,7 +33,7 @@
         },
         "properties": {
           "type": "Raster Dataset",
-          "scale": "1:10000",
+          "scale": 10000,
           "title": "Test Data",
           "format": "GTiff",
           "license": "Apache 2.0",
@@ -91,7 +91,9 @@
             }
           ],
           "publisher_name": "OpertusMundi",
-          "topic_category": "environment",
+	      "topic_category": [
+	      	"environment"
+	      ],
           "publisher_email": "info@opertusmundi.eu",
           "coupled_resource": null,
           "publication_date": "2020-12-17T18:31:08.167101",
@@ -144,7 +146,7 @@
         },
         "properties": {
           "type": "Vector Dataset",
-          "scale": "1:10000",
+          "scale": 10000,
           "title": "Test Data",
           "format": "ESRI Shapefile",
           "license": "Apache 2.0",
@@ -202,7 +204,9 @@
             }
           ],
           "publisher_name": "OpertusMundi",
-          "topic_category": "environment",
+	      "topic_category": [
+	      	"environment"
+	      ],
           "publisher_email": "info@opertusmundi.eu",
           "coupled_resource": null,
           "publication_date": "2020-12-23T13:24:52.226369",
