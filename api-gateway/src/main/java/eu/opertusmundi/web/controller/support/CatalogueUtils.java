@@ -63,6 +63,9 @@ public class CatalogueUtils {
 
                 // Compute effective pricing models
                 this.refreshPricingModels(dto, item.getProperties().getPricingModels());
+                
+                // Filter properties
+                dto.setAutomatedMetadata(null);
 
                 return dto;
             })

@@ -55,7 +55,6 @@
 		<dependency>
 			<groupId>eu.opertusmundi</groupId>
 			<artifactId>opertus-mundi-common</artifactId>
-			<version>1.0.1</version>
 		</dependency>
 
 		<!-- Spring-Boot starter dependencies -->

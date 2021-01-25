@@ -35,6 +35,8 @@
 		<postgresql.version>42.2.16</postgresql.version>
 		<spring-boot.version>2.3.4.RELEASE</spring-boot.version>
 
+		<java-commons.version>1.0.3</java-commons.version>
+		
 		<!-- Plugin versions -->
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
 		<maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
@@ -104,6 +106,12 @@
 						<artifactId>spring-boot-starter-logging</artifactId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+
+			<dependency>
+				<groupId>eu.opertusmundi</groupId>
+				<artifactId>opertus-mundi-common</artifactId>
+				<version>${java-commons.version}</version>
 			</dependency>
 
 			<dependency>

@@ -91,6 +91,11 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
             // Convert feature to catalogue item
             final CatalogueItemDetailsDto item = new CatalogueItemDetailsDto(catalogueResponse.getResult());
 
+            // Filter properties
+            if (!this.isAuthenticated()) {
+                item.setAutomatedMetadata(null);
+            }
+
             // Inject publisher details
             final PublisherDto publisher = this.providerRepository.findOneByKey(item.getPublisherId()).toPublisherDto();
 
