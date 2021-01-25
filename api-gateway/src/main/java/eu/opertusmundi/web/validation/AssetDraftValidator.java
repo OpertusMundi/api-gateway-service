@@ -15,6 +15,7 @@ import eu.opertusmundi.common.model.asset.AssetRepositoryException;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.file.FileDto;
 import eu.opertusmundi.common.model.file.FileSystemException;
+import eu.opertusmundi.common.model.profiler.EnumDataProfilerSourceType;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.service.AssetFileManager;
 
@@ -46,6 +47,11 @@ public class AssetDraftValidator implements Validator {
             } else if (!format.isEnabled()) {
                 e.rejectValue("format", "NotEnabled");
             }
+        }
+        
+        // Validate ingest options
+        if (c.isIngested() && format.getCategory() != EnumDataProfilerSourceType.VECTOR) {
+            e.rejectValue("ingested", "NotSupported");
         }
 
         // Validate files
