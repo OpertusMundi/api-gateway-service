@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.BaseResponse;
@@ -18,6 +19,8 @@ import eu.opertusmundi.web.model.rating.client.ClientRatingDto;
 import eu.opertusmundi.web.model.rating.server.ServerAssetRatingCommandDto;
 import eu.opertusmundi.web.model.rating.server.ServerProviderRatingCommandDto;
 import eu.opertusmundi.web.model.rating.server.ServerRatingDto;
+import eu.opertusmundi.web.validation.AssetRatingValidator;
+import eu.opertusmundi.web.validation.ProviderRatingValidator;
 import feign.FeignException;
 
 @RestController
@@ -25,6 +28,12 @@ public class RatingControllerImpl extends BaseController implements RatingContro
 
     @Autowired
     private ObjectProvider<RatingServiceFeignClient> ratingClient;
+
+    @Autowired
+    private AssetRatingValidator assetRatingValidator;
+
+    @Autowired
+    private ProviderRatingValidator providerRatingValidator;
 
     @Override
     public RestResponse<List<ClientRatingDto>> getAssetRatings(UUID id) {
@@ -91,11 +100,17 @@ public class RatingControllerImpl extends BaseController implements RatingContro
     }
 
     @Override
-    public BaseResponse addAssetRating(UUID id, ClientRatingCommandDto command) {
+    public BaseResponse addAssetRating(UUID id, ClientRatingCommandDto command, BindingResult validationResult) {
         final ServerAssetRatingCommandDto c = new ServerAssetRatingCommandDto(command);
-
-        c.setAsset(id);
         c.setAccount(this.currentUserKey());
+        
+        // TODO: Check if consumer owns the data asset
+        this.assetRatingValidator.validate(command, validationResult);
+        
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
 
         try {
             final ResponseEntity<BaseResponse> response = this.ratingClient.getObject().addAssetRating(id, c);
@@ -117,12 +132,17 @@ public class RatingControllerImpl extends BaseController implements RatingContro
     }
 
     @Override
-    public BaseResponse addProviderRating(UUID id, ClientRatingCommandDto command) {
+    public BaseResponse addProviderRating(UUID id, ClientRatingCommandDto command, BindingResult validationResult) {
         final ServerProviderRatingCommandDto c = new ServerProviderRatingCommandDto(command);
-
         c.setAccount(this.currentUserKey());
-        c.setProvider(id);
 
+        // TODO: Check if consumer has purchased a data asset/service from the provider
+        this.providerRatingValidator.validate(command, validationResult);
+        
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+        
         try {
             final ResponseEntity<BaseResponse> response = this.ratingClient.getObject().addProviderRating(id, c);
 

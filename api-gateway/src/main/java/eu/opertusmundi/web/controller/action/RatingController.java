@@ -3,7 +3,11 @@ package eu.opertusmundi.web.controller.action;
 import java.util.List;
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -101,7 +105,7 @@ public interface RatingController {
     @Operation(
         operationId = "rating-02",
         summary     = "Add asset rating",
-        description = "Adds a new rating for a specific asset",
+        description = "Adds a new rating for a specific asset. Required roles: <b>ROLE_CONSUMER</b>",
         tags        = { "Rating" }
     )
     @ApiResponse(
@@ -110,7 +114,8 @@ public interface RatingController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
     @PostMapping(value = "/asset/{id}")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_CONSUMER"})
+    @Validated
     BaseResponse addAssetRating(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -124,7 +129,8 @@ public interface RatingController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientRatingCommandDto.class)),
             required = true
         )
-        @RequestBody(required = true) ClientRatingCommandDto command
+        @Valid @RequestBody(required = true) ClientRatingCommandDto command,
+        @Parameter(hidden = true) BindingResult validationResult
     );
 
     /**
@@ -138,7 +144,7 @@ public interface RatingController {
     @Operation(
         operationId = "rating-03",
         summary     = "Add provider rating",
-        description = "Adds a new rating for a specific provider",
+        description = "Adds a new rating for a specific provider. Required roles: <b>ROLE_CONSUMER</b>",
         tags        = { "Rating" }
     )
     @ApiResponse(
@@ -147,7 +153,8 @@ public interface RatingController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
     @PostMapping(value = "/provider/{id}")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_CONSUMER"})
+    @Validated
     BaseResponse addProviderRating(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -161,7 +168,8 @@ public interface RatingController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientRatingCommandDto.class)),
             required = true
         )
-        @RequestBody(required = true) ClientRatingCommandDto command
+        @Valid @RequestBody(required = true) ClientRatingCommandDto command,
+        @Parameter(hidden = true) BindingResult validationResult
     );
 
 }
