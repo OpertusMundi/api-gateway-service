@@ -312,38 +312,16 @@
 
 	<build>
 		<plugins>
-			<!-- Spring boot plugin -->
+			<!-- Inject build information -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<executions>
-					<!-- Inject build information -->
 					<execution>
 						<goals>
 							<goal>build-info</goal>
 						</goals>
 					</execution>
-					<!-- Start application before integration tests (required for generating OpenAPI document) -->
-					<!--
-					<execution>
-						<id>pre-integration-test</id>
-						<goals>
-							<goal>start</goal>
-						</goals>
-						<configuration>
-							<profiles>development</profiles>
-						</configuration>
-					</execution>
-					-->
-					<!-- Stop application after integration tests -->
-					<!--
-					<execution>
-						<id>post-integration-test</id>
-						<goals>
-							<goal>stop</goal>
-						</goals>
-					</execution>
-					-->
 				</executions>
 			</plugin>
 
@@ -370,29 +348,6 @@
 					</includeOnlyProperties>
 					<commitIdGenerationMode>full</commitIdGenerationMode>
 				</configuration>
-			</plugin>
-
-			<!-- Copy Vue.js application resources -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-frontend-resources</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/classes/public</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.build.directory}/frontend</directory>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 
 			<!-- Configure frontend build -->
@@ -447,6 +402,54 @@
 				</executions>
 			</plugin>
 
+			<!-- Copy Vue.js application resources -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<!-- Copy resources -->
+					<execution>
+						<id>copy-frontend-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/classes/public</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/src/main/frontend/dist</directory>
+									<filtering>false</filtering>
+									<excludes>
+										<exclude>index.html</exclude>
+									</excludes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<!-- Copy template -->
+					<execution>
+						<id>copy-frontend-index-html-template</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/classes/templates</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/src/main/frontend/dist</directory>
+									<filtering>false</filtering>
+									<includes>
+										<exclude>index.html</exclude>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+					
 			<!-- Configure unit tests -->
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -466,31 +469,8 @@
                     </includes>
                 </configuration>
             </plugin>
-
-            <!-- Export OpenAPI specifications -->
-            <!--
-			<plugin>
-				<groupId>org.springdoc</groupId>
-				<artifactId>springdoc-openapi-maven-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<id>integration-test</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<apiDocsUrl>http://localhost:8080/api-docs</apiDocsUrl>
-					<outputFileName>openapi.json</outputFileName>
-					<outputDir>${project.basedir}/docs</outputDir>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
-			-->
-			
-			<!-- Crete test coverage reports -->
+		
+			<!-- Create test coverage reports -->
 			<!--
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -575,7 +555,6 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-
 			</plugins>
 		</pluginManagement>
 
