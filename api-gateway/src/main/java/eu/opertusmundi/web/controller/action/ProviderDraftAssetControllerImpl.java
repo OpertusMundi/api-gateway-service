@@ -23,6 +23,7 @@ import eu.opertusmundi.common.model.Message;
 import eu.opertusmundi.common.model.PageRequestDto;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
 import eu.opertusmundi.common.model.asset.AssetRepositoryException;
@@ -424,14 +425,16 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> uploadFiles(UUID draftKey, MultipartFile[] files) {
+    public RestResponse<AssetDraftDto> uploadResources(UUID draftKey, MultipartFile[] resources) {
         final UUID          publisherKey = this.currentUserKey();
         final List<Message> messages     = new ArrayList<Message>();
 
-        for (final MultipartFile f : files) {
-            try (final InputStream input = new ByteArrayInputStream(f.getBytes())) {
-                this.providerAssetService.addFile(publisherKey, draftKey, f.getOriginalFilename(), input);
+        for (final MultipartFile r : resources) {
+            try (final InputStream input = new ByteArrayInputStream(r.getBytes())) {
+                this.providerAssetService.addResource(publisherKey, draftKey, r.getOriginalFilename(), input);
             } catch (final FileSystemException | AssetRepositoryException ex) {
+                messages.add(new Message(ex.getCode(), ex.getMessage()));
+            } catch (final ServiceException ex) {
                 messages.add(new Message(ex.getCode(), ex.getMessage()));
             } catch (final Exception ex) {
                 logger.error("[FileSystem] Failed to upload file", ex);
@@ -450,11 +453,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<?> deleteFile(UUID draftKey, String path) {
+    public RestResponse<?> deleteResource(UUID draftKey, String name) {
         try {
             final UUID publisherKey = this.currentUserKey();
 
-            final AssetDraftDto r = this.providerAssetService.deleteFile(publisherKey, draftKey, path);
+            final AssetDraftDto r = this.providerAssetService.deleteResource(publisherKey, draftKey, name);
 
             return RestResponse.result(r);
         } catch (final AssetDraftException | FileSystemException | AssetRepositoryException ex) {

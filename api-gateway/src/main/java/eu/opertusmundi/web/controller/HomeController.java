@@ -59,7 +59,6 @@ public class HomeController {
         return "index";
     }
 
-
     /**
      * Handles HTML error pages
      */

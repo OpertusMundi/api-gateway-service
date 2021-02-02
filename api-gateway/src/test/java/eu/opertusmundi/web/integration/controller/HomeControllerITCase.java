@@ -8,12 +8,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.UUID;
 
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -74,7 +74,7 @@ class HomeControllerITCase extends AbstractIntegrationTest {
     @Tag(value = "Controller")
     @DisplayName(value = "When HTML error page URL, return index view")
     void whenHtmlErrorPageUrl_returnIndexView() throws Exception {
-        final MvcResult result = this.mockMvc.perform(get("/error/{id}", HttpStatus.SC_INTERNAL_SERVER_ERROR)
+        final MvcResult result = this.mockMvc.perform(get("/error/{id}", HttpStatus.INTERNAL_SERVER_ERROR.value())
             .accept(MediaType.TEXT_HTML))
             .andExpect(status().isOk())
             .andReturn();
@@ -86,7 +86,7 @@ class HomeControllerITCase extends AbstractIntegrationTest {
     @Tag(value = "Controller")
     @DisplayName(value = "When JSON error URL, return RestResponse entity")
     void whenJsonErrorUrl_returnsRestResponseEntity() throws Exception {
-        this.mockMvc.perform(get("/error/{id}", HttpStatus.SC_INTERNAL_SERVER_ERROR)
+        this.mockMvc.perform(get("/error/{id}", HttpStatus.INTERNAL_SERVER_ERROR.value())
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError())
             .andExpect(jsonPath("$.success").isBoolean())

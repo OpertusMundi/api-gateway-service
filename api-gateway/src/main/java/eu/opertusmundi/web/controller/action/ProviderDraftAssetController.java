@@ -350,8 +350,9 @@ public interface ProviderDraftAssetController {
      */
     @Operation(
         operationId = "provider-draft-asset-09",
-        summary     = "Upload files",
-        description = "Uploads one or more files and links them to selected draft instance. Roles required: <b>ROLE_PROVIDER</b>",
+        summary     = "Upload resource files",
+        description = "Uploads one or more resource files and links them to selected draft instance. "
+                    + "Roles required: <b>ROLE_PROVIDER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -361,8 +362,8 @@ public interface ProviderDraftAssetController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
-    @PostMapping(value = "/provider/drafts/{draftKey}/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    RestResponse<AssetDraftDto> uploadFiles(
+    @PostMapping(value = "/provider/drafts/{draftKey}/resources", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    RestResponse<AssetDraftDto> uploadResources(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -370,13 +371,13 @@ public interface ProviderDraftAssetController {
         )
         @PathVariable UUID draftKey,
         @Parameter(
-            description = "Array of uploaded files",
+            description = "Array of uploaded resource files",
             array = @ArraySchema(
                 arraySchema = @Schema(name = "file", type = "string", format = "binary", description = "Uploaded file"),
                 minItems = 1
             )
         )
-        @RequestPart(name = "files", required = true) MultipartFile[] files
+        @RequestPart(name = "resources", required = true) MultipartFile[] files
     ) throws AccessDeniedException;
 
     /**
@@ -387,8 +388,8 @@ public interface ProviderDraftAssetController {
      */
     @Operation(
         operationId = "provider-draft-asset-10",
-        summary     = "Delete file",
-        description = "Deletes a file. Roles required: <b>ROLE_PROVIDER</b>",
+        summary     = "Delete resource file",
+        description = "Deletes a resource file. Roles required: <b>ROLE_PROVIDER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -398,8 +399,8 @@ public interface ProviderDraftAssetController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
-    @DeleteMapping(value = "/provider/drafts/{draftKey}/files", params = {"path"})
-    public RestResponse<?> deleteFile(
+    @DeleteMapping(value = "/provider/drafts/{draftKey}/resources", params = {"name"})
+    public RestResponse<?> deleteResource(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -409,9 +410,9 @@ public interface ProviderDraftAssetController {
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = true,
-            description = "Path of the file to delete. The file must exist in the draft files collection"
+            description = "Name of the resource file to delete. The file must exist in the draft resources collection"
         )
-        @RequestParam(name = "path", required = true) String path
+        @RequestParam(name = "name", required = true) String path
     ) throws AccessDeniedException;
 
 }

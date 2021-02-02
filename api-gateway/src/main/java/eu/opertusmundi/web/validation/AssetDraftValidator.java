@@ -1,6 +1,5 @@
 package eu.opertusmundi.web.validation;
 
-import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -11,10 +10,8 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
-import eu.opertusmundi.common.model.asset.AssetRepositoryException;
+import eu.opertusmundi.common.model.asset.AssetResourceDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
-import eu.opertusmundi.common.model.file.FileDto;
-import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.profiler.EnumDataProfilerSourceType;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.service.AssetFileManager;
@@ -35,9 +32,9 @@ public class AssetDraftValidator implements Validator {
 
     @Override
     public void validate(Object o, Errors e) {
-        final CatalogueItemCommandDto c      = (CatalogueItemCommandDto) o;
-        final List<FileDto>           files  = this.fileManager.getFiles(c.getAssetKey());
-        AssetFileTypeEntity           format = null;
+        final CatalogueItemCommandDto c         = (CatalogueItemCommandDto) o;
+        final List<AssetResourceDto>  resources = this.fileManager.getResources(c.getAssetKey());
+        AssetFileTypeEntity           format    = null;
 
         // Validate format
         if (!StringUtils.isBlank(c.getFormat())) {
@@ -56,36 +53,17 @@ public class AssetDraftValidator implements Validator {
 
         // Validate files
         if (format != null && format.isEnabled()) {
-            for (final FileDto f : files) {
-                final String ext = FilenameUtils.getExtension(f.getName());
+            for (final AssetResourceDto r : resources) {
+                final String ext = FilenameUtils.getExtension(r.getName());
 
                 if (!format.getExtensions().contains(ext)) {
                     if (format.isBundleSupported() && ext.equals("zip")) {
                         continue;
                     }
-                    e.reject("NotSupportedExtension", f.getPath());
+                    e.reject("NotSupportedExtension", r.getName());
                 }
             }
         }
-
-        // Validate parameters for ingest service
-        if (c.isIngested()) {
-            if (StringUtils.isBlank(c.getSource())) {
-                // Source is required
-                e.rejectValue("source", "NotEmpty");
-            } else if (c.getAssetKey() != null) {
-                // Source must exist. Validate only saved instances
-                try {
-                    final Path p = this.fileManager.resolveFilePath(c.getAssetKey(), c.getSource());
-                    if (p == null || !p.toFile().exists()) {
-                        e.rejectValue("source", "NotFound");
-                    }
-                } catch (final FileSystemException | AssetRepositoryException ex) {
-                    e.rejectValue("source", "NotFound");
-                }
-            }
-        }
-
     }
 
 }
