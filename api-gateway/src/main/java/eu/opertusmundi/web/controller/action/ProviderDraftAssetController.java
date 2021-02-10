@@ -4,9 +4,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +25,8 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
+import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceCommandDto;
+import eu.opertusmundi.common.model.asset.AssetResourceCommandDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
@@ -35,7 +37,6 @@ import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -178,7 +179,8 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "provider-draft-asset-04",
         summary     = "Update draft",
-        description = "Update an existing draft item. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Update an existing draft item. Resources that are not included in the request, are automatically "
+                    + "deleted. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -343,15 +345,18 @@ public interface ProviderDraftAssetController {
     );
 
     /**
-     * Uploads a file
+     * Uploads a resource file
      *
-     * @param files An array of {@link MultipartFile} with the uploaded files.
-     * @return the updated draft
+     * @param draftKey Draft unique key
+     * @param file An instance of {@link MultipartFile} with the uploaded file
+     * @param command Metadata for the uploaded file
+     * @param validationResult
      */
     @Operation(
         operationId = "provider-draft-asset-09",
-        summary     = "Upload resource files",
-        description = "Uploads one or more resource files and links them to selected draft instance. "
+        summary     = "Upload resource",
+        description = "Uploads a resource file and links it to selected draft instance. On success, an updated draft is returned "
+                    + "with the new resource registration."
                     + "Roles required: <b>ROLE_PROVIDER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
@@ -363,33 +368,40 @@ public interface ProviderDraftAssetController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
     @PostMapping(value = "/provider/drafts/{draftKey}/resources", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    RestResponse<AssetDraftDto> uploadResources(
+    @Validated
+    RestResponse<?> uploadResource(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
             description = "Draft unique key"
         )
         @PathVariable UUID draftKey,
+        @Parameter(schema = @Schema(
+            name = "file", type = "string", format = "binary", description = "Uploaded file"
+        ))
+        @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
+        @Valid @RequestPart(name = "data", required = true) AssetResourceCommandDto command,
         @Parameter(
-            description = "Array of uploaded resource files",
-            array = @ArraySchema(
-                arraySchema = @Schema(name = "file", type = "string", format = "binary", description = "Uploaded file"),
-                minItems = 1
-            )
+            hidden = true
         )
-        @RequestPart(name = "resources", required = true) MultipartFile[] files
-    ) throws AccessDeniedException;
-
+        BindingResult validationResult
+    );
+   
     /**
-     * Delete a file
-     *
-     * @param fileName Name of the file to delete
-     * @return the updated draft
+     * Uploads an additional resource file
+     * 
+     * @param draftKey Draft unique key
+     * @param file An instance of {@link MultipartFile} with the uploaded file
+     * @param command Metadata for the uploaded file
+     * @param validationResult
+     * @return
      */
     @Operation(
         operationId = "provider-draft-asset-10",
-        summary     = "Delete resource file",
-        description = "Deletes a resource file. Roles required: <b>ROLE_PROVIDER</b>",
+        summary     = "Upload additional resource",
+        description = "Uploads an additional resource file and links it to selected draft instance. On success, an updated draft is returned "
+                    + "with the new resource registration."
+                    + "Roles required: <b>ROLE_PROVIDER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -397,22 +409,29 @@ public interface ProviderDraftAssetController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class)
+        )
     )
-    @DeleteMapping(value = "/provider/drafts/{draftKey}/resources", params = {"name"})
-    public RestResponse<?> deleteResource(
+    @PostMapping(value = "/provider/drafts/{draftKey}/additional-resources", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Validated
+    RestResponse<?> uploadAdditionalResource(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
             description = "Draft unique key"
         )
         @PathVariable UUID draftKey,
+        @Parameter(schema = @Schema(
+            name = "file", type = "string", format = "binary", description = "Uploaded file"
+        ))
+        @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
+        @Valid @RequestPart(name = "data", required = true) AssetFileAdditionalResourceCommandDto command,
         @Parameter(
-            in          = ParameterIn.QUERY,
-            required    = true,
-            description = "Name of the resource file to delete. The file must exist in the draft resources collection"
+            hidden = true
         )
-        @RequestParam(name = "name", required = true) String path
-    ) throws AccessDeniedException;
+        BindingResult validationResult
+    );
 
 }

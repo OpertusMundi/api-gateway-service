@@ -3,11 +3,15 @@ package eu.opertusmundi.web.controller.action;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -84,7 +88,14 @@ public interface FileSystemController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemTypes.FileSystemResponse.class))
     )
     @PostMapping(value = "/file-system/folders")
-    RestResponse<?> createFolder(@RequestBody FilePathCommand command) throws AccessDeniedException;
+    @Validated
+    RestResponse<?> createFolder(
+        @Valid @RequestBody FilePathCommand command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    ) throws AccessDeniedException;
 
     /**
      * Download a file
@@ -170,12 +181,17 @@ public interface FileSystemController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemTypes.FileSystemResponse.class))
     )
     @PostMapping(value = "/file-system/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Validated
     RestResponse<?> uploadFile(
         @Parameter(schema = @Schema(
             name = "file", type = "string", format = "binary", description = "Uploaded file"
         ))
-        @RequestPart(name = "file", required = true) MultipartFile file,
-        @RequestPart(name = "data", required = true) FileUploadCommand command
+        @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
+        @Valid @RequestPart(name = "data", required = true) FileUploadCommand command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
     ) throws IOException;
 
 }

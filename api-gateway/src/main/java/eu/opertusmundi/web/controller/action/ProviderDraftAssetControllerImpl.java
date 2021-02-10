@@ -2,11 +2,10 @@ package eu.opertusmundi.web.controller.action;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -19,21 +18,21 @@ import org.springframework.web.multipart.MultipartFile;
 import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
-import eu.opertusmundi.common.model.Message;
+import eu.opertusmundi.common.model.FileSystemMessageCode;
 import eu.opertusmundi.common.model.PageRequestDto;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
-import eu.opertusmundi.common.model.asset.AssetRepositoryException;
+import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceCommandDto;
+import eu.opertusmundi.common.model.asset.AssetResourceCommandDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientSetStatusCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
@@ -42,12 +41,12 @@ import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueResponse;
 import eu.opertusmundi.common.model.dto.EnumSortingOrder;
 import eu.opertusmundi.common.model.dto.PublisherDto;
-import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.web.controller.support.CatalogueUtils;
 import eu.opertusmundi.web.repository.ProviderRepository;
 import eu.opertusmundi.web.validation.AssetDraftValidator;
+import eu.opertusmundi.web.validation.AssetResourceValidator;
 import feign.FeignException;
 
 @RestController
@@ -60,7 +59,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Autowired
     private AssetDraftValidator assetDraftValidator;
-
+   
     @Autowired
     private CatalogueUtils catalogueUtils;
 
@@ -69,6 +68,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Autowired
     private ProviderAssetService providerAssetService;
+    
+    @Autowired
+    private AssetResourceValidator assetResourceValidator;
 
     @Override
     public RestResponse<?> findAllDraft(
@@ -327,7 +329,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
-    public RestResponse<CatalogueItemDraftDetailsDto> findOneDraftTemp(UUID draftKey) {
+    public RestResponse<CatalogueItemDraftDto> findOneDraftTemp(UUID draftKey) {
         try {
             final ResponseEntity<CatalogueResponse<CatalogueFeature>> e = this.catalogueClient.getObject().findOneDraftById(draftKey);
 
@@ -338,7 +340,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             }
 
             // Convert feature to catalogue item
-            final CatalogueItemDraftDetailsDto item = new CatalogueItemDraftDetailsDto(catalogueResponse.getResult());
+            final CatalogueItemDraftDto item = new CatalogueItemDraftDto(catalogueResponse.getResult());
 
             // Inject publisher details
             final PublisherDto publisher = this.providerRepository.findOneByKey(item.getPublisherId()).toPublisherDto();
@@ -425,48 +427,77 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> uploadResources(UUID draftKey, MultipartFile[] resources) {
-        final UUID          publisherKey = this.currentUserKey();
-        final List<Message> messages     = new ArrayList<Message>();
+    public RestResponse<?> uploadResource(
+        UUID draftKey, MultipartFile resource, AssetResourceCommandDto command, BindingResult validationResult
+    ) {
+        final UUID publisherKey = this.currentUserKey();
 
-        for (final MultipartFile r : resources) {
-            try (final InputStream input = new ByteArrayInputStream(r.getBytes())) {
-                this.providerAssetService.addResource(publisherKey, draftKey, r.getOriginalFilename(), input);
-            } catch (final FileSystemException | AssetRepositoryException ex) {
-                messages.add(new Message(ex.getCode(), ex.getMessage()));
-            } catch (final ServiceException ex) {
-                messages.add(new Message(ex.getCode(), ex.getMessage()));
-            } catch (final Exception ex) {
-                logger.error("[FileSystem] Failed to upload file", ex);
-
-                messages.add(new Message(BasicMessageCode.InternalServerError, ex.getMessage()));
-            }
+        if (resource == null || resource.getSize() == 0) {
+            return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
         }
 
-        if (messages.isEmpty()) {
-            final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, draftKey);
-
-            return RestResponse.result(draft);
+        command.setDraftKey(draftKey);
+        command.setPublisherKey(publisherKey);
+        command.setSize(resource.getSize());
+        if (StringUtils.isBlank(command.getFileName())) {
+            command.setFileName(resource.getOriginalFilename());
         }
 
-        return RestResponse.error(messages);
+        this.assetResourceValidator.validate(command, validationResult);
+
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
+        try (final InputStream input = new ByteArrayInputStream(resource.getBytes())) {
+            this.providerAssetService.addResource(command, input);
+        } catch (final ServiceException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("Failed to upload file", ex);
+
+            return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
+        }
+
+        final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, draftKey);
+
+        return RestResponse.result(draft);
     }
 
     @Override
-    public RestResponse<?> deleteResource(UUID draftKey, String name) {
-        try {
-            final UUID publisherKey = this.currentUserKey();
-
-            final AssetDraftDto r = this.providerAssetService.deleteResource(publisherKey, draftKey, name);
-
-            return RestResponse.result(r);
-        } catch (final AssetDraftException | FileSystemException | AssetRepositoryException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
-        } catch (final Exception ex) {
-            logger.error("[FileSystem] Failed to delete file", ex);
+    public RestResponse<?> uploadAdditionalResource(
+        UUID draftKey, MultipartFile resource, AssetFileAdditionalResourceCommandDto command, BindingResult validationResult
+    ) {
+        final UUID          publisherKey = this.currentUserKey();
+       
+        if (resource == null || resource.getSize() == 0) {
+            return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
+        }
+               
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        return RestResponse.failure();
+        try (final InputStream input = new ByteArrayInputStream(resource.getBytes())) {
+            command.setDraftKey(draftKey);
+            command.setPublisherKey(publisherKey);
+            command.setSize(resource.getSize());
+            if (StringUtils.isBlank(command.getFileName())) {
+                command.setFileName(resource.getOriginalFilename());
+            }
+
+            this.providerAssetService.addAdditionalResource(command, input);
+        } catch (final ServiceException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("Failed to upload file", ex);
+
+            return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
+        }
+
+        final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, draftKey);
+
+        return RestResponse.result(draft);
     }
 
 }

@@ -148,7 +148,7 @@ public class FileSystemControllerTomcatITCase {
 
         final FileUploadCommand command = new FileUploadCommand();
         command.setComment("Test");
-        command.setFilename("file-2.zip");
+        command.setFileName("file-2.zip");
         command.setOverwrite(false);
         command.setPath("/test");
 

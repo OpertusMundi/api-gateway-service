@@ -14,10 +14,12 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import eu.opertusmundi.common.model.FileSystemMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.file.DirectoryDto;
 import eu.opertusmundi.common.model.file.FilePathCommand;
@@ -30,7 +32,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
 
     @Autowired
     private UserFileManager fileManager;
-
+   
     @Override
     public RestResponse<?> browseDirectory() {
         this.ensureRegistered();
@@ -39,8 +41,12 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     }
 
     @Override
-    public RestResponse<?> createFolder(FilePathCommand command) {
+    public RestResponse<?> createFolder(FilePathCommand command,  BindingResult validationResult) {
         this.ensureRegistered();
+
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
 
         try {
             command.setUserId(this.currentUserId());
@@ -90,7 +96,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     @Override
     public RestResponse<?> deletePath(String path) {
         this.ensureRegistered();
-
+       
         try {
             final FilePathCommand command = FilePathCommand.builder()
                 .userId(this.currentUserId())
@@ -106,9 +112,17 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     }
 
     @Override
-    public RestResponse<?> uploadFile(MultipartFile file, FileUploadCommand command) throws IOException {
+    public RestResponse<?> uploadFile(MultipartFile file, FileUploadCommand command, BindingResult validationResult) throws IOException {
         this.ensureRegistered();
 
+        if (file == null || file.getSize() == 0) {
+            return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
+        }
+        
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+        
         try (final InputStream input = new ByteArrayInputStream(file.getBytes())) {
             command.setUserId(this.currentUserId());
             command.setSize(file.getSize());

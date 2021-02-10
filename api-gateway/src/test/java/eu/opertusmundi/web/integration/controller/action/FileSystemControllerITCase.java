@@ -495,7 +495,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
     private MockMultipartHttpServletRequestBuilder createUploadRequest(boolean overwrite, File resource) throws IOException {
         final FileUploadCommand command = new FileUploadCommand();
         command.setComment("Test");
-        command.setFilename("1.zip");
+        command.setFileName("1.zip");
         command.setOverwrite(overwrite);
         command.setPath("/test");
 
