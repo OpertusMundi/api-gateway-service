@@ -124,7 +124,7 @@ public class CartControllerImpl extends BaseController implements CartController
                 // Set product and selected pricing model
                 Arrays.stream(cart.getItems()).forEach(cartItem -> {
                     final CatalogueItemDto catalogueItem = items.stream()
-                        .filter(i -> i.getId().equals(cartItem.getProductKey()))
+                        .filter(i -> i.getId().equals(cartItem.getProductKey().toString()))
                         .findFirst()
                         .orElse(null);
 
