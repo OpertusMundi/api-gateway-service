@@ -251,39 +251,6 @@ public interface ProviderDraftAssetController {
     );
 
     /**
-     * Create new draft and submit for review
-     *
-     * @param command The status update command
-     * @return
-     */
-    @Operation(
-        operationId = "provider-draft-asset-06",
-        summary     = "Submit new draft",
-        description = "Create new draft and submit for review and publication. Required roles: <b>ROLE_PROVIDER</b>"
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
-    )
-    @PutMapping(value = "/provider/drafts")
-    @Validated
-    BaseResponse saveAndSubmitDraft(
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Update command.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueItemCommandDto.class)),
-            required = true
-        )
-        @Valid
-        @RequestBody
-        CatalogueItemCommandDto command,
-        @Parameter(
-            hidden = true
-        )
-        BindingResult validationResult
-    );
-
-    /**
      * Review draft
      *
      * @param draftKey The item unique key

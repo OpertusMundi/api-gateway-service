@@ -199,31 +199,6 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public BaseResponse saveAndSubmitDraft(CatalogueItemCommandDto command, BindingResult validationResult) {
-        try {
-            command.setPublisherKey(this.currentUserKey());
-
-            this.assetDraftValidator.validate(command, validationResult);
-
-            if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
-            }
-
-            this.providerAssetService.submitDraft(command);
-
-            return RestResponse.success();
-        } catch (final AssetDraftException ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
-
-            return RestResponse.error(ex.getCode(), ex.getMessage());
-        } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
-        }
-
-        return RestResponse.failure();
-    }
-
-    @Override
     public BaseResponse reviewDraft(UUID draftKey, AssetDraftReviewCommandDto command) {
         try {
             command.setAssetKey(draftKey);
