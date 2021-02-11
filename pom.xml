@@ -21,8 +21,8 @@
 		<dependency.locations.enabled>false</dependency.locations.enabled>
 		<java.version>1.8</java.version>
 
-        <!-- Node.js -->
-        <node.version>v10.16.3</node.version>
+		<!-- Node.js -->
+		<node.version>v10.16.3</node.version>
 
 		<!-- Dependency versions -->
 		<geotools.version>24.0</geotools.version>
@@ -35,8 +35,8 @@
 		<postgresql.version>42.2.16</postgresql.version>
 		<spring-boot.version>2.3.4.RELEASE</spring-boot.version>
 
-		<java-commons.version>1.0.6</java-commons.version>
-		
+		<java-commons.version>1.0.7</java-commons.version>
+
 		<!-- Plugin versions -->
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
 		<maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
