@@ -73,15 +73,20 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
         }
 
         @Bean
-        Path tempDataDirectory() throws IOException {
+        Path tempDirectory() throws IOException {
             return this.createDirectory("tmp");
         }
 
         @Bean
-        Path userDataDirectory() throws IOException {
+        Path userDirectory() throws IOException {
             return this.createDirectory("user");
         }
 
+        @Bean
+        Path draftDirectory() throws IOException {
+            return this.createDirectory("drafts");
+        }
+        
         @Bean
         Path assetDirectory() throws IOException {
             return this.createDirectory("assets");

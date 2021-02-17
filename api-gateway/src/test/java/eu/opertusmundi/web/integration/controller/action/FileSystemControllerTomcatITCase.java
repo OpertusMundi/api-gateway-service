@@ -86,7 +86,7 @@ public class FileSystemControllerTomcatITCase {
         }
 
         @Bean
-        Path userDataDirectory() throws IOException {
+        Path userDirectory() throws IOException {
             return this.createDirectory("user");
         }
     }

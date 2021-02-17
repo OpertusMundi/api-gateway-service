@@ -10,7 +10,7 @@ import org.springframework.validation.Validator;
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
 import eu.opertusmundi.common.model.asset.AssetResourceCommandDto;
-import eu.opertusmundi.common.model.profiler.EnumDataProfilerSourceType;
+import eu.opertusmundi.common.model.asset.EnumAssetSourceType;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.repository.ProviderAssetDraftRepository;
 
@@ -43,7 +43,7 @@ public class AssetResourceValidator implements Validator {
             e.rejectValue("format", "NotFound");
         } else if (!format.isEnabled()) {
             e.rejectValue("format", "NotEnabled");
-        } else if (draft != null && draft.isIngested() && format.getCategory() != EnumDataProfilerSourceType.VECTOR) {
+        } else if (draft != null && draft.isIngested() && format.getCategory() != EnumAssetSourceType.VECTOR) {
             e.rejectValue("format", "IngestNotSupported");
         } else if (StringUtils.isBlank(extension)) {
             e.rejectValue("format", "NotSupportedExtension");

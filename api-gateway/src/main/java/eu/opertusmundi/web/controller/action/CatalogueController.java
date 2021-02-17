@@ -1,7 +1,5 @@
 package eu.opertusmundi.web.controller.action;
 
-import java.util.UUID;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -86,7 +84,7 @@ public interface CatalogueController {
             required    = false,
             description = "Item unique id"
         )
-        @PathVariable UUID id
+        @PathVariable String id
     );
 
 }

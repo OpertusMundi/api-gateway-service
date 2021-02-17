@@ -1,19 +1,29 @@
 package eu.opertusmundi.web.controller.action;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
@@ -29,6 +39,7 @@ import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceCommandDto;
 import eu.opertusmundi.common.model.asset.AssetResourceCommandDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
+import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientSetStatusCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
@@ -45,8 +56,8 @@ import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.web.controller.support.CatalogueUtils;
 import eu.opertusmundi.web.repository.ProviderRepository;
-import eu.opertusmundi.web.validation.AssetDraftValidator;
 import eu.opertusmundi.web.validation.AssetResourceValidator;
+import eu.opertusmundi.web.validation.DraftValidator;
 import feign.FeignException;
 
 @RestController
@@ -58,7 +69,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     private ObjectProvider<CatalogueFeignClient> catalogueClient;
 
     @Autowired
-    private AssetDraftValidator assetDraftValidator;
+    private DraftValidator draftValidator;
    
     @Autowired
     private CatalogueUtils catalogueUtils;
@@ -104,7 +115,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 m.setKey(UUID.randomUUID());
             });
 
-            this.assetDraftValidator.validate(command, validationResult);
+            this.draftValidator.validate(command, validationResult);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors());
@@ -154,7 +165,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 m.setKey(UUID.randomUUID());
             });
 
-            this.assetDraftValidator.validate(command, validationResult);
+            this.draftValidator.validate(command, validationResult);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
@@ -178,7 +189,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             command.setPublisherKey(this.currentUserKey());
             command.setAssetKey(draftKey);
 
-            this.assetDraftValidator.validate(command, validationResult);
+            this.draftValidator.validate(command, validationResult);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
@@ -375,7 +386,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     public BaseResponse setDraftStatusTemp(UUID draftKey, CatalogueClientSetStatusCommandDto command) {
         try {
-            this.catalogueClient.getObject().setDraftStatus(draftKey, command.getStatus().getValue());
+            this.catalogueClient.getObject().setDraftStatus(draftKey.toString(), command.getStatus().getValue());
 
             return RestResponse.success();
         } catch (final FeignException fex) {
@@ -473,6 +484,61 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, draftKey);
 
         return RestResponse.result(draft);
+    }
+
+    public ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
+        UUID draftKey, UUID resourceKey, HttpServletResponse response
+    ) throws IOException {
+        final UUID publisherKey = this.currentUserKey();
+
+        final Path path = this.providerAssetService.resolveDraftAdditionalResource(publisherKey, draftKey, resourceKey);
+        final File file = path.toFile();
+       
+        String contentType = Files.probeContentType(path);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
+        response.setHeader("Content-Type", contentType);
+        response.setHeader("Content-Length", Long.toString(file.length()));
+
+        final StreamingResponseBody stream = out -> {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                IOUtils.copyLarge(inputStream, out);
+            }
+        };
+
+        return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
+    }
+    
+    public ResponseEntity<StreamingResponseBody> getMetadataProperty(
+        UUID draftKey, UUID resourceKey, String propertyName, HttpServletResponse response
+    ) throws IOException {
+        final UUID publisherKey = this.currentUserKey();
+
+        final MetadataProperty property = this.providerAssetService.resolveDraftMetadataProperty(
+            publisherKey, draftKey, resourceKey, propertyName
+        );
+        
+        final File file = property.getPath().toFile();
+       
+        String contentType = Files.probeContentType(property.getPath());
+        if (contentType == null) {
+            contentType = property.getType().getMediaType();
+        }
+
+        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
+        response.setHeader("Content-Type", contentType);
+        response.setHeader("Content-Length", Long.toString(file.length()));
+
+        final StreamingResponseBody stream = out -> {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                IOUtils.copyLarge(inputStream, out);
+            }
+        };
+
+        return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
 
 }

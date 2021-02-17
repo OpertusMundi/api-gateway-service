@@ -1,6 +1,6 @@
 package eu.opertusmundi.web.controller.action;
 
-import java.util.UUID;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,10 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.opertusmundi.common.domain.AssetAdditionalResourceEntity;
+import eu.opertusmundi.common.domain.AssetResourceEntity;
 import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
+import eu.opertusmundi.common.model.asset.EnumAssetAdditionalResource;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
@@ -21,6 +25,8 @@ import eu.opertusmundi.common.model.catalogue.server.CatalogueCollection;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueResponse;
 import eu.opertusmundi.common.model.dto.PublisherDto;
+import eu.opertusmundi.common.repository.AssetAdditionalResourceRepository;
+import eu.opertusmundi.common.repository.AssetResourceRepository;
 import eu.opertusmundi.web.controller.support.CatalogueUtils;
 import eu.opertusmundi.web.repository.ProviderRepository;
 import feign.FeignException;
@@ -38,6 +44,12 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
 
     @Autowired
     private CatalogueUtils catalogueUtils;
+    
+    @Autowired
+    private AssetResourceRepository assetResourceRepository;
+
+    @Autowired
+    private AssetAdditionalResourceRepository assetAdditionalResourceRepository;
 
     @Override
     public RestResponse<?> findAll(CatalogueSearchQuery request) {
@@ -78,7 +90,7 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     }
 
     @Override
-    public RestResponse<CatalogueItemDetailsDto> findOne(UUID id) {
+    public RestResponse<CatalogueItemDetailsDto> findOne(String id) {
         try {
             final ResponseEntity<CatalogueResponse<CatalogueFeature>> e = this.catalogueClient.getObject().findOneById(id);
 
@@ -100,6 +112,32 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
             final PublisherDto publisher = this.providerRepository.findOneByKey(item.getPublisherId()).toPublisherDto();
 
             item.setPublisher(publisher);
+            
+            // Consolidate data from asset repository
+            List<AssetResourceEntity> resources = this.assetResourceRepository
+                .findAllResourcesByAssetPid(item.getId());
+
+            resources.stream()
+                .map(AssetResourceEntity::toDto)
+                .forEach(item.getResources()::add);
+            
+            List<AssetAdditionalResourceEntity> additionalResources = this.assetAdditionalResourceRepository
+                .findAllResourcesByAssetPid(item.getId());
+           
+            item.getAdditionalResources().stream()
+                .filter(r -> r.getType() == EnumAssetAdditionalResource.FILE)
+                .forEach(r -> {
+                    final AssetFileAdditionalResourceDto fileResource  = (AssetFileAdditionalResourceDto) r;
+                    final AssetAdditionalResourceEntity resourceEntity = additionalResources.stream()
+                        .filter(r1 -> r1.getKey().equals(fileResource.getId()))
+                        .findFirst()
+                        .orElse(null);
+
+                        if (resourceEntity != null) {
+                            fileResource.setModifiedOn(resourceEntity.getCreatedOn());
+                            fileResource.setSize(resourceEntity.getSize());
+                        }
+                    });
 
             // Compute effective pricing models
             this.catalogueUtils.refreshPricingModels(item, catalogueResponse.getResult().getProperties().getPricingModels());

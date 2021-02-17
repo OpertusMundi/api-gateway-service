@@ -1,12 +1,15 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
@@ -400,5 +404,90 @@ public interface ProviderDraftAssetController {
         )
         BindingResult validationResult
     );
+    
+    /**
+     * Download an additional resource file
+     *
+     * @param draftKey Draft unique key
+     * @param resourceKey Resource unique key
+     * 
+     * @return The requested file
+     */
+    @Operation(
+        operationId = "provider-draft-asset-11",
+        summary     = "Download additional resource",
+        description = "Downloads an additional resource file. Roles required: <b>ROLE_PROVIDER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
+    )
+    @GetMapping(value = "/provider/drafts/{draftKey}/additional-resources/{resourceKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Resource unique key"
+        )
+        @PathVariable UUID resourceKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
 
+    /**
+     * Get metadata property value
+     *
+     * @param draftKey Draft unique key
+     * @param resourceKey Resource unique key
+     * @param propertyName The property name
+     * 
+     * @return The requested property value
+     */
+    @Operation(
+        operationId = "provider-draft-asset-11",
+        summary     = "Get metadata property",
+        description = "Gets metadata property value for the specified resource file. Roles required: <b>ROLE_PROVIDER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested value"))
+    )
+    @GetMapping(
+        value = "/provider/drafts/{draftKey}/resources/{resourceKey}/metadata/{propertyName}", 
+        produces = {MediaType.IMAGE_PNG_VALUE, MediaType.APPLICATION_JSON_VALUE}
+    )
+    ResponseEntity<StreamingResponseBody> getMetadataProperty(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            description = "Resource unique key"
+        )
+        @PathVariable UUID resourceKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            description = "Property name"
+        )
+        @PathVariable String propertyName,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
+    
 }
