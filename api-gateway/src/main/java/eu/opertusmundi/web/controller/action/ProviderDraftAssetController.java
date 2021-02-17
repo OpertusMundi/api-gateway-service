@@ -102,7 +102,7 @@ public interface ProviderDraftAssetController {
             required = false,
             description = "Order by property"
         )
-        @RequestParam(name = "orderBy", defaultValue = "name") EnumProviderAssetDraftSortField orderBy,
+        @RequestParam(name = "orderBy", defaultValue = "CREATED_ON") EnumProviderAssetDraftSortField orderBy,
         @Parameter(
             in = ParameterIn.QUERY,
             required = false,
