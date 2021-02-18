@@ -25,8 +25,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = "Provider Assets",
-    description = "The provider asset API"
+    name        = "Assets",
+    description = "The asset API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
 public interface ProviderAssetController {
@@ -125,8 +125,7 @@ public interface ProviderAssetController {
     @Operation(
         operationId = "assets-03",
         summary     = "Delete asset",
-        description = "Delete asset from catalogue. Required roles: <b>ROLE_PROVIDER</b>",
-        tags        = { "Provider Assets" }
+        description = "Delete asset from catalogue. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
