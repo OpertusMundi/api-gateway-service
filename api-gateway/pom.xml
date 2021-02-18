@@ -25,6 +25,7 @@
 		<org.camunda.bpm.version>7.13.0</org.camunda.bpm.version>
 		<org.jadira.usertype.core.version>6.0.1.GA</org.jadira.usertype.core.version>
 		<org.joda.joda-money.version>1.0.1</org.joda.joda-money.version>
+		<springdoc.version>1.5.4</springdoc.version>
 	</properties>
 
 	<profiles>
@@ -262,6 +263,19 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		
+		<!-- Open API documentation -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>${springdoc.version}</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-security</artifactId>
+			<version>${springdoc.version}</version>
 		</dependency>
 		
 	</dependencies>

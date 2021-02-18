@@ -35,7 +35,7 @@
 		<postgresql.version>42.2.16</postgresql.version>
 		<spring-boot.version>2.3.4.RELEASE</spring-boot.version>
 
-		<java-commons.version>1.0.9</java-commons.version>
+		<java-commons.version>1.0.10</java-commons.version>
 
 		<!-- Plugin versions -->
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
