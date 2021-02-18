@@ -156,7 +156,9 @@ API Gateway application requires access to asset repository and user file system
 opertusmundi.file-system.temp-dir=
 # Root folder for storing user file system
 opertusmundi.file-system.data-dir=
-# Root folder for storing files for the asset repository
+# Root folder for storing draft files
+opertusmundi.file-system.draft-dir=
+# Root folder for storing asset files
 opertusmundi.file-system.asset-dir=
 ```
 
@@ -169,7 +171,6 @@ API Gateway implements payments using the MANGOPAY payment solution.
 # MangoPay
 #
 
-opertusmundi.payments.mangopay.base-url=https://api.mangopay.com
 opertusmundi.payments.mangopay.client-id=
 opertusmundi.payments.mangopay.client-password=
 ```
