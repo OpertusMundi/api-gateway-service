@@ -48,8 +48,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = "Provider Drafts",
-    description = "The provider asset publication API"
+    name        = "Drafts",
+    description = "The asset publication API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
 @Secured({"ROLE_PROVIDER"})
@@ -65,10 +65,10 @@ public interface ProviderDraftAssetController {
      * @return An instance of {@link CatalogueClientCollectionResponse} class
      */
     @Operation(
-        operationId = "provider-draft-asset-01",
+        operationId = "draft-asset-01",
         summary     = "Search draft items",
         description = "Search catalogue for provider's draft items based on one or more criteria. Supports data paging and sorting. "
-                      + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -77,7 +77,7 @@ public interface ProviderDraftAssetController {
             mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftCollectionResponse.class)
         )
     )
-    @GetMapping(value = "/provider/drafts", consumes = "application/json")
+    @GetMapping(value = "/drafts", consumes = "application/json")
     RestResponse<?> findAllDraft(
         @Parameter(
             in = ParameterIn.QUERY,
@@ -118,7 +118,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "provider-draft-asset-02",
+        operationId = "draft-asset-02",
         summary     = "Create draft",
         description = "Create draft item. Required roles: <b>ROLE_PROVIDER</b>"
     )
@@ -127,7 +127,7 @@ public interface ProviderDraftAssetController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
-    @PostMapping(value = "/provider/drafts", consumes = "application/json")
+    @PostMapping(value = "/drafts", consumes = "application/json")
     @Validated
     RestResponse<AssetDraftDto> createDraft(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -151,7 +151,7 @@ public interface ProviderDraftAssetController {
      * @return A response with a result of type {@link CatalogueItemDto}
      */
     @Operation(
-        operationId = "provider-draft-asset-03",
+        operationId = "draft-asset-03",
         summary     = "Get draft",
         description = "Get a single catalogue draft item by its unique identifier. "
                       + "Required roles: <b>ROLE_PROVIDER</b>"
@@ -163,7 +163,7 @@ public interface ProviderDraftAssetController {
             mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class)
         )
     )
-    @GetMapping(value = "/provider/drafts/{draftKey}")
+    @GetMapping(value = "/drafts/{draftKey}")
     RestResponse<AssetDraftDto> findOneDraft(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -181,7 +181,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "provider-draft-asset-04",
+        operationId = "draft-asset-04",
         summary     = "Update draft",
         description = "Update an existing draft item. Resources that are not included in the request, are automatically "
                     + "deleted. Required roles: <b>ROLE_PROVIDER</b>"
@@ -191,7 +191,7 @@ public interface ProviderDraftAssetController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
-    @PutMapping(value = "/provider/drafts/{draftKey}", consumes = "application/json")
+    @PutMapping(value = "/drafts/{draftKey}", consumes = "application/json")
     @Validated
     RestResponse<AssetDraftDto> updateDraft(
         @Parameter(
@@ -222,7 +222,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "provider-draft-asset-05",
+        operationId = "draft-asset-05",
         summary     = "Submit existing draft",
         description = "Update draft and submit for review and publication. Required roles: <b>ROLE_PROVIDER</b>"
     )
@@ -231,7 +231,7 @@ public interface ProviderDraftAssetController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
-    @PutMapping(value = "/provider/drafts/{draftKey}/submit")
+    @PutMapping(value = "/drafts/{draftKey}/submit")
     @Validated
     BaseResponse submitDraft(
         @Parameter(
@@ -262,7 +262,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "provider-draft-asset-07",
+        operationId = "draft-asset-07",
         summary     = "Review draft",
         description = "Accept or reject draft by a provider. "
                       + "The draft status must be <b>PENDING_PROVIDER_REVIEW</b>. "
@@ -273,7 +273,7 @@ public interface ProviderDraftAssetController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
-    @PutMapping(value = "/provider/drafts/{draftKey}/review")
+    @PutMapping(value = "/drafts/{draftKey}/review")
     BaseResponse reviewDraft(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -296,7 +296,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "provider-draft-asset-08",
+        operationId = "draft-asset-08",
         summary     = "Delete draft",
         description = "Delete a draft item. Required roles: <b>ROLE_PROVIDER</b>"
     )
@@ -305,7 +305,7 @@ public interface ProviderDraftAssetController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
-    @DeleteMapping(value = "/provider/drafts/{draftKey}")
+    @DeleteMapping(value = "/drafts/{draftKey}")
     BaseResponse deleteDraft(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -324,7 +324,7 @@ public interface ProviderDraftAssetController {
      * @param validationResult
      */
     @Operation(
-        operationId = "provider-draft-asset-09",
+        operationId = "draft-asset-09",
         summary     = "Upload resource",
         description = "Uploads a resource file and links it to selected draft instance. On success, an updated draft is returned "
                     + "with the new resource registration."
@@ -338,7 +338,7 @@ public interface ProviderDraftAssetController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
-    @PostMapping(value = "/provider/drafts/{draftKey}/resources", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/drafts/{draftKey}/resources", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Validated
     RestResponse<?> uploadResource(
         @Parameter(
@@ -368,7 +368,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "provider-draft-asset-10",
+        operationId = "draft-asset-10",
         summary     = "Upload additional resource",
         description = "Uploads an additional resource file and links it to selected draft instance. On success, an updated draft is returned "
                     + "with the new resource registration."
@@ -385,7 +385,7 @@ public interface ProviderDraftAssetController {
             schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class)
         )
     )
-    @PostMapping(value = "/provider/drafts/{draftKey}/additional-resources", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/drafts/{draftKey}/additional-resources", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Validated
     RestResponse<?> uploadAdditionalResource(
         @Parameter(
@@ -414,7 +414,7 @@ public interface ProviderDraftAssetController {
      * @return The requested file
      */
     @Operation(
-        operationId = "provider-draft-asset-11",
+        operationId = "draft-asset-11",
         summary     = "Download additional resource",
         description = "Downloads an additional resource file. Roles required: <b>ROLE_PROVIDER</b>",
         security    = {
@@ -426,7 +426,7 @@ public interface ProviderDraftAssetController {
         description = "Successful Request",
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
     )
-    @GetMapping(value = "/provider/drafts/{draftKey}/additional-resources/{resourceKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "/drafts/{draftKey}/additional-resources/{resourceKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -454,7 +454,7 @@ public interface ProviderDraftAssetController {
      * @return The requested property value
      */
     @Operation(
-        operationId = "provider-draft-asset-11",
+        operationId = "draft-asset-11",
         summary     = "Get metadata property",
         description = "Gets metadata property value for the specified resource file. Roles required: <b>ROLE_PROVIDER</b>",
         security    = {
@@ -467,7 +467,7 @@ public interface ProviderDraftAssetController {
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested value"))
     )
     @GetMapping(
-        value = "/provider/drafts/{draftKey}/resources/{resourceKey}/metadata/{propertyName}", 
+        value = "/drafts/{draftKey}/resources/{resourceKey}/metadata/{propertyName}", 
         produces = {MediaType.IMAGE_PNG_VALUE, MediaType.APPLICATION_JSON_VALUE}
     )
     ResponseEntity<StreamingResponseBody> getMetadataProperty(
