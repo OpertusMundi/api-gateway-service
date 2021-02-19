@@ -11,8 +11,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.UUID;
@@ -60,15 +63,20 @@ import eu.opertusmundi.web.utils.AccountCommandFactory;
 )
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecurity {
-
+   
     @TestConfiguration
     public static class FileSystemConfiguration {
 
+        private static final FileAttribute<?> DEFAULT_DIRECTORY_ATTRIBUTE =
+            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxr-x"));
+        
         public final static String relativePath = UUID.randomUUID().toString();
 
         private Path createDirectory(String suffix) throws IOException {
             final Path path = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), relativePath, suffix);
-            FileUtils.forceMkdir(path.toFile());
+
+            Files.createDirectories(path, DEFAULT_DIRECTORY_ATTRIBUTE);
+            
             return path;
         }
 
@@ -472,7 +480,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
     @Test
     @Order(60)
     @Tag(value = "Controller")
-    @DisplayName(value = "When browsing missing file system for authenticated user, return error")
+    @DisplayName(value = "When file system is missing, create file system and return 200")
     @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
     void whenAuthenticatedUserBrowseMissingFileSystem_returnError() throws Exception {
         // Perform tear down operation manually
@@ -487,14 +495,9 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").isBoolean())
-            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.messages").isArray())
-            .andExpect(jsonPath("$.messages", hasSize(1)))
-            .andExpect(jsonPath("$.messages[0].code").value(FileSystemMessageCode.IO_ERROR.key()))
-            .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
-            .andExpect(jsonPath("$.exception").doesNotExist())
-            .andExpect(jsonPath("$.message").doesNotExist())
-            .andExpect(jsonPath("$.result").doesNotExist());
+            .andExpect(jsonPath("$.messages").isEmpty());
     }
 
     private MockMultipartHttpServletRequestBuilder createUploadRequest(boolean overwrite, File resource) throws IOException {

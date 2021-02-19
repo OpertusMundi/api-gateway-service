@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -77,11 +80,16 @@ public class FileSystemControllerTomcatITCase {
     @TestConfiguration
     public static class FileSystemConfiguration {
 
+        private static final FileAttribute<?> DEFAULT_DIRECTORY_ATTRIBUTE =
+            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxr-x"));
+        
         public final static String relativePath = UUID.randomUUID().toString();
 
         private Path createDirectory(String suffix) throws IOException {
             final Path path = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), relativePath, suffix);
-            FileUtils.forceMkdir(path.toFile());
+            
+            Files.createDirectories(path, DEFAULT_DIRECTORY_ATTRIBUTE);
+            
             return path;
         }
 
