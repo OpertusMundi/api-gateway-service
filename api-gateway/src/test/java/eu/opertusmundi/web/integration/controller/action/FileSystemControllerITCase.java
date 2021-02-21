@@ -14,10 +14,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.ZonedDateTime;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -67,15 +68,15 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
     @TestConfiguration
     public static class FileSystemConfiguration {
 
-        private static final FileAttribute<?> DEFAULT_DIRECTORY_ATTRIBUTE =
-            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxr-x"));
+        private static final Set<PosixFilePermission> DEFAULT_DIRECTORY_PERMISSIONS = PosixFilePermissions.fromString("rwxrwxr-x");
         
         public final static String relativePath = UUID.randomUUID().toString();
 
         private Path createDirectory(String suffix) throws IOException {
             final Path path = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), relativePath, suffix);
 
-            Files.createDirectories(path, DEFAULT_DIRECTORY_ATTRIBUTE);
+            Files.createDirectories(path);
+            Files.setPosixFilePermissions(path, DEFAULT_DIRECTORY_PERMISSIONS);
             
             return path;
         }
