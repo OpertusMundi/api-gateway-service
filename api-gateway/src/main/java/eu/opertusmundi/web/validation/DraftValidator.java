@@ -1,7 +1,6 @@
 package eu.opertusmundi.web.validation;
 
 import java.util.List;
-import java.util.ListIterator;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -46,7 +45,6 @@ public class DraftValidator implements Validator {
         final CatalogueItemCommandDto c = (CatalogueItemCommandDto) o;
 
         this.validateFormat(c, e);
-        
         this.validateResources(c, e);
         this.validateAdditionalResources(c, e);
     }
@@ -68,23 +66,27 @@ public class DraftValidator implements Validator {
     }
 
     private void validateResources(CatalogueItemCommandDto c, Errors e) {
-        final List<AssetResourceEntity>         resources   = this.assetResourceRepository.findAllResourcesByDraftKey(c.getAssetKey());
-        final List<UUID>                        keys        = resources.stream().map(r -> r.getKey()).collect(Collectors.toList());
-        final ListIterator<AssetResourceEntity> resoureIter = resources.listIterator();
+        final List<AssetResourceEntity> serverResources = this.assetResourceRepository.findAllResourcesByDraftKey(c.getAssetKey());
+        final List<UUID>                serverKeys      = serverResources.stream().map(r -> r.getKey()).collect(Collectors.toList());
+        final List<UUID>                requestKeys     = c.getResources().stream().map(r -> r.getId()).collect(Collectors.toList());
 
-        // All resource keys must exist
-        for (int i = 0; i < c.getResources().size(); i++) {
-            if (!keys.contains(c.getResources().get(i).getId())) {
+        // All request resource keys must exist at the server
+        for (int i = 0; i < requestKeys.size(); i++) {
+            if (!serverKeys.contains(requestKeys.get(i))) {
                 e.rejectValue(String.format("resources[%d]", i), "NotFound");
             }
-        }   
+        }
+        
+        if(e.hasErrors()) {
+            return;
+        }
         
         // Check registered resources format
-        while(resoureIter.hasNext()) {
-            final int                 i         = resoureIter.nextIndex();
-            final AssetResourceEntity r         = resoureIter.next();
-            String                    extension = FilenameUtils.getExtension(r.getFileName());
-            AssetFileTypeEntity       format    = this.assetFileTypeRepository.findOneByFormat(r.getFormat()).orElse(null);;
+        for (int i = 0; i < requestKeys.size(); i++) {
+            final UUID                key       = requestKeys.get(i);
+            final AssetResourceEntity resource  = serverResources.stream().filter(r -> r.getKey().equals(key)).findFirst().orElse(null);
+            final String              extension = FilenameUtils.getExtension(resource.getFileName());
+            final AssetFileTypeEntity format    = this.assetFileTypeRepository.findOneByFormat(resource.getFormat()).orElse(null);
             
             if (format == null) {
                 e.rejectValue(String.format("resources[%d].format", i), "NotFound");
@@ -102,7 +104,7 @@ public class DraftValidator implements Validator {
     }
   
     private void validateAdditionalResources(CatalogueItemCommandDto c,  Errors e) {
-        final List<AssetAdditionalResourceEntity> resources   = this.assetAdditionalResourceRepository
+        final List<AssetAdditionalResourceEntity> resources = this.assetAdditionalResourceRepository
             .findAllResourcesByDraftKey(c.getAssetKey());
         
         final List<UUID> keys = resources.stream().map(r -> r.getKey()).collect(Collectors.toList());
@@ -110,7 +112,7 @@ public class DraftValidator implements Validator {
         // All file additional resource keys must exist
         for (int i = 0; i < c.getAdditionalResources().size(); i++) {
             final AssetAdditionalResourceDto r = c.getAdditionalResources().get(i);
-            if (r.getType()!= EnumAssetAdditionalResource.FILE) {
+            if (r.getType() != EnumAssetAdditionalResource.FILE) {
                 continue;
             }
             
