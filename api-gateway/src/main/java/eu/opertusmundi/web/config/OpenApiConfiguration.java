@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
@@ -82,11 +83,29 @@ public class OpenApiConfiguration {
         );
 
         api.addExtension("x-tagGroups", new TagGroup[] {
-            new TagGroup("Account", Arrays.asList("Account", "Profile", "Configuration", "File System")),
-            new TagGroup("Customers", Arrays.asList("Consumer Registration", "Provider Registration" )),
-            new TagGroup("Orders", Arrays.asList("Catalogue", "Cart")),
-            new TagGroup("Assets", Arrays.asList("Provider Assets", "Provider Drafts", "Rating")),
-            new TagGroup("Messages", Arrays.asList("Message", "Notification")),
+            new TagGroup("Account", Arrays.asList(
+                EndpointTags.Account,
+                EndpointTags.Profile,
+                EndpointTags.Configuration,
+                EndpointTags.FileSystem
+            )),
+            new TagGroup("Customers", Arrays.asList(
+                EndpointTags.ConsumerRegistration,
+                EndpointTags.ProviderRegistration
+            )),
+            new TagGroup("Orders", Arrays.asList(
+                EndpointTags.Catalogue,
+                EndpointTags.Cart
+            )),
+            new TagGroup("Assets", Arrays.asList(
+                EndpointTags.Draft,
+                EndpointTags.Asset,
+                EndpointTags.Rating
+            )),
+            new TagGroup("Messages", Arrays.asList(
+                EndpointTags.Message,
+                EndpointTags.Notification
+            )),
         });
 
         return api;

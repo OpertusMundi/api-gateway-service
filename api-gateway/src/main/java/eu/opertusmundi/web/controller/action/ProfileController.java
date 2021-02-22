@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.dto.AccountProfileDto;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,7 +25,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Endpoint for user profile operations
  */
 @Tag(
-    name        = "Profile",
+    name        = EndpointTags.Profile,
     description = "The profile API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
@@ -40,7 +41,6 @@ public interface ProfileController {
         operationId = "profile-01",
         summary     = "Get profile",
         description = "Get profile data for the authenticated user. Roles required: <b>ROLE_USER</b>",
-        tags        = { "Profile" },
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -59,7 +59,6 @@ public interface ProfileController {
         operationId = "profile-02",
         summary     = "Update profile",
         description = "Update the profile of the authenticated user. Roles required: <b>ROLE_USER</b>",
-        tags        = { "Profile" },
         security    = {
             @SecurityRequirement(name = "cookie")
         }

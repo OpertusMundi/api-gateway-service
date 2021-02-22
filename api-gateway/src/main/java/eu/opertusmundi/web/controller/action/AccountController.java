@@ -20,6 +20,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.security.AccountRegisterResponse;
 import eu.opertusmundi.web.model.security.Token;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,7 +36,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Endpoint for user authentication actions
  */
 @Tag(
-    name        = "Account",
+    name        = EndpointTags.Account,
     description = "The account API"
 )
 @RequestMapping(produces = "application/json")
@@ -77,8 +78,7 @@ public interface AccountController {
     @Operation(
         operationId = "account-02",
         summary     = "Successful logout redirect endpoint",
-        description = "Default redirect endpoint for successful logout operations, used for refreshing the CSRF token",
-        tags        = { "Account" }
+        description = "Default redirect endpoint for successful logout operations, used for refreshing the CSRF token"
     )
     @GetMapping(value = "/logged-out")
     public RestResponse<Token> loggedOut(
@@ -99,8 +99,7 @@ public interface AccountController {
     @Operation(
         operationId = "account-04",
         summary     = "Register account",
-        description = "Register a new account",
-        tags        = { "Account" }
+        description = "Register a new account"
     )
     @ApiResponse(
         responseCode = "200",
@@ -137,8 +136,7 @@ public interface AccountController {
     @Operation(
         operationId = "account-05",
         summary     = "Request activation token",
-        description = "Request an activation token for verifying an email or activating an account",
-        tags        = { "Account" }
+        description = "Request an activation token for verifying an email or activating an account"
     )
     @ApiResponse(
         responseCode = "200",
@@ -171,8 +169,7 @@ public interface AccountController {
     @Operation(
         operationId = "account-06",
         summary     = "Verify activation token",
-        description = "Redeem an activation token to verify an email or activate an account",
-        tags        = { "Account" }
+        description = "Redeem an activation token to verify an email or activate an account"
     )
     @ApiResponse(
         responseCode = "200",
@@ -202,7 +199,6 @@ public interface AccountController {
         operationId = "account-03",
         summary     = "Get user data",
         description = "Get user data. Roles required: <b>ROLE_USER</b>",
-        tags        = { "Account" },
         security    = {
             @SecurityRequirement(name = "cookie")
         }

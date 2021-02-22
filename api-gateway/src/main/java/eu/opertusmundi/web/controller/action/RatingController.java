@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.RatingEndpointTypes;
 import eu.opertusmundi.web.model.rating.client.ClientRatingCommandDto;
 import eu.opertusmundi.web.model.rating.client.ClientRatingDto;
@@ -31,7 +32,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Endpoint for managing user shopping cart
  */
 @Tag(
-    name        = "Rating",
+    name        = EndpointTags.Rating,
     description = "The rating API"
 )
 @RequestMapping(path = "/action/rating", produces = "application/json")
@@ -47,8 +48,7 @@ public interface RatingController {
     @Operation(
         operationId = "rating-01",
         summary     = "Get asset ratings",
-        description = "Get all ratings for a specific asset",
-        tags        = { "Rating" }
+        description = "Get all ratings for a specific asset"
     )
     @ApiResponse(
         responseCode = "200",
@@ -76,8 +76,7 @@ public interface RatingController {
     @Operation(
         operationId = "rating-03",
         summary     = "Get provider ratings",
-        description = "Get all ratings for a specific provider",
-        tags        = { "Rating" }
+        description = "Get all ratings for a specific provider"
     )
     @ApiResponse(
         responseCode = "200",
@@ -105,8 +104,7 @@ public interface RatingController {
     @Operation(
         operationId = "rating-02",
         summary     = "Add asset rating",
-        description = "Adds a new rating for a specific asset. Required roles: <b>ROLE_CONSUMER</b>",
-        tags        = { "Rating" }
+        description = "Adds a new rating for a specific asset. Required roles: <b>ROLE_CONSUMER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -144,8 +142,7 @@ public interface RatingController {
     @Operation(
         operationId = "rating-03",
         summary     = "Add provider rating",
-        description = "Adds a new rating for a specific provider. Required roles: <b>ROLE_CONSUMER</b>",
-        tags        = { "Rating" }
+        description = "Adds a new rating for a specific provider. Required roles: <b>ROLE_CONSUMER</b>"
     )
     @ApiResponse(
         responseCode = "200",

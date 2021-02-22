@@ -25,7 +25,8 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
-import eu.opertusmundi.web.model.openapi.schema.FileSystemTypes;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
+import eu.opertusmundi.web.model.openapi.schema.FileSystemEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -39,7 +40,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * File system actions
  */
 @Tag(
-    name        = "File System",
+    name        = EndpointTags.FileSystem,
     description = "The user file system API"
 )
 @RequestMapping(path = "/action", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -62,7 +63,7 @@ public interface FileSystemController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemTypes.FileSystemResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemEndpointTypes.FileSystemResponse.class))
     )
     @GetMapping(value = "/file-system")
     RestResponse<?> browseDirectory() throws AccessDeniedException;
@@ -85,7 +86,7 @@ public interface FileSystemController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemTypes.FileSystemResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemEndpointTypes.FileSystemResponse.class))
     )
     @PostMapping(value = "/file-system/folders")
     @Validated
@@ -146,7 +147,7 @@ public interface FileSystemController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemTypes.FileSystemResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemEndpointTypes.FileSystemResponse.class))
     )
     @DeleteMapping(value = "/file-system", params = { "path" })
     public RestResponse<?> deletePath(
@@ -178,7 +179,7 @@ public interface FileSystemController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemTypes.FileSystemResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemEndpointTypes.FileSystemResponse.class))
     )
     @PostMapping(value = "/file-system/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Validated

@@ -13,6 +13,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueSearchQuery;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -25,7 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Endpoint for accessing catalogue data
  */
 @Tag(
-    name        = "Catalogue",
+    name        = EndpointTags.Catalogue,
     description = "The catalogue API"
 )
 @RequestMapping(path = "/action", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -40,8 +41,7 @@ public interface CatalogueController {
     @Operation(
         operationId = "catalogue-01",
         summary     = "Search assets",
-        description = "Search catalogue published items based on one or more criteria. Supports data paging and sorting.",
-        tags        = { "Catalogue" }
+        description = "Search catalogue published items based on one or more criteria. Supports data paging and sorting."
     )
     @ApiResponse(
         responseCode = "200",
@@ -69,8 +69,7 @@ public interface CatalogueController {
     @Operation(
         operationId = "catalogue-02",
         summary     = "Get asset",
-        description = "Get a single catalogue item by its unique identifier.",
-        tags        = { "Catalogue" }
+        description = "Get a single catalogue item by its unique identifier."
     )
     @ApiResponse(
         responseCode = "200",

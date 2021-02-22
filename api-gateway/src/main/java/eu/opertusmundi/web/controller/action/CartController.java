@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.web.model.openapi.schema.CartEndpointTypes;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.order.CartAddCommandDto;
 import eu.opertusmundi.web.model.order.CartDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Endpoint for managing user shopping cart
  */
 @Tag(
-    name        = "Cart",
+    name        = EndpointTags.Cart,
     description = "The cart API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
@@ -62,8 +63,7 @@ public interface CartController {
     @Operation(
         operationId = "cart-02",
         summary     = "Add item",
-        description = "Add item to cart",
-        tags        = { "Cart" }
+        description = "Add item to cart"
     )
     @ApiResponse(
         responseCode = "200",
@@ -84,8 +84,7 @@ public interface CartController {
     @Operation(
         operationId = "cart-03",
         summary     = "Remove item",
-        description = "Remove item from cart",
-        tags        = { "Cart" }
+        description = "Remove item from cart"
     )
     @ApiResponse(
         responseCode = "200",
@@ -106,8 +105,7 @@ public interface CartController {
     @Operation(
         operationId = "cart-04",
         summary     = "Clear cart",
-        description = "Remove all items from the cart",
-        tags        = { "Cart" }
+        description = "Remove all items from the cart"
     )
     @ApiResponse(
         responseCode = "200",

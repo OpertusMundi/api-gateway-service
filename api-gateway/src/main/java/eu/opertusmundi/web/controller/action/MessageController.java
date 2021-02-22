@@ -17,6 +17,7 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.web.model.message.client.ClientMessageCollectionResponse;
 import eu.opertusmundi.web.model.message.client.ClientMessageCommandDto;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.MessageEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,16 +25,11 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 /**
  * Endpoint messages and notifications
  */
-@Tag(
-    name        = "Message",
-    description = "The message and notification API"
-)
 @RequestMapping(path = "/action", produces = MediaType.APPLICATION_JSON_VALUE)
 public interface MessageController {
 
@@ -52,7 +48,7 @@ public interface MessageController {
     @Operation(
         operationId = "message-01",
         summary     = "Find messages",
-        tags        = { "Message" }
+        tags        = { EndpointTags.Message }
     )
     @ApiResponse(
         responseCode = "200",
@@ -120,7 +116,7 @@ public interface MessageController {
     @Operation(
         operationId = "notification-01",
         summary     = "Find notifications",
-        tags        = { "Notification" }
+        tags        = { EndpointTags.Notification }
     )
     @ApiResponse(
         responseCode = "200",
@@ -185,7 +181,7 @@ public interface MessageController {
         operationId = "message-04",
         summary     = "Send a message to a platform user",
         description = "Sends a message to the specified user from a Helpdesk account",
-        tags        = { "Message" }
+        tags        = { EndpointTags.Message }
     )
     @ApiResponse(
         responseCode = "200",
@@ -227,7 +223,7 @@ public interface MessageController {
         operationId = "message-05",
         summary     = "Send a message to a provider",
         description = "Sends a message to the specified provider from the authenticated user",
-        tags        = { "Message" }
+        tags        = { EndpointTags.Message }
     )
     @ApiResponse(
         responseCode = "200",
@@ -265,7 +261,7 @@ public interface MessageController {
         operationId = "message-06",
         summary     = "Send a message to Helpdesk",
         description = "Sends a message to Helpdesk from the authenticated user",
-        tags        = { "Message" }
+        tags        = { EndpointTags.Message }
     )
     @ApiResponse(
         responseCode = "200",
@@ -295,7 +291,7 @@ public interface MessageController {
         operationId = "message-03",
         summary     = "Reply to a message",
         description = "Reply to a message accessible to the authenticated user",
-        tags        = { "Message" }
+        tags        = { EndpointTags.Message }
     )
     @ApiResponse(
         responseCode = "200",
@@ -330,7 +326,7 @@ public interface MessageController {
         operationId = "message-02",
         summary     = "Read message",
         description = "Marks a message as read",
-        tags        = { "Message" }
+        tags        = { EndpointTags.Message }
     )
     @ApiResponse(
         responseCode = "200",
@@ -359,7 +355,7 @@ public interface MessageController {
         operationId = "notification-02",
         summary     = "Read notification",
         description = "Marks a notification as read",
-        tags        = { "Message" }
+        tags        = { EndpointTags.Notification }
     )
     @ApiResponse(
         responseCode = "200",

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.recommender.client.RecommenderClientResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,7 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Endpoint for querying the recommender system
  */
 @Tag(
-    name        = "Recommender",
+    name        = EndpointTags.Recommender,
     description = "The recommender API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
@@ -37,8 +38,7 @@ public interface RecommenderController {
     @Operation(
         operationId = "recommended-01",
         summary     = "Get recommended assets",
-        description = "Get a list of recommended assets for the currently authenticated user.",
-        tags        = { "Catalogue", "Recommender" }
+        description = "Get a list of recommended assets for the currently authenticated user."
     )
     @ApiResponse(
         responseCode = "200",

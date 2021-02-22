@@ -16,6 +16,7 @@ import eu.opertusmundi.common.model.dto.AccountProfileDto;
 import eu.opertusmundi.common.model.dto.ConsumerIndividualCommandDto;
 import eu.opertusmundi.common.model.dto.ConsumerProfessionalCommandDto;
 import eu.opertusmundi.common.model.dto.CustomerCommandDto;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,7 +25,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = "Consumer Registration",
+    name        = EndpointTags.ConsumerRegistration,
     description = "The consumer API"
 )
 @RequestMapping(path = "/action", produces = "application/json")

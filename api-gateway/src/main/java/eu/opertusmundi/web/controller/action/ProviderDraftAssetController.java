@@ -38,6 +38,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.dto.EnumSortingOrder;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
+import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -48,7 +49,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = "Drafts",
+    name        = EndpointTags.Draft,
     description = "The asset publication API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
