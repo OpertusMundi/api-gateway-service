@@ -12,8 +12,8 @@ import lombok.Setter;
 @Setter
 public class CartAddCommandDto {
 
-    @Schema(description = "Catalogue asset unique id")
-    private UUID productId;
+    @Schema(description = "Catalogue asset PID")
+    private String productId;
 
     @Schema(description = "Pricing model unique id")
     private UUID pricingModelId;

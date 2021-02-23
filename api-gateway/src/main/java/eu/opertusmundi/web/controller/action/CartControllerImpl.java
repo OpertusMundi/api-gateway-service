@@ -96,7 +96,7 @@ public class CartControllerImpl extends BaseController implements CartController
             this.cartService.setAccount(cart.getKey(), this.currentUserId());
         }
         // Inject catalogue data
-        final UUID[] keys = Arrays.stream(cart.getItems()).map(i -> i.getProductKey()).toArray(UUID[]::new);
+        final String[] keys = Arrays.stream(cart.getItems()).map(i -> i.getProductKey()).toArray(String[]::new);
 
         if(keys.length != 0) {
             ResponseEntity<CatalogueResponse<List<CatalogueFeature>>> e;
@@ -117,6 +117,9 @@ public class CartControllerImpl extends BaseController implements CartController
 
                         // Compute effective pricing models
                         this.refreshPricingModels(item, feature.getProperties().getPricingModels());
+                        
+                        // Do not return metadata
+                        item.setAutomatedMetadata(null);
 
                         return item;
                     }).collect(Collectors.toList());

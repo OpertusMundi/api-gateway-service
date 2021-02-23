@@ -141,7 +141,7 @@ public interface ProviderAssetController {
             required    = true,
             description = "Item unique id"
         )
-        @PathVariable UUID id
+        @PathVariable String id
     );
 
 }

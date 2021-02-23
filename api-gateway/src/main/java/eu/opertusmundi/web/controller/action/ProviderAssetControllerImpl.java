@@ -91,7 +91,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
     }
     
     @Override
-    public BaseResponse deleteAsset(UUID id) {
+    public BaseResponse deleteAsset(String id) {
         try {
             this.catalogueClient.getObject().deletePublished(id);
 

@@ -26,7 +26,7 @@ public class CartItemDto {
     @JsonIgnore
     @Getter
     @Setter
-    private UUID productKey;
+    private String productKey;
 
     @Schema(description = "Catalogue item")
     @JsonProperty("product")

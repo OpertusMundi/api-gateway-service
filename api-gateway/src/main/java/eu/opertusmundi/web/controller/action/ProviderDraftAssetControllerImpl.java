@@ -317,7 +317,8 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     public RestResponse<CatalogueItemDraftDto> findOneDraftTemp(UUID draftKey) {
         try {
-            final ResponseEntity<CatalogueResponse<CatalogueFeature>> e = this.catalogueClient.getObject().findOneDraftById(draftKey);
+            final ResponseEntity<CatalogueResponse<CatalogueFeature>> e = this.catalogueClient.getObject()
+                .findOneDraftById(draftKey.toString());
 
             final CatalogueResponse<CatalogueFeature> catalogueResponse = e.getBody();
 
@@ -372,7 +373,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             });
 
             // Update draft
-            this.catalogueClient.getObject().updateDraft(draftKey, feature);
+            this.catalogueClient.getObject().updateDraft(draftKey.toString(), feature);
 
             return RestResponse.success();
         } catch (final FeignException fex) {
@@ -400,7 +401,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     public BaseResponse deleteDraftTemp(UUID draftKey) {
         try {
-            this.catalogueClient.getObject().deleteDraft(draftKey);
+            this.catalogueClient.getObject().deleteDraft(draftKey.toString());
 
             return RestResponse.success();
         } catch (final FeignException fex) {

@@ -45,10 +45,10 @@ public class CartItemEntity {
 
 
     @NotNull
-    @Column(name = "product", updatable = false, columnDefinition = "uuid")
+    @Column(name = "product", updatable = false)
     @Getter
     @Setter
-    private UUID product;
+    private String product;
 
     @NotNull
     @Column(name = "pricing_model", updatable = false, columnDefinition = "uuid")

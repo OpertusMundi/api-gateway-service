@@ -1,7 +1,5 @@
 package eu.opertusmundi.web.model.order;
 
-import java.util.UUID;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -12,7 +10,7 @@ public class OrderItemDto {
         description = "Asset unique Id",
         example = "9b907778-6142-41c9-bc5a-0aff2398acb2"
     )
-    private UUID id;
+    private String id;
 
     @Schema(
         description = "Index of the specific item in the order",
