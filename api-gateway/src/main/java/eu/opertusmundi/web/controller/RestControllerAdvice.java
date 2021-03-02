@@ -2,6 +2,8 @@ package eu.opertusmundi.web.controller;
 
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,9 +95,11 @@ public class RestControllerAdvice {
         description = "Forbidden",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
-    public @ResponseBody BaseResponse handleException(AccessDeniedException ex) {
+    public @ResponseBody BaseResponse handleException(
+        AccessDeniedException ex,  HttpServletRequest request
+    ) {
 
-        logger.error("Internal Server Error: " + ex.getMessage(), ex);
+        logger.error("Forbidden ({}): {}", request.getRequestURI(), ex.getMessage());
 
         final MessageCode      code        = BasicMessageCode.Forbidden;
         final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
