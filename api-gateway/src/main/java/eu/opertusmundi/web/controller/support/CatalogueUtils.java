@@ -27,6 +27,7 @@ import eu.opertusmundi.common.model.pricing.FreePricingModelDto;
 import eu.opertusmundi.common.model.pricing.SubscriptionPricingModelCommandDto;
 import eu.opertusmundi.common.model.pricing.SubscriptionPricingModelDto;
 import eu.opertusmundi.web.repository.ProviderRepository;
+import io.jsonwebtoken.lang.Collections;
 
 @Service
 public class CatalogueUtils {
@@ -54,6 +55,25 @@ public class CatalogueUtils {
         Function<CatalogueFeature, T> converter,
         int pageIndex, int pageSize
     ) {
+        return this.createSeachResult(catalogueResponse, converter, pageIndex, pageSize, true);    
+    }
+    
+    /**
+     * Convert a catalogue response to an API Gateway response
+     *
+     * @param catalogueResponse
+     * @param converter
+     * @param pageIndex
+     * @param pageSize
+     * @param includeProviders
+     * @return
+     */
+    public <T extends CatalogueItemDto> CatalogueClientCollectionResponse<T> createSeachResult(
+        CatalogueResponse<CatalogueCollection> catalogueResponse,
+        Function<CatalogueFeature, T> converter,
+        int pageIndex, int pageSize,
+        boolean includeProviders
+    ) {
         // Convert features to items
         final CatalogueCollection features = catalogueResponse.getResult();
 
@@ -80,22 +100,24 @@ public class CatalogueUtils {
         );
 
         // Get all publishers in the result
-        final Span span = this.tracer.nextSpan().name("database-publisher").start();
+        List<PublisherDto> publishers = null;
 
-        final List<PublisherDto> publishers;
-
-        try {
-            final UUID[] publisherKeys = items.stream().map(i -> i.getPublisherId()).distinct().toArray(UUID[]::new);
-
-            publishers = this.providerRepository.findAllByKey(publisherKeys).stream()
-                .map(AccountEntity::toPublisherDto)
-                .filter(p -> p != null)
-                .collect(Collectors.toList());
-
-            // TODO: Check that all publishers exists
-            Assert.isTrue(publisherKeys.length == publishers.size(), "All publishers must exist!");
-        } finally {
-            span.finish();
+        if (includeProviders) {
+            final Span span = this.tracer.nextSpan().name("database-publisher").start();
+    
+            try {
+                final UUID[] publisherKeys = items.stream().map(i -> i.getPublisherId()).distinct().toArray(UUID[]::new);
+    
+                publishers = this.providerRepository.findAllByKey(publisherKeys).stream()
+                    .map(AccountEntity::toPublisherDto)
+                    .filter(p -> p != null)
+                    .collect(Collectors.toList());
+    
+                // TODO: Check that all publishers exists
+                Assert.isTrue(publisherKeys.length == publishers.size(), "All publishers must exist!");
+            } finally {
+                span.finish();
+            }
         }
 
         return new CatalogueClientCollectionResponse<T>(result, publishers);
@@ -108,6 +130,10 @@ public class CatalogueUtils {
      * @param models
      */
     public void refreshPricingModels(CatalogueItemDto item, List<BasePricingModelCommandDto> models) {
+        if (Collections.isEmpty(models)) {
+            return;
+        }
+
         models.forEach(m -> {
             final UUID key = m.getKey();
 

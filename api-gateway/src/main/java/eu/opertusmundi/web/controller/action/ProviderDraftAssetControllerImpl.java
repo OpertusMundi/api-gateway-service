@@ -274,7 +274,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
 
             if (code == BasicMessageCode.NotFound) {
-                return RestResponse.result(PageResultDto.<CatalogueItemDto>empty(new PageRequestDto(pageIndex, pageSize)));
+                return RestResponse.result(PageResultDto.<CatalogueItemDto>empty(PageRequestDto.of(pageIndex, pageSize)));
             }
 
             logger.error("[Feign Client][Catalogue] Operation has failed", fex);

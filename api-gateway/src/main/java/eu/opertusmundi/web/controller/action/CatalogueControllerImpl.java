@@ -7,17 +7,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.domain.AssetAdditionalResourceEntity;
 import eu.opertusmundi.common.domain.AssetResourceEntity;
 import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.common.model.BasicMessageCode;
+import eu.opertusmundi.common.model.PageRequestDto;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.EnumAssetAdditionalResource;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestImportCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueSearchQuery;
@@ -158,6 +162,72 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
 
             return RestResponse.failure();
         }
+    }
+
+    @Override
+    public RestResponse<Void> harvestCatalogue(CatalogueHarvestCommandDto command, BindingResult validationResult) {
+        try {
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors());
+            }
+
+            this.catalogueClient.getObject().harvestCatalogue(command.getUrl(), command.getType().getValue());
+
+            return RestResponse.success();
+        } catch (final FeignException fex) {
+            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
+
+            logger.error("[Feign Client][Catalogue] Operation has failed", fex);
+
+            return RestResponse.error(code, "An error has occurred");
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+
+            return RestResponse.failure();
+        }
+    }
+
+    @Override
+    public RestResponse<?> findAllHarvested(String url, int pageIndex, int pageSize) {
+        try {
+            // Catalogue service data page index is 1-based
+            final ResponseEntity<CatalogueResponse<CatalogueCollection>> e = this.catalogueClient.getObject().findAllHarvest(
+                url, pageIndex + 1, pageSize
+            );
+
+            final CatalogueResponse<CatalogueCollection> catalogueResponse = e.getBody();
+
+            if (!catalogueResponse.isSuccess()) {
+                return RestResponse.failure();
+            }
+
+            // Process response
+            final CatalogueClientCollectionResponse<CatalogueItemDto> response = this.catalogueUtils.createSeachResult(
+                catalogueResponse, (item) -> new CatalogueItemDto(item), pageIndex, pageSize, false
+            );
+
+            return response;
+        } catch (final FeignException fex) {
+            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
+
+            // Convert 404 errors to empty results
+            if (code == BasicMessageCode.NotFound) {
+                return RestResponse.result(PageResultDto.<CatalogueItemDto>empty(PageRequestDto.of(pageIndex, pageSize)));
+            }
+
+            logger.error("[Feign Client][Catalogue] Operation has failed", fex);
+
+            return RestResponse.error(code, "An error has occurred");
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+
+            return RestResponse.failure();
+        }
+    }
+    
+    @Override
+    public RestResponse<Void> importFromCatalogue(CatalogueHarvestImportCommandDto command, BindingResult validationResult) {
+        return RestResponse.failure();
     }
 
 }
