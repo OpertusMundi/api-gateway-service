@@ -22,9 +22,20 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
+import eu.opertusmundi.common.model.BasicMessageCode;
+import eu.opertusmundi.common.model.PageRequestDto;
+import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.asset.EnumProviderAssetSortField;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.client.EnumType;
+import eu.opertusmundi.common.model.catalogue.server.CatalogueCollection;
+import eu.opertusmundi.common.model.catalogue.server.CatalogueResponse;
+import eu.opertusmundi.common.model.dto.EnumSortingOrder;
 import eu.opertusmundi.common.service.ProviderAssetService;
+import eu.opertusmundi.web.controller.support.CatalogueUtils;
 import feign.FeignException;
 
 @RestController
@@ -36,7 +47,55 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
     private ObjectProvider<CatalogueFeignClient> catalogueClient;
 
     @Autowired
+    private CatalogueUtils catalogueUtils;
+    
+    @Autowired
     private ProviderAssetService providerAssetService;
+    
+    // TODO: Implement search using elastic search
+    // TODO: Apply type filter
+    // TODO: Apply sorting and order
+
+    public RestResponse<?> findAll(
+        String query, EnumType type, int pageIndex, int pageSize, EnumProviderAssetSortField orderBy, EnumSortingOrder order
+    ) {
+        try {
+            final UUID publisherKey = this.currentUserKey();
+
+            // Catalogue service data page index is 1-based
+            final ResponseEntity<CatalogueResponse<CatalogueCollection>> e = this.catalogueClient.getObject().findAll(
+                query, publisherKey.toString(), pageIndex + 1, pageSize
+            );
+                
+            // Check if catalogue response is successful
+            final CatalogueResponse<CatalogueCollection> catalogueResponse = e.getBody();
+
+            if(!catalogueResponse.isSuccess()) {
+                return RestResponse.failure();
+            }
+
+            // Process response
+            final CatalogueClientCollectionResponse<CatalogueItemDto> response = this.catalogueUtils.createSeachResult(
+                catalogueResponse, (item)-> new CatalogueItemDto(item), pageIndex, pageSize
+            );
+
+            return response;
+        } catch (final FeignException fex) {
+            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
+
+            if (code == BasicMessageCode.NotFound) {
+                return RestResponse.result(PageResultDto.<CatalogueItemDto>empty(PageRequestDto.of(pageIndex, pageSize)));
+            }
+
+            logger.error("[Feign Client][Catalogue] Operation has failed", fex);
+
+            return RestResponse.failure();
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+
+            return RestResponse.failure();
+        }
+    }
     
     @Override
     public ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
