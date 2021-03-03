@@ -5,6 +5,7 @@ import java.util.List;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.asset.AssetFileTypeDto;
+import eu.opertusmundi.common.model.pricing.PricingModelSettings;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -39,6 +40,16 @@ public class ClientConfiguration {
         )
         @Getter
         private final List<AssetFileTypeDto> fileTypes = new ArrayList<AssetFileTypeDto>();
+
+        @ArraySchema(
+            arraySchema = @Schema(
+                description = "Available pricing models"
+            ),
+            minItems = 1,
+            uniqueItems = true
+        )
+        @Getter
+        private List<PricingModelSettings> pricingModels = new ArrayList<PricingModelSettings>();
 
     }
 
