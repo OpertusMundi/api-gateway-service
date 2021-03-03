@@ -46,6 +46,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueCollection;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
@@ -56,6 +57,7 @@ import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.web.controller.support.CatalogueUtils;
 import eu.opertusmundi.web.repository.ProviderRepository;
+import eu.opertusmundi.web.validation.ApiDraftValidator;
 import eu.opertusmundi.web.validation.AssetResourceValidator;
 import eu.opertusmundi.web.validation.DraftValidator;
 import feign.FeignException;
@@ -70,6 +72,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Autowired
     private DraftValidator draftValidator;
+
+    @Autowired
+    private ApiDraftValidator apiDraftValidator;
    
     @Autowired
     private CatalogueUtils catalogueUtils;
@@ -122,6 +127,30 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             }
 
             final AssetDraftDto result = this.providerAssetService.updateDraft(command);
+
+            return RestResponse.result(result);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("[Catalogue] Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    @Override
+    public BaseResponse createApiDraft(DraftApiCommandDto command, BindingResult validationResult) {
+        try {
+            command.setUserId(this.currentUserId());
+            command.setPublisherKey(this.currentUserKey());
+
+            this.apiDraftValidator.validate(command, validationResult);
+
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors());
+            }
+
+            final AssetDraftDto result = this.providerAssetService.createApiDraft(command);
 
             return RestResponse.result(result);
         } catch (final AssetDraftException ex) {

@@ -36,6 +36,9 @@ import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.DraftApiFromAssetCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
 import eu.opertusmundi.common.model.dto.EnumSortingOrder;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -67,7 +70,7 @@ public interface ProviderDraftAssetController {
      */
     @Operation(
         operationId = "draft-asset-01",
-        summary     = "Search draft items",
+        summary     = "Search drafts",
         description = "Search catalogue for provider's draft items based on one or more criteria. Supports data paging and sorting. "
                     + "Required roles: <b>ROLE_PROVIDER</b>"
     )
@@ -490,5 +493,44 @@ public interface ProviderDraftAssetController {
         @Parameter(hidden = true)
         HttpServletResponse response
     ) throws IOException;
+
+    /**
+     * Create an API draft from an existing published asset or a file in the
+     * user's file system
+     *  
+     * @param command
+     * @param validationResult
+     * @return
+     */
+    @Operation(
+        operationId = "assets-05",
+        summary     = "Create API draft",
+        description = "Create a new API draft from an existing published asset or a file in user's file system. "
+                   + "Required roles: <b>ROLE_PROVIDER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
+    )
+    @PostMapping(value = "/drafts/api")
+    @Secured({"ROLE_PROVIDER"})
+    BaseResponse createApiDraft(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Draft creation command",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(oneOf = {DraftApiFromAssetCommandDto.class, DraftApiFromFileCommandDto.class})
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        DraftApiCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
     
 }
