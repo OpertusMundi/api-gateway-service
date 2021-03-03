@@ -3,7 +3,7 @@ package eu.opertusmundi.web.config;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +34,7 @@ public class HttpClientConfiguration {
     }
 
     @Bean
-    public HttpClient defaultHttpClient() {
+    public CloseableHttpClient defaultHttpClient() {
         return HttpClients
             .custom()
             .setConnectionManager(this.poolingHttpClientConnectionManager)
