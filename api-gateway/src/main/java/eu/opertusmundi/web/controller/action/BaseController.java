@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 
+import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.web.security.AuthenticationFacade;
 
 public abstract class BaseController {
@@ -26,6 +27,10 @@ public abstract class BaseController {
 
     protected String currentUserEmail() {
         return this.authenticationFacade.getCurrentUserEmail();
+    }
+    
+    protected boolean hasRole(EnumRole role) {
+        return this.authenticationFacade.hasRole(role);
     }
 
     protected void ensureRegistered() throws AccessDeniedException {

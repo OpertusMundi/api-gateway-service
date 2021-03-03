@@ -13,23 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import brave.Span;
 import brave.Tracer;
+import eu.opertusmundi.common.feign.client.MessageServiceFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.message.client.ClientMessageCollectionResponse;
+import eu.opertusmundi.common.model.message.client.ClientMessageCommandDto;
+import eu.opertusmundi.common.model.message.client.ClientMessageDto;
+import eu.opertusmundi.common.model.message.client.ClientNotificationDto;
+import eu.opertusmundi.common.model.message.client.ClientRecipientDto;
+import eu.opertusmundi.common.model.message.server.ServerBaseMessageCommandDto;
+import eu.opertusmundi.common.model.message.server.ServerMessageCommandDto;
+import eu.opertusmundi.common.model.message.server.ServerMessageDto;
+import eu.opertusmundi.common.model.message.server.ServerNotificationDto;
 import eu.opertusmundi.common.repository.AccountRepository;
-import eu.opertusmundi.web.feign.client.MessageServiceFeignClient;
-import eu.opertusmundi.web.model.message.client.ClientMessageCollectionResponse;
-import eu.opertusmundi.web.model.message.client.ClientMessageCommandDto;
-import eu.opertusmundi.web.model.message.client.ClientMessageDto;
-import eu.opertusmundi.web.model.message.client.ClientNotificationDto;
-import eu.opertusmundi.web.model.message.client.ClientRecipientDto;
-import eu.opertusmundi.web.model.message.server.ServerBaseMessageCommandDto;
-import eu.opertusmundi.web.model.message.server.ServerMessageCommandDto;
-import eu.opertusmundi.web.model.message.server.ServerMessageDto;
-import eu.opertusmundi.web.model.message.server.ServerNotificationCommandDto;
-import eu.opertusmundi.web.model.message.server.ServerNotificationDto;
 import feign.FeignException;
 
 @RestController
@@ -103,10 +102,12 @@ public class MessageControllerImpl extends BaseController implements MessageCont
     }
 
     @Override
-    public RestResponse<?> findNotifications(Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read) {
+    public RestResponse<?> findNotifications(Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read) {
         ResponseEntity<RestResponse<PageResultDto<ServerNotificationDto>>> e;
 
         try {
+            final UUID userKey = this.currentUserKey();
+            
             e = this.messageClient.getObject().findNotifications(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
         } catch (final FeignException fex) {
             final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
@@ -247,12 +248,6 @@ public class MessageControllerImpl extends BaseController implements MessageCont
                 final ServerMessageCommandDto message = (ServerMessageCommandDto) command;
 
                 e = this.messageClient.getObject().sendMessage(message);
-                break;
-
-            case NOTIFICATION :
-                final ServerNotificationCommandDto notification = (ServerNotificationCommandDto) command;
-
-                e = this.messageClient.getObject().sendNotification(notification);
                 break;
 
             default :

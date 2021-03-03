@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.web.model.message.client.ClientMessageCollectionResponse;
-import eu.opertusmundi.web.model.message.client.ClientMessageCommandDto;
+import eu.opertusmundi.common.model.message.client.ClientMessageCollectionResponse;
+import eu.opertusmundi.common.model.message.client.ClientMessageCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.MessageEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -127,7 +127,7 @@ public interface MessageController {
         )
     )
     @GetMapping(value = "/notifications")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_HELPDESK"})
     RestResponse<?> findNotifications(
         @Parameter(
             in          = ParameterIn.QUERY,
@@ -143,12 +143,6 @@ public interface MessageController {
             schema      = @Schema(type = "integer", defaultValue = "10")
         )
         @RequestParam(name = "size", required = false) Integer pageSize,
-        @Parameter(
-            in          = ParameterIn.QUERY,
-            required    = false,
-            description = "Filter user by key"
-        )
-        @RequestParam(name = "user", required = false) UUID userKey,
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = false,
