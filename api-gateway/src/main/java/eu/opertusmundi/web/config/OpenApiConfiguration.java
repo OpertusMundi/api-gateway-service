@@ -95,7 +95,9 @@ public class OpenApiConfiguration {
             )),
             new TagGroup("Orders", Arrays.asList(
                 EndpointTags.Catalogue,
-                EndpointTags.Cart
+                EndpointTags.Cart,
+                EndpointTags.Quotation,
+                EndpointTags.Payment
             )),
             new TagGroup("Assets", Arrays.asList(
                 EndpointTags.Draft,

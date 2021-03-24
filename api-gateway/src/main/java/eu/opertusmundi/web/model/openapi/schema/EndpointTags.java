@@ -12,8 +12,10 @@ public class EndpointTags {
     public final static String FileSystem           = "File System";
     public final static String Message              = "Message";
     public final static String Notification         = "Notification";
+    public final static String Payment              = "Payment";
     public final static String Profile              = "Profile";
     public final static String ProviderRegistration = "Provider Registration";
+    public final static String Quotation            = "Quotation";
     public final static String Rating               = "Rating";
     public final static String Recommender          = "Recommender";
 
