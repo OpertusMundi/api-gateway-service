@@ -1,52 +1,47 @@
 package eu.opertusmundi.web.controller.action;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
+import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
-import eu.opertusmundi.common.model.catalogue.server.CatalogueResponse;
-import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
-import eu.opertusmundi.common.model.pricing.BasePricingModelDto;
-import eu.opertusmundi.common.model.pricing.FixedPricingModelCommandDto;
-import eu.opertusmundi.common.model.pricing.FixedPricingModelDto;
-import eu.opertusmundi.common.model.pricing.FreePricingModelDto;
-import eu.opertusmundi.common.model.pricing.SubscriptionPricingModelCommandDto;
-import eu.opertusmundi.common.model.pricing.SubscriptionPricingModelDto;
-import eu.opertusmundi.web.model.order.CartAddCommandDto;
-import eu.opertusmundi.web.model.order.CartDto;
-import eu.opertusmundi.web.service.CartService;
-import feign.FeignException;
+import eu.opertusmundi.common.model.order.CartConstants;
+import eu.opertusmundi.common.model.order.CartAddCommandDto;
+import eu.opertusmundi.common.model.order.CartDto;
+import eu.opertusmundi.common.model.pricing.EffectivePricingModelDto;
+import eu.opertusmundi.common.model.pricing.QuotationException;
+import eu.opertusmundi.common.service.CartService;
+import eu.opertusmundi.common.service.CatalogueService;
+import eu.opertusmundi.common.service.QuotationService;
 
 @RestController
 public class CartControllerImpl extends BaseController implements CartController {
 
-    private final static String CART_SESSION_KEY = "Cart.Session.Id";
-
-    // TODO: Set from configuration
-    private final BigDecimal tax = new BigDecimal(24);
+    private static final Logger logger = LoggerFactory.getLogger(CartControllerImpl.class);
 
     @Autowired
     private CartService cartService;
 
     @Autowired
-    private ObjectProvider<CatalogueFeignClient> catalogueClient;
+    private CatalogueService catalogueService;
 
+    @Autowired
+    private QuotationService quotationService;
+    
     @Override
     public RestResponse<CartDto> getCart(HttpSession session) {
-        final UUID cartId = (UUID) session.getAttribute(CART_SESSION_KEY);
+        final UUID cartId = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
 
         final CartDto cart = this.cartService.getCart(cartId);
 
@@ -56,10 +51,11 @@ public class CartControllerImpl extends BaseController implements CartController
     }
 
     @Override
-    public RestResponse<CartDto> addItem(CartAddCommandDto command, HttpSession session) {
-        final UUID cartId = (UUID) session.getAttribute(CART_SESSION_KEY);
+    public RestResponse<CartDto> addItem(CartAddCommandDto command, BindingResult validationResult, HttpSession session) {
+        final UUID cartKey = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
+        command.setCartKey(cartKey);
 
-        final CartDto cart = this.cartService.addItem(cartId, command);
+        final CartDto cart = this.cartService.addItem(command);
 
         this.updateCart(session, cart);
 
@@ -68,7 +64,7 @@ public class CartControllerImpl extends BaseController implements CartController
 
     @Override
     public RestResponse<CartDto> removeItem(UUID itemId, HttpSession session) {
-        final UUID cartId = (UUID) session.getAttribute(CART_SESSION_KEY);
+        final UUID cartId = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
 
         final CartDto cart = this.cartService.removeItem(cartId, itemId);
 
@@ -79,7 +75,7 @@ public class CartControllerImpl extends BaseController implements CartController
 
     @Override
     public RestResponse<CartDto> clear(HttpSession session) {
-        final UUID cartId = (UUID) session.getAttribute(CART_SESSION_KEY);
+        final UUID cartId = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
 
         final CartDto cart = this.cartService.clear(cartId);
 
@@ -89,108 +85,52 @@ public class CartControllerImpl extends BaseController implements CartController
     }
 
     private void updateCart(HttpSession session, CartDto cart) {
-        // Update cart key in session
-        session.setAttribute(CART_SESSION_KEY, cart.getKey());
-        // Link authenticated user to the cart
-        if (cart.getAccountId() == null && this.currentUserId() != null) {
-            this.cartService.setAccount(cart.getKey(), this.currentUserId());
-        }
-        // Inject catalogue data
-        final String[] keys = Arrays.stream(cart.getItems()).map(i -> i.getProductKey()).toArray(String[]::new);
-
-        if(keys.length != 0) {
-            ResponseEntity<CatalogueResponse<List<CatalogueFeature>>> e;
-
-            try {
-                e = this.catalogueClient.getObject().findAllById(keys);
-            } catch (final FeignException fex) {
-                // TODO: Handle error
-                return;
+        try {
+            // Update cart key in session
+            session.setAttribute(CartConstants.CART_SESSION_KEY, cart.getKey());
+            // Link authenticated user to the cart
+            if (cart.getAccountId() == null && this.currentUserId() != null) {
+                this.cartService.setAccount(cart.getKey(), this.currentUserId());
             }
 
-            final CatalogueResponse<List<CatalogueFeature>> catalogueResponse = e.getBody();
+            // Inject catalogue data
+            final String[] keys = cart.getItems().stream().map(i -> i.getAssetId()).toArray(String[]::new);
 
-            if(catalogueResponse.isSuccess()) {
-                final List<CatalogueItemDto> items = catalogueResponse.getResult().stream()
-                    .map(feature -> {
-                        final CatalogueItemDto item = new CatalogueItemDto(feature);
-
-                        // Compute effective pricing models
-                        this.refreshPricingModels(item, feature.getProperties().getPricingModels());
-                        
-                        // Do not return metadata
+            if (keys.length != 0) {
+                final List<CatalogueItemDto> result = this.catalogueService.findAllById(keys);
+                    
+                final List<CatalogueItemDto> catalogueItems = result.stream()
+                    .map(item -> {                       
+                        // Do not return metadata/ingestion information
                         item.setAutomatedMetadata(null);
-
+                        item.setIngestionInfo(null);
+                        
                         return item;
                     }).collect(Collectors.toList());
 
                 // Set product and selected pricing model
-                Arrays.stream(cart.getItems()).forEach(cartItem -> {
-                    final CatalogueItemDto catalogueItem = items.stream()
-                        .filter(i -> i.getId().equals(cartItem.getProductKey().toString()))
+                cart.getItems().stream().forEach(cartItem -> {
+                    final CatalogueItemDto catalogueItem = catalogueItems.stream()
+                        .filter(i -> i.getId().equals(cartItem.getAssetId()))
                         .findFirst()
                         .orElse(null);
 
-                    // TODO : Add additional error handling (cart items must exist in the catalogue)
-                    if (catalogueItem != null) {
-                        cartItem.setProduct(catalogueItem);
-                    }
+                    cartItem.setAsset(catalogueItem);
 
-                    // TODO: Add additional error handling for pricing model (selected pricing model must exist in the catalog)
-                    if (catalogueItem != null) {
-                        final BasePricingModelDto pm = cartItem.getProduct().getPricingModels()
-                            .stream()
-                            .filter(p -> p.getKey().equals(cartItem.getPricingModelKey()))
-                            .findFirst().orElse(null);
+                    final EffectivePricingModelDto pricingModel = quotationService.createQuotation(
+                        catalogueItem, cartItem.getPricingModelKey(), cartItem.getQuotationParameters()
+                    );
 
-                        cartItem.setPricingModel(pm);
-                    }
+                    cartItem.setPricingModel(pricingModel);
                 });
-            } else {
-                // TODO: Handle error
             }
+        } catch (QuotationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Failed to update cart", ex);
+            
+            throw new ServiceException(BasicMessageCode.InternalServerError, "Cart operation failed"); 
         }
-    }
-
-    // TODO : Move to new service
-
-    private void refreshPricingModels(CatalogueItemDto item, List<BasePricingModelCommandDto> models) {
-        models.forEach(m -> {
-            final UUID key = m.getKey();
-
-            switch (m.getType()) {
-                case FREE :
-                    item.getPricingModels().add(new FreePricingModelDto(
-                        key,
-                        this.tax
-                    ));
-                    break;
-                case FIXED :
-                    final FixedPricingModelCommandDto fixed = (FixedPricingModelCommandDto) m;
-
-                    item.getPricingModels().add(new FixedPricingModelDto(
-                        key,
-                        fixed.getTotalPriceExcludingTax(),
-                        this.tax,
-                        fixed.isIncludesUpdates(),
-                        fixed.getYearsOfUpdates()
-                    ));
-                    break;
-                case SUBSCRIPTION :
-                    final SubscriptionPricingModelCommandDto subscription = (SubscriptionPricingModelCommandDto) m;
-
-                    item.getPricingModels().add(new SubscriptionPricingModelDto(
-                        key,
-                        subscription.getDuration(),
-                        this.tax,
-                        subscription.getMonthlyPrice()
-                    ));
-                    break;
-                default :
-                    // Do nothing
-                    break;
-            }
-        });
     }
 
 }

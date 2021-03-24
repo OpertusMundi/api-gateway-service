@@ -1,7 +1,7 @@
 package eu.opertusmundi.web.model.openapi.schema;
 
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.web.model.order.CartDto;
+import eu.opertusmundi.common.model.order.CartDto;
 
 public class CartEndpointTypes {
 

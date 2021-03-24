@@ -3,7 +3,10 @@ package eu.opertusmundi.web.controller.action;
 import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.order.CartAddCommandDto;
+import eu.opertusmundi.common.model.order.CartDto;
 import eu.opertusmundi.web.model.openapi.schema.CartEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
-import eu.opertusmundi.web.model.order.CartAddCommandDto;
-import eu.opertusmundi.web.model.order.CartDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -71,13 +74,15 @@ public interface CartController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartEndpointTypes.CartResponse.class))
     )
     @PostMapping(value = "/cart")
+    @Validated
     RestResponse<CartDto> addItem(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Item to add",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartAddCommandDto.class)),
             required = true
         )
-        @RequestBody(required = true) CartAddCommandDto command,
+        @Valid @RequestBody(required = true) CartAddCommandDto command,
+        @Parameter(hidden = true) BindingResult validationResult,
         @Parameter(hidden = true) HttpSession session
     );
 
