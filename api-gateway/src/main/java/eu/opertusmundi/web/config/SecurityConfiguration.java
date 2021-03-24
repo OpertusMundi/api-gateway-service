@@ -160,7 +160,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // Errors
                 "/error/**",
                 // Actions
-                "/action/**"
+                "/action/**",
+                // Webhooks
+                "/webhooks/**"
              ).permitAll()
             // Secure any other path
             .anyRequest().authenticated();
