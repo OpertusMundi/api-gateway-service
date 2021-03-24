@@ -52,6 +52,14 @@ public class HomeController {
     }
 
     /**
+     * Request handler for client URLs
+     */
+    @GetMapping("/{name:(?!action).*}")
+    public String clientPage() {
+        return "index";
+    }
+
+    /**
      * Request handler for verifying tokens
      */
     @GetMapping("/token/verify")
