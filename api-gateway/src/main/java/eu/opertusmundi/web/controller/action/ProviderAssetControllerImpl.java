@@ -13,30 +13,25 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import eu.opertusmundi.common.feign.client.CatalogueFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.BasicMessageCode;
-import eu.opertusmundi.common.model.PageRequestDto;
-import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetSortField;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
+import eu.opertusmundi.common.model.catalogue.CatalogueResult;
+import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.EnumType;
-import eu.opertusmundi.common.model.catalogue.server.CatalogueCollection;
-import eu.opertusmundi.common.model.catalogue.server.CatalogueResponse;
 import eu.opertusmundi.common.model.dto.EnumSortingOrder;
+import eu.opertusmundi.common.service.CatalogueService;
 import eu.opertusmundi.common.service.ProviderAssetService;
-import eu.opertusmundi.web.controller.support.CatalogueUtils;
-import feign.FeignException;
 
 @RestController
 public class ProviderAssetControllerImpl extends BaseController implements ProviderAssetController {
@@ -44,10 +39,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
     private static final Logger logger = LoggerFactory.getLogger(ProviderAssetController.class);
 
     @Autowired
-    private ObjectProvider<CatalogueFeignClient> catalogueClient;
-
-    @Autowired
-    private CatalogueUtils catalogueUtils;
+    private CatalogueService catalogueService;
     
     @Autowired
     private ProviderAssetService providerAssetService;
@@ -60,39 +52,18 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
         String query, EnumType type, int pageIndex, int pageSize, EnumProviderAssetSortField orderBy, EnumSortingOrder order
     ) {
         try {
-            final UUID publisherKey = this.currentUserKey();
+            final UUID                 publisherKey = this.currentUserKey();
+            final CatalogueAssetQuery searchQuery  = CatalogueAssetQuery.builder()
+                .page(pageIndex)
+                .size(pageSize)
+                .publisherKey(publisherKey.toString())
+                .query(query)
+                .build();
 
-            // Catalogue service data page index is 1-based
-            final ResponseEntity<CatalogueResponse<CatalogueCollection>> e = this.catalogueClient.getObject().findAll(
-                query, publisherKey.toString(), pageIndex + 1, pageSize
-            );
-                
-            // Check if catalogue response is successful
-            final CatalogueResponse<CatalogueCollection> catalogueResponse = e.getBody();
+            final CatalogueResult<CatalogueItemDto> result = this.catalogueService.findAll(searchQuery);
 
-            if(!catalogueResponse.isSuccess()) {
-                return RestResponse.failure();
-            }
-
-            // Process response
-            final CatalogueClientCollectionResponse<CatalogueItemDto> response = this.catalogueUtils.createSeachResult(
-                catalogueResponse, (item)-> new CatalogueItemDto(item), pageIndex, pageSize
-            );
-
-            return response;
-        } catch (final FeignException fex) {
-            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
-
-            if (code == BasicMessageCode.NotFound) {
-                return RestResponse.result(PageResultDto.<CatalogueItemDto>empty(PageRequestDto.of(pageIndex, pageSize)));
-            }
-
-            logger.error("[Feign Client][Catalogue] Operation has failed", fex);
-
-            return RestResponse.failure();
-        } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
-
+            return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());           
+        } catch (final CatalogueServiceException ex) {
             return RestResponse.failure();
         }
     }
@@ -152,12 +123,10 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
     @Override
     public BaseResponse deleteAsset(String id) {
         try {
-            this.catalogueClient.getObject().deletePublished(id);
+            this.catalogueService.deleteAsset(id);
 
             return RestResponse.success();
-        } catch (final FeignException fex) {
-            logger.error("[Feign Client][Catalogue] Operation has failed", fex);
-        } catch (final Exception ex) {
+        } catch (final CatalogueServiceException ex) {
             logger.error("[Catalogue] Operation has failed", ex);
         }
 

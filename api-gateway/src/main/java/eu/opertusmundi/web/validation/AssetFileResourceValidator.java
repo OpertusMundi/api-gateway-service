@@ -9,13 +9,13 @@ import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
-import eu.opertusmundi.common.model.asset.AssetResourceCommandDto;
 import eu.opertusmundi.common.model.asset.EnumAssetSourceType;
+import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.repository.ProviderAssetDraftRepository;
 
 @Component
-public class AssetResourceValidator implements Validator {
+public class AssetFileResourceValidator implements Validator {
 
     @Autowired
     private AssetFileTypeRepository assetFileTypeRepository;
@@ -25,12 +25,12 @@ public class AssetResourceValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return AssetResourceCommandDto.class.isAssignableFrom(clazz);
+        return FileResourceCommandDto.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void validate(Object o, Errors e) {
-        final AssetResourceCommandDto c = (AssetResourceCommandDto) o;
+        final FileResourceCommandDto c = (FileResourceCommandDto) o;
 
         final ProviderAssetDraftEntity draft = this.providerAssetDraftRepository.findOneByPublisherAndKey(
             c.getPublisherKey(), c.getDraftKey()

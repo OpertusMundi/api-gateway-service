@@ -19,6 +19,7 @@ import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.EnumAssetAdditionalResource;
 import eu.opertusmundi.common.model.asset.EnumAssetSourceType;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
+import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.repository.AssetAdditionalResourceRepository;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.repository.AssetResourceRepository;
@@ -47,6 +48,7 @@ public class DraftValidator implements Validator {
         this.validateFormat(c, e);
         this.validateResources(c, e);
         this.validateAdditionalResources(c, e);
+        this.validatePricingModels(c, e);
     }
 
     private void validateFormat(CatalogueItemCommandDto c, Errors e) {
@@ -120,6 +122,16 @@ public class DraftValidator implements Validator {
                 e.rejectValue(String.format("additionalResources[%d]", i), "NotFound");
             }
         }  
+    }
+
+    private void validatePricingModels(CatalogueItemCommandDto c, Errors e) {
+        for (int i = 0; i < c.getPricingModels().size(); i++) {
+            try {
+                c.getPricingModels().get(i).validate();
+            } catch (QuotationException ex) {
+                e.rejectValue(String.format("pricingModels[%d]", i), ex.getMessage());
+            }
+        }
     }
     
 }
