@@ -37,7 +37,7 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueSearchQuery;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
 import eu.opertusmundi.web.utils.ResponsePayload;
@@ -121,7 +121,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
     @Tag(value = "Controller")
     @DisplayName(value = "When searching with any valid query, returns data")
     void whenSearchWithValidQuery_returnData() throws Exception {
-        final CatalogueSearchQuery query = new CatalogueSearchQuery();
+        final CatalogueAssetQuery query = new CatalogueAssetQuery();
         query.setQuery("test");
         query.setSize(10);
 
@@ -145,7 +145,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
 
         final PageResultDto<CatalogueItemDto> result = response.getResult();
 
-        assertThat(result.getCount()).isEqualTo(2);
+        assertThat(result.getCount()).isEqualTo(1);
         assertThat(result.getPageRequest()).isNotNull();
         assertThat(result.getPageRequest().getPage()).isEqualTo(0);
         assertThat(result.getPageRequest().getSize()).isEqualTo(10);
@@ -155,7 +155,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
     @Tag(value = "Controller")
     @DisplayName(value = "When query selects no items, returns empty result")
     void whenQueryThatSelectsNoItems_returnError() throws Exception {
-        final CatalogueSearchQuery query = new CatalogueSearchQuery();
+        final CatalogueAssetQuery query = new CatalogueAssetQuery();
         query.setQuery("nothing");
         query.setSize(10);
 

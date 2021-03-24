@@ -20,7 +20,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestImportCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueSearchQuery;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,10 +63,10 @@ public interface CatalogueController {
     RestResponse<?> findAll(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Search criteria",
-            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueSearchQuery.class)),
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueAssetQuery.class)),
             required = true
         )
-        @RequestBody CatalogueSearchQuery query
+        @RequestBody CatalogueAssetQuery query
     );
 
     /**
@@ -164,6 +164,12 @@ public interface CatalogueController {
             description = "Catalogue URL"
         )
         @RequestParam(name = "url", required = true) String url,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Search query"
+        )
+        @RequestParam(name = "query") String query,
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,

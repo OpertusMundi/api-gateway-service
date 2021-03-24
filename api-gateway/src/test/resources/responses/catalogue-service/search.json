@@ -1,257 +1,860 @@
 {
-  "result": {
-    "items": [
-      {
-        "id": "0cd1b294-0cc5-445a-aa4c-2eac58e03ba8",
-        "type": "Feature",
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [
-                20.94818115234375,
-                36.40359962073253
-              ],
-              [
-                20.94818115234375,
-                38.31795595794451
-              ],
-              [
-                23.57940673828125,
-                38.31795595794451
-              ],
-              [
-                23.57940673828125,
-                36.40359962073253
-              ],
-              [
-                20.94818115234375,
-                36.40359962073253
-              ]
-            ]
-          ]
-        },
-        "properties": {
-          "type": "raster",
-          "scales": [
+    "result": {
+        "items": [
             {
-              "scale": 5000,
-              "theme": "1:5000"
+                "id": "topio.the-company.62.VECTOR",
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                5.7339828,
+                                49.4438879
+                            ],
+                            [
+                                5.7339828,
+                                50.1844968
+                            ],
+                            [
+                                6.5205999,
+                                50.1844968
+                            ],
+                            [
+                                6.5205999,
+                                49.4438879
+                            ],
+                            [
+                                5.7339828,
+                                49.4438879
+                            ]
+                        ]
+                    ]
+                },
+                "properties": {
+                    "title": "OSM Points of Interest in Luxembourg",
+                    "abstract": "Points of Interest (POIs) such as shops, restaurants, museums, cinemas, sport venues, etc. in the Grand Duchy of Luxembourg as extracted from OpenStreet Map. All POI features retain their original OpenStreetMap identifiers. Certain tagged values of the original OSM features (regarding names, addresses, contact details, etc.) are extracted in specific attributes, while the remaining tagged values are listed under the 'OTHER_TAGS' column. Geometries of OpenStreetMap POIs are represented as Well-Known Text (WKT) literals according to the OGC standards. Original OpenStreetMap nodes, ways or relations are suitably converted into WKT geometries, i.e., (multi)points, (multi)linestrings, (multi)polygons, geometry collections, etc.",
+                    "type": "vector",
+                    "spatial_data_service_type": null,
+                    "format": "ESRI Shapefile",
+                    "keywords": [
+                        {
+                            "keyword": "POI",
+                            "theme": ""
+                        },
+                        {
+                            "keyword": "Points of Interest",
+                            "theme": ""
+                        },
+                        {
+                            "keyword": "Luxembourg",
+                            "theme": ""
+                        },
+                        {
+                            "keyword": "OSM",
+                            "theme": ""
+                        }
+                    ],
+                    "publisher_name": "Topio.market",
+                    "publisher_email": "info@opertusmundi.eu",
+                    "publisher_id": "db50feb4-85d6-46cb-bfe7-b1ca30f43e10",
+                    "language": "en",
+                    "status": null,
+                    "date_start": null,
+                    "date_end": null,
+                    "creation_date": "2020-10-09",
+                    "publication_date": "2021-03-19",
+                    "revision_date": "2020-06-02",
+                    "resource_locator": "https://www.openstreetmap.org/about",
+                    "license": "Open Data Commons Open Database License (ODbL)",
+                    "topic_category": [
+                        "Location"
+                    ],
+                    "reference_system": "EPSG:4326",
+                    "spatial_resolution": 50,
+                    "scales": [
+                        {
+                            "scale": 5000,
+                            "theme": "1:5000"
+                        }
+                    ],
+                    "conformity": "conformant",
+                    "additional_resources": [
+                        {
+                            "id": "",
+                            "type": "URI",
+                            "value": "https://raw.githubusercontent.com/SLIPO-EU/TripleGeo/master/test/classification/OSM_POI_sample_classification.csv",
+                            "name": "POI classification scheme in categories/subcategories"
+                        },
+                        {
+                            "id": "",
+                            "type": "URI",
+                            "value": "https://raw.githubusercontent.com/smartdatalake/datasets/master/openstreetmap/test/conf/Attribute_Mapping.conf",
+                            "name": "POI attribute schema"
+                        },
+                        {
+                            "id": "de8541bb-35bc-47ac-a4fe-5de277c147b5",
+                            "type": "FILE",
+                            "value": "file3.pdf",
+                            "name": "Documentation Files"
+                        }
+                    ],
+                    "public_access_limitations": "",
+                    "version": "1.0.0",
+                    "metadata_language": "en",
+                    "metadata_point_of_contact_name": "Topio.market",
+                    "metadata_point_of_contact_email": "info@opertusmundi.eu",
+                    "metadata_date": "2020-06-02",
+                    "metadata_version": "1.0",
+                    "use_only_for_vas": false,
+                    "ingestion_info": {
+                        "0d50b83a-2cca-4162-a27b-446ef514bc49": {
+                            "schema": "public",
+                            "features": 1301,
+                            "tablename": "0d50b83a-2cca-4162-a27b-446ef514bc49"
+                        },
+                        "f57cf0f7-84c1-4acc-a837-d2468b6025e8": {
+                            "schema": "public",
+                            "features": 53,
+                            "tablename": "f57cf0f7-84c1-4acc-a837-d2468b6025e8"
+                        }
+                    },
+                    "resources": [
+                        {
+                            "id": "0d50b83a-2cca-4162-a27b-446ef514bc49",
+                            "size": 110526,
+                            "type": "FILE",
+                            "format": "ESRI Shapefile",
+                            "category": "VECTOR",
+                            "fileName": "file1.zip",
+                            "modifiedOn": "2021-03-19T13:20:19.723Z"
+                        },
+                        {
+                            "id": "f57cf0f7-84c1-4acc-a837-d2468b6025e8",
+                            "size": 82110,
+                            "type": "FILE",
+                            "format": "ESRI Shapefile",
+                            "category": "VECTOR",
+                            "fileName": "file2.zip",
+                            "modifiedOn": "2021-03-19T13:20:26.066Z"
+                        },
+                        {
+                            "id": "b7135534-af4c-4df0-8a26-200de0bd22ad",
+                            "type": "SERVICE",
+                            "endpoint": "opertusmundi/wms?service=WMS&request=GetMap&layers=opertusmundi:0d50b83a-2cca-4162-a27b-446ef514bc49",
+                            "serviceType": "WMS"
+                        },
+                        {
+                            "id": "012041c8-b4c9-4f59-b1a4-a42829561244",
+                            "type": "SERVICE",
+                            "endpoint": "opertusmundi/ows?service=WFS&request=GetFeature&typeName=opertusmundi:0d50b83a-2cca-4162-a27b-446ef514bc49",
+                            "serviceType": "WFS"
+                        },
+                        {
+                            "id": "209f2f02-cd45-4ec3-bbf7-ae0a40d53af3",
+                            "type": "SERVICE",
+                            "endpoint": "opertusmundi/wms?service=WMS&request=GetMap&layers=opertusmundi:f57cf0f7-84c1-4acc-a837-d2468b6025e8",
+                            "serviceType": "WMS"
+                        },
+                        {
+                            "id": "8bb09b6a-ef42-4dcf-a128-16fb95e337a0",
+                            "type": "SERVICE",
+                            "endpoint": "opertusmundi/ows?service=WFS&request=GetFeature&typeName=opertusmundi:f57cf0f7-84c1-4acc-a837-d2468b6025e8",
+                            "serviceType": "WFS"
+                        }
+                    ],
+                    "lineage": "Original OpenStreetMap data was transformed into CSV using the OSMWrangle (https://github.com/SLIPO-EU/OSMWrangle) ETL software. A custom filtering has been applied against the original OpenStreetMap data in order to select features that represent POIs.",
+                    "parent_id": "",
+                    "suitable_for": [
+                        "Mapping",
+                        "Real Estate",
+                        "Geomarketing"
+                    ],
+                    "automated_metadata": {
+                        "0d50b83a-2cca-4162-a27b-446ef514bc49": {
+                            "crs": "EPSG:2908",
+                            "mbr": "POLYGON ((991906 207673, 991906 219623, 984018 219623, 984018 207673, 991906 207673))",
+                            "count": {
+                                "name": 1301,
+                                "vsam": 1301,
+                                "borough": 1301,
+                                "exported": 1301,
+                                "modified": 1171,
+                                "feat_code": 1301,
+                                "feat_desc": 1301,
+                                "feat_type": 1301,
+                                "source_id": 1301,
+                                "sourcedate": 1301,
+                                "sourcetype": 1301
+                            },
+                            "heatmap": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/heatmap",
+                            "clusters": {
+                                "type": "FeatureCollection",
+                                "features": [
+                                    {
+                                        "id": "0",
+                                        "type": "Feature",
+                                        "geometry": {
+                                            "type": "Polygon",
+                                            "coordinates": [
+                                                [
+                                                    [
+                                                        984656.7316862516,
+                                                        213193.29299633834
+                                                    ],
+                                                    [
+                                                        984602.914769762,
+                                                        215328.60300627735
+                                                    ],
+                                                    [
+                                                        984678.9245670398,
+                                                        215647.1818718402
+                                                    ],
+                                                    [
+                                                        984840.6657266298,
+                                                        216079.7125980772
+                                                    ],
+                                                    [
+                                                        985110.2464200158,
+                                                        216247.14895346804
+                                                    ],
+                                                    [
+                                                        985703.0827430378,
+                                                        216388.819101732
+                                                    ],
+                                                    [
+                                                        986490.4474216269,
+                                                        215952.57373810044
+                                                    ],
+                                                    [
+                                                        987146.7263657552,
+                                                        215280.02218647025
+                                                    ],
+                                                    [
+                                                        986756.7804091871,
+                                                        214576.90472321486
+                                                    ],
+                                                    [
+                                                        985926.686087213,
+                                                        214005.8028838353
+                                                    ],
+                                                    [
+                                                        984656.7316862516,
+                                                        213193.29299633834
+                                                    ]
+                                                ]
+                                            ]
+                                        },
+                                        "properties": {
+                                            "size": 231,
+                                            "cluster_id": 0
+                                        }
+                                    },
+                                    {
+                                        "id": "1",
+                                        "type": "Feature",
+                                        "geometry": {
+                                            "type": "Polygon",
+                                            "coordinates": [
+                                                [
+                                                    [
+                                                        987125.2831727315,
+                                                        210941.7784574512
+                                                    ],
+                                                    [
+                                                        987143.839152175,
+                                                        212108.7980151413
+                                                    ],
+                                                    [
+                                                        987543.1890030117,
+                                                        214139.68112454278
+                                                    ],
+                                                    [
+                                                        987868.2259308824,
+                                                        215485.98304727324
+                                                    ],
+                                                    [
+                                                        989142.8127236223,
+                                                        217762.4256468416
+                                                    ],
+                                                    [
+                                                        989347.5984346898,
+                                                        217797.49438319117
+                                                    ],
+                                                    [
+                                                        989097.8340534447,
+                                                        214038.55696766998
+                                                    ],
+                                                    [
+                                                        989082.1309832591,
+                                                        213959.294827845
+                                                    ],
+                                                    [
+                                                        988890.7829407784,
+                                                        213610.37328163045
+                                                    ],
+                                                    [
+                                                        987430.4176202157,
+                                                        211215.0615817119
+                                                    ],
+                                                    [
+                                                        987125.2831727315,
+                                                        210941.7784574512
+                                                    ]
+                                                ]
+                                            ]
+                                        },
+                                        "properties": {
+                                            "size": 153,
+                                            "cluster_id": 1
+                                        }
+                                    },
+                                    {
+                                        "id": "2",
+                                        "type": "Feature",
+                                        "geometry": {
+                                            "type": "Polygon",
+                                            "coordinates": [
+                                                [
+                                                    [
+                                                        991181.1913176245,
+                                                        210642.74657439394
+                                                    ],
+                                                    [
+                                                        991000.5735078811,
+                                                        210741.7543901404
+                                                    ],
+                                                    [
+                                                        990379.5258364181,
+                                                        211086.7370649932
+                                                    ],
+                                                    [
+                                                        990314.3678977698,
+                                                        212016.9610004553
+                                                    ],
+                                                    [
+                                                        991262.0989877542,
+                                                        212680.67683910855
+                                                    ],
+                                                    [
+                                                        991447.746204181,
+                                                        212418.74979284673
+                                                    ],
+                                                    [
+                                                        991467.75941385,
+                                                        211026.13140314302
+                                                    ],
+                                                    [
+                                                        991181.1913176245,
+                                                        210642.74657439394
+                                                    ]
+                                                ]
+                                            ]
+                                        },
+                                        "properties": {
+                                            "size": 50,
+                                            "cluster_id": 2
+                                        }
+                                    },
+                                    {
+                                        "id": "3",
+                                        "type": "Feature",
+                                        "geometry": {
+                                            "type": "Polygon",
+                                            "coordinates": [
+                                                [
+                                                    [
+                                                        987764.8929952026,
+                                                        207924.21666600803
+                                                    ],
+                                                    [
+                                                        987490.0032621708,
+                                                        207937.18416929018
+                                                    ],
+                                                    [
+                                                        987457.5607417574,
+                                                        207954.78748053842
+                                                    ],
+                                                    [
+                                                        987275.4217635148,
+                                                        208194.21550931377
+                                                    ],
+                                                    [
+                                                        986939.6646594265,
+                                                        209086.74395309764
+                                                    ],
+                                                    [
+                                                        987123.2585888747,
+                                                        209768.74546660407
+                                                    ],
+                                                    [
+                                                        987275.3600494757,
+                                                        210122.11208128204
+                                                    ],
+                                                    [
+                                                        990569.8385367789,
+                                                        214587.5248905378
+                                                    ],
+                                                    [
+                                                        991221.3132240773,
+                                                        215270.2734789427
+                                                    ],
+                                                    [
+                                                        991422.9497921879,
+                                                        215009.51746482163
+                                                    ],
+                                                    [
+                                                        991454.4885185837,
+                                                        214843.1629447162
+                                                    ],
+                                                    [
+                                                        991486.1184015993,
+                                                        214676.15777593787
+                                                    ],
+                                                    [
+                                                        991128.0275909113,
+                                                        213830.622381701
+                                                    ],
+                                                    [
+                                                        988564.2616092168,
+                                                        208333.46021012415
+                                                    ],
+                                                    [
+                                                        988317.5914708371,
+                                                        208175.83757160424
+                                                    ],
+                                                    [
+                                                        987764.8929952026,
+                                                        207924.21666600803
+                                                    ]
+                                                ]
+                                            ]
+                                        },
+                                        "properties": {
+                                            "size": 271,
+                                            "cluster_id": 3
+                                        }
+                                    }
+                                ]
+                            },
+                            "distinct": {
+                                "borough": [
+                                    "Manhattan"
+                                ],
+                                "exported": [
+                                    "05/19/2004"
+                                ],
+                                "feat_code": [
+                                    2900,
+                                    2901,
+                                    2920,
+                                    2921,
+                                    2265,
+                                    2275
+                                ],
+                                "feat_desc": [
+                                    "Paved Road",
+                                    "Hidden Paved Road",
+                                    "Alley",
+                                    "Hidden Alley",
+                                    "Park Path",
+                                    "Bike Pedestrian Path"
+                                ],
+                                "feat_type": [
+                                    0,
+                                    5,
+                                    -7,
+                                    -5
+                                ],
+                                "sourcedate": [
+                                    "3/31/1996",
+                                    "4/14/2001",
+                                    "3/26/2002"
+                                ],
+                                "sourcetype": [
+                                    "Photogrammetric"
+                                ]
+                            },
+                            "assetType": "vector",
+                            "datatypes": {
+                                "name": "str",
+                                "vsam": "float64",
+                                "borough": "str",
+                                "exported": "str",
+                                "modified": "str",
+                                "feat_code": "int64",
+                                "feat_desc": "str",
+                                "feat_type": "int64",
+                                "source_id": "float64",
+                                "sourcedate": "str",
+                                "sourcetype": "str"
+                            },
+                            "mbrStatic": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/mbrStatic",
+                            "quantiles": {
+                                "5": {
+                                    "vsam": 0.12659610215053713,
+                                    "feat_code": 2265.045562586819,
+                                    "feat_type": -6.999166538045995,
+                                    "source_id": -43252.40821360287
+                                },
+                                "25": {
+                                    "vsam": 11489.31818181818,
+                                    "feat_code": 2900.280179856147,
+                                    "feat_type": -0.0005282590011050604,
+                                    "source_id": 16655.02247059763
+                                },
+                                "50": {
+                                    "vsam": 13076.481382742379,
+                                    "feat_code": 2900.4670440215245,
+                                    "feat_type": 0.003189542185050552,
+                                    "source_id": 91539.31082584824
+                                },
+                                "75": {
+                                    "vsam": 14355.169354838708,
+                                    "feat_code": 2900.6539081869028,
+                                    "feat_type": 0.0069073433712061654,
+                                    "source_id": 1055134.693818865
+                                },
+                                "95": {
+                                    "vsam": 15027.3321812596,
+                                    "feat_code": 2900.852096854318,
+                                    "feat_type": 5.012866338368468,
+                                    "source_id": 1240091.6157370764
+                                }
+                            },
+                            "recurring": {
+                                "borough": [
+                                    "Manhattan"
+                                ],
+                                "exported": [
+                                    "05/19/2004"
+                                ],
+                                "feat_code": [
+                                    2900,
+                                    2265,
+                                    2901,
+                                    2920,
+                                    2921
+                                ],
+                                "feat_desc": [
+                                    "Paved Road",
+                                    "Park Path",
+                                    "Hidden Paved Road",
+                                    "Alley",
+                                    "Hidden Alley"
+                                ],
+                                "feat_type": [
+                                    0,
+                                    5,
+                                    -7,
+                                    -5
+                                ],
+                                "sourcedate": [
+                                    "3/31/1996",
+                                    "4/14/2001",
+                                    "3/26/2002"
+                                ],
+                                "sourcetype": [
+                                    "Photogrammetric"
+                                ]
+                            },
+                            "thumbnail": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/thumbnail",
+                            "attributes": [
+                                "modified",
+                                "name",
+                                "vsam",
+                                "sourcedate",
+                                "sourcetype",
+                                "source_id",
+                                "borough",
+                                "feat_code",
+                                "feat_desc",
+                                "exported",
+                                "feat_type"
+                            ],
+                            "convexHull": "POLYGON ((986157 207673, 985126 207917, 984338 208351, 984055 209700, 984018 211487, 984088 215325, 984171 217091, 984623 218061, 984625 218065, 985309 219211, 985566 219623, 990879 218950, 991544 218015, 991906 217000, 991849 210726, 991751 208775, 991714 208642, 991694 208573, 991651 208461, 991514 208123, 991487 208071, 991406 207917, 991390 207891, 991321 207789, 990197 207746, 986157 207673))",
+                            "statistics": {
+                                "max": {
+                                    "vsam": 15070.0,
+                                    "feat_code": 2921.0,
+                                    "feat_type": 5.0,
+                                    "source_id": 224576001.0
+                                },
+                                "min": {
+                                    "vsam": 0.0,
+                                    "feat_code": 2265.0,
+                                    "feat_type": -7.0,
+                                    "source_id": 51509.0
+                                },
+                                "std": {
+                                    "vsam": 4132.057677363406,
+                                    "feat_code": 180.29109362620062,
+                                    "feat_type": 2.714431895026563,
+                                    "source_id": 36339919.87304296
+                                },
+                                "sum": {
+                                    "vsam": 15340585.0,
+                                    "feat_code": 3700108.0,
+                                    "feat_type": -8.0,
+                                    "source_id": 8674064422.0
+                                },
+                                "mean": {
+                                    "vsam": 11791.379707916987,
+                                    "feat_code": 2844.0491929285167,
+                                    "feat_type": -0.006149116064565719,
+                                    "source_id": 6667228.61029977
+                                },
+                                "median": {
+                                    "vsam": 13098.380546955625,
+                                    "feat_code": 2900.3677883687046,
+                                    "feat_type": 0.012795692765908653,
+                                    "source_id": 212101.18813663826
+                                }
+                            },
+                            "distribution": {
+                                "borough": {
+                                    "Manhattan": 1301
+                                },
+                                "exported": {
+                                    "05/19/2004": 1301
+                                },
+                                "feat_code": {
+                                    "2265": 114,
+                                    "2900": 1117,
+                                    "2901": 61,
+                                    "2920": 6,
+                                    "2921": 2
+                                },
+                                "feat_desc": {
+                                    "Alley": 6,
+                                    "Park Path": 114,
+                                    "Paved Road": 1117,
+                                    "Hidden Alley": 2,
+                                    "Hidden Paved Road": 61
+                                },
+                                "feat_type": {
+                                    "0": 1027,
+                                    "5": 159,
+                                    "-5": 1,
+                                    "-7": 114
+                                },
+                                "sourcedate": {
+                                    "3/26/2002": 8,
+                                    "3/31/1996": 895,
+                                    "4/14/2001": 398
+                                },
+                                "sourcetype": {
+                                    "Photogrammetric": 1301
+                                }
+                            },
+                            "featureCount": 1301,
+                            "heatmapStatic": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/heatmapStatic",
+                            "clustersStatic": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/clustersStatic",
+                            "convexHullStatic": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/convexHullStatic"
+                        },
+                        "f57cf0f7-84c1-4acc-a837-d2468b6025e8": {
+                            "crs": "EPSG:2100",
+                            "mbr": "POLYGON ((481473 4.19989e+06, 481473 4.20918e+06, 472207 4.20918e+06, 472207 4.19989e+06, 481473 4.19989e+06))",
+                            "count": {
+                                "DK": 53,
+                                "gid": 53,
+                                "AREA": 53,
+                                "NAME": 46,
+                                "NAME_DK": 53,
+                                "PERIMETER": 53,
+                                "SINIKIA_EN": 46
+                            },
+                            "heatmap": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/heatmap",
+                            "clusters": {
+                                "type": "FeatureCollection",
+                                "features": []
+                            },
+                            "distinct": {},
+                            "assetType": "vector",
+                            "datatypes": {
+                                "DK": "float64",
+                                "gid": "int64",
+                                "AREA": "float64",
+                                "NAME": "str",
+                                "NAME_DK": "str",
+                                "PERIMETER": "float64",
+                                "SINIKIA_EN": "str"
+                            },
+                            "mbrStatic": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/mbrStatic",
+                            "quantiles": {
+                                "5": {
+                                    "DK": 0.9990469208211143,
+                                    "gid": 2.7028347996089934,
+                                    "AREA": 75972.67903401761,
+                                    "PERIMETER": 1249.3636379370562
+                                },
+                                "25": {
+                                    "DK": 1.9973607038123167,
+                                    "gid": 13.529814271749757,
+                                    "AREA": 463668.3317986926,
+                                    "PERIMETER": 3051.5589402928254
+                                },
+                                "50": {
+                                    "DK": 4.0025136154168415,
+                                    "gid": 27.050830889540567,
+                                    "AREA": 764447.6174575391,
+                                    "PERIMETER": 4157.831574144333
+                                },
+                                "75": {
+                                    "DK": 6.003770423125262,
+                                    "gid": 40.546432062561095,
+                                    "AREA": 850700.5008450025,
+                                    "PERIMETER": 4916.786055507576
+                                },
+                                "95": {
+                                    "DK": 7.007800586510264,
+                                    "gid": 51.34799608993158,
+                                    "AREA": 1529886.667211411,
+                                    "PERIMETER": 7171.781319625823
+                                }
+                            },
+                            "recurring": {},
+                            "thumbnail": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/thumbnail",
+                            "attributes": [
+                                "gid",
+                                "AREA",
+                                "PERIMETER",
+                                "DK",
+                                "NAME_DK",
+                                "SINIKIA_EN",
+                                "NAME"
+                            ],
+                            "convexHull": "POLYGON ((475504 4.19989e+06, 472207 4.20294e+06, 472230 4.20298e+06, 473628 4.20555e+06, 476067 4.20829e+06, 476168 4.20838e+06, 477041 4.20917e+06, 477046 4.20918e+06, 477053 4.20918e+06, 477059 4.20918e+06, 477066 4.20918e+06, 477179 4.20917e+06, 477232 4.20915e+06, 477387 4.2091e+06, 478152 4.20865e+06, 481169 4.20565e+06, 481454 4.20471e+06, 481473 4.20454e+06, 481034 4.20341e+06, 480199 4.20179e+06, 477474 4.20066e+06, 475504 4.19989e+06))",
+                            "statistics": {
+                                "max": {
+                                    "DK": 7.0,
+                                    "gid": 53,
+                                    "AREA": 2289354.3635,
+                                    "PERIMETER": 7229.02449661
+                                },
+                                "min": {
+                                    "DK": 1.0,
+                                    "gid": 1,
+                                    "AREA": 26874.883875,
+                                    "PERIMETER": 649.275052249
+                                },
+                                "std": {
+                                    "DK": 2.132325916164026,
+                                    "gid": 15.297058540778355,
+                                    "AREA": 403641.50727415405,
+                                    "PERIMETER": 1401.470266533447
+                                },
+                                "sum": {
+                                    "DK": 211.0,
+                                    "gid": 1431.0,
+                                    "AREA": 38030759.80959912,
+                                    "PERIMETER": 214951.64489247894
+                                },
+                                "mean": {
+                                    "DK": 3.981132075471698,
+                                    "gid": 27.0,
+                                    "AREA": 717561.5058414928,
+                                    "PERIMETER": 4055.6914130656405
+                                },
+                                "median": {
+                                    "DK": 4.010084033613445,
+                                    "gid": 27.20392156862745,
+                                    "AREA": 767726.0075953433,
+                                    "PERIMETER": 4171.376225406946
+                                }
+                            },
+                            "distribution": {},
+                            "featureCount": 53,
+                            "heatmapStatic": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/heatmapStatic",
+                            "clustersStatic": null,
+                            "convexHullStatic": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/convexHullStatic"
+                        }
+                    },
+                    "pricing_models": [
+                        {
+                            "key": "eb3acfe5-02dc-4faa-bfbf-f6a8f2de1c3a",
+                            "type": "FREE",
+                            "domainRestrictions": null,
+                            "consumerRestrictionCountries": null,
+                            "coverageRestrictionCountries": null,
+                            "consumerRestrictionContinents": null,
+                            "coverageRestrictionContinents": null
+                        },
+                        {
+                            "key": "4d628e68-6f3f-46d1-bdb2-163a9b418696",
+                            "type": "FIXED",
+                            "yearsOfUpdates": 0,
+                            "domainRestrictions": null,
+                            "totalPriceExcludingTax": 200,
+                            "consumerRestrictionCountries": null,
+                            "coverageRestrictionCountries": null,
+                            "consumerRestrictionContinents": null,
+                            "coverageRestrictionContinents": null
+                        },
+                        {
+                            "key": "fd1f0770-4183-4391-a331-cd4ed057176c",
+                            "type": "FIXED",
+                            "yearsOfUpdates": 5,
+                            "domainRestrictions": null,
+                            "totalPriceExcludingTax": 350,
+                            "consumerRestrictionCountries": null,
+                            "coverageRestrictionCountries": null,
+                            "consumerRestrictionContinents": null,
+                            "coverageRestrictionContinents": null
+                        },
+                        {
+                            "key": "40cebf65-6129-422c-9637-a279b4674316",
+                            "type": "FIXED_FOR_POPULATION",
+                            "price": 0.002,
+                            "minPercent": 5,
+                            "discountRates": [
+                                {
+                                    "count": 100000,
+                                    "discount": 12.5
+                                },
+                                {
+                                    "count": 500000,
+                                    "discount": 25
+                                }
+                            ],
+                            "domainRestrictions": [
+                                "Fleet Management",
+                                "GIS"
+                            ],
+                            "consumerRestrictionCountries": [
+                                "GR",
+                                "DE"
+                            ],
+                            "coverageRestrictionCountries": [
+                                "GR",
+                                "DE"
+                            ],
+                            "consumerRestrictionContinents": [
+                                "EUROPE"
+                            ],
+                            "coverageRestrictionContinents": [
+                                "EUROPE"
+                            ]
+                        }
+                    ],
+                    "statistics": {
+                        "sales": 0,
+                        "rating": null,
+                        "downloads": 0
+                    },
+                    "delivery_method": "digital_platform",
+                    "versions": null
+                }
             }
-          ],
-          "title": "Test Data",
-          "format": "GTiff",
-          "license": "Apache 2.0",
-          "lineage": null,
-          "version": "1.0.0",
-          "abstract": "Test Data",
-          "date_end": null,
-          "keywords": [
-            {
-              "keyword": "keyword",
-              "theme": "theme"
-            }
-          ],
-          "language": "el",
-          "parent_id": null,
-          "conformity": "conformant",
-          "created_at": "2020-12-17T18:31:07.950115",
-          "date_start": null,
-          "visibility": null,
-          "accepted_at": null,
-          "modified_at": null,
-          "publisher_id": "db50feb4-85d6-46cb-bfe7-b1ca30f43e10",
-          "submitted_at": null,
-          "creation_date": "2020-11-19",
-          "metadata_date": "2020-06-02",
-          "revision_date": "2020-06-02",
-          "pricing_models": [
-            {
-              "key": null,
-              "type": "FREE"
-            },
-            {
-              "key": null,
-              "type": "FIXED",
-              "yearsOfUpdates": 0,
-              "includesUpdates": false,
-              "totalPriceExcludingTax": 200
-            },
-            {
-              "key": null,
-              "type": "FIXED",
-              "yearsOfUpdates": 1,
-              "includesUpdates": true,
-              "totalPriceExcludingTax": 350
-            },
-            {
-              "key": null,
-              "type": "FIXED",
-              "yearsOfUpdates": 2,
-              "includesUpdates": true,
-              "totalPriceExcludingTax": 480
-            },
-            {
-              "key": null,
-              "type": "SUBSCRIPTION",
-              "duration": 12,
-              "monthlyPrice": 10.99
-            }
-          ],
-          "publisher_name": "OpertusMundi",
-          "topic_category": [
-            "environment"
-          ],
-          "publisher_email": "info@opertusmundi.eu",
-          "coupled_resource": null,
-          "publication_date": "2020-12-17T18:31:08.167101",
-          "reference_system": "EPSG:4326",
-          "resource_locator": null,
-          "store_statistics": {
-            "sales": 0,
-            "rating": null,
-            "downloads": 0
-          },
-          "metadata_language": "en",
-          "automated_metadata": null,
-          "spatial_resolution": 50,
-          "additional_resources": null,
-          "public_access_limitations": "Apache 2.0",
-          "spatial_data_service_type": "WMS",
-          "metadata_point_of_contact_name": "OpertusMundi",
-          "metadata_point_of_contact_email": "info@opertusmundi.eu"
-        }
-      },
-      {
-        "id": "08e8536b-c910-4f14-99c8-0f4e1703d98d",
-        "type": "Feature",
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [
-                20.94818115234375,
-                36.40359962073253
-              ],
-              [
-                20.94818115234375,
-                38.31795595794451
-              ],
-              [
-                23.57940673828125,
-                38.31795595794451
-              ],
-              [
-                23.57940673828125,
-                36.40359962073253
-              ],
-              [
-                20.94818115234375,
-                36.40359962073253
-              ]
-            ]
-          ]
-        },
-        "properties": {
-          "type": "vector",
-          "scales": [
-            {
-              "scale": 5000,
-              "theme": "1:5000"
-            }
-          ],
-          "title": "Test Data",
-          "format": "ESRI Shapefile",
-          "license": "Apache 2.0",
-          "lineage": null,
-          "version": "1.0.0",
-          "abstract": "Test Data",
-          "date_end": null,
-          "keywords": [
-            {
-              "keyword": "keyword",
-              "theme": "theme"
-            }
-          ],
-          "language": "el",
-          "parent_id": null,
-          "conformity": "not conformant",
-          "created_at": "2020-12-23T13:24:52.022703",
-          "date_start": null,
-          "visibility": null,
-          "accepted_at": null,
-          "modified_at": null,
-          "publisher_id": "db50feb4-85d6-46cb-bfe7-b1ca30f43e10",
-          "submitted_at": null,
-          "creation_date": "2020-11-19",
-          "metadata_date": "2020-06-02",
-          "revision_date": "2020-06-02",
-          "pricing_models": [
-            {
-              "key": null,
-              "type": "FREE"
-            },
-            {
-              "key": null,
-              "type": "FIXED",
-              "yearsOfUpdates": 0,
-              "includesUpdates": false,
-              "totalPriceExcludingTax": 200
-            },
-            {
-              "key": null,
-              "type": "FIXED",
-              "yearsOfUpdates": 1,
-              "includesUpdates": true,
-              "totalPriceExcludingTax": 350
-            },
-            {
-              "key": null,
-              "type": "FIXED",
-              "yearsOfUpdates": 2,
-              "includesUpdates": true,
-              "totalPriceExcludingTax": 480
-            },
-            {
-              "key": null,
-              "type": "SUBSCRIPTION",
-              "duration": 12,
-              "monthlyPrice": 10.99
-            }
-          ],
-          "publisher_name": "OpertusMundi",
-          "topic_category": [
-            "environment"
-          ],
-          "publisher_email": "info@opertusmundi.eu",
-          "coupled_resource": null,
-          "publication_date": "2020-12-23T13:24:52.226369",
-          "reference_system": "EPSG:4326",
-          "resource_locator": null,
-          "store_statistics": {
-            "sales": 0,
-            "rating": null,
-            "downloads": 0
-          },
-          "metadata_language": "en",
-          "automated_metadata": null,
-          "spatial_resolution": null,
-          "additional_resources": null,
-          "public_access_limitations": "Apache 2.0",
-          "spatial_data_service_type": "WMS",
-          "metadata_point_of_contact_name": "OpertusMundi",
-          "metadata_point_of_contact_email": "info@opertusmundi.eu"
-        }
-      }
-    ],
-    "page": 1,
-    "pages": 1,
-    "per_page": 10,
-    "total": 2
-  },
-  "success": true,
-  "message": {
-    "code": 200,
-    "description": "Items found"
-  }
+        ],
+        "page": 1,
+        "pages": 1,
+        "per_page": 5,
+        "total": 1
+    },
+    "success": true,
+    "message": {
+        "code": 200,
+        "description": "Items found"
+    }
 }
