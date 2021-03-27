@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
+import eu.opertusmundi.common.service.MangoPayWebhookHandler;
 import eu.opertusmundi.common.service.PaymentService;
 
 @Controller
@@ -20,7 +21,10 @@ public class MangoPayWebhookControllerImpl implements MangoPayWebhookController 
     private static final Logger logger = LoggerFactory.getLogger("WEBHOOK");
     
     @Autowired
-    PaymentService paymentService;
+    private MangoPayWebhookHandler handler;
+    
+    @Autowired
+    private PaymentService paymentService;
 
     @Override
     public ResponseEntity<Void> mangoPayWebhookHandler(String resourceId, Long timestamp, String eventType) {
@@ -28,14 +32,14 @@ public class MangoPayWebhookControllerImpl implements MangoPayWebhookController 
         
         final ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.UTC);
         
-        this.paymentService.handleWebHook(eventType, resourceId, date);
+        this.handler.handleWebHook(eventType, resourceId, date);
         
         // Webhook received successfully
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
     @Override
-    public String webhookHandler(UUID payInKey, String transactionId) {
+    public String secureModeRedirectHandler(UUID payInKey, String transactionId) {
         this.paymentService.updatePayIn(payInKey, transactionId);
         
         return "index";

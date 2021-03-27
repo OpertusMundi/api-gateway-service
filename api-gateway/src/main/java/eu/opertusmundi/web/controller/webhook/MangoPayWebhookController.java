@@ -81,7 +81,7 @@ public interface MangoPayWebhookController {
         description = "successful operation"
     )
     @GetMapping(value = "/payins/{payInKey}")
-    String webhookHandler(
+    String secureModeRedirectHandler(
         @Parameter(
             in = ParameterIn.PATH,
             required = true,

@@ -122,7 +122,9 @@ public class RestControllerAdvice {
     )
     public @ResponseBody BaseResponse handleException(ServiceException ex) {
 
-        logger.error("Internal Server Error: " + ex.getMessage(), ex);
+        if (ex.isLogEntryRequired()) {
+            logger.error("Internal Server Error: " + ex.getMessage(), ex);
+        }
 
         final MessageCode      code        = ex.getCode();
         final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
