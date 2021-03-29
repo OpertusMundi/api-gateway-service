@@ -1,7 +1,5 @@
 package eu.opertusmundi.web.validation;
 
-import java.nio.file.Path;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,6 +12,7 @@ import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.file.FilePathCommand;
+import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.service.UserFileManager;
 
@@ -78,9 +77,10 @@ public class ApiDraftValidator implements Validator {
             .userId(command.getUserId())
             .build();
 
-        final Path resourcePath = this.userFileManager.resolveFilePath(fileCommand);
-        if (!resourcePath.toFile().exists()) {
-            e.rejectValue("path", "NotFound");
+        try {
+            this.userFileManager.resolveFilePath(fileCommand);
+        } catch (FileSystemException ex) {
+            e.rejectValue("path", ex.getMessage());
         }
         
         // Validate format
