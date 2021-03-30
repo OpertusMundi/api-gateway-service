@@ -20,7 +20,7 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.model.payment.CardDirectPayInCommandDto;
-import eu.opertusmundi.common.model.payment.CardDirectPayInIntendDto;
+import eu.opertusmundi.common.model.payment.CardDirectPayInDto;
 import eu.opertusmundi.common.model.payment.CardDto;
 import eu.opertusmundi.common.model.payment.CardRegistrationCommandDto;
 import eu.opertusmundi.common.model.payment.PayInDto;
@@ -79,7 +79,7 @@ public interface PaymentController {
      * @param session
      * 
      * @return A {@link RestResponse} object with a result of type
-     *         {@link OrderDto} if operation was successful; Otherwise an
+     *         {@link BankwirePayInDto} if operation was successful; Otherwise an
      *         instance of {@link BaseResponse} is returned with one or more error
      *         messages
      */
@@ -236,7 +236,7 @@ public interface PaymentController {
      * @param session
      * 
      * @return A {@link RestResponse} object with a result of type
-     *         {@link CardDirectPayInIntendDto} if operation was successful; Otherwise an
+     *         {@link CardDirectPayInDto} if operation was successful; Otherwise an
      *         instance of {@link BaseResponse} is returned with one or more error
      *         messages
      */
@@ -256,7 +256,7 @@ public interface PaymentController {
         description = "successful operation",
         content = @Content(
             mediaType = "application/json", 
-            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardDirectPayInIntendResponse.class})
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardDirectPayInResponse.class})
         )
     )
     @PostMapping(value = "/payments/card-direct/{orderKey}", consumes = "application/json")

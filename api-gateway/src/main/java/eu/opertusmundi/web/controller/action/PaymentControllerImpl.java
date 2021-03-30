@@ -21,8 +21,8 @@ import eu.opertusmundi.common.model.payment.CardRegistrationCommandDto;
 import eu.opertusmundi.common.model.payment.CardRegistrationDto;
 import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
 import eu.opertusmundi.common.model.payment.PayInDto;
-import eu.opertusmundi.common.model.payment.UserCommandDto;
-import eu.opertusmundi.common.model.payment.UserPaginationCommandDto;
+import eu.opertusmundi.common.model.payment.UserCommand;
+import eu.opertusmundi.common.model.payment.UserPaginationCommand;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.PaymentService;
 
@@ -65,7 +65,7 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
 
     @Override
     public RestResponse<?> getCards(Integer page, Integer size) {
-        final UserPaginationCommandDto command = UserPaginationCommandDto.builder()
+        final UserPaginationCommand command = UserPaginationCommand.builder()
             .userKey(this.currentUserKey())
             .page(page == null ? 1 : page + 1)
             .size(size == null ? 10 : size)
@@ -78,7 +78,7 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
 
     @Override
     public RestResponse<?> createCardRegistration() {
-        final UserCommandDto command = UserCommandDto.of(this.currentUserKey());
+        final UserCommand command = UserCommand.of(this.currentUserKey());
 
         final CardRegistrationDto result = this.paymentService.createCardRegistration(command);
 

@@ -199,13 +199,13 @@ public interface CatalogueController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class)
+            mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.HarvestImportResponse.class)
         )
     )
     @PostMapping(value = "/catalogue/harvest/import", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Secured({"ROLE_PROVIDER"})
     @Validated
-    RestResponse<Void> importFromCatalogue(
+    RestResponse<?> importFromCatalogue(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Import operation settings",
             content = @Content(

@@ -1,19 +1,24 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.catalogue.CatalogueResult;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestImportCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
+import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.CatalogueService;
+import eu.opertusmundi.common.service.ProviderAssetService;
 
 @RestController
 public class CatalogueControllerImpl extends BaseController implements CatalogueController {
@@ -21,6 +26,9 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     @Autowired
     private CatalogueService catalogueService;
     
+    @Autowired
+    private ProviderAssetService providerAssetService;
+
     @Override
     public RestResponse<?> findAll(CatalogueAssetQuery request) {
         try {
@@ -72,10 +80,18 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     }
     
     @Override
-    public RestResponse<Void> importFromCatalogue(CatalogueHarvestImportCommandDto command, BindingResult validationResult) {
-        this.catalogueService.importFromCatalogue(command);
+    public RestResponse<?> importFromCatalogue(
+        CatalogueHarvestImportCommandDto command, BindingResult validationResult
+    ) {
+        try {
+            command.setPublisherKey(this.currentUserKey());
 
-        return RestResponse.failure();
+            final Map<String, AssetDraftDto> result = providerAssetService.importFromCatalogue(command);
+
+            return RestResponse.result(result);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.failure(ex.getCode(), ex.getMessage());
+        }
     }
 
 }
