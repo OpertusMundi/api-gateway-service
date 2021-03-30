@@ -109,9 +109,15 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
             if (file == null || file.getSize() == 0) {
                 return RestResponse.error(CustomerVerificationMessageCode.PAGE_FILE_MISSING, "A file is required");
             }
+            if (file.getSize() > 7 * 1024 * 1024) {
+                validationResult.reject("FileTooLarge", file.getOriginalFilename());
+            }
+            if (file.getSize() < 1024) {
+                validationResult.reject("FileTooSmall", file.getOriginalFilename());
+            }
 
             if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors());
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
             
             verifyRole(command.getCustomerType());
