@@ -82,20 +82,6 @@ opertus-mundi.client.clientSecret =
 opertus-mundi.client.preEstablishedRedirectUri =
 ```
 
-### Configure keystore
-
-Email service requires a private/public key pair for signing/parsing JWT tokens. Create a new store in folder `api-gateway/src/main/resources/jwt`
-
-```bash
-keytool -genkey \
-        -alias email-service \
-        -keystore jwt_keystore \
-        -storetype PKCS12 \
-        -keyalg RSA  \
-        -storepass password \
-        -keysize 4096 
-```
-
 ### Configure Feign clients
 
 API Gateway is using [Feign](https://cloud.spring.io/spring-cloud-openfeign/reference/html/) clients for connecting to other system services. For each service, an endpoint must be set and optionally security must be configured.
@@ -105,10 +91,6 @@ API Gateway is using [Feign](https://cloud.spring.io/spring-cloud-openfeign/refe
 # Spring Cloud Feign clients
 #
 
-# Path to the key store with private keys for signing JWT tokens
-opertusmundi.feign.key-store.path=
-# Password for the key store
-opertusmundi.feign.key-store.password=
 # Global secret for signing JWT tokens shared by all services
 opertusmundi.feign.jwt.secret=
 
@@ -141,6 +123,9 @@ opertusmundi.feign.transform.url=
 
 # Data Profiler service
 opertusmundi.feign.data-profiler.url=
+
+# Persistent Identifier Service
+opertusmundi.feign.persistent-identifier-service.url=
 ```
 
 ### Configure file system
