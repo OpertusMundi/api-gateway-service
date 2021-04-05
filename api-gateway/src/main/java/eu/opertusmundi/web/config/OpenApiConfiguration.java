@@ -110,6 +110,9 @@ public class OpenApiConfiguration {
                 EndpointTags.Message,
                 EndpointTags.Notification
             )),
+            new TagGroup("Misc", Arrays.asList(
+                EndpointTags.SpatialData
+            ))
         });
 
         return api;
