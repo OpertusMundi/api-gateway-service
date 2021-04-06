@@ -107,18 +107,14 @@
                     "metadata_date": "2020-06-02",
                     "metadata_version": "1.0",
                     "use_only_for_vas": false,
-                    "ingestion_info": {
-                        "0d50b83a-2cca-4162-a27b-446ef514bc49": {
-                            "schema": "public",
+                    "ingestionInfo": [
+                        {
+                            "key": "15fc0180-e34b-487c-af75-ca106141cd02",
                             "features": 1301,
-                            "tablename": "0d50b83a-2cca-4162-a27b-446ef514bc49"
-                        },
-                        "f57cf0f7-84c1-4acc-a837-d2468b6025e8": {
                             "schema": "public",
-                            "features": 53,
-                            "tablename": "f57cf0f7-84c1-4acc-a837-d2468b6025e8"
+                            "tableName": "15fc0180-e34b-487c-af75-ca106141cd02"
                         }
-                    },
+                    ],
                     "resources": [
                         {
                             "id": "0d50b83a-2cca-4162-a27b-446ef514bc49",
@@ -170,9 +166,10 @@
                         "Real Estate",
                         "Geomarketing"
                     ],
-                    "automated_metadata": {
-                        "0d50b83a-2cca-4162-a27b-446ef514bc49": {
+                    "automatedMetadata": [
+                        {
                             "crs": "EPSG:2908",
+                            "key": "15fc0180-e34b-487c-af75-ca106141cd02",
                             "mbr": "POLYGON ((991906 207673, 991906 219623, 984018 219623, 984018 207673, 991906 207673))",
                             "count": {
                                 "name": 1301,
@@ -187,7 +184,7 @@
                                 "sourcedate": 1301,
                                 "sourcetype": 1301
                             },
-                            "heatmap": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/heatmap",
+                            "heatmap": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/heatmap",
                             "clusters": {
                                 "type": "FeatureCollection",
                                 "features": [
@@ -489,7 +486,7 @@
                                 "sourcedate": "str",
                                 "sourcetype": "str"
                             },
-                            "mbrStatic": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/mbrStatic",
+                            "mbrStatic": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/mbrStatic",
                             "quantiles": {
                                 "5": {
                                     "vsam": 0.12659610215053713,
@@ -500,7 +497,7 @@
                                 "25": {
                                     "vsam": 11489.31818181818,
                                     "feat_code": 2900.280179856147,
-                                    "feat_type": -0.0005282590011050604,
+                                    "feat_type": -5.282590011050604E-4,
                                     "source_id": 16655.02247059763
                                 },
                                 "50": {
@@ -558,7 +555,7 @@
                                     "Photogrammetric"
                                 ]
                             },
-                            "thumbnail": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/thumbnail",
+                            "thumbnail": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/thumbnail",
                             "attributes": [
                                 "modified",
                                 "name",
@@ -578,7 +575,7 @@
                                     "vsam": 15070.0,
                                     "feat_code": 2921.0,
                                     "feat_type": 5.0,
-                                    "source_id": 224576001.0
+                                    "source_id": 2.24576001E8
                                 },
                                 "min": {
                                     "vsam": 0.0,
@@ -590,13 +587,13 @@
                                     "vsam": 4132.057677363406,
                                     "feat_code": 180.29109362620062,
                                     "feat_type": 2.714431895026563,
-                                    "source_id": 36339919.87304296
+                                    "source_id": 3.633991987304296E7
                                 },
                                 "sum": {
-                                    "vsam": 15340585.0,
+                                    "vsam": 1.5340585E7,
                                     "feat_code": 3700108.0,
                                     "feat_type": -8.0,
-                                    "source_id": 8674064422.0
+                                    "source_id": 8.674064422E9
                                 },
                                 "mean": {
                                     "vsam": 11791.379707916987,
@@ -648,128 +645,11 @@
                                 }
                             },
                             "featureCount": 1301,
-                            "heatmapStatic": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/heatmapStatic",
-                            "clustersStatic": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/clustersStatic",
-                            "convexHullStatic": "/action/assets/topio.the-company.62.VECTOR/resources/0d50b83a-2cca-4162-a27b-446ef514bc49/metadata/convexHullStatic"
-                        },
-                        "f57cf0f7-84c1-4acc-a837-d2468b6025e8": {
-                            "crs": "EPSG:2100",
-                            "mbr": "POLYGON ((481473 4.19989e+06, 481473 4.20918e+06, 472207 4.20918e+06, 472207 4.19989e+06, 481473 4.19989e+06))",
-                            "count": {
-                                "DK": 53,
-                                "gid": 53,
-                                "AREA": 53,
-                                "NAME": 46,
-                                "NAME_DK": 53,
-                                "PERIMETER": 53,
-                                "SINIKIA_EN": 46
-                            },
-                            "heatmap": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/heatmap",
-                            "clusters": {
-                                "type": "FeatureCollection",
-                                "features": []
-                            },
-                            "distinct": {},
-                            "assetType": "vector",
-                            "datatypes": {
-                                "DK": "float64",
-                                "gid": "int64",
-                                "AREA": "float64",
-                                "NAME": "str",
-                                "NAME_DK": "str",
-                                "PERIMETER": "float64",
-                                "SINIKIA_EN": "str"
-                            },
-                            "mbrStatic": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/mbrStatic",
-                            "quantiles": {
-                                "5": {
-                                    "DK": 0.9990469208211143,
-                                    "gid": 2.7028347996089934,
-                                    "AREA": 75972.67903401761,
-                                    "PERIMETER": 1249.3636379370562
-                                },
-                                "25": {
-                                    "DK": 1.9973607038123167,
-                                    "gid": 13.529814271749757,
-                                    "AREA": 463668.3317986926,
-                                    "PERIMETER": 3051.5589402928254
-                                },
-                                "50": {
-                                    "DK": 4.0025136154168415,
-                                    "gid": 27.050830889540567,
-                                    "AREA": 764447.6174575391,
-                                    "PERIMETER": 4157.831574144333
-                                },
-                                "75": {
-                                    "DK": 6.003770423125262,
-                                    "gid": 40.546432062561095,
-                                    "AREA": 850700.5008450025,
-                                    "PERIMETER": 4916.786055507576
-                                },
-                                "95": {
-                                    "DK": 7.007800586510264,
-                                    "gid": 51.34799608993158,
-                                    "AREA": 1529886.667211411,
-                                    "PERIMETER": 7171.781319625823
-                                }
-                            },
-                            "recurring": {},
-                            "thumbnail": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/thumbnail",
-                            "attributes": [
-                                "gid",
-                                "AREA",
-                                "PERIMETER",
-                                "DK",
-                                "NAME_DK",
-                                "SINIKIA_EN",
-                                "NAME"
-                            ],
-                            "convexHull": "POLYGON ((475504 4.19989e+06, 472207 4.20294e+06, 472230 4.20298e+06, 473628 4.20555e+06, 476067 4.20829e+06, 476168 4.20838e+06, 477041 4.20917e+06, 477046 4.20918e+06, 477053 4.20918e+06, 477059 4.20918e+06, 477066 4.20918e+06, 477179 4.20917e+06, 477232 4.20915e+06, 477387 4.2091e+06, 478152 4.20865e+06, 481169 4.20565e+06, 481454 4.20471e+06, 481473 4.20454e+06, 481034 4.20341e+06, 480199 4.20179e+06, 477474 4.20066e+06, 475504 4.19989e+06))",
-                            "statistics": {
-                                "max": {
-                                    "DK": 7.0,
-                                    "gid": 53,
-                                    "AREA": 2289354.3635,
-                                    "PERIMETER": 7229.02449661
-                                },
-                                "min": {
-                                    "DK": 1.0,
-                                    "gid": 1,
-                                    "AREA": 26874.883875,
-                                    "PERIMETER": 649.275052249
-                                },
-                                "std": {
-                                    "DK": 2.132325916164026,
-                                    "gid": 15.297058540778355,
-                                    "AREA": 403641.50727415405,
-                                    "PERIMETER": 1401.470266533447
-                                },
-                                "sum": {
-                                    "DK": 211.0,
-                                    "gid": 1431.0,
-                                    "AREA": 38030759.80959912,
-                                    "PERIMETER": 214951.64489247894
-                                },
-                                "mean": {
-                                    "DK": 3.981132075471698,
-                                    "gid": 27.0,
-                                    "AREA": 717561.5058414928,
-                                    "PERIMETER": 4055.6914130656405
-                                },
-                                "median": {
-                                    "DK": 4.010084033613445,
-                                    "gid": 27.20392156862745,
-                                    "AREA": 767726.0075953433,
-                                    "PERIMETER": 4171.376225406946
-                                }
-                            },
-                            "distribution": {},
-                            "featureCount": 53,
-                            "heatmapStatic": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/heatmapStatic",
-                            "clustersStatic": null,
-                            "convexHullStatic": "/action/assets/topio.the-company.62.VECTOR/resources/f57cf0f7-84c1-4acc-a837-d2468b6025e8/metadata/convexHullStatic"
+                            "heatmapStatic": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/heatmapStatic",
+                            "clustersStatic": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/clustersStatic",
+                            "convexHullStatic": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/convexHullStatic"
                         }
-                    },
+                    ],
                     "pricing_models": [
                         {
                             "key": "eb3acfe5-02dc-4faa-bfbf-f6a8f2de1c3a",
