@@ -1,0 +1,83 @@
+# vim: syntax=yaml:
+
+version: '3.6'
+services:
+
+  'app':
+    image: 'opertusmundi/api-gateway-service:${VERSION}'
+    build:
+      context: .
+    volumes:
+    - type: 'bind'
+      source: ./secrets/
+      target: /secrets/
+      read_only: true
+    - type: 'bind'
+      source: ./logs
+      target: /app/logs
+    - type: 'volume'
+      source: files_assets
+      target: /var/local/opertusmundi/files/assets
+    - type: 'volume'
+      source: files_drafts
+      target: /var/local/opertusmundi/files/drafts
+    - type: 'volume'
+      source: files_users
+      target: /var/local/opertusmundi/files/users
+    - type: 'volume'
+      source: files_temp
+      target: /var/local/opertusmundi/files/temp
+    - type: 'volume'
+      source: ingest_input
+      target: /var/local/opertusmundi/ingest/input
+    environment:
+      JAVA_OPTS: '-server -Xmx1024m -Xms256m -Djava.security.egd=file:///dev/urandom'
+      BASE_URL: ${BASE_URL}
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD_FILE: /secrets/database-password
+      JWT_SECRET_FILE: /secrets/jwt-secret
+      BPM_REST_BASE_URL: ${BPM_REST_BASE_URL}
+      BPM_REST_USERNAME: ${BPM_REST_USERNAME}
+      BPM_REST_PASSWORD_FILE: /secrets/bpm-rest-password 
+      MANGOPAY_BASE_URL: https://api.sandbox.mangopay.com
+      MANGOPAY_CLIENT_ID: ${MANGOPAY_CLIENT_ID}
+      MANGOPAY_CLIENT_PASSWORD_FILE: /secrets/mangopay-client-password 
+      CATALOGUE_BASE_URL: ${CATALOGUE_BASE_URL}
+      INGEST_BASE_URL: ${INGEST_BASE_URL}
+      TRANSFORM_BASE_URL: ${TRANSFORM_BASE_URL}
+      MAILER_BASE_URL: ${MAILER_BASE_URL}
+      MESSENGER_BASE_URL: ${MESSENGER_BASE_URL}
+      RATING_BASE_URL: ${RATING_BASE_URL} 
+      RATING_USERNAME: ${RATING_USERNAME}
+      RATING_PASSWORD_FILE: /secrets/rating-password
+      PROFILE_BASE_URL: ${PROFILE_BASE_URL}
+      PID_BASE_URL: ${PID_BASE_URL}
+    ports:
+    - '8000:8000'
+    networks:
+      opertusmundi_network:
+        aliases:
+        - 'api-gateway'
+        - 'api'
+        - 'web'
+
+volumes:
+  files_assets:
+    external: true
+    name: opertusmundi_files_assets
+  files_drafts:
+    external: true
+    name: opertusmundi_files_drafts
+  files_users:
+    external: true
+    name: opertusmundi_files_users
+  files_temp: {}
+  ingest_input:
+    external: true
+    name: opertusmundi_ingest_input
+
+networks:
+  opertusmundi_network:
+    external: true
+

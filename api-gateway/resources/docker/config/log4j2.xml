@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="baseDir">/app/logs</Property>
+        <Property name="appName">api-gateway</Property> 
+    </Properties>
+    <Appenders>
+        <Console name="console" target="SYSTEM_ERR">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss} %-16X{client.remote-address} %-14.16X{client.username} %-5p %c{1.}:%L - %m%n" />
+        </Console>
+        <RollingFile name="file" filename="${baseDir}/${appName}.log"
+            filepattern="${baseDir}/${appName}-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId},%X{spanExportable}] %-16X{client.remote-address} %-14.16X{client.username} %-5p %c{1.}:%L - %m%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="25MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+        <RollingFile name="webhook-file" filename="${baseDir}/${appName}-webhook.log"
+            filepattern="${baseDir}/${appName}-webhook-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss} %-16X{client.remote-address} %m%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="25MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+		<Logger name="WEBHOOK" level="INFO" additivity="false">
+            <AppenderRef ref="webhook-file" />
+		</Logger>
+        <Root level="INFO">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file" />
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,5 +1,7 @@
 # API Gateway
 
+[![Build Status](https://ci.dev-1.opertusmundi.eu:9443/api/badges/OpertusMundi/api-gateway-service/status.svg?ref=refs/heads/master)](https://ci.dev-1.opertusmundi.eu:9443/OpertusMundi/api-gateway-service)
+
 Backend for OpertusMundi marketplace frontend
 
 ## Quickstart

@@ -30,11 +30,83 @@
 
 	<profiles>
 		<profile>
-			<id>develop</id>
+            <!-- a profile for java-only builds -->
+			<id>java-build</id>
+            <activation>
+                <property>
+                    <name>enableJavaBuildProfile</name>
+                </property>
+            </activation>
 			<properties>
 				<frontend.skip>true</frontend.skip>
 			</properties>
 		</profile>
+		<profile>
+            <id>continuous-integration</id>
+            <activation>
+                <property>
+                    <name>enableCiProfile</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-additional-resources-for-integration-tests</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.testOutputDirectory}/</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>resources/integration-tests</directory>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker-build</id>
+            <activation>
+                <property>
+                    <name>enableDockerBuildProfile</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-additional-resources-for-docker-build</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>resources/docker</directory>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 	</profiles>
 
 	<dependencyManagement>
@@ -341,7 +413,7 @@
 
 					<!-- Install node and npm -->
 					<execution>
-						<id>install node and npm</id>
+						<id>install-node-and-npm</id>
 						<goals>
 							<goal>install-node-and-npm</goal>
 						</goals>
@@ -353,7 +425,7 @@
 
 					<!-- Install packages -->
 					<execution>
-						<id>npm install</id>
+						<id>npm-install</id>
 						<goals>
 							<goal>npm</goal>
 						</goals>
@@ -365,7 +437,7 @@
 
 					<!-- Build frontend -->
 					<execution>
-						<id>npm run build</id>
+						<id>npm-run-build</id>
 						<goals>
 							<goal>npm</goal>
 						</goals>

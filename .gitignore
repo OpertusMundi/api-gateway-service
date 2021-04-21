@@ -3,6 +3,12 @@
 /.secrets
 /secrets
 
+/.env
+/docker-compose.yml
+/logs
+/temp
+/config
+
 .settings
 .project
 .classpath

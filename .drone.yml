@@ -1,0 +1,138 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+environment:
+  DATABASE_HOST: postgres-1
+  DATABASE_NAME: opertusmundi
+  DATABASE_USER: opertusmundi
+  BPM_REST_USERNAME: admin
+
+#
+# Steps
+#
+
+steps:
+
+- name: setup-database
+  image: postgres:10.14-alpine
+  when:
+    event:
+    - push
+  environment:
+    DATABASE_POSTGRES_PASSWORD:
+      from_secret: database_postgres_password
+    DATABASE_PASSWORD:
+      from_secret: database_password
+  commands:
+  - export PGHOST=$${DATABASE_HOST}
+  - (t=30; while ! pg_isready -U postgres -t 5; do t=$((t - 1)); test $${t} -ne 0; sleep 3s; done)
+  # Setup client 
+  - touch ~/.pgpass
+  - chmod og-rwx ~/.pgpass
+  - echo "$${DATABASE_HOST}:5432:*:postgres:$${DATABASE_POSTGRES_PASSWORD}" >> ~/.pgpass
+  - echo "$${DATABASE_HOST}:5432:*:$${DATABASE_USER}:$${DATABASE_PASSWORD}" >> ~/.pgpass
+  # Create user/database for tests
+  - echo "CREATE USER \"$${DATABASE_USER}\" WITH PASSWORD '$${DATABASE_PASSWORD}'" | psql -U postgres
+  - echo "CREATE DATABASE \"$${DATABASE_NAME}\" WITH OWNER \"$${DATABASE_USER}\"" | psql -U postgres
+  - echo "CREATE EXTENSION postgis" | psql -U postgres -d $${DATABASE_NAME}
+  - echo "CREATE EXTENSION \"uuid-ossp\"" | psql -U postgres -d $${DATABASE_NAME}
+  - psql -U postgres -l -A -t
+  - psql -U $${DATABASE_USER} -d $${DATABASE_NAME} -A -t -c '\d'
+  
+
+- name: checkout-submodules
+  image: alpine/git:v2.30.1
+  when:
+    event:
+    - push
+    - tag
+  commands:
+  - git submodule init
+  - git submodule update --recursive
+
+- name: tests
+  #image: maven:3.6.3-openjdk-8
+  image: opertusmundi/java-commons-builder:1.0.21
+  when:
+    event:
+    - push
+  environment:
+    DATABASE_PASSWORD:
+      from_secret: database_password
+    JWT_SECRET:
+      from_secret: jwt_secret
+    BPM_REST_PASSWORD:
+      from_secret: bpm_rest_password
+  commands:
+  - mkdir ./config
+  - >-
+    (  echo "spring.datasource.url=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}";
+       echo "spring.datasource.username=$${DATABASE_USER}";
+       echo "spring.datasource.password=$${DATABASE_PASSWORD}";
+       echo
+       echo "opertus-mundi.bpm.worker.rest.base-url = http://bpm-server:8000/engine-rest";
+       echo "opertus-mundi.bpm.worker.rest.username = $${BPM_REST_USERNAME}";
+       echo "opertus-mundi.bpm.worker.rest.password = $${BPM_REST_PASSWORD}";
+       echo
+       echo "opertusmundi.feign.jwt.secret = $${JWT_SECRET}";
+    ) > ./config/application-testing.properties
+  - mvn -B dependency:resolve
+  - mvn -B generate-resources 
+  - mvn -B test -DenableJavaBuildProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
+  # Fixme
+  #- mvn verify -B -DenableJavaBuildProfile -DenableCiProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
+
+- name: prepare-tags
+  image: busybox:1.32
+  when:
+    event:
+    - tag
+  commands:
+  - tags_file=$(mktemp) 
+  - echo ${DRONE_TAG} | grep -e '^[0-9]\+[.][0-9]\+[.][0-9]\+\([_-][a-z0-9][-.a-z0-9]*\)\?$' | tee -a $${tags_file}
+  - echo ${DRONE_TAG} | grep -o -e '^[0-9]\+[.][0-9]\+[.][0-9]\+' | tee -a $${tags_file}
+  - cat $${tags_file} | xargs echo | tr '[:blank:]' ',' | tr -d '\n' | tee .tags && echo
+
+- name: publish-image-1
+  image: plugins/docker
+  when:
+    event:
+    - tag
+  settings:
+    debug: true
+    username: 
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: opertusmundi/api-gateway-service
+    mirror: http://registry-mirror:5000
+
+- name: publish-image-2
+  image: plugins/docker
+  when:
+    event:
+    - tag
+  settings:
+    debug: true
+    username: 
+      from_secret: registry_username
+    password:
+      from_secret: registry_password
+    repo: registry-dev-1-opertusmundi:30474/opertusmundi/api-gateway-service
+    mirror: http://registry-mirror:5000
+    registry: registry-dev-1-opertusmundi:30474
+
+#
+# Services
+#
+
+services:
+
+- name: postgres-1
+  image: postgis/postgis:10-3.0-alpine
+  environment:
+    POSTGRES_PASSWORD:
+      from_secret: database_postgres_password
+
