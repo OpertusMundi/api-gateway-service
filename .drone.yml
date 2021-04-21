@@ -60,16 +60,15 @@ steps:
     FLYWAY_USER: *database_user
     FLYWAY_PASSWORD:
       from_secret: database_password
-    FLYWAY_URL: |-
-        jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?
-    #FLYWAY_SCHEMAS: ${FLYWAY_SCHEMAS}
-    #FLYWAY_DEFAULT_SCHEMA: ${FLYWAY_DEFAULT_SCHEMA}
-    #FLYWAY_BASELINE_VERSION: ${FLYWAY_BASELINE_VERSION}
-    #FLYWAY_TABLE: ${FLYWAY_TABLE}
-    #FLYWAY_BASELINE_ON_MIGRATE: 'true'
+    FLYWAY_SCHEMAS: public,web
+    FLYWAY_DEFAULT_SCHEMA: public
+    FLYWAY_BASELINE_VERSION: '1_0_0'
+    FLYWAY_TABLE: _schema_version
+    FLYWAY_BASELINE_ON_MIGRATE: 'true'
   commands:
-  - env
-  - echo flyway_url=$${FLYWAY_URL}
+  - export FLYWAY_URL=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}?
+  - export FLYWAY_LOCATIONS=filesystem:$${PWD}/cli/src/main/resources/db/migration
+  - env | grep -e FLYWAY
   - flyway info
 
 #- name: tests
