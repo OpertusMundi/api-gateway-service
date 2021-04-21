@@ -6,12 +6,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>eu.opertusmundi</groupId>
-	<artifactId>opertus-mundi-parent</artifactId>
+	<artifactId>opertus-mundi-api-gateway-parent</artifactId>
 	<version>1.0.0</version>
+	<name>[opertus-mundi] API Gateway Parent</name>
 
 	<packaging>pom</packaging>
 
-	<name>[opertus-mundi] Parent</name>
 	<url>https://www.opertusmundi.eu/</url>
 
 	<properties>
@@ -35,7 +35,7 @@
 		<postgresql.version>42.2.19</postgresql.version>
 		<spring-boot.version>2.3.4.RELEASE</spring-boot.version>
 
-		<java-commons.version>1.0.21</java-commons.version>
+		<java-commons.version>1.0.22</java-commons.version>
 
 		<!-- Plugin versions -->
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
