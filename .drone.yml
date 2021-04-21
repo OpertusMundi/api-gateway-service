@@ -6,7 +6,7 @@ name: default
 environment:
   DATABASE_HOST: postgres-1
   DATABASE_NAME: opertusmundi
-  DATABASE_USER: opertusmundi
+  DATABASE_USER: &database_user opertusmundi
   BPM_REST_USERNAME: admin
 
 #
@@ -14,6 +14,17 @@ environment:
 #
 
 steps:
+
+- name: checkout-submodules
+  image: alpine/git:v2.30.1
+  when:
+    event:
+    - push
+    - tag
+  commands:
+  - git submodule init
+  - git submodule update --recursive
+  - git submodule status
 
 - name: setup-database
   image: postgres:10.14-alpine
@@ -36,25 +47,46 @@ steps:
   # Create user/database for tests
   - echo "CREATE USER \"$${DATABASE_USER}\" WITH PASSWORD '$${DATABASE_PASSWORD}'" | psql -U postgres
   - echo "CREATE DATABASE \"$${DATABASE_NAME}\" WITH OWNER \"$${DATABASE_USER}\"" | psql -U postgres
-  - echo "CREATE EXTENSION postgis" | psql -U postgres -d $${DATABASE_NAME}
+  - echo "CREATE EXTENSION \"postgis\"" | psql -U postgres -d $${DATABASE_NAME}
   - echo "CREATE EXTENSION \"uuid-ossp\"" | psql -U postgres -d $${DATABASE_NAME}
   - psql -U postgres -l -A -t
   - psql -U $${DATABASE_USER} -d $${DATABASE_NAME} -A -t -c '\d'
-  
 
-- name: checkout-submodules
-  image: alpine/git:v2.30.1
+- name: migrate-database
+  image: flyway/flyway:7.7
   when:
     event:
     - push
-    - tag
+  environment:
+    FLYWAY_USER: *database_user
+    FLYWAY_PASSWORD:
+      from_secret: database_password
+    FLYWAY_SCHEMAS: public,web
+    FLYWAY_DEFAULT_SCHEMA: public
+    FLYWAY_BASELINE_VERSION: '1_0_0'
+    FLYWAY_TABLE: _schema_version
+    FLYWAY_BASELINE_ON_MIGRATE: 'true'
   commands:
-  - git submodule init
-  - git submodule update --recursive
+  - export FLYWAY_URL=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}?
+  - export FLYWAY_LOCATIONS=filesystem:$${PWD}/cli/src/main/resources/db/migration
+  - flyway info
+  - flyway migrate
 
-- name: tests
+- name: resolve-deps
   #image: maven:3.6.3-openjdk-8
-  image: opertusmundi/java-commons-builder:1.0.21
+  image: opertusmundi/java-commons-builder:1.0.22
+  when:
+    event:
+    - push
+  environment: {}
+  volumes:
+  - name: maven-repo
+    path: /root/.m2
+  commands:
+  - mvn -B dependency:resolve
+
+- name: generate-configuration-for-testing
+  image: busybox:1.32
   when:
     event:
     - push
@@ -66,7 +98,10 @@ steps:
     BPM_REST_PASSWORD:
       from_secret: bpm_rest_password
   commands:
+  # Generate configuration for testing
+  - cd api-gateway
   - mkdir ./config
+  - config_file=./config/application-testing.properties 
   - >-
     (  echo "spring.datasource.url=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}";
        echo "spring.datasource.username=$${DATABASE_USER}";
@@ -77,12 +112,40 @@ steps:
        echo "opertus-mundi.bpm.worker.rest.password = $${BPM_REST_PASSWORD}";
        echo
        echo "opertusmundi.feign.jwt.secret = $${JWT_SECRET}";
-    ) > ./config/application-testing.properties
-  - mvn -B dependency:resolve
-  - mvn -B generate-resources 
-  - mvn -B test -DenableJavaBuildProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
-  # Fixme
-  #- mvn verify -B -DenableJavaBuildProfile -DenableCiProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
+    ) | tee $${config_file}
+
+- name: tests
+  #image: maven:3.6.3-openjdk-8
+  image: opertusmundi/java-commons-builder:1.0.22
+  when:
+    event:
+    - push
+  environment: {}
+  volumes:
+  - name: maven-repo
+    path: /root/.m2
+  commands:
+  - cd api-gateway
+  - ls -hal ./config
+  - >-
+      mvn -B test -DenableCiProfile -DenableJavaBuildProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
+
+- name: integration-tests
+  #image: maven:3.6.3-openjdk-8
+  image: opertusmundi/java-commons-builder:1.0.22
+  when:
+    event:
+    - push
+  environment: {}
+  volumes:
+  - name: maven-repo
+    path: /root/.m2
+  commands:
+  - cd api-gateway
+  - ls -hal ./config
+  # Todo mvn integration-test
+  - >-
+     mvn -B test -DenableJavaBuildProfile -DenableCiProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml -Dtest=eu.opertusmundi.web.integration.ApplicationITCase
 
 - name: prepare-tags
   image: busybox:1.32
@@ -136,3 +199,10 @@ services:
     POSTGRES_PASSWORD:
       from_secret: database_postgres_password
 
+#
+# Volumes
+#
+
+volumes:
+- name: maven-repo
+  temp: {}   
