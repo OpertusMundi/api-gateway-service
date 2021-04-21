@@ -6,7 +6,7 @@ name: default
 environment:
   DATABASE_HOST: postgres-1
   DATABASE_NAME: opertusmundi
-  DATABASE_USER: opertusmundi
+  DATABASE_USER: &database_user opertusmundi
   BPM_REST_USERNAME: admin
 
 #
@@ -14,6 +14,16 @@ environment:
 #
 
 steps:
+
+- name: checkout-submodules
+  image: alpine/git:v2.30.1
+  when:
+    event:
+    - push
+    - tag
+  commands:
+  - git submodule init
+  - git submodule update --recursive
 
 - name: setup-database
   image: postgres:10.14-alpine
@@ -36,54 +46,68 @@ steps:
   # Create user/database for tests
   - echo "CREATE USER \"$${DATABASE_USER}\" WITH PASSWORD '$${DATABASE_PASSWORD}'" | psql -U postgres
   - echo "CREATE DATABASE \"$${DATABASE_NAME}\" WITH OWNER \"$${DATABASE_USER}\"" | psql -U postgres
-  - echo "CREATE EXTENSION postgis" | psql -U postgres -d $${DATABASE_NAME}
+  - echo "CREATE EXTENSION \"postgis\"" | psql -U postgres -d $${DATABASE_NAME}
   - echo "CREATE EXTENSION \"uuid-ossp\"" | psql -U postgres -d $${DATABASE_NAME}
   - psql -U postgres -l -A -t
   - psql -U $${DATABASE_USER} -d $${DATABASE_NAME} -A -t -c '\d'
-  
 
-- name: checkout-submodules
-  image: alpine/git:v2.30.1
-  when:
-    event:
-    - push
-    - tag
-  commands:
-  - git submodule init
-  - git submodule update --recursive
-
-- name: tests
-  #image: maven:3.6.3-openjdk-8
-  image: opertusmundi/java-commons-builder:1.0.21
+- name: migrate-database
+  image: flyway/flyway:7.7
   when:
     event:
     - push
   environment:
-    DATABASE_PASSWORD:
+    FLYWAY_USER: *database_user
+    FLYWAY_PASSWORD:
       from_secret: database_password
-    JWT_SECRET:
-      from_secret: jwt_secret
-    BPM_REST_PASSWORD:
-      from_secret: bpm_rest_password
+    FLYWAY_URL: |-
+        jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?
+    #FLYWAY_SCHEMAS: ${FLYWAY_SCHEMAS}
+    #FLYWAY_DEFAULT_SCHEMA: ${FLYWAY_DEFAULT_SCHEMA}
+    #FLYWAY_BASELINE_VERSION: ${FLYWAY_BASELINE_VERSION}
+    #FLYWAY_TABLE: ${FLYWAY_TABLE}
+    #FLYWAY_BASELINE_ON_MIGRATE: 'true'
   commands:
-  - mkdir ./config
-  - >-
-    (  echo "spring.datasource.url=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}";
-       echo "spring.datasource.username=$${DATABASE_USER}";
-       echo "spring.datasource.password=$${DATABASE_PASSWORD}";
-       echo
-       echo "opertus-mundi.bpm.worker.rest.base-url = http://bpm-server:8000/engine-rest";
-       echo "opertus-mundi.bpm.worker.rest.username = $${BPM_REST_USERNAME}";
-       echo "opertus-mundi.bpm.worker.rest.password = $${BPM_REST_PASSWORD}";
-       echo
-       echo "opertusmundi.feign.jwt.secret = $${JWT_SECRET}";
-    ) > ./config/application-testing.properties
-  - mvn -B dependency:resolve
-  - mvn -B generate-resources 
-  - mvn -B test -DenableJavaBuildProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
-  # Fixme
-  #- mvn verify -B -DenableJavaBuildProfile -DenableCiProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
+  - env
+  - echo flyway_url=$${FLYWAY_URL}
+  - flyway info
 
+#- name: tests
+#  #image: maven:3.6.3-openjdk-8
+#  image: opertusmundi/java-commons-builder:1.0.21
+#  when:
+#    event:
+#    - push
+#  environment:
+#    DATABASE_PASSWORD:
+#      from_secret: database_password
+#    JWT_SECRET:
+#      from_secret: jwt_secret
+#    BPM_REST_PASSWORD:
+#      from_secret: bpm_rest_password
+#  commands:
+#  - mkdir ./config
+#  - >-
+#    (  echo "spring.datasource.url=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}";
+#       echo "spring.datasource.username=$${DATABASE_USER}";
+#       echo "spring.datasource.password=$${DATABASE_PASSWORD}";
+#       echo
+#       echo "opertus-mundi.bpm.worker.rest.base-url = http://bpm-server:8000/engine-rest";
+#       echo "opertus-mundi.bpm.worker.rest.username = $${BPM_REST_USERNAME}";
+#       echo "opertus-mundi.bpm.worker.rest.password = $${BPM_REST_PASSWORD}";
+#       echo
+#       echo "opertusmundi.feign.jwt.secret = $${JWT_SECRET}";
+#    ) > ./config/application-testing.properties
+#  - mvn -B dependency:resolve
+#  - mvn -B test -DenableCiProfile -DenableJavaBuildProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
+#  # Fixme
+#  #- >-
+#  #  mvn -B -pl api-gateway test 
+#  #    -Dtest=eu.opertusmundi.web.integration.ApplicationITCase 
+#  #    -DenableJavaBuildProfile 
+#  #    -DenableCiProfile 
+#  #    -Dlog4j.configurationFile=classpath:config/log4j2.xml
+#
 - name: prepare-tags
   image: busybox:1.32
   when:
