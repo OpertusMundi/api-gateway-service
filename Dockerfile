@@ -2,7 +2,7 @@
 
 #FROM maven:3.6.3-openjdk-8 as build-stage-1
 # see https://github.com/OpertusMundi/java-commons/blob/master/Dockerfile
-FROM opertusmundi/java-commons-builder:1.0.21 as build-stage-1
+FROM opertusmundi/java-commons-builder:1.0.22 as build-stage-1
 
 WORKDIR /app
 
