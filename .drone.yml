@@ -24,6 +24,7 @@ steps:
   commands:
   - git submodule init
   - git submodule update --recursive
+  - git submodule status
 
 - name: setup-database
   image: postgres:10.14-alpine
@@ -68,45 +69,84 @@ steps:
   commands:
   - export FLYWAY_URL=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}?
   - export FLYWAY_LOCATIONS=filesystem:$${PWD}/cli/src/main/resources/db/migration
-  - env | grep -e FLYWAY
   - flyway info
+  - flyway migrate
 
-#- name: tests
-#  #image: maven:3.6.3-openjdk-8
-#  image: opertusmundi/java-commons-builder:1.0.21
-#  when:
-#    event:
-#    - push
-#  environment:
-#    DATABASE_PASSWORD:
-#      from_secret: database_password
-#    JWT_SECRET:
-#      from_secret: jwt_secret
-#    BPM_REST_PASSWORD:
-#      from_secret: bpm_rest_password
-#  commands:
-#  - mkdir ./config
-#  - >-
-#    (  echo "spring.datasource.url=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}";
-#       echo "spring.datasource.username=$${DATABASE_USER}";
-#       echo "spring.datasource.password=$${DATABASE_PASSWORD}";
-#       echo
-#       echo "opertus-mundi.bpm.worker.rest.base-url = http://bpm-server:8000/engine-rest";
-#       echo "opertus-mundi.bpm.worker.rest.username = $${BPM_REST_USERNAME}";
-#       echo "opertus-mundi.bpm.worker.rest.password = $${BPM_REST_PASSWORD}";
-#       echo
-#       echo "opertusmundi.feign.jwt.secret = $${JWT_SECRET}";
-#    ) > ./config/application-testing.properties
-#  - mvn -B dependency:resolve
-#  - mvn -B test -DenableCiProfile -DenableJavaBuildProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
-#  # Fixme
-#  #- >-
-#  #  mvn -B -pl api-gateway test 
-#  #    -Dtest=eu.opertusmundi.web.integration.ApplicationITCase 
-#  #    -DenableJavaBuildProfile 
-#  #    -DenableCiProfile 
-#  #    -Dlog4j.configurationFile=classpath:config/log4j2.xml
-#
+- name: resolve-deps
+  #image: maven:3.6.3-openjdk-8
+  image: opertusmundi/java-commons-builder:1.0.21
+  when:
+    event:
+    - push
+  environment: {}
+  volumes:
+  - name: maven-repo
+    path: /root/.m2
+  commands:
+  - mvn -B dependency:resolve
+
+- name: generate-configuration-for-testing
+  image: busybox:1.32
+  when:
+    event:
+    - push
+  environment:
+    DATABASE_PASSWORD:
+      from_secret: database_password
+    JWT_SECRET:
+      from_secret: jwt_secret
+    BPM_REST_PASSWORD:
+      from_secret: bpm_rest_password
+  commands:
+  # Generate configuration for testing
+  - cd api-gateway
+  - mkdir ./config
+  - config_file=./config/application-testing.properties 
+  - >-
+    (  echo "spring.datasource.url=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}";
+       echo "spring.datasource.username=$${DATABASE_USER}";
+       echo "spring.datasource.password=$${DATABASE_PASSWORD}";
+       echo
+       echo "opertus-mundi.bpm.worker.rest.base-url = http://bpm-server:8000/engine-rest";
+       echo "opertus-mundi.bpm.worker.rest.username = $${BPM_REST_USERNAME}";
+       echo "opertus-mundi.bpm.worker.rest.password = $${BPM_REST_PASSWORD}";
+       echo
+       echo "opertusmundi.feign.jwt.secret = $${JWT_SECRET}";
+    ) | tee $${config_file}
+
+- name: tests
+  #image: maven:3.6.3-openjdk-8
+  image: opertusmundi/java-commons-builder:1.0.21
+  when:
+    event:
+    - push
+  environment: {}
+  volumes:
+  - name: maven-repo
+    path: /root/.m2
+  commands:
+  - cd api-gateway
+  - ls -hal ./config
+  - >-
+      mvn -B test -DenableCiProfile -DenableJavaBuildProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
+
+- name: integration-tests
+  #image: maven:3.6.3-openjdk-8
+  image: opertusmundi/java-commons-builder:1.0.21
+  when:
+    event:
+    - push
+  environment: {}
+  volumes:
+  - name: maven-repo
+    path: /root/.m2
+  commands:
+  - cd api-gateway
+  - ls -hal ./config
+  # Todo mvn integration-test
+  - >-
+     mvn -B test -DenableJavaBuildProfile -DenableCiProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml -Dtest=eu.opertusmundi.web.integration.ApplicationITCase
+
 - name: prepare-tags
   image: busybox:1.32
   when:
@@ -159,3 +199,10 @@ services:
     POSTGRES_PASSWORD:
       from_secret: database_postgres_password
 
+#
+# Volumes
+#
+
+volumes:
+- name: maven-repo
+  temp: {}   
