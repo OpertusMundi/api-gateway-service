@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
-import eu.opertusmundi.common.model.dto.AccountProfileDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,13 +40,13 @@ public interface ProfileController {
     @Operation(
         operationId = "profile-01",
         summary     = "Get profile",
-        description = "Get profile data for the authenticated user. Roles required: <b>ROLE_USER</b>",
+        description = "Get user data for the authenticated user. Roles required: <b>ROLE_USER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
     )
     @GetMapping(value = "/profile")
-    RestResponse<AccountProfileDto> getProfile();
+    RestResponse<AccountDto> getProfile();
 
     /**
      * Update the profile of the authenticated user
@@ -65,7 +65,7 @@ public interface ProfileController {
     )
     @PostMapping(value = "/profile", consumes = { "application/json" })
     @Validated
-    RestResponse<AccountProfileDto> updateProfile(
+    RestResponse<AccountDto> updateProfile(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Profile update command",
             content = @Content(
