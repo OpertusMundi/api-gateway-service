@@ -20,6 +20,9 @@ public class ConfigurationControllerImpl implements ConfigurationController {
     @Value("${opertus-mundi.authentication-providers:forms}")
     private String authProviders;
 
+    @Value("${opertus-mundi.wordpress.endpoint:}")
+    private String wordPressEndpoint;
+
     @Autowired
     private AssetFileTypeRepository assetFileTypeRepository;
 
@@ -40,6 +43,8 @@ public class ConfigurationControllerImpl implements ConfigurationController {
         this.assetFileTypeRepository.findAllEnabled().parallelStream()
             .map(AssetFileTypeEntity::toDto)
             .forEach(t -> config.getAsset().getFileTypes().add(t));
+
+        config.getWordPress().setEndpoint(wordPressEndpoint);
 
         return config;
     }
