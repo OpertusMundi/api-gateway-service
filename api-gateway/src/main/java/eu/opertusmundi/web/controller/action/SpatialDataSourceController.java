@@ -35,7 +35,7 @@ public interface SpatialDataSourceController {
      */
     @Operation(
         operationId = "spatial-nuts-01",
-        summary     = "Get regions",
+        summary     = "Get regions by code",
         description = "Gets a feature collection of regions specified by the given NUTS codes"
     )
     @ApiResponse(
@@ -56,6 +56,35 @@ public interface SpatialDataSourceController {
     );
     
     /**
+     * Get all regions by NUTS code prefix
+     *
+     * @param code NUTS code prefix
+     *
+     * @return An instance of {@link SpatialDataEndpointTypes#RegionCollectionResponse} class
+     */
+    @Operation(
+        operationId = "spatial-nuts-02",
+        summary     = "Get regions by prefix",
+        description = "Gets a feature collection of regions with an identifier that starts with the specified prefix"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(implementation = SpatialDataEndpointTypes.RegionCollectionResponse.class)
+        )
+    )
+    @GetMapping(value = "/nuts/prefix/{prefix}")
+    RestResponse<?> findAllByPrefix(
+        @Parameter(
+            in = ParameterIn.PATH,
+            required = true,
+            description = "A NUTS code prefix"
+        )
+        @PathVariable(name = "prefix") String prefix
+    );
+
+    /**
      * Get a region
      *
      * @param code NUTS code
@@ -63,8 +92,8 @@ public interface SpatialDataSourceController {
      * @return An instance of {@link SpatialDataEndpointTypes#RegionResponse} class
      */
     @Operation(
-        operationId = "spatial-nuts-02",
-        summary     = "Get region",
+        operationId = "spatial-nuts-03",
+        summary     = "Get region by code",
         description = "Gets the feature of the region specified by the given NUTS code"
     )
     @ApiResponse(
@@ -85,7 +114,7 @@ public interface SpatialDataSourceController {
     );
     
     /**
-     * Search regions by name
+     * Search regions by level and name
      *
      * @param level Filter by level
      * @param query Filter by name
@@ -93,7 +122,7 @@ public interface SpatialDataSourceController {
      * @return An instance of {@link SpatialDataEndpointTypes#AutoCompleteRegionResponse} class
      */
     @Operation(
-        operationId = "spatial-nuts-03",
+        operationId = "spatial-nuts-04",
         summary     = "Find by name",
         description = "Searches the NUTS regions of the specified level based on their name. "
                     + "Both local (`name`) and latin (`nameLatin`) fields are searched"
@@ -128,7 +157,7 @@ public interface SpatialDataSourceController {
      * @param bbox A bounding box
      */
     @Operation(
-        operationId = "spatial-nuts-04",
+        operationId = "spatial-nuts-05",
         summary     = "WFS service",
         description = "Implements a pseudo-WFS service for each level of the NUTS regions. "
                     + "All WFS parameters except for the `bbox` are ignored. The CRS is always set to`EPSG:4326`. "
