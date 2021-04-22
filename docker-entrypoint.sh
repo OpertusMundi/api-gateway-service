@@ -19,8 +19,8 @@ function _validate_database_url()
 
 function _generate_configuration_for_self()
 {
-    base_url=$(echo ${BASE_URL} | _validate_http_url "BASE_URL")
-    echo "opertus-mundi.base-url = ${base_url}"
+    public_url=$(echo ${PUBLIC_URL} | _validate_http_url "PUBLIC_URL")
+    echo "opertus-mundi.base-url = ${public_url}"
 }
 
 function _generate_configuration_for_datasource()
@@ -65,7 +65,7 @@ function _generate_configuration_for_clients()
         cat ${RATING_PASSWORD_FILE}; } | tr -d '\n' || echo -n)
 
     profile_base_url=$(echo ${PROFILE_BASE_URL} | _validate_http_url "PROFILE_BASE_URL")
-    
+
     pid_base_url=$(echo ${PID_BASE_URL} | _validate_http_url "PID_BASE_URL")
 
     cat <<-EOD

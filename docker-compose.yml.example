@@ -32,7 +32,7 @@ services:
       target: /var/local/opertusmundi/ingest/input
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Xms256m -Djava.security.egd=file:///dev/urandom'
-      BASE_URL: ${BASE_URL}
+      PUBLIC_URL: ${PUBLIC_URL}
       DATABASE_URL: ${DATABASE_URL}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD_FILE: /secrets/database-password

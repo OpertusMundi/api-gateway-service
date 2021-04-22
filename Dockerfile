@@ -1,8 +1,18 @@
 # vim: set syntax=dockerfile:
 
-#FROM maven:3.6.3-openjdk-8 as build-stage-1
+FROM node:10.16.3-buster AS npm-build
+
+ENV NPM_CONFIG_PROGRESS="false" \
+    NPM_CONFIG_SPIN="false"
+
+WORKDIR /app
+COPY api-gateway/src/main/frontend /app/
+RUN npm install && npm run build
+
+
+#FROM maven:3.6.3-openjdk-8 as maven-build
 # see https://github.com/OpertusMundi/java-commons/blob/master/Dockerfile
-FROM opertusmundi/java-commons-builder:1.0.22 as build-stage-1
+FROM opertusmundi/java-commons-builder:1.0.22 as maven-build
 
 WORKDIR /app
 
@@ -14,23 +24,18 @@ COPY api-gateway/pom.xml /app/api-gateway/
 RUN mvn -B dependency:resolve-plugins dependency:resolve
 RUN mvn -B -pl api-gateway dependency:copy-dependencies -DincludeScope=runtime
 
-COPY api-gateway/src/main/frontend /app/api-gateway/src/main/frontend/
-RUN mvn -B -pl api-gateway \
-    frontend:install-node-and-npm@install-node-and-npm \
-    frontend:npm@npm-install \
-    frontend:npm@npm-run-build
-
 # note: access to .git directory is needed only by Git-Commit-Id-Plugin Maven plugin 
 COPY .git /app/.git
 COPY api-gateway/src/main/resources /app/api-gateway/src/main/resources
 COPY api-gateway/src/main/java /app/api-gateway/src/main/java
 COPY api-gateway/resources /app/api-gateway/resources
+COPY --from=npm-build /app/dist /app/api-gateway/src/main/frontend/dist/
 RUN mvn -B compile -DenableJavaBuildProfile -DenableDockerBuildProfile
 
 
 FROM openjdk:8-jre-alpine
 
-COPY --from=build-stage-1 /app/api-gateway/target/ /app/
+COPY --from=maven-build /app/api-gateway/target/ /app/
 
 RUN addgroup spring && adduser -H -D -G spring spring
 
@@ -43,7 +48,8 @@ RUN mkdir config logs \
     && chgrp spring config logs \
     && chmod g=rwx config logs
 
-ENV DATABASE_URL="jdbc:postgresql://db:5432/opertusmundi" \
+ENV PUBLIC_URL="" \
+    DATABASE_URL="jdbc:postgresql://db:5432/opertusmundi" \
     DATABASE_USERNAME="spring" \
     DATABASE_PASSWORD_FILE="/secrets/database-password" \
     JWT_SECRET_FILE="/secrets/jwt-signing-key" \
@@ -73,3 +79,4 @@ VOLUME [ \
 
 USER spring
 ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
+
