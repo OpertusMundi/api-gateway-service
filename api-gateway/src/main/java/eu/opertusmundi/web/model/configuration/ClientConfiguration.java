@@ -9,6 +9,7 @@ import eu.opertusmundi.common.model.pricing.PricingModelSettings;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Application configuration settings
@@ -29,6 +30,11 @@ public class ClientConfiguration {
     @Getter
     private final AssetConfiguration asset = new AssetConfiguration();
 
+
+    @Schema(description = "WordPress configuration settings")
+    @Getter
+    private final WordPressConfiguration wordPress = new WordPressConfiguration();
+    
     public static class AssetConfiguration {
 
         @ArraySchema(
@@ -51,6 +57,15 @@ public class ClientConfiguration {
         @Getter
         private List<PricingModelSettings> pricingModels = new ArrayList<PricingModelSettings>();
 
+    }
+
+    public static class WordPressConfiguration {
+        
+        @Schema(description = "WordPress instance endpoint")
+        @Getter
+        @Setter
+        private  String endpoint;
+        
     }
 
 }

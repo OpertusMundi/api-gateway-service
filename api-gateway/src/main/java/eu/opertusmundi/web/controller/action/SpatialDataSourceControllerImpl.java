@@ -84,7 +84,9 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
             return RestResponse.success();
         }
         
-        List<NutsRegionFeatureDto> features = nutsRegionRepository.findByCode(codes).stream().map(NutsRegionEntity::toFeature).collect(Collectors.toList());
+        List<NutsRegionFeatureDto> features = nutsRegionRepository.findByCode(codes).stream()
+            .map(NutsRegionEntity::toFeature)
+            .collect(Collectors.toList());
         
         return RestResponse.result(FeatureCollectionDto.of(features));
     }
@@ -105,12 +107,7 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
         if (StringUtils.isBlank(query) || query.length() < 4) {
             return RestResponse.result(new ArrayList<NutsRegionPropertiesDto>());
         }
-        if (!query.startsWith("%")) {
-            query = "%" + query;
-        }
-        if (!query.endsWith("%")) {
-            query += "%";
-        }
+
         final List<NutsRegionPropertiesDto> result = this.nutsRegionRepository.findAllByNameContainsAndLevel(query, level).stream()
             .map(NutsRegionEntity::toProperties)
             .collect(Collectors.toList());
@@ -118,6 +115,19 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
         return RestResponse.result(result);
     }
 
+    @Override
+    public RestResponse<?> findAllByPrefix(String prefix) {
+        if (StringUtils.isBlank(prefix) || prefix.length() < 2) {
+            return RestResponse.result(new ArrayList<NutsRegionPropertiesDto>());
+        }
+
+        final List<NutsRegionFeatureDto> features = this.nutsRegionRepository.findAllByCodeStartsWith(prefix, prefix).stream()
+            .map(NutsRegionEntity::toFeature)
+            .collect(Collectors.toList());
+       
+        return RestResponse.result(FeatureCollectionDto.of(features));
+    }
+    
     @Override
     public void wfs(Integer level, String bbox, boolean includeGeometry, HttpServletRequest request, HttpServletResponse response) {
         try {

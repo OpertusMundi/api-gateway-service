@@ -30,9 +30,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import eu.opertusmundi.common.model.BasicMessageCode;
+import eu.opertusmundi.common.model.EnumActivationStatus;
+import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.Message.EnumLevel;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountCommandDto;
+import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.dto.AccountProfileDto;
 import eu.opertusmundi.common.repository.AccountRepository;
@@ -128,9 +131,9 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
             .andReturn();
 
 
-        final String                          content  = result.getResponse().getContentAsString();
-        final RestResponse<AccountProfileDto> response = this.objectMapper.readValue(content,
-            new TypeReference<RestResponse<AccountProfileDto>>() { }
+        final String                   content  = result.getResponse().getContentAsString();
+        final RestResponse<AccountDto> response = this.objectMapper.readValue(content,
+            new TypeReference<RestResponse<AccountDto>>() { }
         );
 
         // Assert
@@ -138,13 +141,29 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
         assertThat(response.getSuccess()).isTrue();
         assertThat(response.getMessages()).isEmpty();
 
-        final AccountProfileDto profile = response.getResult();
+        final AccountDto account = response.getResult();
+
+        assertThat(account).isNotNull();
+        assertThat(account.getEmail()).isEqualTo("user@opertusmundi.eu");
+        assertThat(account.getUsername()).isEqualTo("user@opertusmundi.eu");
+        assertThat(account.getActivationStatus()).isEqualTo(EnumActivationStatus.PENDING);
+        assertThat(account.getActivatedAt()).isNull();
+        assertThat(account.getEmailVerifiedAt()).isNull();
+        assertThat(account.isEmailVerified()).isFalse();
+        assertThat(account.getKey()).isNotNull();
+        assertThat(account.getPassword()).isNull();
+        assertThat(account.getRegisteredAt()).isNotNull();
+        assertThat(account.getRoles()).hasSize(1);
+        assertThat(account.getRoles()).contains(EnumRole.ROLE_USER);
+        
+        final AccountProfileDto profile = account.getProfile();
 
         assertThat(profile).isNotNull();
         assertThat(profile.getFirstName()).isEqualTo("Demo");
         assertThat(profile.getLastName()).isEqualTo("User");
         assertThat(profile.getLocale()).isEqualTo("en");
         assertThat(profile.getMobile()).isEqualTo("+306900000000");
+        assertThat(profile.getModifiedOn()).isEqualTo(account.getRegisteredAt());
         assertThat(profile.getModifiedOn()).isNotNull();
     }
 
@@ -171,10 +190,10 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
             .andExpect(jsonPath("$.exception").doesNotExist())
             .andExpect(jsonPath("$.message").doesNotExist())
             .andExpect(jsonPath("$.result").exists())
-            .andExpect(jsonPath("$.result.phone").value(command.getPhone()))
-            .andExpect(jsonPath("$.result.firstName").value(command.getFirstName()))
-            .andExpect(jsonPath("$.result.lastName").value(command.getLastName()))
-            .andExpect(jsonPath("$.result.mobile").value(command.getMobile()));
+            .andExpect(jsonPath("$.result.profile.phone").value(command.getPhone()))
+            .andExpect(jsonPath("$.result.profile.firstName").value(command.getFirstName()))
+            .andExpect(jsonPath("$.result.profile.lastName").value(command.getLastName()))
+            .andExpect(jsonPath("$.result.profile.mobile").value(command.getMobile()));
     }
 
     @Test

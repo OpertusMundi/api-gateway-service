@@ -15,7 +15,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Locale;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +31,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -45,7 +43,6 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumActivationStatus;
 import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.EnumRole;
-import eu.opertusmundi.common.model.Message.EnumLevel;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
 import eu.opertusmundi.common.model.dto.AccountCommandDto;
@@ -483,75 +480,6 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.result.csrfHeader").value("X-CSRF-TOKEN"))
             .andExpect(jsonPath("$.result.csrfToken").isNotEmpty());
     }
-
-    @Test
-    @Order(60)
-    @Tag(value = "Controller")
-    @DisplayName(value = "When get user data for anonymous user, return 403")
-    void whenAnonymousGetUserData_return403() throws Exception {
-        this.mockMvc.perform(get("/action/account/user-data")
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden())
-            .andExpect(jsonPath("$.success").isBoolean())
-            .andExpect(jsonPath("$.success").value(false))
-            .andExpect(jsonPath("$.messages").isArray())
-            .andExpect(jsonPath("$.messages", hasSize(1)))
-            .andExpect(jsonPath("$.messages[0].code").value(BasicMessageCode.Forbidden.key()))
-            .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
-            .andExpect(jsonPath("$.messages[0].description").value(
-                this.messageSource.getMessage(BasicMessageCode.Forbidden.key(), null, Locale.getDefault()))
-            )
-            .andExpect(jsonPath("$.exception").doesNotExist())
-            .andExpect(jsonPath("$.message").doesNotExist());
-    }
-
-    @Test
-    @Order(61)
-    @Tag(value = "Controller")
-    @DisplayName(value = "When get user data for authenticated user, return user data")
-    @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
-    void whenGetUserData_returnAccount() throws Exception {
-        final MvcResult result = this.mockMvc.perform(get("/action/account/user-data")
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-
-        final String                   content  = result.getResponse().getContentAsString();
-        final RestResponse<AccountDto> response = this.objectMapper.readValue(content, new TypeReference<RestResponse<AccountDto>>() { });
-
-        // Assert
-        assertThat(response).isNotNull();
-        assertThat(response.getSuccess()).isTrue();
-        assertThat(response.getMessages()).isEmpty();
-
-        final AccountDto account = response.getResult();
-
-        assertThat(account).isNotNull();
-        assertThat(account.getEmail()).isEqualTo("user@opertusmundi.eu");
-        assertThat(account.getUsername()).isEqualTo("user@opertusmundi.eu");
-        assertThat(account.getActivationStatus()).isEqualTo(EnumActivationStatus.COMPLETED);
-        assertThat(account.getActivatedAt()).isNotNull();
-        assertThat(account.getEmailVerifiedAt()).isNotNull();
-        assertThat(account.isEmailVerified()).isTrue();
-        assertThat(account.getKey()).isNotNull();
-        assertThat(account.getPassword()).isNull();
-        assertThat(account.getRegisteredAt()).isNotNull();
-        assertThat(account.getRoles()).hasSize(1);
-        assertThat(account.getRoles()).contains(EnumRole.ROLE_USER);
-
-        final AccountProfileDto profile = account.getProfile();
-
-        assertThat(profile).isNotNull();
-        assertThat(profile.getFirstName()).isEqualTo("Demo");
-        assertThat(profile.getLastName()).isEqualTo("User");
-        assertThat(profile.getLocale()).isEqualTo("el");
-        assertThat(profile.getMobile()).isEqualTo("+30690000000");
-        assertThat(profile.getModifiedOn()).isEqualTo(account.getRegisteredAt());
-    }
-
 
     int countRowsInTable(String tableName) {
         return JdbcTestUtils.countRowsInTable(this.jdbcTemplate, tableName);

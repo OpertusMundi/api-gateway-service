@@ -85,15 +85,4 @@ public class AccountControllerImpl extends BaseController implements AccountCont
         return RestResponse.error(response.getMessages());
     }
 
-    @Override
-    public RestResponse<AccountDto> getUserData() {
-        final String email = this.authenticationFacade.getCurrentUserEmail();
-
-        // Refresh profile for each request since the account object stored in the
-        // security context may have stale data
-        final AccountDto account = this.userService.findOneByUserName(email).orElse(null);
-
-        return RestResponse.result(account);
-    }
-
 }
