@@ -24,8 +24,6 @@ COPY api-gateway/pom.xml /app/api-gateway/
 RUN mvn -B dependency:resolve-plugins dependency:resolve
 RUN mvn -B -pl api-gateway dependency:copy-dependencies -DincludeScope=runtime
 
-# note: access to .git directory is needed only by Git-Commit-Id-Plugin Maven plugin 
-COPY .git /app/.git
 COPY api-gateway/src/main/resources /app/api-gateway/src/main/resources
 COPY api-gateway/src/main/java /app/api-gateway/src/main/java
 COPY api-gateway/resources /app/api-gateway/resources

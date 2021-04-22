@@ -19,13 +19,12 @@
 	<properties>
 		<frontend.skip>false</frontend.skip>
 		<frontend-maven-plugin.version>1.11.3</frontend-maven-plugin.version>
-
 		<spring-cloud.version>Hoxton.SR8</spring-cloud.version>
-
 		<org.camunda.bpm.version>7.13.0</org.camunda.bpm.version>
 		<org.jadira.usertype.core.version>6.0.1.GA</org.jadira.usertype.core.version>
 		<org.joda.joda-money.version>1.0.1</org.joda.joda-money.version>
 		<springdoc.version>1.5.4</springdoc.version>
+        <git-commit-id.skip>false</git-commit-id.skip>
 	</properties>
 
 	<profiles>
@@ -48,6 +47,9 @@
                     <name>enableCiProfile</name>
                 </property>
             </activation>
+			<properties>
+                <git-commit-id.skip>true</git-commit-id.skip>
+			</properties>
             <build>
                 <plugins>
                     <plugin>
@@ -81,6 +83,9 @@
                     <name>enableDockerBuildProfile</name>
                 </property>
             </activation>
+			<properties>
+                <git-commit-id.skip>true</git-commit-id.skip>
+			</properties>
             <build>
                 <plugins>
                     <plugin>
@@ -387,7 +392,8 @@
 					</execution>
 				</executions>
 				<configuration>
-					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<skip>${git-commit-id.skip}</skip>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 					<includeOnlyProperties>
 						<includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
