@@ -484,7 +484,7 @@
 									<directory>${project.basedir}/src/main/frontend/dist</directory>
 									<filtering>false</filtering>
 									<includes>
-										<exclude>index.html</exclude>
+										<include>index.html</include>
 									</includes>
 								</resource>
 							</resources>
