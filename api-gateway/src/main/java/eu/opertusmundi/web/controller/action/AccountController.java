@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountCommandDto;
-import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.security.AccountRegisterResponse;
@@ -189,23 +188,5 @@ public interface AccountController {
         )
         UUID token
     );
-
-    /**
-     * Get user data
-     *
-     * @return User data
-     */
-    @Operation(
-        operationId = "account-03",
-        summary     = "Get user data",
-        description = "Get user data. Roles required: <b>ROLE_USER</b>",
-        security    = {
-            @SecurityRequirement(name = "cookie")
-        }
-    )
-    @GetMapping(value = "/action/account/user-data")
-    @Secured({"ROLE_USER"})
-    RestResponse<AccountDto> getUserData();
-
 
 }
