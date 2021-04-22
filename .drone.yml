@@ -169,7 +169,7 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
-    repo: opertusmundi/api-gateway-service
+    repo: opertusmundi/api-gateway
     mirror: http://registry-mirror:5000
 
 - name: publish-image-2
@@ -183,7 +183,7 @@ steps:
       from_secret: registry_username
     password:
       from_secret: registry_password
-    repo: registry-dev-1-opertusmundi:30474/opertusmundi/api-gateway-service
+    repo: registry-dev-1-opertusmundi:30474/opertusmundi/api-gateway
     mirror: http://registry-mirror:5000
     registry: registry-dev-1-opertusmundi:30474
 

@@ -4,7 +4,7 @@ version: '3.6'
 services:
 
   'app':
-    image: 'opertusmundi/api-gateway-service:${VERSION}'
+    image: 'opertusmundi/api-gateway:${VERSION}'
     build:
       context: .
     volumes:
@@ -58,7 +58,6 @@ services:
     networks:
       opertusmundi_network:
         aliases:
-        - 'api-gateway'
         - 'api'
         - 'web'
 
