@@ -342,6 +342,13 @@
 			<version>${org.jadira.usertype.core.version}</version>
 		</dependency>
 	
+		<!-- Spring Cloud -->
+		<dependency>
+		    <groupId>javax.ws.rs</groupId>
+		    <artifactId>javax.ws.rs-api</artifactId>
+		    <version>2.1.1</version>
+		</dependency>
+		
 		<!-- Tracing -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
