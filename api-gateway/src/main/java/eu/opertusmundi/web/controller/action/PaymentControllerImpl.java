@@ -89,6 +89,10 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
     public RestResponse<?> completeCardRegistration(CardRegistrationCommandDto command, BindingResult validationResult) {
         command.setUserKey(this.currentUserKey());
 
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+        
         final String cardId = this.paymentService.registerCard(command);
 
         return RestResponse.result(cardId);
@@ -98,6 +102,10 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
     public RestResponse<?> createCardDirectPayIn(
         UUID orderKey, CardDirectPayInCommandDto command, BindingResult validationResult, HttpSession session
     ) {
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
         final CardDirectPayInCommand payInCommand = CardDirectPayInCommand.builder()
             .userKey(this.currentUserKey())
             .orderKey(orderKey)
