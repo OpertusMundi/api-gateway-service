@@ -9,6 +9,4 @@ public class MappedDiagnosticContextKeys
 
     public static String ERROR_CODE = "error.code";
 
-    public static String ERROR_CATEGORY = "error.category";
-
 }
