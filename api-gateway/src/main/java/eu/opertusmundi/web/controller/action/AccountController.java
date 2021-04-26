@@ -21,6 +21,7 @@ import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.security.AccountRegisterResponse;
+import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import eu.opertusmundi.web.model.security.Token;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -189,4 +190,41 @@ public interface AccountController {
         UUID token
     );
 
+    /**
+     * Change password for authenticated user
+     * 
+     * @param command Password change command
+     * @param validationResult
+     * @return
+     */
+    @Operation(
+        operationId = "account-07",
+        summary     = "Change password",
+        description = "Change password for authenticated user. Required role: `ROLE_USER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description  = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
+    )
+    @PostMapping(value = "/action/account/password/change")
+    @Secured({"ROLE_USER"})
+    @Validated
+    BaseResponse changePassword(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Password change command",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = PasswordChangeCommandDto.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        PasswordChangeCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
 }

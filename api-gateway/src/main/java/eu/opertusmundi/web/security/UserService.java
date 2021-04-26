@@ -15,6 +15,7 @@ import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
 import eu.opertusmundi.web.model.security.CreateAccountResult;
+import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 
 public interface UserService {
 
@@ -85,5 +86,12 @@ public interface UserService {
      * @param roles
      */
     void revoke(AccountDto account, EnumRole... roles);
+
+    /**
+     * Change password for the authenticated user
+     * 
+     * @param command
+     */
+    void changePassword(PasswordChangeCommandDto command);
 
 }

@@ -11,7 +11,10 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -38,6 +41,7 @@ import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
 import eu.opertusmundi.web.model.email.MailActivationModel;
 import eu.opertusmundi.web.model.security.CreateAccountResult;
+import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import feign.FeignException;
 
 @Service
@@ -242,6 +246,29 @@ public class DefaultUserService implements UserService {
         }
 
         this.accountRepository.saveAndFlush(accountEntity.get());
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(PasswordChangeCommandDto command) {
+        final AccountEntity account = this.accountRepository.findOneByUsername(command.getUserName()).orElse(null);
+
+        if (account == null) {
+            throw new UsernameNotFoundException(command.getUserName());
+        }
+
+        final PasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (!encoder.matches(command.getCurrentPassword(), account.getPassword())) {
+            throw new BadCredentialsException(command.getUserName());
+        }
+
+        account.setPassword(encoder.encode(command.getNewPassword()));
+        this.accountRepository.saveAndFlush(account);
+
+        // TODO: Send mail
+        
+        logger.info("Password changed for user {}", account.getUserName());
     }
 
     private void sendMail(String name, ActivationTokenDto token) {

@@ -7,11 +7,14 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.BaseResponse;
+import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
@@ -19,9 +22,11 @@ import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
+import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import eu.opertusmundi.web.model.security.Token;
 import eu.opertusmundi.web.security.UserService;
 import eu.opertusmundi.web.validation.AccountValidator;
+import eu.opertusmundi.web.validation.PasswordCommandValidator;
 
 @RestController
 public class AccountControllerImpl extends BaseController implements AccountController {
@@ -33,6 +38,9 @@ public class AccountControllerImpl extends BaseController implements AccountCont
 
     @Autowired
     private AccountValidator accountValidator;
+
+    @Autowired
+    private PasswordCommandValidator passwordCommandValidator;
 
     @Override
     public RestResponse<Token> loggedIn(HttpSession session, CsrfToken token) {
@@ -85,4 +93,25 @@ public class AccountControllerImpl extends BaseController implements AccountCont
         return RestResponse.error(response.getMessages());
     }
 
+    @Override
+    public BaseResponse changePassword(PasswordChangeCommandDto command, BindingResult validationResult) {
+        logger.info("Password change request {}", this.currentUserKey());
+
+        try {
+            command.setUserName(this.currentUserEmail());
+
+            this.passwordCommandValidator.validate(command, validationResult);
+
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors());
+            }
+
+            this.userService.changePassword(command);
+
+            return RestResponse.success();
+        } catch (UsernameNotFoundException | BadCredentialsException ex) {
+            return RestResponse.failure(BasicMessageCode.Forbidden, "Access Denied");
+        }
+    }
+        
 }

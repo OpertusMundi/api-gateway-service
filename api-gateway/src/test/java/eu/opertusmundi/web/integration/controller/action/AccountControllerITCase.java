@@ -15,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +32,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -43,6 +49,7 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumActivationStatus;
 import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.EnumRole;
+import eu.opertusmundi.common.model.Message.EnumLevel;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
 import eu.opertusmundi.common.model.dto.AccountCommandDto;
@@ -52,6 +59,7 @@ import eu.opertusmundi.common.model.dto.AccountProfileDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTestWithSecurity;
+import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import eu.opertusmundi.web.security.UserService;
 import eu.opertusmundi.web.utils.ReturnValueCaptor;
 
@@ -481,6 +489,97 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.result.csrfToken").isNotEmpty());
     }
 
+    @Test
+    @Tag(value = "Controller")
+    @DisplayName(value = "When changing password for anonymous user, return 403")
+    @WithAnonymousUser
+    @Order(60)
+    void whenAnonymousUserChangePassword_return403() throws Exception {
+        // Create command
+        final PasswordChangeCommandDto command = new PasswordChangeCommandDto();
+        command.setCurrentPassword("password");
+        command.setNewPassword("new-password");
+        command.setVerifyNewPassword("new-password");
+
+        this.mockMvc.perform(post("/action/account/password/change")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(this.objectMapper.writeValueAsString(command)))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.success").isBoolean())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.messages").isArray())
+            .andExpect(jsonPath("$.messages", hasSize(1)))
+            .andExpect(jsonPath("$.messages[0].code").value(BasicMessageCode.Forbidden.key()))
+            .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
+            .andExpect(jsonPath("$.messages[0].description").value(
+                this.messageSource.getMessage(BasicMessageCode.Forbidden.key(), null, Locale.getDefault()))
+            )
+            .andExpect(jsonPath("$.exception").doesNotExist())
+            .andExpect(jsonPath("$.message").doesNotExist());
+    }
+    
+    @Test
+    @Tag(value = "Controller")
+    @DisplayName(value = "When changing password for authenticated user with invalid credentials, return error")
+    @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
+    @Order(61)
+    void whenAuthetnicatedUserChangePasswordWithInvalidCurrentPassword_returnError() throws Exception {
+        // Create command
+        final PasswordChangeCommandDto command = new PasswordChangeCommandDto();
+        command.setCurrentPassword("wrong-password");
+        command.setNewPassword("new-password");
+        command.setVerifyNewPassword("new-password");
+        
+        this.mockMvc.perform(post("/action/account/password/change")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(this.objectMapper.writeValueAsString(command)))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").isBoolean())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.messages").isArray())
+            .andExpect(jsonPath("$.messages", hasSize(1)))
+            .andExpect(jsonPath("$.messages[0].code").value(BasicMessageCode.Forbidden.key()))
+            .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
+            .andExpect(jsonPath("$.messages[0].description").value("Access Denied"))
+            .andExpect(jsonPath("$.exception").doesNotExist())
+            .andExpect(jsonPath("$.message").doesNotExist());
+    }
+    
+    @Test
+    @Tag(value = "Controller")
+    @DisplayName(value = "When changing password for authenticated user with valid credentials, return 200")
+    @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
+    @Order(62)
+    void whenAuthetnicatedUserChangePasswordWithValidCurrentPassword_return200() throws Exception {
+        // Create command
+        final String                   email    = "user@opertusmundi.eu";
+        final String                   password = "new-password";
+        final PasswordChangeCommandDto command  = new PasswordChangeCommandDto();
+                
+        command.setCurrentPassword("password");
+        command.setNewPassword("new-password");
+        command.setVerifyNewPassword("new-password");
+        
+        this.mockMvc.perform(post("/action/account/password/change")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(this.objectMapper.writeValueAsString(command)))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").isBoolean())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.messages").isArray())
+            .andExpect(jsonPath("$.messages", hasSize(0)));
+        
+        final PasswordEncoder      encoder = new BCryptPasswordEncoder();
+        final Optional<AccountDto> account = this.userService.findOneByUserName(email);
+
+        // Asset password is saved
+        assertThat(account.isPresent()).isTrue();
+        assertThat(encoder.matches(password, account.get().getPassword())).isTrue();
+    }
+    
     int countRowsInTable(String tableName) {
         return JdbcTestUtils.countRowsInTable(this.jdbcTemplate, tableName);
     }
