@@ -81,7 +81,14 @@ public interface SpatialDataSourceController {
             required = true,
             description = "A NUTS code prefix"
         )
-        @PathVariable(name = "prefix") String prefix
+        @PathVariable(name = "prefix") String prefix,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "The max level (inclusive) of the NUTS regions in the result.If not set, all regions are returned",
+            schema = @Schema(type = "integer", minimum = "0")
+        )
+        @RequestParam(name = "maxLevel", required = false) Long maxLevel
     );
 
     /**

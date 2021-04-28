@@ -116,12 +116,16 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
     }
 
     @Override
-    public RestResponse<?> findAllByPrefix(String prefix) {
+    public RestResponse<?> findAllByPrefix(String prefix, Long maxLevel) {
         if (StringUtils.isBlank(prefix) || prefix.length() < 2) {
             return RestResponse.result(new ArrayList<NutsRegionPropertiesDto>());
         }
+        
+        if (maxLevel != null && maxLevel < 0) {
+            maxLevel = null;
+        }
 
-        final List<NutsRegionFeatureDto> features = this.nutsRegionRepository.findAllByCodeStartsWith(prefix, prefix).stream()
+        final List<NutsRegionFeatureDto> features = this.nutsRegionRepository.findAllByCodeStartsWith(prefix, prefix, maxLevel).stream()
             .map(NutsRegionEntity::toFeature)
             .collect(Collectors.toList());
        

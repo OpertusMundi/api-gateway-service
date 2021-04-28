@@ -28,14 +28,12 @@
 		<geotools.version>24.0</geotools.version>
 		<hibernate.version>5.4.21.Final</hibernate.version>
 		<hibernate-spatial.version>5.4.21.Final</hibernate-spatial.version>
-		<jackson-datatype-jts.version>2.4</jackson-datatype-jts.version>
-		<log4j2.version>2.13.3</log4j2.version>
 		<org.locationtech.jts.version>1.17.1</org.locationtech.jts.version>
 		<org.locationtech.jts.spatial4j.version>0.7</org.locationtech.jts.spatial4j.version>
 		<postgresql.version>42.2.19</postgresql.version>
 		<spring-boot.version>2.3.4.RELEASE</spring-boot.version>
 
-		<java-commons.version>1.0.26</java-commons.version>
+		<java-commons.version>1.0.27</java-commons.version>
 
 		<!-- Plugin versions -->
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
