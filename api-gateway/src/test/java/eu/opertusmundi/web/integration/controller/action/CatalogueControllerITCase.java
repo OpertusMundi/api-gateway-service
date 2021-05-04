@@ -6,7 +6,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,7 +36,6 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
 import eu.opertusmundi.web.utils.ResponsePayload;
@@ -121,13 +119,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
     @Tag(value = "Controller")
     @DisplayName(value = "When searching with any valid query, returns data")
     void whenSearchWithValidQuery_returnData() throws Exception {
-        final CatalogueAssetQuery query = new CatalogueAssetQuery();
-        query.setQuery("test");
-        query.setSize(10);
-
-        final MvcResult mvcResult = this.mockMvc.perform(post("/action/catalogue")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(this.objectMapper.writeValueAsString(query)))
+        final MvcResult mvcResult = this.mockMvc.perform(get("/action/catalogue?page=0&size=10&query=test"))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
@@ -155,13 +147,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
     @Tag(value = "Controller")
     @DisplayName(value = "When query selects no items, returns empty result")
     void whenQueryThatSelectsNoItems_returnError() throws Exception {
-        final CatalogueAssetQuery query = new CatalogueAssetQuery();
-        query.setQuery("nothing");
-        query.setSize(10);
-
-        final MvcResult mvcResult = this.mockMvc.perform(post("/action/catalogue")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(this.objectMapper.writeValueAsString(query)))
+        final MvcResult mvcResult = this.mockMvc.perform(get("/action/catalogue?page=0&size=10&query=nothing"))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();

@@ -2,6 +2,7 @@ package eu.opertusmundi.web.controller.action;
 
 import javax.validation.Valid;
 
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
@@ -15,12 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestImportCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
+import eu.opertusmundi.common.model.catalogue.elastic.ElasticAssetQuery;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,14 +61,35 @@ public interface CatalogueController {
             mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
         )
     )
-    @PostMapping(value = "/catalogue", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/catalogue")
     RestResponse<?> findAll(
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Search criteria",
-            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueAssetQuery.class)),
-            required = true
+        @ParameterObject()
+        CatalogueAssetQuery query
+    );
+
+    /**
+     * Search catalogue published items using Elasticsearch
+     *
+     * @param request The search criteria
+     * @return An instance of {@link CatalogueClientCollectionResponse} class
+     */
+    @Operation(
+        operationId = "catalogue-02",
+        summary     = "Search assets using elastic",
+        description = "Search catalogue published items based on one or more criteria using Elasticsearch. "
+                    + "Supports data paging and sorting."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
         )
-        @RequestBody CatalogueAssetQuery query
+    )
+    @GetMapping(value = "/catalogue/advanced")
+    RestResponse<?> findAllAdvanced(
+        @ParameterObject()
+        ElasticAssetQuery query
     );
 
     /**
@@ -76,7 +99,7 @@ public interface CatalogueController {
      * @return A response with a result of type {@link CatalogueItemDto}
      */
     @Operation(
-        operationId = "catalogue-02",
+        operationId = "catalogue-03",
         summary     = "Get asset",
         description = "Get a single catalogue item by its unique identifier."
     )
@@ -97,13 +120,13 @@ public interface CatalogueController {
 
     /**
      * Harvest catalogue
-     * 
+     *
      * @param command Harvest operation settings
      * @return
      */
     @Operation(
-        operationId = "catalogue-03",
-        summary     = "Harvest catalogue", 
+        operationId = "catalogue-04",
+        summary     = "Harvest catalogue",
         description = "Harvest catalogue for metadata. The user can optionally select the type of the "
                     + "catalogue. If type is not set, the default `EnumCatalogueType.CSW` value is used. "
                     + "Required roles: <b>ROLE_PROVIDER</b>"
@@ -122,7 +145,7 @@ public interface CatalogueController {
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Harvest operation settings",
             content = @Content(
-                mediaType = MediaType.APPLICATION_JSON_VALUE, 
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(implementation = CatalogueHarvestCommandDto.class)
             ),
             required = true
@@ -133,7 +156,7 @@ public interface CatalogueController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Search catalogue harvested items
      *
@@ -144,9 +167,9 @@ public interface CatalogueController {
      * @return An instance of {@link CatalogueClientCollectionResponse} class
      */
     @Operation(
-        operationId = "catalogue-04",
+        operationId = "catalogue-05",
         summary     = "Search harvested assets",
-        description = "Search external catalgoue harvested items. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Search external catalogue harvested items. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -181,18 +204,18 @@ public interface CatalogueController {
             required = true,
             description = "Page size"
         )
-        @RequestParam(name = "size", defaultValue = "10") int pageSize        
+        @RequestParam(name = "size", defaultValue = "10") int pageSize
     );
-    
+
     /**
      * Create drafts for items harvested from an external catalogue
-     * 
+     *
      * @param command Import operation settings
      * @return
      */
     @Operation(
-        operationId = "catalogue-05",
-        summary     = "Import drafts", 
+        operationId = "catalogue-06",
+        summary     = "Import drafts",
         description = "Create drafts from items harvested from an external catalogue. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
@@ -209,7 +232,7 @@ public interface CatalogueController {
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Import operation settings",
             content = @Content(
-                mediaType = MediaType.APPLICATION_JSON_VALUE, 
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(implementation = CatalogueHarvestImportCommandDto.class)
             ),
             required = true

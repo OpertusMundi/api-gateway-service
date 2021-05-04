@@ -58,7 +58,7 @@ public interface PaymentController {
         summary     = "Checkout",
         description = "Create a new order from the content of the authenticated user's cart. If operation "
                     + "is successful, an instance of `CheckoutOrderResponse` is returned with the new order; Otherwise "
-                    + "an instance of `BaseResponse` is returned with one or more error messages. Moreover, the cart is"
+                    + "an instance of `BaseResponse` is returned with one or more error messages. Moreover, the cart is "
                     + "reset at the server. Roles required: <b>ROLE_CONSUMER</b>"
     )
     @ApiResponse(

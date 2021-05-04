@@ -16,6 +16,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestImportCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.elastic.ElasticAssetQuery;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.CatalogueService;
 import eu.opertusmundi.common.service.ProviderAssetService;
@@ -25,7 +26,7 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
 
     @Autowired
     private CatalogueService catalogueService;
-    
+
     @Autowired
     private ProviderAssetService providerAssetService;
 
@@ -33,6 +34,17 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     public RestResponse<?> findAll(CatalogueAssetQuery request) {
         try {
             final CatalogueResult<CatalogueItemDto> result = catalogueService.findAll(request);
+
+            return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
+        } catch (final CatalogueServiceException ex) {
+            return RestResponse.failure();
+        }
+    }
+
+    @Override
+    public RestResponse<?> findAllAdvanced(ElasticAssetQuery request) {
+        try {
+          final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllAdvanced(request);
 
             return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
         } catch (final CatalogueServiceException ex) {
@@ -78,7 +90,7 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
             return RestResponse.failure();
         }
     }
-    
+
     @Override
     public RestResponse<?> importFromCatalogue(
         CatalogueHarvestImportCommandDto command, BindingResult validationResult
