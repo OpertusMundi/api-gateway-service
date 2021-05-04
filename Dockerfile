@@ -5,8 +5,15 @@ FROM node:10.16.3-buster AS npm-build
 ENV NPM_CONFIG_PROGRESS="false" \
     NPM_CONFIG_SPIN="false"
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN apt-get update && apt-get install -y --no-install-recommends jq moreutils \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
+
 COPY api-gateway/src/main/frontend /app/
+RUN jq -f ./filter-deps-for-prod.jq package.json | sponge package.json
 RUN npm install && npm run build
 
 
