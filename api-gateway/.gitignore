@@ -28,6 +28,8 @@ maven-build.xml
 /src/main/resources/config/*.xml
 /src/main/resources/config/*.yml
 
+/src/main/resources/config/elastic/*
+
 /src/main/resources/config.properties
 /src/main/resources/*.xml
 /src/main/resources/*.yml
