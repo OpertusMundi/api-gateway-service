@@ -18,6 +18,9 @@ import eu.opertusmundi.common.model.asset.AssetAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.EnumAssetAdditionalResource;
 import eu.opertusmundi.common.model.asset.EnumAssetSourceType;
+import eu.opertusmundi.common.model.asset.EnumResourceType;
+import eu.opertusmundi.common.model.asset.FileResourceDto;
+import eu.opertusmundi.common.model.asset.ResourceDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.repository.AssetAdditionalResourceRepository;
@@ -29,7 +32,7 @@ public class DraftValidator implements Validator {
 
     @Autowired
     private AssetFileTypeRepository assetFileTypeRepository;
-    
+
     @Autowired
     private AssetResourceRepository assetResourceRepository;
 
@@ -55,9 +58,9 @@ public class DraftValidator implements Validator {
         if (StringUtils.isBlank(c.getFormat())) {
             return;
         }
-        
-        AssetFileTypeEntity format = this.assetFileTypeRepository.findOneByFormat(c.getFormat()).orElse(null);
-        
+
+        final AssetFileTypeEntity format = this.assetFileTypeRepository.findOneByFormat(c.getFormat()).orElse(null);
+
         if (format == null) {
             e.rejectValue("format", "NotFound");
         } else if (!format.isEnabled()) {
@@ -78,18 +81,41 @@ public class DraftValidator implements Validator {
                 e.rejectValue(String.format("resources[%d]", i), "NotFound");
             }
         }
-        
+
         if(e.hasErrors()) {
             return;
         }
-        
+
+        // Check read-only properties
+        for (int i = 0; i < c.getResources().size(); i++) {
+            final ResourceDto requestResource = c.getResources().get(i);
+            if (requestResource.getType() != EnumResourceType.FILE) {
+                continue;
+            }
+            final FileResourceDto fileRequestResource = (FileResourceDto) requestResource;
+
+            final AssetResourceEntity serverResource = serverResources.stream()
+                .filter(r -> r.getKey().equals(requestResource.getId()))
+                .findFirst().get();
+
+            if (!serverResource.getFileName().equals(fileRequestResource.getFileName())) {
+                e.rejectValue(String.format("resources[%d].fileName", i), "ReadOnly");
+            }
+            if (!serverResource.getSize().equals(fileRequestResource.getSize())) {
+                e.rejectValue(String.format("resources[%d].size", i), "ReadOnly");
+            }
+            if (!serverResource.getCreatedOn().toInstant().equals(fileRequestResource.getModifiedOn().toInstant())) {
+                e.rejectValue(String.format("resources[%d].modifiedOn", i), "ReadOnly");
+            }
+        }
+
         // Check registered resources format
         for (int i = 0; i < requestKeys.size(); i++) {
             final UUID                key       = requestKeys.get(i);
             final AssetResourceEntity resource  = serverResources.stream().filter(r -> r.getKey().equals(key)).findFirst().orElse(null);
             final String              extension = FilenameUtils.getExtension(resource.getFileName());
             final AssetFileTypeEntity format    = this.assetFileTypeRepository.findOneByFormat(resource.getFormat()).orElse(null);
-            
+
             if (format == null) {
                 e.rejectValue(String.format("resources[%d].format", i), "NotFound");
             } else if (!format.isEnabled()) {
@@ -104,11 +130,11 @@ public class DraftValidator implements Validator {
             }
         }
     }
-  
+
     private void validateAdditionalResources(CatalogueItemCommandDto c,  Errors e) {
         final List<AssetAdditionalResourceEntity> resources = this.assetAdditionalResourceRepository
             .findAllResourcesByDraftKey(c.getAssetKey());
-        
+
         final List<UUID> keys = resources.stream().map(r -> r.getKey()).collect(Collectors.toList());
 
         // All file additional resource keys must exist
@@ -117,21 +143,21 @@ public class DraftValidator implements Validator {
             if (r.getType() != EnumAssetAdditionalResource.FILE) {
                 continue;
             }
-            
+
             if (!keys.contains(((AssetFileAdditionalResourceDto) r).getId())) {
                 e.rejectValue(String.format("additionalResources[%d]", i), "NotFound");
             }
-        }  
+        }
     }
 
     private void validatePricingModels(CatalogueItemCommandDto c, Errors e) {
         for (int i = 0; i < c.getPricingModels().size(); i++) {
             try {
                 c.getPricingModels().get(i).validate();
-            } catch (QuotationException ex) {
+            } catch (final QuotationException ex) {
                 e.rejectValue(String.format("pricingModels[%d]", i), ex.getMessage());
             }
         }
     }
-    
+
 }
