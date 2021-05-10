@@ -1,6 +1,6 @@
 {
     "result": {
-        "id": "topio.the-company.62.VECTOR",
+        "id": "topio.the-company.85.VECTOR",
         "type": "Feature",
         "geometry": {
             "type": "Polygon",
@@ -66,50 +66,17 @@
             "parent_id": "",
             "resources": [
                 {
-                    "id": "0d50b83a-2cca-4162-a27b-446ef514bc49",
+                    "id": "ee3d3ca4-7c52-4524-82d1-407eb0c22fd1",
                     "size": 110526,
                     "type": "FILE",
                     "format": "ESRI Shapefile",
                     "category": "VECTOR",
-                    "fileName": "file1.zip",
-                    "modifiedOn": "2021-03-19T13:20:19.723Z"
-                },
-                {
-                    "id": "f57cf0f7-84c1-4acc-a837-d2468b6025e8",
-                    "size": 82110,
-                    "type": "FILE",
-                    "format": "ESRI Shapefile",
-                    "category": "VECTOR",
-                    "fileName": "file2.zip",
-                    "modifiedOn": "2021-03-19T13:20:26.066Z"
-                },
-                {
-                    "id": "b7135534-af4c-4df0-8a26-200de0bd22ad",
-                    "type": "SERVICE",
-                    "endpoint": "opertusmundi/wms?service=WMS&request=GetMap&layers=opertusmundi:0d50b83a-2cca-4162-a27b-446ef514bc49",
-                    "serviceType": "WMS"
-                },
-                {
-                    "id": "012041c8-b4c9-4f59-b1a4-a42829561244",
-                    "type": "SERVICE",
-                    "endpoint": "opertusmundi/ows?service=WFS&request=GetFeature&typeName=opertusmundi:0d50b83a-2cca-4162-a27b-446ef514bc49",
-                    "serviceType": "WFS"
-                },
-                {
-                    "id": "209f2f02-cd45-4ec3-bbf7-ae0a40d53af3",
-                    "type": "SERVICE",
-                    "endpoint": "opertusmundi/wms?service=WMS&request=GetMap&layers=opertusmundi:f57cf0f7-84c1-4acc-a837-d2468b6025e8",
-                    "serviceType": "WMS"
-                },
-                {
-                    "id": "8bb09b6a-ef42-4dcf-a128-16fb95e337a0",
-                    "type": "SERVICE",
-                    "endpoint": "opertusmundi/ows?service=WFS&request=GetFeature&typeName=opertusmundi:f57cf0f7-84c1-4acc-a837-d2468b6025e8",
-                    "serviceType": "WFS"
+                    "filename": "file1.zip",
+                    "modifiedOn": "2021-05-10T12:24:56.841Z"
                 }
             ],
             "conformity": "conformant",
-            "created_at": "2021-03-19T13:24:36.565170",
+            "created_at": "2021-05-10T12:27:53.810514",
             "date_start": null,
             "statistics": {
                 "sales": 0,
@@ -119,6 +86,7 @@
             "visibility": null,
             "accepted_at": null,
             "harvest_json": null,
+            "open_dataset": false,
             "publisher_id": "db50feb4-85d6-46cb-bfe7-b1ca30f43e10",
             "submitted_at": null,
             "suitable_for": [
@@ -130,17 +98,18 @@
             "metadata_date": "2020-06-02",
             "revision_date": "2020-06-02",
             "harvested_from": null,
-            "ingestionInfo": [
+            "ingestion_info": [
                 {
-                    "key": "15fc0180-e34b-487c-af75-ca106141cd02",
-                    "features": 1301,
+                    "key": "ee3d3ca4-7c52-4524-82d1-407eb0c22fd1",
                     "schema": "public",
-                    "tableName": "15fc0180-e34b-487c-af75-ca106141cd02"
+                    "features": 1301,
+                    "endpoints": [],
+                    "tableName": "ee3d3ca4-7c52-4524-82d1-407eb0c22fd1"
                 }
             ],
             "pricing_models": [
                 {
-                    "key": "eb3acfe5-02dc-4faa-bfbf-f6a8f2de1c3a",
+                    "key": "0e95f58b-1ebb-4a48-9b99-4695e84ff405",
                     "type": "FREE",
                     "domainRestrictions": null,
                     "consumerRestrictionCountries": null,
@@ -149,29 +118,29 @@
                     "coverageRestrictionContinents": null
                 },
                 {
-                    "key": "4d628e68-6f3f-46d1-bdb2-163a9b418696",
+                    "key": "d8e3185a-8c92-41ad-966a-c35624f49f08",
                     "type": "FIXED",
                     "yearsOfUpdates": 0,
                     "domainRestrictions": null,
-                    "totalPriceExcludingTax": 200,
+                    "totalPriceExcludingTax": 200.5,
                     "consumerRestrictionCountries": null,
                     "coverageRestrictionCountries": null,
                     "consumerRestrictionContinents": null,
                     "coverageRestrictionContinents": null
                 },
                 {
-                    "key": "fd1f0770-4183-4391-a331-cd4ed057176c",
+                    "key": "175f5f91-536e-4d67-9337-5138660cb0ab",
                     "type": "FIXED",
                     "yearsOfUpdates": 5,
                     "domainRestrictions": null,
-                    "totalPriceExcludingTax": 350,
+                    "totalPriceExcludingTax": 349.99,
                     "consumerRestrictionCountries": null,
                     "coverageRestrictionCountries": null,
                     "consumerRestrictionContinents": null,
                     "coverageRestrictionContinents": null
                 },
                 {
-                    "key": "40cebf65-6129-422c-9637-a279b4674316",
+                    "key": "42d2d995-2ab0-4ee3-bb87-182db11c1dc2",
                     "type": "FIXED_FOR_POPULATION",
                     "price": 0.002,
                     "minPercent": 5,
@@ -182,7 +151,7 @@
                         },
                         {
                             "count": 500000,
-                            "discount": 25
+                            "discount": 25.0
                         }
                     ],
                     "domainRestrictions": [
@@ -191,14 +160,17 @@
                     ],
                     "consumerRestrictionCountries": [
                         "GR",
-                        "DE"
+                        "DE",
+                        "AT"
                     ],
                     "coverageRestrictionCountries": [
                         "GR",
-                        "DE"
+                        "DE",
+                        "AT"
                     ],
                     "consumerRestrictionContinents": [
-                        "EUROPE"
+                        "EUROPE",
+                        "NORTH_AMERICA"
                     ],
                     "coverageRestrictionContinents": [
                         "EUROPE"
@@ -212,15 +184,22 @@
             "delivery_method": "digital_platform",
             "publisher_email": "info@opertusmundi.eu",
             "metadata_version": "1.0",
-            "publication_date": "2021-03-19T13:24:36.557039",
+            "publication_date": "2021-05-10T12:27:53.800006",
             "reference_system": "EPSG:4326",
             "resource_locator": "https://www.openstreetmap.org/about",
             "use_only_for_vas": false,
             "metadata_language": "en",
-            "automatedMetadata": [
+            "responsible_party": [
+                {
+                    "name": "Responsible Party",
+                    "role": "author",
+                    "email": "responsible.party@example.com"
+                }
+            ],
+            "automated_metadata": [
                 {
                     "crs": "EPSG:2908",
-                    "key": "15fc0180-e34b-487c-af75-ca106141cd02",
+                    "key": "ee3d3ca4-7c52-4524-82d1-407eb0c22fd1",
                     "mbr": "POLYGON ((991906 207673, 991906 219623, 984018 219623, 984018 207673, 991906 207673))",
                     "count": {
                         "name": 1301,
@@ -235,7 +214,7 @@
                         "sourcedate": 1301,
                         "sourcetype": 1301
                     },
-                    "heatmap": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/heatmap",
+                    "heatmap": "/action/assets/topio.the-company.85.VECTOR/resources/ee3d3ca4-7c52-4524-82d1-407eb0c22fd1/metadata/heatmap",
                     "clusters": {
                         "type": "FeatureCollection",
                         "features": [
@@ -537,7 +516,7 @@
                         "sourcedate": "str",
                         "sourcetype": "str"
                     },
-                    "mbrStatic": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/mbrStatic",
+                    "mbrStatic": "/action/assets/topio.the-company.85.VECTOR/resources/ee3d3ca4-7c52-4524-82d1-407eb0c22fd1/metadata/mbrStatic",
                     "quantiles": {
                         "5": {
                             "vsam": 0.12659610215053713,
@@ -548,7 +527,7 @@
                         "25": {
                             "vsam": 11489.31818181818,
                             "feat_code": 2900.280179856147,
-                            "feat_type": -5.282590011050604E-4,
+                            "feat_type": -0.0005282590011050604,
                             "source_id": 16655.02247059763
                         },
                         "50": {
@@ -606,7 +585,7 @@
                             "Photogrammetric"
                         ]
                     },
-                    "thumbnail": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/thumbnail",
+                    "thumbnail": "/action/assets/topio.the-company.85.VECTOR/resources/ee3d3ca4-7c52-4524-82d1-407eb0c22fd1/metadata/thumbnail",
                     "attributes": [
                         "modified",
                         "name",
@@ -626,7 +605,7 @@
                             "vsam": 15070.0,
                             "feat_code": 2921.0,
                             "feat_type": 5.0,
-                            "source_id": 2.24576001E8
+                            "source_id": 224576001.0
                         },
                         "min": {
                             "vsam": 0.0,
@@ -638,13 +617,13 @@
                             "vsam": 4132.057677363406,
                             "feat_code": 180.29109362620062,
                             "feat_type": 2.714431895026563,
-                            "source_id": 3.633991987304296E7
+                            "source_id": 36339919.87304296
                         },
                         "sum": {
-                            "vsam": 1.5340585E7,
+                            "vsam": 15340585.0,
                             "feat_code": 3700108.0,
                             "feat_type": -8.0,
-                            "source_id": 8.674064422E9
+                            "source_id": 8674064422.0
                         },
                         "mean": {
                             "vsam": 11791.379707916987,
@@ -696,9 +675,9 @@
                         }
                     },
                     "featureCount": 1301,
-                    "heatmapStatic": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/heatmapStatic",
-                    "clustersStatic": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/clustersStatic",
-                    "convexHullStatic": "/action/drafts/7ad9a1a7-4f32-4311-af8e-d844c8d9b3ff/resources/15fc0180-e34b-487c-af75-ca106141cd02/metadata/convexHullStatic"
+                    "heatmapStatic": "/action/assets/topio.the-company.85.VECTOR/resources/ee3d3ca4-7c52-4524-82d1-407eb0c22fd1/metadata/heatmapStatic",
+                    "clustersStatic": "/action/assets/topio.the-company.85.VECTOR/resources/ee3d3ca4-7c52-4524-82d1-407eb0c22fd1/metadata/clustersStatic",
+                    "convexHullStatic": "/action/assets/topio.the-company.85.VECTOR/resources/ee3d3ca4-7c52-4524-82d1-407eb0c22fd1/metadata/convexHullStatic"
                 }
             ],
             "spatial_resolution": 50,
@@ -716,16 +695,23 @@
                     "value": "https://raw.githubusercontent.com/smartdatalake/datasets/master/openstreetmap/test/conf/Attribute_Mapping.conf"
                 },
                 {
-                    "id": "de8541bb-35bc-47ac-a4fe-5de277c147b5",
+                    "id": "cab00ec7-aa16-4136-bd85-c9e877bcbf18",
                     "name": "Documentation Files",
+                    "size": 10990,
                     "type": "FILE",
-                    "value": "file3.pdf"
+                    "value": "image.png",
+                    "modified_on": "2021-05-10T12:25:04.51Z"
                 }
             ],
             "public_access_limitations": "",
-            "spatial_data_service_type": null,
+            "spatial_data_service_type": "WMS",
+            "spatial_data_service_version": "1.0.0",
             "metadata_point_of_contact_name": "Topio.market",
             "metadata_point_of_contact_email": "info@opertusmundi.eu",
+            "spatial_data_service_operations": [
+                "GET"
+            ],
+            "spatial_data_service_queryables": null,
             "versions": [
                 "1.0.0"
             ]

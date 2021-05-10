@@ -137,7 +137,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
 
         final PageResultDto<CatalogueItemDto> result = response.getResult();
 
-        assertThat(result.getCount()).isEqualTo(1);
+        assertThat(result.getCount()).isEqualTo(2);
         assertThat(result.getPageRequest()).isNotNull();
         assertThat(result.getPageRequest().getPage()).isEqualTo(0);
         assertThat(result.getPageRequest().getSize()).isEqualTo(10);

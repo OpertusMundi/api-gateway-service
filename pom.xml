@@ -25,7 +25,6 @@
 		<node.version>v10.16.3</node.version>
 
 		<!-- Dependency versions -->
-		<geotools.version>24.0</geotools.version>
 		<hibernate.version>5.4.21.Final</hibernate.version>
 		<hibernate-spatial.version>5.4.21.Final</hibernate-spatial.version>
 		<org.locationtech.jts.version>1.17.1</org.locationtech.jts.version>
@@ -33,7 +32,7 @@
 		<postgresql.version>42.2.19</postgresql.version>
 		<spring-boot.version>2.3.4.RELEASE</spring-boot.version>
 
-		<java-commons.version>1.0.29</java-commons.version>
+		<java-commons.version>1.0.31</java-commons.version>
 
 		<!-- Plugin versions -->
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
@@ -42,22 +41,6 @@
 		<maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
 		<maven-surefire-report-plugin.version>3.0.0-M5</maven-surefire-report-plugin.version>
 	</properties>
-
-	<repositories>
-
-		<repository>
-			<id>osgeo</id>
-			<name>OSGeo Release Repository</name>
-			<url>https://repo.osgeo.org/repository/release/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
-
-	</repositories>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -116,18 +99,6 @@
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
 				<version>${postgresql.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.geotools</groupId>
-				<artifactId>gt-geometry</artifactId>
-				<version>${geotools.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.geotools</groupId>
-				<artifactId>gt-epsg-wkt</artifactId>
-				<version>${geotools.version}</version>
 			</dependency>
 
 			<dependency>
