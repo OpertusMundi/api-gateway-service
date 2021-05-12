@@ -16,8 +16,8 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.order.CartConstants;
 import eu.opertusmundi.common.model.order.CartAddCommandDto;
+import eu.opertusmundi.common.model.order.CartConstants;
 import eu.opertusmundi.common.model.order.CartDto;
 import eu.opertusmundi.common.model.pricing.EffectivePricingModelDto;
 import eu.opertusmundi.common.model.pricing.QuotationException;
@@ -38,7 +38,7 @@ public class CartControllerImpl extends BaseController implements CartController
 
     @Autowired
     private QuotationService quotationService;
-    
+
     @Override
     public RestResponse<CartDto> getCart(HttpSession session) {
         final UUID cartId = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
@@ -98,13 +98,13 @@ public class CartControllerImpl extends BaseController implements CartController
 
             if (keys.length != 0) {
                 final List<CatalogueItemDto> result = this.catalogueService.findAllById(keys);
-                    
+
                 final List<CatalogueItemDto> catalogueItems = result.stream()
-                    .map(item -> {                       
+                    .map(item -> {
                         // Do not return metadata/ingestion information
                         item.setAutomatedMetadata(null);
                         item.setIngestionInfo(null);
-                        
+
                         return item;
                     }).collect(Collectors.toList());
 
@@ -124,12 +124,12 @@ public class CartControllerImpl extends BaseController implements CartController
                     cartItem.setPricingModel(pricingModel);
                 });
             }
-        } catch (QuotationException ex) {
+        } catch (final QuotationException ex) {
             throw ex;
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             logger.error("Failed to update cart", ex);
-            
-            throw new ServiceException(BasicMessageCode.InternalServerError, "Cart operation failed"); 
+
+            throw new ServiceException(BasicMessageCode.InternalServerError, "Cart operation failed");
         }
     }
 

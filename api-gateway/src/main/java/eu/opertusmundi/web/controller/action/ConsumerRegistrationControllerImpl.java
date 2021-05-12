@@ -54,7 +54,7 @@ public class ConsumerRegistrationControllerImpl extends BaseController implement
         } catch (final IllegalArgumentException argEx) {
             return RestResponse.error(BasicMessageCode.InternalServerError, argEx.getMessage());
         } catch (final Exception ex) {
-            logger.error("Consumer update has failed", ex);
+            logger.error(String.format("Consumer update has failed. [userKey=%s]", userKey), ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
         }
@@ -81,7 +81,7 @@ public class ConsumerRegistrationControllerImpl extends BaseController implement
         } catch (final IllegalArgumentException argEx) {
             return RestResponse.error(BasicMessageCode.InternalServerError, argEx.getMessage());
         } catch (final Exception ex) {
-            logger.error("Consumer update has failed", ex);
+            logger.error(String.format("Consumer update has failed. [userId=%s]", id), ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
         }

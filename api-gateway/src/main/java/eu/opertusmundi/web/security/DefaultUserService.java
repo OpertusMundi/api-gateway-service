@@ -97,10 +97,10 @@ public class DefaultUserService implements UserService {
     public ServiceResponse<ActivationTokenDto> createToken(EnumActivationTokenType type, ActivationTokenCommandDto command) {
         final AccountEntity account = this.accountRepository.findOneByEmail(command.getEmail()).orElse(null);
 
-        logger.info("Request token for email {}", command.getEmail());
+        logger.info("Request activation token. [email={}]", command.getEmail());
 
         if (account == null) {
-            logger.info("Request token for email {} has failed. Account was not found", command.getEmail());
+            logger.info("Request activation has failed. Account was not found. [email={}]", command.getEmail());
 
             return ServiceResponse.success();
         }
@@ -267,8 +267,8 @@ public class DefaultUserService implements UserService {
         this.accountRepository.saveAndFlush(account);
 
         // TODO: Send mail
-        
-        logger.info("Password changed for user {}", account.getUserName());
+
+        logger.info("Password changed. [user={}]", account.getUserName());
     }
 
     private void sendMail(String name, ActivationTokenDto token) {

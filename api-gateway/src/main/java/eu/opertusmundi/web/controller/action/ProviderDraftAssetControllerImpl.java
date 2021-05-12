@@ -89,7 +89,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final AssetDraftException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
 
             return RestResponse.failure();
         }
@@ -117,7 +117,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final AssetDraftException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
@@ -141,7 +141,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final AssetDraftException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
@@ -162,7 +162,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final AssetDraftException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
 
             return RestResponse.failure();
         }
@@ -191,7 +191,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final AssetDraftException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
@@ -213,11 +213,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
             return RestResponse.success();
         } catch (final AssetDraftException ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
 
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
@@ -239,7 +239,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final AssetDraftException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
@@ -256,7 +256,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final AssetDraftException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
@@ -307,7 +307,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("Failed to upload file", ex);
+            logger.error(String.format("Failed to upload file. [publisherKey=%s, draftKey=%]", publisherKey, draftKey), ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
         }
@@ -322,11 +322,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         UUID draftKey, MultipartFile resource, AssetFileAdditionalResourceCommandDto command, BindingResult validationResult
     ) {
         final UUID          publisherKey = this.currentUserKey();
-       
+
         if (resource == null || resource.getSize() == 0) {
             return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
         }
-               
+
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
@@ -343,7 +343,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("Failed to upload file", ex);
+            logger.error(String.format("Failed to upload file. [publisherKey=%s, draftKey=%s]", publisherKey, draftKey), ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
         }
@@ -353,6 +353,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.result(draft);
     }
 
+    @Override
     public ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
         UUID draftKey, UUID resourceKey, HttpServletResponse response
     ) throws IOException {
@@ -360,7 +361,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
         final Path path = this.providerAssetService.resolveDraftAdditionalResource(publisherKey, draftKey, resourceKey);
         final File file = path.toFile();
-       
+
         String contentType = Files.probeContentType(path);
         if (contentType == null) {
             contentType = "application/octet-stream";
@@ -378,7 +379,8 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
-    
+
+    @Override
     public ResponseEntity<StreamingResponseBody> getMetadataProperty(
         UUID draftKey, UUID resourceKey, String propertyName, HttpServletResponse response
     ) throws IOException {
@@ -387,9 +389,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         final MetadataProperty property = this.providerAssetService.resolveDraftMetadataProperty(
             publisherKey, draftKey, resourceKey, propertyName
         );
-        
+
         final File file = property.getPath().toFile();
-       
+
         String contentType = Files.probeContentType(property.getPath());
         if (contentType == null) {
             contentType = property.getType().getMediaType();

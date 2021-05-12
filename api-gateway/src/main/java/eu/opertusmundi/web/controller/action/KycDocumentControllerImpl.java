@@ -36,20 +36,20 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
 
     private static final Logger logger = LoggerFactory.getLogger(KycDocumentControllerImpl.class);
 
-    private List<String> allowedMimeTypes = Arrays.asList(new String[]{
+    private final List<String> allowedMimeTypes = Arrays.asList(new String[]{
         "application/pdf",
         "image/jpeg",
         "image/png"
     });
-    
+
     @Autowired
     private CustomerVerificationService customerVerificationService;
-    
+
     @Override
     public RestResponse<?> findAllDocuments(EnumCustomerType customerType, int pageIndex, int pageSize) {
         try {
             this.verifyRole(customerType);
-            
+
             final KycQueryCommand command = KycQueryCommand.builder()
                 .pageIndex(pageIndex < 0 ? 0 : pageIndex)
                 .pageSize(pageSize < 1 ? 10 : pageSize)
@@ -68,15 +68,15 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
     @Override
     public RestResponse<KycDocumentDto> findOneDocument(String kycDocumentId, EnumCustomerType customerType) {
         KycDocumentCommand command = null;
-        try {           
+        try {
             command = KycDocumentCommand.builder()
                 .customerKey(this.currentUserKey())
                 .kycDocumentId(kycDocumentId)
                 .customerType(customerType)
                 .build();
-            
+
             verifyRole(customerType);
-            
+
             final KycDocumentDto document = this.customerVerificationService.findOneKycDocument(command);
 
             if (document == null) {
@@ -105,7 +105,7 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
 
     @Override
     public BaseResponse addPage(String kycDocumentId, MultipartFile file, KycDocumentPageCommandDto command, BindingResult validationResult) {
-        try {           
+        try {
             if (file == null || file.getSize() == 0) {
                 return RestResponse.error(CustomerVerificationMessageCode.PAGE_FILE_MISSING, "A file is required");
             }
@@ -119,7 +119,7 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
-            
+
             verifyRole(command.getCustomerType());
 
             byte[] data;
@@ -128,20 +128,20 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
             }
 
             final String mimeType = this.detectMimeType(data);
-            
+
             if (mimeType == null) {
                 validationResult.reject("FileTypeNotSupported", file.getOriginalFilename());
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
-            
+
             command.setUserKey(this.currentUserKey());
             command.setKycDocumentId(kycDocumentId);
             command.setFileName(file.getOriginalFilename());
             command.setFileSize(file.getSize());
-            command.setFileType(mimeType); 
+            command.setFileType(mimeType);
 
             this.customerVerificationService.addPage(command, data);
-            
+
             return RestResponse.success();
         } catch (final Exception ex) {
             throw this.wrapException("Add KYC Document Page", ex, command);
@@ -150,14 +150,14 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
 
     @Override
     public RestResponse<KycDocumentDto> submitKycDocument(String kycDocumentId,KycDocumentCommandDto command, BindingResult validationResult) {
-        try {           
+        try {
             command.setUserKey(this.currentUserKey());
             verifyRole(command.getCustomerType());
-            
+
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors());
             }
-            
+
             final KycDocumentCommand serviceCommand = KycDocumentCommand.of(this.currentUserKey(), command.getCustomerType(), kycDocumentId);
             final KycDocumentDto     result         = this.customerVerificationService.submitKycDocument(serviceCommand);
 
@@ -170,14 +170,14 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
     private String detectMimeType(byte[] data) {
         final Tika tika = new Tika();
         final String mimeType  = tika.detect(data);
-        
+
         if(!allowedMimeTypes.contains(mimeType)) {
             return null;
         }
-        
+
         return mimeType;
     }
-    
+
     private void verifyRole(EnumCustomerType customerType) {
         switch (customerType) {
             case CONSUMER :
@@ -192,32 +192,32 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
                 break;
         }
     }
-    
+
     /**
      * Wraps an exception with {@link CustomerVerificationException}
-     * 
+     *
      * @param operation
      * @param ex
      * @return
      */
     private CustomerVerificationException wrapException(String operation, Exception ex, Object command) {
         final String commandText = command == null ? "-" : command.toString();
-        
+
         // Ignore controller/service exceptions
         if (ex instanceof CustomerVerificationException) {
             return (CustomerVerificationException) ex;
         }
-        
+
         if (ex instanceof AccessDeniedException) {
             return new CustomerVerificationException(CustomerVerificationMessageCode.ACCESS_DENIED);
         }
 
         // Global exception handler
-        final String message = String.format("[KYC] %s [%s]", operation, commandText);
+        final String message = String.format("Operation has failed. [operation=%, command=[%s]]", operation, commandText);
 
         logger.error(message, ex);
 
         return new CustomerVerificationException(CustomerVerificationMessageCode.UNKNOWN, message, ex, false);
     }
-    
+
 }

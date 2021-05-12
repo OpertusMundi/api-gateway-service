@@ -82,7 +82,7 @@ public class AccountControllerImpl extends BaseController implements AccountCont
 
     @Override
     public BaseResponse verifyActivationToken(UUID token) {
-        logger.info("Redeem token {}", token);
+        logger.info("Redeem activation token. [token={}]", token);
 
         final ServiceResponse<Void> response = this.userService.redeemToken(token);
 
@@ -95,7 +95,7 @@ public class AccountControllerImpl extends BaseController implements AccountCont
 
     @Override
     public BaseResponse changePassword(PasswordChangeCommandDto command, BindingResult validationResult) {
-        logger.info("Password change request {}", this.currentUserKey());
+        logger.info("Password change request. [userKey={}]", this.currentUserKey());
 
         try {
             command.setUserName(this.currentUserEmail());
@@ -113,5 +113,5 @@ public class AccountControllerImpl extends BaseController implements AccountCont
             return RestResponse.failure(BasicMessageCode.Forbidden, "Access Denied");
         }
     }
-        
+
 }

@@ -51,7 +51,7 @@ public class RestControllerAdvice {
     )
     public @ResponseBody BaseResponse handleException(HttpMessageNotReadableException ex) {
 
-        logger.error("Bad Request: " + ex.getMessage(), ex);
+        logger.error(String.format("400 - Bad Request. [message=%s]: ", ex.getMessage()), ex);
 
         final MessageCode code        = BasicMessageCode.BadRequest;
         final String      description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
@@ -74,7 +74,7 @@ public class RestControllerAdvice {
     )
     public @ResponseBody BaseResponse handleException(MaxUploadSizeExceededException ex) {
 
-        logger.error("Payload Too Large: " + ex.getMessage(), ex);
+        logger.error(String.format("413 - Payload Too Large. [message=%s]: ", ex.getMessage()), ex);
 
         final MessageCode code        = BasicMessageCode.PayloadTooLarge;
         final String      description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
@@ -99,7 +99,7 @@ public class RestControllerAdvice {
         AccessDeniedException ex,  HttpServletRequest request
     ) {
 
-        logger.error("Forbidden ({}): {}", request.getRequestURI(), ex.getMessage());
+        logger.error(String.format("403 - Forbidden. [path=%s, message=%s]: ", request.getRequestURI(), ex.getMessage()), ex);
 
         final MessageCode      code        = BasicMessageCode.Forbidden;
         final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
@@ -123,7 +123,7 @@ public class RestControllerAdvice {
     public @ResponseBody BaseResponse handleException(ServiceException ex) {
 
         if (ex.isLogEntryRequired()) {
-            logger.error("Internal Server Error: " + ex.getMessage(), ex);
+            logger.error(String.format("500 - Internal Server Error. [message=%s]: ", ex.getMessage()), ex);
         }
 
         final MessageCode      code        = ex.getCode();
@@ -147,7 +147,7 @@ public class RestControllerAdvice {
     )
     public @ResponseBody BaseResponse handleException(Exception ex) {
 
-        logger.error("Internal Server Error: " + ex.getMessage(), ex);
+        logger.error(String.format("500 - Internal Server Error. [message=%s]: ", ex.getMessage()), ex);
 
         final MessageCode      code        = BasicMessageCode.InternalServerError;
         final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());

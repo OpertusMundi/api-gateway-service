@@ -19,21 +19,21 @@ import eu.opertusmundi.common.service.PaymentService;
 public class MangoPayWebhookControllerImpl implements MangoPayWebhookController {
 
     private static final Logger logger = LoggerFactory.getLogger("WEBHOOK");
-    
+
     @Autowired
     private MangoPayWebhookHandler handler;
-    
+
     @Autowired
     private PaymentService paymentService;
 
     @Override
     public ResponseEntity<Void> mangoPayWebhookHandler(String resourceId, Long timestamp, String eventType) {
         logger.info(String.format("%30s %30s %30s", eventType, resourceId, timestamp));
-        
+
         final ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.UTC);
-        
+
         this.handler.handleWebHook(eventType, resourceId, date);
-        
+
         // Webhook received successfully
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
@@ -41,8 +41,8 @@ public class MangoPayWebhookControllerImpl implements MangoPayWebhookController 
     @Override
     public String secureModeRedirectHandler(UUID payInKey, String transactionId) {
         this.paymentService.updatePayIn(payInKey, transactionId);
-        
+
         return "index";
     }
-            
+
 }

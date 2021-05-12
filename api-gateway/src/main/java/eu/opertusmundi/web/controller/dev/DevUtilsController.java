@@ -35,7 +35,7 @@ public class DevUtilsController {
 
     @GetMapping(value = "/activation-tokens")
     Object getActiveActivationTokens(Authentication auth) {
-        logger.warn("[Dev Utilities] Activation tokens requested for user [{}]", auth.getPrincipal());
+        logger.warn("Activation tokens requested. [user={}]", auth.getPrincipal());
 
         final User details = (User) auth.getPrincipal();
 

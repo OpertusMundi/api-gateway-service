@@ -58,7 +58,7 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
         } catch (final IllegalArgumentException argEx) {
             return RestResponse.error(BasicMessageCode.InternalServerError, argEx.getMessage());
         } catch (final Exception ex) {
-            logger.error("Provider update has failed", ex);
+            logger.error(String.format("Provider update has failed. [userKey=%s]", userKey), ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
         }
@@ -87,7 +87,7 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
         } catch (final IllegalArgumentException argEx) {
             return RestResponse.error(BasicMessageCode.InternalServerError, argEx.getMessage());
         } catch (final Exception ex) {
-            logger.error("Provider update has failed", ex);
+            logger.error(String.format("Provider update has failed. [userId=%d]", id), ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
         }

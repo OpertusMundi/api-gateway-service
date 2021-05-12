@@ -40,7 +40,7 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
         } catch (final CustomerVerificationException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[UBO] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
 
             return RestResponse.failure();
         }
@@ -53,7 +53,7 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
                 .providerKey(this.currentUserKey())
                 .uboDeclarationId(uboDeclarationId)
                 .build();
-            
+
             final UboDeclarationDto declaration = this.customerVerificationService.findOneUboDeclaration(command);
 
             if (declaration == null) {
@@ -64,7 +64,7 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
         } catch (final CustomerVerificationException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[UBO] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
 
             return RestResponse.failure();
         }
@@ -81,7 +81,7 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
         } catch (final CustomerVerificationException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[UBO] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
@@ -103,7 +103,7 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
         } catch (final CustomerVerificationException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[UBO] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
@@ -126,12 +126,12 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
         } catch (final CustomerVerificationException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[UBO] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
     }
-    
+
     @Override
     public BaseResponse removeUbo(String uboDeclarationId, String uboId) {
         try {
@@ -146,7 +146,7 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
         } catch (final CustomerVerificationException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[UBO] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
@@ -162,7 +162,7 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
         } catch (final CustomerVerificationException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error("[UBO] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();

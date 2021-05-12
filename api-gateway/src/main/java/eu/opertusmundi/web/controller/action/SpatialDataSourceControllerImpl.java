@@ -41,7 +41,7 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
 
     @Value("${opertusmundi.spatial.nuts.schema:spatial}")
     private String schema;
-    
+
     @Value("${opertusmundi.spatial.nuts.table-name:nuts}")
     private String tableName;
 
@@ -53,29 +53,29 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
 
     @Value("${opertusmundi.spatial.nuts.geometry-column-simple:geom_simple}")
     private String geometryColumnSimple;
-    
+
     private final Map<String, List<String>> tableColumns = new HashMap<String, List<String>>();
 
     @Autowired
     private DataSource dataSource;
 
     private JdbcTemplate jdbcTemplate;
-    
+
     @Autowired
     private NutsRegionRepository nutsRegionRepository;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         jdbcTemplate = new JdbcTemplate(dataSource);
-        
+
         // Custom mappings for spatial.nuts table
         tableColumns.put("nuts", Arrays.asList(
             "nuts_id as \"code\"",
             "lvl_code as \"level\"",
-            "name_latin as \"nameLatin\"", 
-            "nuts_name as \"name\"", 
+            "name_latin as \"nameLatin\"",
+            "nuts_name as \"name\"",
             "population"
-        ) );  
+        ) );
     }
 
     @Override
@@ -83,14 +83,14 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
         if (codes == null || codes.length == 0) {
             return RestResponse.success();
         }
-        
-        List<NutsRegionFeatureDto> features = nutsRegionRepository.findByCode(codes).stream()
+
+        final List<NutsRegionFeatureDto> features = nutsRegionRepository.findByCode(codes).stream()
             .map(NutsRegionEntity::toFeature)
             .collect(Collectors.toList());
-        
+
         return RestResponse.result(FeatureCollectionDto.of(features));
     }
-    
+
     @Override
     public RestResponse<?> findOneByCode(String code) {
         if (StringUtils.isBlank(code)) {
@@ -111,7 +111,7 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
         final List<NutsRegionPropertiesDto> result = this.nutsRegionRepository.findAllByNameContainsAndLevel(query, level).stream()
             .map(NutsRegionEntity::toProperties)
             .collect(Collectors.toList());
-        
+
         return RestResponse.result(result);
     }
 
@@ -120,7 +120,7 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
         if (StringUtils.isBlank(prefix) || prefix.length() < 2) {
             return RestResponse.result(new ArrayList<NutsRegionPropertiesDto>());
         }
-        
+
         if (maxLevel != null && maxLevel < 0) {
             maxLevel = null;
         }
@@ -128,36 +128,36 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
         final List<NutsRegionFeatureDto> features = this.nutsRegionRepository.findAllByCodeStartsWith(prefix, prefix, maxLevel).stream()
             .map(NutsRegionEntity::toFeature)
             .collect(Collectors.toList());
-       
+
         return RestResponse.result(FeatureCollectionDto.of(features));
     }
-    
+
     @Override
     public void wfs(Integer level, String bbox, boolean includeGeometry, HttpServletRequest request, HttpServletResponse response) {
         try {
             loadFeatures(
-                request, response, 
-                this.schema, this.tableName, 
+                request, response,
+                this.schema, this.tableName,
                 this.idColumn, this.geometryColumn, this.geometryColumnSimple,
                 level, includeGeometry
             );
-        } catch (Exception ex) {
-            logger.error("NUTS regions WFS error:" + ex.getMessage(), ex);
+        } catch (final Exception ex) {
+            logger.error(String.format("NUTS regions WFS request has failed. [message=%s]:" + ex.getMessage()), ex);
 
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
     private void loadFeatures(
-        HttpServletRequest request, HttpServletResponse response, 
-        String schema, String tableName, 
+        HttpServletRequest request, HttpServletResponse response,
+        String schema, String tableName,
         String idColumn, String geometryColumn, String geometryColumnSimple,
         int level, boolean includeGeometry
     ) throws IOException {
-        Map<String, String[]> parameterMap = request.getParameterMap();
+        final Map<String, String[]> parameterMap = request.getParameterMap();
 
         // Get bounding box
-        String boundingBox = parameterMap.keySet().stream()
+        final String boundingBox = parameterMap.keySet().stream()
             .filter(p -> p.equalsIgnoreCase(PARAMETER_BBOX))
             .map(p -> parameterMap.get(p)[0])
             .findFirst()
@@ -172,30 +172,30 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
             }
 
             // Get table schema
-            List<String> columns = getColumns(tableName, geometryColumn, geometryColumnSimple);
+            final List<String> columns = getColumns(tableName, geometryColumn, geometryColumnSimple);
 
             // Create where clause
-            String where = "ST_Intersects(ST_MakeEnvelope(?, ?, ?, ?, 4326), \"%6$s\") = true and lvl_code = ? ";
+            final String where = "ST_Intersects(ST_MakeEnvelope(?, ?, ?, ?, 4326), \"%6$s\") = true and lvl_code = ? ";
 
             // Get data as GeoJson
-            String dataQuery = 
-                  "select row_to_json(fc) " 
+            String dataQuery =
+                  "select row_to_json(fc) "
                 + "from   ( "
-                + "    select 'FeatureCollection' As type, COALESCE(array_to_json(array_agg(f)), '[]') As features " 
+                + "    select 'FeatureCollection' As type, COALESCE(array_to_json(array_agg(f)), '[]') As features "
                 + "    from   ("
                 + "               select 'Feature' As type, ";
 
-            
+
             if(includeGeometry) {
                 dataQuery += "            COALESCE(ST_AsGeoJSON(dt.\"%7$s\")::json, ST_AsGeoJSON(dt.\"%6$s\")::json) As geometry,";
             }
-                
-            dataQuery += 
+
+            dataQuery +=
                   "                      row_to_json((select columns FROM (SELECT %3$s) As columns)) As properties, "
-                + "                      '%2$s::' || dt.\"%5$s\" as id " 
+                + "                      '%2$s::' || dt.\"%5$s\" as id "
                 + "               from   \"%1$s\".\"%2$s\" As dt"
-                + "               where  " + where 
-                + "    ) As f " 
+                + "               where  " + where
+                + "    ) As f "
                 + ")  As fc";
 
             dataQuery = String.format(
@@ -207,10 +207,10 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
                 Float.parseFloat(boundingBoxParts[1]),
                 Float.parseFloat(boundingBoxParts[2]),
                 Float.parseFloat(boundingBoxParts[3]),
-                level 
+                level
             };
 
-            String output = jdbcTemplate.queryForObject(dataQuery, args, String.class);
+            final String output = jdbcTemplate.queryForObject(dataQuery, args, String.class);
 
             response.addHeader(CONTENT_TYPE_HEADER, "application/json; charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
@@ -229,10 +229,10 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
                 return tableColumns.get(tableName);
             }
 
-            String columnQuery = String.format("select column_name from information_schema.columns where table_name = '%s'", tableName);
+            final String columnQuery = String.format("select column_name from information_schema.columns where table_name = '%s'", tableName);
 
-            List<Map<String, Object>> rows    = jdbcTemplate.queryForList(columnQuery);
-            List<String>              columns = rows.stream()
+            final List<Map<String, Object>> rows    = jdbcTemplate.queryForList(columnQuery);
+            final List<String>              columns = rows.stream()
                 .map(r -> (String) r.get("column_name"))
                 .filter(c -> !c.equalsIgnoreCase(geometryColumn) && !c.equalsIgnoreCase(geometryColumnSimple))
                 .collect(Collectors.toList());

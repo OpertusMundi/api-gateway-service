@@ -25,9 +25,9 @@ import eu.opertusmundi.common.model.asset.EnumProviderAssetSortField;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.catalogue.CatalogueResult;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.EnumType;
 import eu.opertusmundi.common.model.dto.EnumSortingOrder;
 import eu.opertusmundi.common.service.CatalogueService;
@@ -40,14 +40,15 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
     @Autowired
     private CatalogueService catalogueService;
-    
+
     @Autowired
     private ProviderAssetService providerAssetService;
-    
+
     // TODO: Implement search using elastic search
     // TODO: Apply type filter
     // TODO: Apply sorting and order
 
+    @Override
     public RestResponse<?> findAll(
         String query, EnumType type, int pageIndex, int pageSize, EnumProviderAssetSortField orderBy, EnumSortingOrder order
     ) {
@@ -62,19 +63,19 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
             final CatalogueResult<CatalogueItemDto> result = this.catalogueService.findAll(searchQuery);
 
-            return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());           
+            return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
         } catch (final CatalogueServiceException ex) {
             return RestResponse.failure();
         }
     }
-    
+
     @Override
     public ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
         String pid, UUID resourceKey, HttpServletResponse response
     ) throws IOException {
         final Path path = this.providerAssetService.resolveAssetAdditionalResource(pid, resourceKey);
         final File file = path.toFile();
-       
+
         String contentType = Files.probeContentType(path);
         if (contentType == null) {
             contentType = "application/octet-stream";
@@ -92,16 +93,17 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
-    
+
+    @Override
     public ResponseEntity<StreamingResponseBody> getMetadataProperty(
         String pid, UUID resourceKey, String propertyName, HttpServletResponse response
     ) throws IOException {
         final MetadataProperty property = this.providerAssetService.resolveAssetMetadataProperty(
             pid, resourceKey, propertyName
         );
-        
+
         final File file = property.getPath().toFile();
-       
+
         String contentType = Files.probeContentType(property.getPath());
         if (contentType == null) {
             contentType = property.getType().getMediaType();
@@ -119,7 +121,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
-    
+
     @Override
     public BaseResponse deleteAsset(String id) {
         try {
@@ -127,7 +129,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
             return RestResponse.success();
         } catch (final CatalogueServiceException ex) {
-            logger.error("[Catalogue] Operation has failed", ex);
+            logger.error("Operation has failed", ex);
         }
 
         return RestResponse.failure();
