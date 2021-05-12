@@ -42,6 +42,17 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     }
 
     @Override
+    public RestResponse<?> findAllRelated(String id) {
+        try {
+            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllRelated(id);
+
+            return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
+        } catch (final CatalogueServiceException ex) {
+            return RestResponse.failure();
+        }
+    }
+
+    @Override
     public RestResponse<?> findAllAdvanced(ElasticAssetQuery request) {
         try {
           final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllAdvanced(request);

@@ -58,7 +58,8 @@ public interface CatalogueController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
         )
     )
     @GetMapping(value = "/catalogue")
@@ -83,7 +84,8 @@ public interface CatalogueController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
         )
     )
     @GetMapping(value = "/catalogue/advanced")
@@ -106,13 +108,16 @@ public interface CatalogueController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.ItemResponse.class))
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CatalogueEndpointTypes.ItemResponse.class)
+        )
     )
     @GetMapping(value = "/catalogue/items/{id}")
     RestResponse<CatalogueItemDetailsDto> findOne(
         @Parameter(
             in          = ParameterIn.PATH,
-            required    = false,
+            required    = true,
             description = "Item unique id"
         )
         @PathVariable String id
@@ -175,7 +180,8 @@ public interface CatalogueController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
         )
     )
     @GetMapping(value = "/catalogue/harvest")
@@ -222,7 +228,8 @@ public interface CatalogueController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CatalogueEndpointTypes.HarvestImportResponse.class)
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CatalogueEndpointTypes.HarvestImportResponse.class)
         )
     )
     @PostMapping(value = "/catalogue/harvest/import", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -242,5 +249,34 @@ public interface CatalogueController {
             hidden = true
         )
         BindingResult validationResult
+    );
+
+    /**
+     * Find related assets
+     *
+     * @param id The item unique id
+     * @return An instance of {@link CatalogueEndpointTypes.ItemCollectionResponse} class
+     */
+    @Operation(
+        operationId = "catalogue-07",
+        summary     = "Find related assets",
+        description = "Find related assets given an asset identifier."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
+        )
+    )
+    @GetMapping(value = "/catalogue/{id}/related")
+    RestResponse<?> findAllRelated(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Item unique id"
+        )
+        @PathVariable String id
     );
 }
