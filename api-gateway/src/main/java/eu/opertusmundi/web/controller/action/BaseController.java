@@ -34,7 +34,7 @@ public abstract class BaseController {
     @Autowired
     private AuthenticationFacade authenticationFacade;
 
-    @Autowired
+    @Autowired(required = false)
     private LocationService locationService;
 
     protected boolean isAuthenticated() {
@@ -96,7 +96,10 @@ public abstract class BaseController {
 
             // Refresh location if not already computed or when the client IP
             // has changed
-            if (location == null || !location.getIp().equals(ip)) {
+            if (locationService == null && location == null) {
+                location = Location.empty(ip);
+                session.setAttribute(Constants.SESSION_LOCATION, location);
+            } else if (locationService != null && location == null || !location.getIp().equals(ip)) {
                 location = locationService.getLocation(ip);
                 if (location == null) {
                     location = Location.empty(ip);
