@@ -49,7 +49,7 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
     public RestResponse<AccountProfileDto> cancelRegistration() {
         this.ensureRegistered();
 
-        final UUID userKey = this.authenticationFacade.getCurrentUserKey();
+        final UUID userKey = this.currentUserKey();
 
         try {
             final AccountDto account = this.providerService.cancelRegistration(userKey);
@@ -67,7 +67,7 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
     private RestResponse<AccountProfileDto> update(
         ProviderProfessionalCommandDto command, BindingResult validationResult, boolean draft
     ) {
-        final Integer id = this.authenticationFacade.getCurrentUserId();
+        final Integer id = this.currentUserId();
 
         // Inject user id (id property is always ignored during serialization)
         command.setUserId(id);

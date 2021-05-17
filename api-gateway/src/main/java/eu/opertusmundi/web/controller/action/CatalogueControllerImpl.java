@@ -33,7 +33,7 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     @Override
     public RestResponse<?> findAll(CatalogueAssetQuery request) {
         try {
-            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAll(request);
+            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAll(this.createContext(), request);
 
             return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
         } catch (final CatalogueServiceException ex) {
@@ -44,7 +44,7 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     @Override
     public RestResponse<?> findAllRelated(String id) {
         try {
-            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllRelated(id);
+            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllRelated(this.createContext(), id);
 
             return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
         } catch (final CatalogueServiceException ex) {
@@ -55,7 +55,7 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     @Override
     public RestResponse<?> findAllAdvanced(ElasticAssetQuery request) {
         try {
-          final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllAdvanced(request);
+          final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllAdvanced(this.createContext(), request);
 
             return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
         } catch (final CatalogueServiceException ex) {
@@ -66,7 +66,9 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     @Override
     public RestResponse<CatalogueItemDetailsDto> findOne(String id) {
         try {
-            final CatalogueItemDetailsDto item = catalogueService.findOne(id, this.currentUserKey(), this.isAuthenticated());
+            final CatalogueItemDetailsDto item = catalogueService.findOne(
+                this.createContext(), id, this.currentUserKey(), this.isAuthenticated()
+            );
 
             return item == null ? RestResponse.notFound() : RestResponse.result(item);
         } catch (final CatalogueServiceException ex) {

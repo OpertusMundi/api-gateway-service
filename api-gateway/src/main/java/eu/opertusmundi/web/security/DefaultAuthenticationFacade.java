@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import eu.opertusmundi.common.model.EnumActivationStatus;
 import eu.opertusmundi.common.model.EnumRole;
+import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.web.model.security.User;
 
 
@@ -39,6 +40,15 @@ public class DefaultAuthenticationFacade implements AuthenticationFacade {
         final User details = (User) authentication.getPrincipal();
 
         return details.getAccount().getActivationStatus() == EnumActivationStatus.COMPLETED;
+    }
+
+    @Override
+    public AccountDto getCurrentAccount() {
+        final Authentication authentication = this.getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        return ((User) authentication.getPrincipal()).getAccount();
     }
 
     @Override

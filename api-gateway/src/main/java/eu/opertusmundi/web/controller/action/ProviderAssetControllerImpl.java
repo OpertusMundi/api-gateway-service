@@ -61,7 +61,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
                 .query(query)
                 .build();
 
-            final CatalogueResult<CatalogueItemDto> result = this.catalogueService.findAll(searchQuery);
+            final CatalogueResult<CatalogueItemDto> result = this.catalogueService.findAll(null, searchQuery);
 
             return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
         } catch (final CatalogueServiceException ex) {

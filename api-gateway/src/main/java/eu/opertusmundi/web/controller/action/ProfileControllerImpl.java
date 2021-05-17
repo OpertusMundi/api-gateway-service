@@ -30,7 +30,7 @@ public class ProfileControllerImpl extends BaseController implements ProfileCont
 
     @Override
     public RestResponse<AccountDto> getProfile() {
-        final String email = this.authenticationFacade.getCurrentUserEmail();
+        final String email = this.currentUserEmail();
 
         // Refresh profile for each request since the account object stored in the
         // security context may have stale data
@@ -41,7 +41,7 @@ public class ProfileControllerImpl extends BaseController implements ProfileCont
 
     @Override
     public RestResponse<AccountDto> updateProfile(AccountProfileCommandDto command, BindingResult validationResult) {
-        final Integer id = this.authenticationFacade.getCurrentUserId();
+        final Integer id = this.currentUserId();
 
         // Inject user id (id property is always ignored during serialization)
         command.setId(id);

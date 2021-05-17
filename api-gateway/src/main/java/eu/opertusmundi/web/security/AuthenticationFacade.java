@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.opertusmundi.common.model.EnumRole;
+import eu.opertusmundi.common.model.dto.AccountDto;
 
 public interface AuthenticationFacade {
 
@@ -32,6 +33,13 @@ public interface AuthenticationFacade {
      *         verified
      */
     boolean isRegistered();
+
+    /**
+     * Get the current account
+     *
+     * @return the current account or {@code null} if the user is not authenticated
+     */
+    AccountDto getCurrentAccount();
 
     /**
      * Get the user id

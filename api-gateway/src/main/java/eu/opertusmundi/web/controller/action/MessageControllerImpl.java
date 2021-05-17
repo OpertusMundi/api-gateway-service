@@ -48,7 +48,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
         ResponseEntity<RestResponse<PageResultDto<ServerMessageDto>>> e;
 
         // Override user key
-        if (userKey == null || !this.authenticationFacade.hasRole(EnumRole.ROLE_HELPDESK)) {
+        if (userKey == null || !this.hasRole(EnumRole.ROLE_HELPDESK)) {
             userKey = this.currentUserKey();
         }
 
@@ -107,7 +107,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
 
         try {
             final UUID userKey = this.currentUserKey();
-            
+
             e = this.messageClient.getObject().findNotifications(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
         } catch (final FeignException fex) {
             final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
@@ -135,7 +135,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
     public BaseResponse sendToUser(UUID key, ClientMessageCommandDto message) {
         final ServerMessageCommandDto command = new ServerMessageCommandDto();
 
-        command.setSender(this.authenticationFacade.getCurrentUserKey());
+        command.setSender(this.currentUserKey());
         command.setRecipient(key);
         command.setText(message.getText());
 
@@ -150,7 +150,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
     public BaseResponse sendToProvider(UUID key, ClientMessageCommandDto message) {
         final ServerMessageCommandDto command = new ServerMessageCommandDto();
 
-        command.setSender(this.authenticationFacade.getCurrentUserKey());
+        command.setSender(this.currentUserKey());
         command.setRecipient(key);
         command.setText(message.getText());
 
@@ -165,7 +165,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
     public BaseResponse sendToHelpdesk(ClientMessageCommandDto message) {
         final ServerMessageCommandDto command = new ServerMessageCommandDto();
 
-        command.setSender(this.authenticationFacade.getCurrentUserKey());
+        command.setSender(this.currentUserKey());
         command.setText(message.getText());
 
         final BaseResponse serviceResponse = this.send(command);
@@ -179,7 +179,7 @@ public class MessageControllerImpl extends BaseController implements MessageCont
     public BaseResponse replyToMessage(UUID key, ClientMessageCommandDto message) {
         final ServerMessageCommandDto command = new ServerMessageCommandDto();
 
-        command.setSender(this.authenticationFacade.getCurrentUserKey());
+        command.setSender(this.currentUserKey());
         command.setMessage(key);
         command.setText(message.getText());
 

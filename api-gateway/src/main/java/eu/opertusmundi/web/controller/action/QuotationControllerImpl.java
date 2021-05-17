@@ -17,7 +17,7 @@ public class QuotationControllerImpl extends BaseController implements Quotation
 
     @Autowired
     private CatalogueService catalogueService;
-    
+
     @Autowired
     private QuotationService quotationService;
 
@@ -28,17 +28,17 @@ public class QuotationControllerImpl extends BaseController implements Quotation
         }
 
         try {
-            final CatalogueItemDetailsDto  asset     = catalogueService.findOne(command.getAssetId(), null, false);
+            final CatalogueItemDetailsDto  asset     = catalogueService.findOne(null, command.getAssetId(), null, false);
             final EffectivePricingModelDto quotation = quotationService.createQuotation(
                 asset, command.getPricingModelKey(), command.getParameters()
             );
 
             return RestResponse.result(quotation);
-        } catch (QuotationException ex) {
+        } catch (final QuotationException ex) {
             return RestResponse.failure(ex.getCode(), ex.getMessage());
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             return RestResponse.failure();
         }
     }
-    
+
 }
