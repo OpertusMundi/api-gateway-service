@@ -82,15 +82,15 @@ public class FileSystemControllerTomcatITCase {
     public static class FileSystemConfiguration {
 
         private static final Set<PosixFilePermission> DEFAULT_DIRECTORY_PERMISSIONS = PosixFilePermissions.fromString("rwxrwxr-x");
-        
+
         public final static String relativePath = UUID.randomUUID().toString();
 
         private Path createDirectory(String suffix) throws IOException {
             final Path path = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), relativePath, suffix);
-            
+
             Files.createDirectories(path);
             Files.setPosixFilePermissions(path, DEFAULT_DIRECTORY_PERMISSIONS);
-            
+
             return path;
         }
 
@@ -173,6 +173,7 @@ public class FileSystemControllerTomcatITCase {
 
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 
         final HttpEntity<MultiValueMap<String, HttpEntity<?>>> requestEntity = new HttpEntity<>(bodyBuilder.build(), headers);
 
