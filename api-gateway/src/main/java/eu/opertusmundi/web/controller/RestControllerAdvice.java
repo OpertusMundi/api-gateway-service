@@ -72,9 +72,9 @@ public class RestControllerAdvice {
         description = "Payload Too Large",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
-    public @ResponseBody BaseResponse handleException(MaxUploadSizeExceededException ex) {
+    public @ResponseBody BaseResponse handleException(MaxUploadSizeExceededException ex, HttpServletRequest request) {
 
-        logger.error(String.format("413 - Payload Too Large. [message=%s]: ", ex.getMessage()), ex);
+        logger.error("413 - Payload Too Large. [path={}, message={}]", request.getRequestURI(), ex.getMessage());
 
         final MessageCode code        = BasicMessageCode.PayloadTooLarge;
         final String      description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
@@ -99,7 +99,7 @@ public class RestControllerAdvice {
         AccessDeniedException ex,  HttpServletRequest request
     ) {
 
-        logger.error(String.format("403 - Forbidden. [path=%s, message=%s]: ", request.getRequestURI(), ex.getMessage()), ex);
+        logger.error("403 - Forbidden. [path={}, message={}]: ", request.getRequestURI(), ex.getMessage());
 
         final MessageCode      code        = BasicMessageCode.Forbidden;
         final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
