@@ -1,7 +1,7 @@
 #!/bin/sh
 set -u -e -o pipefail
 
-[[ "${DEBUG:-f}" != "f" || "${XTRACE:-f}" != "f" ]] && set -x
+[[ "${DEBUG:-false}" != "false" || "${XTRACE:-false}" != "false" ]] && set -x
 
 function _validate_http_url()
 {
@@ -70,41 +70,53 @@ function _generate_configuration_for_clients()
 
     cat <<-EOD
 	opertusmundi.feign.jwt.secret = ${jwt_secret}
+	
 	opertusmundi.payments.mangopay.base-url = ${mangopay_base_url}
 	opertusmundi.payments.mangopay.client-id = ${mangopay_client_id}
 	opertusmundi.payments.mangopay.client-password = ${mangopay_client_password}
+	
 	opertusmundi.feign.bpm-server.url = ${bpm_rest_base_url}
 	opertusmundi.feign.bpm-server.basic-auth.username = ${bpm_rest_username}
 	opertusmundi.feign.bpm-server.basic-auth.password = ${bpm_rest_password}
+	
 	opertusmundi.feign.catalogue.url = ${catalogue_base_url}
+	
 	opertusmundi.feign.ingest.url = ${ingest_base_url}
+	
 	opertusmundi.feign.transform.url = ${transform_base_url}
+	
 	opertusmundi.feign.email-service.url = ${mailer_base_url}
 	opertusmundi.feign.email-service.jwt.subject = api-gateway
+	
 	opertusmundi.feign.message-service.url = ${messenger_base_url}
 	opertusmundi.feign.message-service.jwt.subject = api-gateway
+	
 	opertusmundi.feign.rating-service.url = ${rating_base_url}
 	opertusmundi.feign.rating-service.basic-auth.username = ${rating_username}
 	opertusmundi.feign.rating-service.basic-auth.password = ${rating_password}
+	
 	opertusmundi.feign.data-profiler.url = ${profile_base_url}
+	
 	opertusmundi.feign.persistent-identifier-service.url= ${pid_base_url}
 	EOD
 }
 
-# Generate configuration from environment
-
-runtime_profile=$(hostname | md5sum | head -c 32)
-
+runtime_profile=$(hostname | md5sum | head -c10)
 {
     _generate_configuration_for_self;    
     _generate_configuration_for_datasource; 
     _generate_configuration_for_clients;
 } >./config/application-${runtime_profile}.properties
 
+logging_config="classpath:config/log4j2.xml"
+if [[ -f "./config/log4j2.xml" ]]; then
+    logging_config="file:config/log4j2.xml"
+fi
+
 # Run
 
 main_class=eu.opertusmundi.web.Application
 default_java_opts="-server -Djava.security.egd=file:///dev/urandom -Xms256m"
 exec java ${JAVA_OPTS:-${default_java_opts}} -cp "/app/classes:/app/dependency/*" ${main_class} \
-  --spring.profiles.active=production,${runtime_profile}
+  --spring.profiles.active=production,${runtime_profile} --logging.config=${logging_config}
 

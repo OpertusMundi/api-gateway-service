@@ -15,6 +15,11 @@ services:
     - type: 'bind'
       source: ./logs
       target: /app/logs
+    ## note: override logging configuration
+    #- type: 'bind'
+    #  source: ./api-gateway/config/log4j2-syslog.xml
+    #  target: /app/config/log4j2.xml
+    #  read_only: true
     - type: 'volume'
       source: files_assets
       target: /var/local/opertusmundi/files/assets
