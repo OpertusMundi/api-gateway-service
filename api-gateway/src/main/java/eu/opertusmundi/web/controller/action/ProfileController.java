@@ -29,7 +29,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The profile API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
-@Secured({ "ROLE_USER" })
 public interface ProfileController {
 
     /**
@@ -64,6 +63,7 @@ public interface ProfileController {
         }
     )
     @PostMapping(value = "/profile", consumes = { "application/json" })
+    @Secured({ "ROLE_USER" })
     @Validated
     RestResponse<AccountDto> updateProfile(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(

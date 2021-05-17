@@ -68,23 +68,21 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
 
     @Test
     @Tag(value = "Controller")
-    @DisplayName(value = "When loading profile for anonymous user, return 403")
+    @DisplayName(value = "When loading profile for anonymous user, return error")
     @WithAnonymousUser
     @Order(1)
-    void whenAnonymousGetProfile_return403() throws Exception {
+    void whenAnonymousGetProfile_returnError() throws Exception {
         this.mockMvc.perform(get("/action/profile")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden())
+            .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").isBoolean())
             .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.messages").isArray())
             .andExpect(jsonPath("$.messages", hasSize(1)))
-            .andExpect(jsonPath("$.messages[0].code").value(BasicMessageCode.Forbidden.key()))
+            .andExpect(jsonPath("$.messages[0].code").value(BasicMessageCode.Unauthorized.key()))
             .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
-            .andExpect(jsonPath("$.messages[0].description").value(
-                this.messageSource.getMessage(BasicMessageCode.Forbidden.key(), null, Locale.getDefault()))
-            )
+            .andExpect(jsonPath("$.messages[0].description").value("Access Denied"))
             .andExpect(jsonPath("$.exception").doesNotExist())
             .andExpect(jsonPath("$.message").doesNotExist());
     }
@@ -155,7 +153,7 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
         assertThat(account.getRegisteredAt()).isNotNull();
         assertThat(account.getRoles()).hasSize(1);
         assertThat(account.getRoles()).contains(EnumRole.ROLE_USER);
-        
+
         final AccountProfileDto profile = account.getProfile();
 
         assertThat(profile).isNotNull();

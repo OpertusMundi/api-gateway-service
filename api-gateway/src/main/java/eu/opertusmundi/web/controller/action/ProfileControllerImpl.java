@@ -5,6 +5,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.domain.AccountEntity;
+import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
@@ -30,6 +31,10 @@ public class ProfileControllerImpl extends BaseController implements ProfileCont
 
     @Override
     public RestResponse<AccountDto> getProfile() {
+        if (!this.hasRole(EnumRole.ROLE_USER)) {
+            return RestResponse.accessDenied();
+        }
+
         final String email = this.currentUserEmail();
 
         // Refresh profile for each request since the account object stored in the
