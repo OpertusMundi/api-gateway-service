@@ -31,13 +31,27 @@
             </Policies>
             <DefaultRolloverStrategy max="10" />
         </RollingFile>
+
+        <RollingFile name="asset_views" filename="${baseDir}/asset_views.log"
+            filepattern="${baseDir}/asset_views-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout
+                pattern="%m%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="512MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="100" />
+        </RollingFile>    
     </Appenders>
-    
+
     <Loggers>
         <Logger name="org.hibernate.SQL" level="INFO"></Logger>
 
 		<Logger name="WEBHOOK" level="INFO" additivity="false">
             <AppenderRef ref="webhook" />
+		</Logger>
+
+		<Logger name="ASSET_VIEWS" level="INFO" additivity="false">
+            <AppenderRef ref="asset_views" />
 		</Logger>
 
         <Root level="INFO">
