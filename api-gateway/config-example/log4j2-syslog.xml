@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="appName">api-gateway</Property>
+    </Properties>
+    <Appenders>
+        <Console name="console" target="SYSTEM_ERR">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId},%X{spanExportable}] %-16X{client.remote-address} %-14.16X{client.username} %-5p %c{1.}:%L - %m%n" />
+        </Console>
+        <Syslog 
+            name="rsyslog" format="RFC5424" host="localhost" port="514" protocol="TCP" 
+            appName="${appName}" includeMDC="true" mdcId="mdc" enterpriseNumber="18060" facility="LOCAL7" newLine="true" 
+            messageId="${appName}" id="app">
+            <LoggerFields>
+                <KeyValuePair key="level" value="%level" />
+                <KeyValuePair key="logger" value="%logger" />
+                <KeyValuePair key="thread" value="%thread" />
+                <KeyValuePair key="exception-message" value="%exception{short.message}" />
+                <KeyValuePair key="exception" value="%exception{full,separator(|)}" />
+                <KeyValuePair key="trace-id" value="%X{traceId}" />
+                <KeyValuePair key="span-id" value="%X{spanId}" />
+                <KeyValuePair key="span-exportable" value="%X{spanExportable}" />
+                <KeyValuePair key="client-address" value="%X{client.remote-address}" />
+                <KeyValuePair key="client-username" value="%X{client.username}" />
+            </LoggerFields>
+        </Syslog>
+        <Syslog 
+            name="rsyslog-webhook" format="RFC5424" host="localhost" port="514" protocol="TCP" 
+            appName="${appName}" includeMDC="true" mdcId="mdc" enterpriseNumber="18060" facility="LOCAL7" newLine="true" 
+            messageId="${appName}-webhook" id="app-webhook">
+            <LoggerFields>
+                <KeyValuePair key="level" value="%level" />
+                <KeyValuePair key="logger" value="%logger" />
+                <KeyValuePair key="exception-message" value="%exception{short.message}" />
+                <KeyValuePair key="exception" value="%exception{full,separator(|)}" />
+                <KeyValuePair key="client-address" value="%X{client.remote-address}" />
+            </LoggerFields>
+        </Syslog>
+    </Appenders>
+    <Loggers>
+		<Logger name="WEBHOOK" level="INFO" additivity="false">
+            <AppenderRef ref="rsyslog-webhook" />
+		</Logger>
+        <Root level="INFO">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="rsyslog" />
+        </Root>
+    </Loggers>
+</Configuration>

@@ -15,6 +15,11 @@ services:
     - type: 'bind'
       source: ./logs
       target: /app/logs
+    ## note: override logging configuration
+    #- type: 'bind'
+    #  source: ./api-gateway/config/log4j2-syslog.xml
+    #  target: /app/config/log4j2.xml
+    #  read_only: true
     - type: 'volume'
       source: files_assets
       target: /var/local/opertusmundi/files/assets
@@ -30,6 +35,9 @@ services:
     - type: 'volume'
       source: ingest_input
       target: /var/local/opertusmundi/ingest/input
+    - type: 'volume'
+      source: profile_input
+      target: /var/local/opertusmundi/profile/input
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Xms256m -Djava.security.egd=file:///dev/urandom'
       PUBLIC_URL: ${PUBLIC_URL}
@@ -75,6 +83,9 @@ volumes:
   ingest_input:
     external: true
     name: opertusmundi_ingest_input
+  profile_input:
+    external: true
+    name: opertusmundi_profile_input
 
 networks:
   opertusmundi_network:
