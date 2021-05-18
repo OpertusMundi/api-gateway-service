@@ -1,0 +1,94 @@
+{
+    "attributes": null,
+    "attribution": null,
+    "bbox": {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [
+                    19.803830606385976,
+                    34.94625463248878
+                ],
+                [
+                    29.991432004255017,
+                    34.94625463248878
+                ],
+                [
+                    29.991432004255017,
+                    41.42756620361534
+                ],
+                [
+                    19.803830606385976,
+                    41.42756620361534
+                ],
+                [
+                    19.803830606385976,
+                    34.94625463248878
+                ]
+            ]
+        ]
+    },
+    "crs": [
+        "urn:ogc:def:crs:EPSG::2100"
+    ],
+    "dimensions": null,
+    "endpoint": null,
+    "filterCapabilities": [
+        "comparison:PropertyIsLessThan",
+        "comparison:PropertyIsGreaterThan",
+        "comparison:PropertyIsLessThanOrEqualTo",
+        "comparison:PropertyIsGreaterThanOrEqualTo",
+        "comparison:PropertyIsEqualTo",
+        "comparison:PropertyIsNotEqualTo",
+        "comparison:PropertyIsLike",
+        "comparison:PropertyIsBetween",
+        "comparison:PropertyIsNull",
+        "comparison:PropertyIsNil",
+        "spatial:Disjoint",
+        "spatial:Equals",
+        "spatial:DWithin",
+        "spatial:Beyond",
+        "spatial:Intersects",
+        "spatial:Touches",
+        "spatial:Crosses",
+        "spatial:Within",
+        "spatial:Contains",
+        "spatial:Overlaps",
+        "spatial:BBOX",
+        "temporal:After",
+        "temporal:Before",
+        "temporal:Begins",
+        "temporal:BegunBy",
+        "temporal:TContains",
+        "temporal:During",
+        "temporal:TEquals",
+        "temporal:TOverlaps",
+        "temporal:Meets",
+        "temporal:OverlappedBy",
+        "temporal:MetBy",
+        "temporal:EndedBy"
+    ],
+    "id": null,
+    "maxScale": null,
+    "minScale": null,
+    "outputFormats": [
+        "text/xml; subtype=gml/3.2",
+        "GML2",
+        "KML",
+        "SHAPE-ZIP",
+        "application/gml+xml; version=3.2",
+        "application/json",
+        "application/vnd.google-earth.kml xml",
+        "application/vnd.google-earth.kml+xml",
+        "csv",
+        "gml3",
+        "gml32",
+        "json",
+        "text/xml; subtype=gml/2.1.2",
+        "text/xml; subtype=gml/3.1.1"
+    ],
+    "serviceType": "WFS",
+    "styles": null,
+    "tileSets": null,
+    "type": "SERVICE"
+}

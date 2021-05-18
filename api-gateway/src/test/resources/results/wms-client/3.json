@@ -1,0 +1,76 @@
+{
+    "attributes": {
+        "queryable": true,
+        "cascaded": false,
+        "opaque": null,
+        "noSubsets": null,
+        "fixedWidth": null,
+        "fixedHeight": null
+    },
+    "attribution": "University of Liège, GeoHydrodynamics and Environment Research",
+    "bbox": {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [
+                    -45.0,
+                    24.0
+                ],
+                [
+                    70.0,
+                    24.0
+                ],
+                [
+                    70.0,
+                    83.0
+                ],
+                [
+                    -45.0,
+                    83.0
+                ],
+                [
+                    -45.0,
+                    24.0
+                ]
+            ]
+        ]
+    },
+    "crs": [
+        "EPSG:3857",
+        "EPSG:4326",
+        "CRS:84",
+        "EPSG:54004"
+    ],
+    "dimensions": [
+        {
+            "name": "elevation",
+            "unit": "meters",
+            "defaultValue": null,
+            "values": null
+        },
+        {
+            "name": "time",
+            "unit": "month",
+            "defaultValue": null,
+            "values": null
+        }
+    ],
+    "endpoint": null,
+    "filterCapabilities": null,
+    "id": null,
+    "maxScale": null,
+    "minScale": null,
+    "outputFormats": [
+        "application/vnd.ogc.gml",
+        "text/xml",
+        "text/html"
+    ],
+    "serviceType": "WMS",
+    "styles": [
+        "http://ec.oceanbrowser.net/emodnet/Python/web/wms?request=GetLegendGraphic;service=WMS;version=1.3.0;width=100;height=300;format=image/png;layer=All%20European%20Seas/Water_body_chlorophyll-a.nc%2AWater%20body%20chlorophyll-a;style=pcolor_flat",
+        "http://ec.oceanbrowser.net/emodnet/Python/web/wms?request=GetLegendGraphic;service=WMS;version=1.3.0;width=100;height=300;format=image/png;layer=All%20European%20Seas/Water_body_chlorophyll-a.nc%2AWater%20body%20chlorophyll-a;style=contourf",
+        "http://ec.oceanbrowser.net/emodnet/Python/web/wms?request=GetLegendGraphic;service=WMS;version=1.3.0;width=100;height=300;format=image/png;layer=All%20European%20Seas/Water_body_chlorophyll-a.nc%2AWater%20body%20chlorophyll-a;style=contour"
+    ],
+    "tileSets": null,
+    "type": "SERVICE"
+}

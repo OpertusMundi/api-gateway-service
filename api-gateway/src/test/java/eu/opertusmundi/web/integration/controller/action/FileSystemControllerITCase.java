@@ -64,12 +64,12 @@ import eu.opertusmundi.web.utils.AccountCommandFactory;
 )
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecurity {
-   
+
     @TestConfiguration
     public static class FileSystemConfiguration {
 
         private static final Set<PosixFilePermission> DEFAULT_DIRECTORY_PERMISSIONS = PosixFilePermissions.fromString("rwxrwxr-x");
-        
+
         public final static String relativePath = UUID.randomUUID().toString();
 
         private Path createDirectory(String suffix) throws IOException {
@@ -77,7 +77,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
 
             Files.createDirectories(path);
             Files.setPosixFilePermissions(path, DEFAULT_DIRECTORY_PERMISSIONS);
-            
+
             return path;
         }
 
@@ -95,7 +95,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
         Path draftDirectory() throws IOException {
             return this.createDirectory("drafts");
         }
-        
+
         @Bean
         Path assetDirectory() throws IOException {
             return this.createDirectory("assets");

@@ -1,0 +1,61 @@
+{
+    "attributes": {
+        "queryable": true,
+        "cascaded": false,
+        "opaque": null,
+        "noSubsets": null,
+        "fixedWidth": null,
+        "fixedHeight": null
+    },
+    "attribution": null,
+    "bbox": {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [
+                    -141.00554863899987,
+                    -55.120923766999944
+                ],
+                [
+                    140.97762699400005,
+                    -55.120923766999944
+                ],
+                [
+                    140.97762699400005,
+                    70.07531036400012
+                ],
+                [
+                    -141.00554863899987,
+                    70.07531036400012
+                ],
+                [
+                    -141.00554863899987,
+                    -55.120923766999944
+                ]
+            ]
+        ]
+    },
+    "crs": [
+        "EPSG:3857",
+        "EPSG:4326",
+        "EPSG:3995",
+        "CRS:84"
+    ],
+    "dimensions": [],
+    "endpoint": null,
+    "filterCapabilities": null,
+    "id": null,
+    "maxScale": 1.5E8,
+    "minScale": null,
+    "outputFormats": [
+        "text/xml",
+        "text/xml; subtype=gml/3.1.1",
+        "application/json"
+    ],
+    "serviceType": "WMS",
+    "styles": [
+        "https://eumetview.eumetsat.int/geoserver/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=overlay%3Ane_10m_admin_0_boundary_lines_land"
+    ],
+    "tileSets": null,
+    "type": "SERVICE"
+}

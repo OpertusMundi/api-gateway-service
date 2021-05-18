@@ -518,7 +518,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.exception").doesNotExist())
             .andExpect(jsonPath("$.message").doesNotExist());
     }
-    
+
     @Test
     @Tag(value = "Controller")
     @DisplayName(value = "When changing password for authenticated user with invalid credentials, return error")
@@ -530,7 +530,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         command.setCurrentPassword("wrong-password");
         command.setNewPassword("new-password");
         command.setVerifyNewPassword("new-password");
-        
+
         this.mockMvc.perform(post("/action/account/password/change")
             .contentType(MediaType.APPLICATION_JSON)
             .content(this.objectMapper.writeValueAsString(command)))
@@ -546,7 +546,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.exception").doesNotExist())
             .andExpect(jsonPath("$.message").doesNotExist());
     }
-    
+
     @Test
     @Tag(value = "Controller")
     @DisplayName(value = "When changing password for authenticated user with valid credentials, return 200")
@@ -557,11 +557,11 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         final String                   email    = "user@opertusmundi.eu";
         final String                   password = "new-password";
         final PasswordChangeCommandDto command  = new PasswordChangeCommandDto();
-                
+
         command.setCurrentPassword("password");
         command.setNewPassword("new-password");
         command.setVerifyNewPassword("new-password");
-        
+
         this.mockMvc.perform(post("/action/account/password/change")
             .contentType(MediaType.APPLICATION_JSON)
             .content(this.objectMapper.writeValueAsString(command)))
@@ -571,7 +571,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.messages").isArray())
             .andExpect(jsonPath("$.messages", hasSize(0)));
-        
+
         final PasswordEncoder      encoder = new BCryptPasswordEncoder();
         final Optional<AccountDto> account = this.userService.findOneByUserName(email);
 
@@ -579,7 +579,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         assertThat(account.isPresent()).isTrue();
         assertThat(encoder.matches(password, account.get().getPassword())).isTrue();
     }
-    
+
     int countRowsInTable(String tableName) {
         return JdbcTestUtils.countRowsInTable(this.jdbcTemplate, tableName);
     }
