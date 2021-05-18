@@ -4,14 +4,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import eu.opertusmundi.common.model.dto.ProviderProfessionalCommandDto;
+import eu.opertusmundi.common.model.dto.ConsumerProfessionalCommandDto;
 
 @Component
 public class ConsumerProfessionalValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return ProviderProfessionalCommandDto.class.isAssignableFrom(clazz);
+        return ConsumerProfessionalCommandDto.class.isAssignableFrom(clazz);
     }
 
     @Override

@@ -22,6 +22,7 @@ import eu.opertusmundi.common.model.asset.EnumResourceType;
 import eu.opertusmundi.common.model.asset.FileResourceDto;
 import eu.opertusmundi.common.model.asset.ResourceDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
+import eu.opertusmundi.common.model.pricing.EnumPricingModel;
 import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.repository.AssetAdditionalResourceRepository;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
@@ -151,11 +152,26 @@ public class DraftValidator implements Validator {
     }
 
     private void validatePricingModels(CatalogueItemCommandDto c, Errors e) {
-        for (int i = 0; i < c.getPricingModels().size(); i++) {
-            try {
-                c.getPricingModels().get(i).validate();
-            } catch (final QuotationException ex) {
-                e.rejectValue(String.format("pricingModels[%d]", i), ex.getMessage());
+        // At least one pricing model is required
+        if (c.getPricingModels().size() == 0) {
+            e.rejectValue("pricingModels", "NotEmpty");
+        } else {
+            // Validate each pricing model
+            for (int i = 0; i < c.getPricingModels().size(); i++) {
+                try {
+                    c.getPricingModels().get(i).validate();
+                } catch (final QuotationException ex) {
+                    e.rejectValue(String.format("pricingModels[%d]", i), ex.getMessage());
+                }
+            }
+            // For open datasets, only a single pricing model of type FREE is
+            // allowed
+            if (c.isOpenDataset()) {
+                if (c.getPricingModels().size() != 1) {
+                    e.rejectValue("pricingModels", "MaxSize");
+                } else if (c.getPricingModels().get(0).getType() != EnumPricingModel.FREE) {
+                    e.rejectValue("pricingModels[0]", "TypeNotSupported");
+                }
             }
         }
     }

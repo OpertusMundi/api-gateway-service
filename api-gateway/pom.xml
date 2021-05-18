@@ -21,6 +21,7 @@
 		<frontend-maven-plugin.version>1.11.3</frontend-maven-plugin.version>
 		<spring-cloud.version>Hoxton.SR8</spring-cloud.version>
 		<org.camunda.bpm.version>7.13.0</org.camunda.bpm.version>
+		<org.iban4j.version>3.2.1</org.iban4j.version>
 		<org.jadira.usertype.core.version>6.0.1.GA</org.jadira.usertype.core.version>
 		<org.joda.joda-money.version>1.0.1</org.joda.joda-money.version>
 		<springdoc.version>1.5.4</springdoc.version>
@@ -268,7 +269,13 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
-	
+
+		<dependency>
+			<groupId>org.iban4j</groupId>
+			<artifactId>iban4j</artifactId>
+			<version>${org.iban4j.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
