@@ -27,11 +27,22 @@
             </Policies>
             <DefaultRolloverStrategy max="10" />
         </RollingFile>
+        <RollingFile name="asset_views-file" filename="${baseDir}/${appName}-asset_views.log"
+            filepattern="${baseDir}/${appName}-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout pattern="%m%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="512MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="50" />
+        </RollingFile>
     </Appenders>
     <Loggers>
-		<Logger name="WEBHOOK" level="INFO" additivity="false">
+        <Logger name="WEBHOOK" level="INFO" additivity="false">
             <AppenderRef ref="webhook-file" />
-		</Logger>
+        </Logger>
+        <Logger name="ASSET_VIEWS" level="INFO" additivity="false">
+            <AppenderRef ref="asset_views-file" />
+        </Logger>
         <Root level="INFO">
             <AppenderRef ref="console" />
             <AppenderRef ref="file" />

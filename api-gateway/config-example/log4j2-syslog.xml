@@ -28,7 +28,7 @@
         <Syslog 
             name="rsyslog-webhook" format="RFC5424" host="localhost" port="514" protocol="TCP" 
             appName="${appName}" includeMDC="true" mdcId="mdc" enterpriseNumber="18060" facility="LOCAL7" newLine="true" 
-            messageId="${appName}-webhook" id="app-webhook">
+            messageId="${appName}/webhook" id="app-webhook">
             <LoggerFields>
                 <KeyValuePair key="level" value="%level" />
                 <KeyValuePair key="logger" value="%logger" />
@@ -37,11 +37,19 @@
                 <KeyValuePair key="client-address" value="%X{client.remote-address}" />
             </LoggerFields>
         </Syslog>
+        <Syslog 
+            name="rsyslog-asset_views" format="RFC5424" host="localhost" port="514" protocol="TCP" 
+            appName="${appName}" includeMDC="true" mdcId="mdc" enterpriseNumber="18060" facility="LOCAL6" newLine="true" 
+            messageId="${appName}/asset_views" id="app-asset_views">
+        </Syslog>
     </Appenders>
     <Loggers>
 		<Logger name="WEBHOOK" level="INFO" additivity="false">
             <AppenderRef ref="rsyslog-webhook" />
 		</Logger>
+        <Logger name="ASSET_VIEWS" level="INFO" additivity="false">
+            <AppenderRef ref="rsyslog-asset_views" />
+        </Logger>
         <Root level="INFO">
             <AppenderRef ref="console" />
             <AppenderRef ref="rsyslog" />
