@@ -3,7 +3,8 @@
 FROM node:10.16.3-buster AS npm-build
 
 ENV NPM_CONFIG_PROGRESS="false" \
-    NPM_CONFIG_SPIN="false"
+    NPM_CONFIG_SPIN="false" \
+    HUSKY_SKIP_INSTALL="true"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
