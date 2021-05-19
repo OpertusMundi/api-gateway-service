@@ -73,7 +73,8 @@ ENV PUBLIC_URL="" \
     RATING_USERNAME="" \
     RATING_PASSWORD_FILE="/secrets/rating-password" \
     PROFILE_BASE_URL="http://profile:8000/" \
-    PID_BASE_URL="http://pid:8000/"
+    PID_BASE_URL="http://pid:8000/" \
+    GOOGLEANALYTICS_TRACKER_ID=""
 
 VOLUME [ \
     "/var/local/opertusmundi/files/assets", \

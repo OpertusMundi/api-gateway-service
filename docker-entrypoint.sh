@@ -101,11 +101,17 @@ function _generate_configuration_for_clients()
 	EOD
 }
 
+function _generate_configuration_for_googleanalytics()
+{
+    echo "opertusmundi.googleanalytics.tracker-id = ${GOOGLEANALYTICS_TRACKER_ID:-}"
+}
+
 runtime_profile=$(hostname | md5sum | head -c10)
 {
     _generate_configuration_for_self;    
     _generate_configuration_for_datasource; 
     _generate_configuration_for_clients;
+    _generate_configuration_for_googleanalytics;
 } >./config/application-${runtime_profile}.properties
 
 logging_config="classpath:config/log4j2.xml"
