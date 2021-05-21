@@ -94,15 +94,18 @@ public abstract class BaseController {
 
             Location location = (Location) session.getAttribute(Constants.SESSION_LOCATION);
 
-            // Refresh location if not already computed or when the client IP
-            // has changed
-            if (locationService == null && location == null) {
-                location = Location.empty(ip);
-                session.setAttribute(Constants.SESSION_LOCATION, location);
+            // Refresh location when:
+            // (a) not already computed, or
+            // (b) the client IP has changed
+            //
+            // If the location service is not enabled, always create a new
+            // location instance using the authenticated account profile
+            if (locationService == null) {
+                location = Location.empty(ip, this.getAccount() == null ? null : this.getAccount().getCountry());
             } else if (locationService != null && location == null || !location.getIp().equals(ip)) {
                 location = locationService.getLocation(ip);
                 if (location == null) {
-                    location = Location.empty(ip);
+                    location = Location.empty(ip, this.getAccount() == null ? null : this.getAccount().getCountry());
                 }
                 session.setAttribute(Constants.SESSION_LOCATION, location);
             }
