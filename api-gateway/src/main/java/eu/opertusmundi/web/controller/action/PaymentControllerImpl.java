@@ -28,10 +28,10 @@ import eu.opertusmundi.common.service.PaymentService;
 
 @RestController
 public class PaymentControllerImpl extends BaseController implements PaymentController {
-         
+
     @Autowired
     private CartService cartService;
-    
+
     @Autowired
     private PaymentService paymentService;
 
@@ -39,11 +39,11 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
     public RestResponse<?> checkout(HttpSession session) {
         // Get current cart
         final UUID cartKey = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
-        CartDto    cart    = this.cartService.getCart(cartKey);
-        
+        final CartDto    cart    = this.cartService.getCart(cartKey);
+
         // Create order
-        final OrderDto order = this.paymentService.createOrderFromCart(cart);
-       
+        final OrderDto order = this.paymentService.createOrderFromCart(cart, this.getLocation());
+
         return RestResponse.result(order);
     }
 
@@ -59,7 +59,7 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
         // If payment creation was successful, reset cart
         final CartDto cart = this.cartService.getCart();
         session.setAttribute(CartConstants.CART_SESSION_KEY, cart.getKey());
-        
+
         return RestResponse.result(result);
     }
 
@@ -92,7 +92,7 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
-        
+
         final String cardId = this.paymentService.registerCard(command);
 
         return RestResponse.result(cardId);
@@ -116,12 +116,12 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
 
         // If payment has been executed successfully, reset cart. If 3-D Secure
         // validation is required or the transaction has failed, the cart should
-        // not be reseted.
+        // not be reset.
         if (result.getExecutedOn() != null && result.getStatus() == EnumTransactionStatus.SUCCEEDED) {
             final CartDto cart = this.cartService.getCart();
             session.setAttribute(CartConstants.CART_SESSION_KEY, cart.getKey());
         }
-        
+
         return RestResponse.result(result);
     }
 
