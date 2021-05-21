@@ -31,6 +31,7 @@ import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.ServiceResponse;
+import eu.opertusmundi.common.model.analytics.ProfileRecord;
 import eu.opertusmundi.common.model.dto.AccountCommandDto;
 import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
@@ -39,6 +40,7 @@ import eu.opertusmundi.common.model.dto.ActivationTokenDto;
 import eu.opertusmundi.common.model.email.MessageDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
+import eu.opertusmundi.common.service.ElasticSearchService;
 import eu.opertusmundi.web.model.email.MailActivationModel;
 import eu.opertusmundi.web.model.security.CreateAccountResult;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
@@ -60,6 +62,9 @@ public class DefaultUserService implements UserService {
 
     @Autowired
     private ObjectProvider<EmailServiceFeignClient> emailClient;
+
+    @Autowired(required = false)
+    private ElasticSearchService elasticSearchService;
 
     @Override
     @Transactional
@@ -88,6 +93,11 @@ public class DefaultUserService implements UserService {
         tokenCommand.setEmail(command.getEmail());
 
         final ServiceResponse<ActivationTokenDto> tokenResponse = this.createToken(EnumActivationTokenType.ACCOUNT, tokenCommand);
+
+        // Update account profile
+        if (elasticSearchService != null) {
+            elasticSearchService.addProfile(ProfileRecord.from(account));
+        }
 
         return ServiceResponse.result(CreateAccountResult.of(account, tokenResponse.getResult()));
     }
@@ -205,6 +215,11 @@ public class DefaultUserService implements UserService {
     @Transactional
     public AccountDto updateProfile(AccountProfileCommandDto command) {
         final AccountDto account = this.accountRepository.updateProfile(command);
+
+        // Update account profile
+        if (elasticSearchService != null) {
+            elasticSearchService.addProfile(ProfileRecord.from(account));
+        }
 
         return account;
     }
