@@ -3,6 +3,7 @@ package eu.opertusmundi.web.model.openapi.schema;
 public class EndpointTags {
 
     public final static String Account              = "Account";
+    public final static String Analytics            = "Analytics";
     public final static String Asset                = "Assets";
     public final static String Cart                 = "Cart";
     public final static String Catalogue            = "Catalogue";
