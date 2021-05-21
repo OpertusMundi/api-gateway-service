@@ -1,11 +1,11 @@
 <th:block 
   xmlns:th="http://www.thymeleaf.org" 
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
-  layout:fragment="googleanalytics-tracker">
- 
+  th:fragment="tracking-code"> 
+  
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async 
-	th:src="https://www.googletagmanager.com/gtag/js?id=${@environment.getProperty('opertusmundi.googleanalytics.tracker-id')}">
+	th:src="'https://www.googletagmanager.com/gtag/js?id=' + ${@environment.getProperty('opertusmundi.googleanalytics.tracker-id')}">
   </script>
   <script th:data-tracker-id="${@environment.getProperty('opertusmundi.googleanalytics.tracker-id')}">
 	window.dataLayer = window.dataLayer || [];

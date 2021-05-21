@@ -70,33 +70,23 @@ function _generate_configuration_for_clients()
 
     cat <<-EOD
 	opertusmundi.feign.jwt.secret = ${jwt_secret}
-	
 	opertusmundi.payments.mangopay.base-url = ${mangopay_base_url}
 	opertusmundi.payments.mangopay.client-id = ${mangopay_client_id}
 	opertusmundi.payments.mangopay.client-password = ${mangopay_client_password}
-	
 	opertusmundi.feign.bpm-server.url = ${bpm_rest_base_url}
 	opertusmundi.feign.bpm-server.basic-auth.username = ${bpm_rest_username}
 	opertusmundi.feign.bpm-server.basic-auth.password = ${bpm_rest_password}
-	
 	opertusmundi.feign.catalogue.url = ${catalogue_base_url}
-	
 	opertusmundi.feign.ingest.url = ${ingest_base_url}
-	
 	opertusmundi.feign.transform.url = ${transform_base_url}
-	
 	opertusmundi.feign.email-service.url = ${mailer_base_url}
 	opertusmundi.feign.email-service.jwt.subject = api-gateway
-	
 	opertusmundi.feign.message-service.url = ${messenger_base_url}
 	opertusmundi.feign.message-service.jwt.subject = api-gateway
-	
 	opertusmundi.feign.rating-service.url = ${rating_base_url}
 	opertusmundi.feign.rating-service.basic-auth.username = ${rating_username}
 	opertusmundi.feign.rating-service.basic-auth.password = ${rating_password}
-	
 	opertusmundi.feign.data-profiler.url = ${profile_base_url}
-	
 	opertusmundi.feign.persistent-identifier-service.url= ${pid_base_url}
 	EOD
 }
@@ -107,12 +97,17 @@ function _generate_configuration_for_googleanalytics()
 }
 
 runtime_profile=$(hostname | md5sum | head -c10)
+
 {
-    _generate_configuration_for_self;    
+    _generate_configuration_for_self;
+
     _generate_configuration_for_datasource; 
+    
     _generate_configuration_for_clients;
+    
     _generate_configuration_for_googleanalytics;
-} >./config/application-${runtime_profile}.properties
+
+} > ./config/application-${runtime_profile}.properties
 
 logging_config="classpath:config/log4j2.xml"
 if [[ -f "./config/log4j2.xml" ]]; then
