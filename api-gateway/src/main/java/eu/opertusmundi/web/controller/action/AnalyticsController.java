@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.analytics.AssetQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
 import eu.opertusmundi.common.model.openapi.schema.AnalyticsEndpointTypes;
@@ -26,7 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     name        = EndpointTags.Analytics,
     description = "Data analysis API"
 )
-@RequestMapping(path = "/action", produces = "application/json")
+@RequestMapping(path = "/action/analytics", produces = "application/json")
 public interface AnalyticsController {
 
     /**
@@ -53,7 +54,7 @@ public interface AnalyticsController {
             )
         )
     )
-    @PostMapping(value = "/analytics/sales", consumes = { "application/json" })
+    @PostMapping(value = "/sales", consumes = { "application/json" })
     @Secured({ "ROLE_PROVIDER" })
     @Validated
     RestResponse<?> executeSalesQuery(
@@ -71,5 +72,52 @@ public interface AnalyticsController {
         @Parameter(
             hidden = true
         )
-        BindingResult validationResult);
+        BindingResult validationResult
+    );
+
+    /**
+     * Query asset views
+     *
+     * @param request The query to execute
+     *
+     * @return A {@link RestResponse} with a {@link DataSeries} result
+     */
+    @Operation(
+        operationId = "analytics-02",
+        summary     = "Assets",
+        description = "Execute a query on asset views and return a single data series. Required roles: <b>ROLE_PROVIDER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(
+                implementation = AnalyticsEndpointTypes.BigDecimalDataSeries.class
+            )
+        )
+    )
+    @PostMapping(value = "/assets", consumes = { "application/json" })
+    @Secured({ "ROLE_PROVIDER" })
+    @Validated
+    RestResponse<?> executeAssetQuery(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Query to execute",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = AssetQuery.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        AssetQuery query,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+
 }

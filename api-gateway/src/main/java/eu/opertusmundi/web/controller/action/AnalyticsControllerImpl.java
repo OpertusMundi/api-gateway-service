@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.analytics.AssetQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
 import eu.opertusmundi.common.service.DataAnalysisService;
@@ -21,6 +22,24 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
 
     @Override
     public RestResponse<?> executeSalesQuery(@Valid SalesQuery query, BindingResult validationResult) {
+        // Override publisher key
+        if (query.getPublishers() == null) {
+            query.setPublishers(new ArrayList<>());
+        }
+        query.getPublishers().clear();
+        query.getPublishers().add(this.currentUserKey());
+
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
+        final DataSeries<?> result = analysisService.execute(query);
+
+        return RestResponse.result(result);
+    }
+
+    @Override
+    public RestResponse<?> executeAssetQuery(@Valid AssetQuery query, BindingResult validationResult) {
         // Override publisher key
         if (query.getPublishers() == null) {
             query.setPublishers(new ArrayList<>());

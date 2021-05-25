@@ -39,7 +39,7 @@ steps:
   commands:
   - export PGHOST=$${DATABASE_HOST}
   - (t=30; while ! pg_isready -U postgres -t 5; do t=$((t - 1)); test $${t} -ne 0; sleep 3s; done)
-  # Setup client 
+  # Setup client
   - touch ~/.pgpass
   - chmod og-rwx ~/.pgpass
   - echo "$${DATABASE_HOST}:5432:*:postgres:$${DATABASE_POSTGRES_PASSWORD}" >> ~/.pgpass
@@ -74,7 +74,7 @@ steps:
 
 - name: resolve-deps
   #image: maven:3.6.3-openjdk-8
-  image: opertusmundi/java-commons-builder:1.0.36
+  image: opertusmundi/java-commons-builder:1.0.38
   when:
     event:
     - push
@@ -101,7 +101,7 @@ steps:
   # Generate configuration for testing
   - cd api-gateway
   - mkdir ./config
-  - config_file=./config/application-testing.properties 
+  - config_file=./config/application-testing.properties
   - >-
     (  echo "spring.datasource.url=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}";
        echo "spring.datasource.username=$${DATABASE_USER}";
@@ -116,7 +116,7 @@ steps:
 
 - name: tests
   #image: maven:3.6.3-openjdk-8
-  image: opertusmundi/java-commons-builder:1.0.36
+  image: opertusmundi/java-commons-builder:1.0.38
   when:
     event:
     - push
@@ -132,7 +132,7 @@ steps:
 
 - name: integration-tests
   #image: maven:3.6.3-openjdk-8
-  image: opertusmundi/java-commons-builder:1.0.36
+  image: opertusmundi/java-commons-builder:1.0.38
   when:
     event:
     - push
@@ -153,7 +153,7 @@ steps:
     event:
     - tag
   commands:
-  - tags_file=$(mktemp) 
+  - tags_file=$(mktemp)
   - echo ${DRONE_TAG} | grep -e '^[0-9]\+[.][0-9]\+[.][0-9]\+\([_-][a-z0-9][-.a-z0-9]*\)\?$' | tee -a $${tags_file}
   - echo ${DRONE_TAG} | grep -o -e '^[0-9]\+[.][0-9]\+[.][0-9]\+' | tee -a $${tags_file}
   - cat $${tags_file} | xargs echo | tr '[:blank:]' ',' | tr -d '\n' | tee .tags && echo
@@ -165,7 +165,7 @@ steps:
     - tag
   settings:
     debug: true
-    username: 
+    username:
       from_secret: docker_username
     password:
       from_secret: docker_password
@@ -179,7 +179,7 @@ steps:
     - tag
   settings:
     debug: true
-    username: 
+    username:
       from_secret: registry_username
     password:
       from_secret: registry_password
@@ -205,4 +205,4 @@ services:
 
 volumes:
 - name: maven-repo
-  temp: {}   
+  temp: {}
