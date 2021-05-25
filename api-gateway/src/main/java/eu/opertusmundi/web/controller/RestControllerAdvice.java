@@ -51,7 +51,7 @@ public class RestControllerAdvice {
     )
     public @ResponseBody BaseResponse handleException(HttpMessageNotReadableException ex) {
 
-        logger.error(String.format("400 - Bad Request. [message=%s]: ", ex.getMessage()), ex);
+        logger.error(String.format("400 - Bad Request. [message=%s]", ex.getMessage()), ex);
 
         final MessageCode code        = BasicMessageCode.BadRequest;
         final String      description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
@@ -99,7 +99,7 @@ public class RestControllerAdvice {
         AccessDeniedException ex,  HttpServletRequest request
     ) {
 
-        logger.error("403 - Forbidden. [path={}, message={}]: ", request.getRequestURI(), ex.getMessage());
+        logger.error("403 - Forbidden. [path={}, message={}]", request.getRequestURI(), ex.getMessage());
 
         final MessageCode      code        = BasicMessageCode.Forbidden;
         final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
@@ -123,7 +123,7 @@ public class RestControllerAdvice {
     public @ResponseBody BaseResponse handleException(ServiceException ex) {
 
         if (ex.isLogEntryRequired()) {
-            logger.error(String.format("500 - Internal Server Error. [message=%s]: ", ex.getMessage()), ex);
+            logger.error(String.format("500 - Internal Server Error. [message=%s]", ex.getMessage()), ex);
         }
 
         final MessageCode      code        = ex.getCode();
@@ -147,7 +147,7 @@ public class RestControllerAdvice {
     )
     public @ResponseBody BaseResponse handleException(Exception ex) {
 
-        logger.error(String.format("500 - Internal Server Error. [message=%s]: ", ex.getMessage()), ex);
+        logger.error(String.format("500 - Internal Server Error. [message=%s]", ex.getMessage()), ex);
 
         final MessageCode      code        = BasicMessageCode.InternalServerError;
         final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
