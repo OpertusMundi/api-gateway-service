@@ -1,6 +1,7 @@
 package eu.opertusmundi.web.security;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,14 +38,15 @@ import eu.opertusmundi.common.model.dto.AccountDto;
 import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.dto.ActivationTokenDto;
+import eu.opertusmundi.common.model.email.EmailAddressDto;
+import eu.opertusmundi.common.model.email.EnumMailType;
 import eu.opertusmundi.common.model.email.MessageDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
 import eu.opertusmundi.common.service.ElasticSearchService;
-import eu.opertusmundi.web.model.email.MailActivationModel;
+import eu.opertusmundi.common.service.messaging.MailMessageHelper;
 import eu.opertusmundi.web.model.security.CreateAccountResult;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
-import feign.FeignException;
 
 @Service
 public class DefaultUserService implements UserService {
@@ -59,6 +61,9 @@ public class DefaultUserService implements UserService {
 
     @Autowired
     private ActivationTokenRepository activationTokenRepository;
+
+    @Autowired
+    private MailMessageHelper messageHelper;
 
     @Autowired
     private ObjectProvider<EmailServiceFeignClient> emailClient;
@@ -287,51 +292,37 @@ public class DefaultUserService implements UserService {
     }
 
     private void sendMail(String name, ActivationTokenDto token) {
-        // Compose message
-        final MessageDto<MailActivationModel> message = new MessageDto<>();
-
-        final MailActivationModel model = this.createActivationMailModel(name, token);
-
-        // TODO: Create/Render template, create parameters for subject, sender
-        // and URLs
-
-        message.setSubject("Activate account");
-
-        message.setSender("hello@OpertusMundi.eu", "OpertusMundi");
-
-        if (StringUtils.isBlank(name)) {
-            message.setRecipients(token.getEmail());
-        } else {
-            message.setRecipients(token.getEmail(), name);
-        }
-
-        message.setTemplate("token-request");
-
-        message.setModel(model);
-
         try {
+            final EnumMailType        type  = EnumMailType.ACCOUNT_ACTIVATION_TOKEN;
+            final Map<String, Object> model = this.messageHelper.createModel(type);
+            model.put("name", name);
+            model.put("token", token.getToken());
+            model.put("url", this.baseUrl);
+
+            final EmailAddressDto                 sender   = this.messageHelper.getSender(type, model);
+            final String                          subject  = this.messageHelper.composeSubject(type, model);
+            final String                          template = this.messageHelper.resolveTemplate(type, model);
+            final MessageDto<Map<String, Object>> message  = new MessageDto<>();
+
+            message.setSender(sender);
+            message.setSubject(subject);
+            message.setTemplate(template);
+            message.setModel(model);
+
+            if (StringUtils.isBlank(name)) {
+                message.setRecipients(token.getEmail());
+            } else {
+                message.setRecipients(token.getEmail(), name);
+            }
+
             final ResponseEntity<BaseResponse> response = this.emailClient.getObject().sendMail(message);
 
             if (!response.getBody().getSuccess()) {
-                // TODO: Add logging ...
-                // TODO: Handle error ...
+                logger.error(String.format("Failed to send mail [recipient=%s]", token.getEmail()));
             }
-        } catch (final FeignException fex) {
-            // final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
-
-            // TODO: Add logging ...
-            // TODO: Handle error ...
+        } catch (final Exception ex) {
+            logger.error(String.format("Failed to send mail [recipient=%s]", token.getEmail()), ex);
         }
-    }
-
-    private MailActivationModel createActivationMailModel(String name, ActivationTokenDto token) {
-        final MailActivationModel model = new MailActivationModel();
-
-        model.setName(name);
-        model.setToken(token.getToken());
-        model.setUrl(this.baseUrl);
-
-        return model;
     }
 
 }

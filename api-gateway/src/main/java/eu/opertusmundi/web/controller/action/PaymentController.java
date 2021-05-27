@@ -18,11 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.dto.EnumSortingOrder;
 import eu.opertusmundi.common.model.order.OrderDto;
+import eu.opertusmundi.common.model.payment.BankwirePayInDto;
 import eu.opertusmundi.common.model.payment.CardDirectPayInCommandDto;
 import eu.opertusmundi.common.model.payment.CardDirectPayInDto;
 import eu.opertusmundi.common.model.payment.CardDto;
 import eu.opertusmundi.common.model.payment.CardRegistrationCommandDto;
+import eu.opertusmundi.common.model.payment.EnumPayInSortField;
+import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
 import eu.opertusmundi.common.model.payment.PayInDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
@@ -65,7 +69,7 @@ public interface PaymentController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", 
+            mediaType = "application/json",
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CheckoutOrderResponse.class})
         )
     )
@@ -74,10 +78,10 @@ public interface PaymentController {
 
     /**
      * Creates a bankwire PayIn for a specific order
-     * 
+     *
      * @param orderKey
      * @param session
-     * 
+     *
      * @return A {@link RestResponse} object with a result of type
      *         {@link BankwirePayInDto} if operation was successful; Otherwise an
      *         instance of {@link BaseResponse} is returned with one or more error
@@ -98,7 +102,7 @@ public interface PaymentController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", 
+            mediaType = "application/json",
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.BankWirePayInResponse.class})
         )
     )
@@ -133,7 +137,7 @@ public interface PaymentController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", 
+            mediaType = "application/json",
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardCollectionResponse.class})
         )
     )
@@ -152,7 +156,7 @@ public interface PaymentController {
         )
         @RequestParam(name = "size", required = false, defaultValue = "10") Integer size
     );
- 
+
     /**
      * Initialize a new card registration
      *
@@ -176,13 +180,13 @@ public interface PaymentController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", 
+            mediaType = "application/json",
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardRegistrationRequestResponse.class})
         )
     )
     @PostMapping(value = "/payments/cards")
     RestResponse<?> createCardRegistration();
-    
+
     /**
      * Completes card registration
      *
@@ -203,7 +207,7 @@ public interface PaymentController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", 
+            mediaType = "application/json",
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardRegistrationResponse.class})
         )
     )
@@ -226,15 +230,15 @@ public interface PaymentController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Creates a card direct PayIn for a specific order
-     * 
+     *
      * @param orderKey
      * @param command
      * @param validationResult
      * @param session
-     * 
+     *
      * @return A {@link RestResponse} object with a result of type
      *         {@link CardDirectPayInDto} if operation was successful; Otherwise an
      *         instance of {@link BaseResponse} is returned with one or more error
@@ -255,7 +259,7 @@ public interface PaymentController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", 
+            mediaType = "application/json",
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardDirectPayInResponse.class})
         )
     )
@@ -285,10 +289,10 @@ public interface PaymentController {
         BindingResult validationResult,
         @Parameter(hidden = true) HttpSession session
     );
- 
+
     /**
      * Get PayIn details
-     * 
+     *
      * @param payInKey
      * @return A {@link RestResponse} object with a result of type
      *         {@link PayInDto} if operation was successful; Otherwise an
@@ -306,20 +310,76 @@ public interface PaymentController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", 
+            mediaType = "application/json",
             schema = @Schema(oneOf = {
                 BaseResponse.class, PaymentEndPoints.BankWirePayInResponse.class, PaymentEndPoints.CardDirectPayInResponse.class
             })
         )
     )
     @GetMapping(value = "/payments/payins/{payInKey}")
-    RestResponse<?> getPayIn(
+    RestResponse<?> findOnePayIn(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
             description = "PayIn unique key"
             )
         @PathVariable UUID payInKey
+    );
+
+    /**
+     * Search consumer PayIn records
+     *
+     * @param pageIndex
+     * @param pageSize
+     * @param orderBy
+     * @param order
+     * @return
+     */
+    @Operation(
+        operationId = "payment-08",
+        summary     = "Consumer PayIns",
+        description = "Search consumer PayIn records. Required roles: <b>ROLE_CONSUMER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(implementation = PaymentEndPoints.PayInCollectionResponse.class)
+        )
+    )
+    @GetMapping(value = "payments/payins/consumer")
+    @Secured({"ROLE_CONSUMER"})
+    RestResponse<?> findAllConsumerPayIns(
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "PayIn status"
+        )
+        @RequestParam(name = "status", required = false) EnumTransactionStatus status,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Page index"
+        )
+        @RequestParam(name = "page", defaultValue = "0") int pageIndex,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Page size"
+        )
+        @RequestParam(name = "size", defaultValue = "10") int pageSize,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Order by property"
+        )
+        @RequestParam(name = "orderBy", defaultValue = "EXECUTED_ON") EnumPayInSortField orderBy,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Sorting order"
+        )
+        @RequestParam(name = "order", defaultValue = "ASC") EnumSortingOrder order
     );
 
 }

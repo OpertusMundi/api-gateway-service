@@ -33,12 +33,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = EndpointTags.Asset,
-    description = "The asset API"
+    name        = EndpointTags.Provider,
+    description = "The Provider API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
 public interface ProviderAssetController {
-    
+
     /**
      * Search catalogue items published by the provider
      *
@@ -102,13 +102,13 @@ public interface ProviderAssetController {
         )
         @RequestParam(name = "order", defaultValue = "ASC") EnumSortingOrder order
     );
-    
+
     /**
      * Download an additional resource file
      *
      * @param pid Asset persistent identifier (PID)
      * @param resourceKey Resource unique key
-     * 
+     *
      * @return The requested file
      */
     @Operation(
@@ -138,14 +138,14 @@ public interface ProviderAssetController {
         @Parameter(hidden = true)
         HttpServletResponse response
     ) throws IOException;
-    
+
     /**
      * Get metadata property value
      *
      * @param pid Asset persistent identifier (PID)
      * @param resourceKey Resource unique key
      * @param propertyName The property name
-     * 
+     *
      * @return The requested property value
      */
     @Operation(
@@ -162,7 +162,7 @@ public interface ProviderAssetController {
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested value"))
     )
     @GetMapping(
-        value = "/assets/{pid}/resources/{resourceKey}/metadata/{propertyName}", 
+        value = "/assets/{pid}/resources/{resourceKey}/metadata/{propertyName}",
         produces = {MediaType.IMAGE_PNG_VALUE, MediaType.APPLICATION_JSON_VALUE}
     )
     @Secured({"ROLE_USER"})
@@ -187,7 +187,7 @@ public interface ProviderAssetController {
         @Parameter(hidden = true)
         HttpServletResponse response
     ) throws IOException;
-    
+
     /**
      * Delete catalogue item
      *

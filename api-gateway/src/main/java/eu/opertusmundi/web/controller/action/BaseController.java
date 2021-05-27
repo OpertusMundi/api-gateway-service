@@ -119,11 +119,15 @@ public abstract class BaseController {
     }
 
     protected RequestContext createContext() {
+        return this.createContext(false);
+    }
+
+    protected RequestContext createContext(boolean ignoreLogging) {
         final String     ip       = this.getRemoteIpAddress();
         final Location   location = this.getLocation();
         final AccountDto account  = this.authenticationFacade.getCurrentAccount();
 
-        return RequestContext.of(ip, account, location);
+        return RequestContext.of(ip, account, location, ignoreLogging);
     }
 
 }
