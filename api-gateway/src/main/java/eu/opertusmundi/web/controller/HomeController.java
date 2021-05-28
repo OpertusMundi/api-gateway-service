@@ -3,6 +3,8 @@ package eu.opertusmundi.web.controller;
 import java.util.Locale;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -18,9 +20,13 @@ import org.springframework.web.servlet.ModelAndView;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.MessageCode;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.ServiceResponse;
+import eu.opertusmundi.web.security.UserService;
 
 @Controller
 public class HomeController {
+
+    private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     @Value("${springdoc.api-docs.server:http://localhost:8080}")
     private String serverUrl;
@@ -30,6 +36,9 @@ public class HomeController {
 
     @Autowired
     private MessageSource messageSource;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * Default request handler
@@ -64,6 +73,25 @@ public class HomeController {
      */
     @GetMapping("/token/verify")
     public String verifyToken(@RequestParam(name = "token", required = true) UUID token) {
+        try {
+            final ServiceResponse<Void> response = userService.redeemToken(token);
+
+            if (response.getMessages().isEmpty()) {
+                return "redirect:/account/registration/success";
+            }
+        } catch (final Exception ex) {
+            logger.error("Token verification has failed [token={}, message={}]", token, ex.getMessage());
+        }
+        return "redirect:/account/registration/failure";
+    }
+
+    @GetMapping("/account/registration/success")
+    public String verifyTokenSuccess() {
+        return "index";
+    }
+
+    @GetMapping("/account/registration/failure")
+    public String verifyTokenFailure() {
         return "index";
     }
 

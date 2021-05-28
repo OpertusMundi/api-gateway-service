@@ -157,6 +157,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/logged-out",
                 // Redirect pages
                 "/token/verify",
+                "/account/registration/**",
                 // Errors
                 "/error/**",
                 // Actions
