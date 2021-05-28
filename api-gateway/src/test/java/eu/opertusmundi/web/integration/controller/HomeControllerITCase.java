@@ -60,14 +60,11 @@ class HomeControllerITCase extends AbstractIntegrationTest {
 
     @Test
     @Tag(value = "Controller")
-    @DisplayName(value = "When verify token URL, return index view")
+    @DisplayName(value = "When verify token URL, redirect")
     void whenVerifyTokenUrl_returnIndexView() throws Exception {
-        final MvcResult result = this.mockMvc.perform(get("/token/verify")
+        this.mockMvc.perform(get("/token/verify")
             .queryParam("token", UUID.randomUUID().toString()))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertThat(result.getModelAndView().getViewName()).isEqualTo("index");
+            .andExpect(status().is3xxRedirection());
     }
 
     @Test
