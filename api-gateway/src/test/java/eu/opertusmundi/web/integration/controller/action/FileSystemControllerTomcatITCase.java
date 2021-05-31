@@ -51,7 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
+import eu.opertusmundi.common.model.account.AccountCommandDto;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.web.utils.AccountCommandFactory;

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 
 @Component
@@ -21,7 +22,7 @@ public class PasswordCommandValidator implements Validator {
 
         // Check password
         if (!StringUtils.isBlank(a.getNewPassword()) && !a.getNewPassword().equals(a.getVerifyNewPassword())) {
-            e.rejectValue("verifyNewPassword", "NotEqual");
+            e.rejectValue("verifyNewPassword", EnumValidatorError.NotEqual.name());
         }
     }
 

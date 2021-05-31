@@ -12,9 +12,9 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
-import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
+import eu.opertusmundi.common.model.account.AccountCommandDto;
+import eu.opertusmundi.common.model.account.AccountDto;
+import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 import eu.opertusmundi.web.config.OAuthUserInfoDetailResolver;
 import eu.opertusmundi.web.model.security.User;
 

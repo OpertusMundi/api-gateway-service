@@ -5,15 +5,15 @@ import java.util.UUID;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
-import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
-import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
-import eu.opertusmundi.common.model.dto.ActivationTokenDto;
+import eu.opertusmundi.common.model.account.AccountCommandDto;
+import eu.opertusmundi.common.model.account.AccountDto;
+import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
+import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
+import eu.opertusmundi.common.model.account.ActivationTokenDto;
+import eu.opertusmundi.common.model.account.EnumActivationTokenType;
 import eu.opertusmundi.web.model.security.CreateAccountResult;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 

@@ -9,7 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import eu.opertusmundi.common.model.EnumRole;
-import eu.opertusmundi.common.model.dto.AccountDto;
+import eu.opertusmundi.common.model.account.AccountDto;
 
 public class User implements UserDetails {
 

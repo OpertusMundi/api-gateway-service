@@ -14,6 +14,7 @@ import org.springframework.validation.Validator;
 import eu.opertusmundi.common.domain.AssetAdditionalResourceEntity;
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.AssetResourceEntity;
+import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.asset.AssetAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.EnumAssetAdditionalResource;
@@ -63,11 +64,11 @@ public class DraftValidator implements Validator {
         final AssetFileTypeEntity format = this.assetFileTypeRepository.findOneByFormat(c.getFormat()).orElse(null);
 
         if (format == null) {
-            e.rejectValue("format", "NotFound");
+            e.rejectValue("format", EnumValidatorError.OptionNotFound.name());
         } else if (!format.isEnabled()) {
-            e.rejectValue("format", "NotEnabled");
+            e.rejectValue("format", EnumValidatorError.OptionNotEnabled.name());
         } else if (c.isIngested() && format.getCategory() != EnumAssetSourceType.VECTOR) {
-            e.rejectValue("format", "IngestNotSupported");
+            e.rejectValue("ingested", EnumValidatorError.OperationNotSupported.name());
         }
     }
 
@@ -79,7 +80,7 @@ public class DraftValidator implements Validator {
         // All request resource keys must exist at the server
         for (int i = 0; i < requestKeys.size(); i++) {
             if (!serverKeys.contains(requestKeys.get(i))) {
-                e.rejectValue(String.format("resources[%d]", i), "NotFound");
+                e.rejectValue(String.format("resources[%d]", i), EnumValidatorError.ResourceNotFound.name());
             }
         }
 
@@ -100,13 +101,13 @@ public class DraftValidator implements Validator {
                 .findFirst().get();
 
             if (!serverResource.getFileName().equals(fileRequestResource.getFileName())) {
-                e.rejectValue(String.format("resources[%d].fileName", i), "ReadOnly");
+                e.rejectValue(String.format("resources[%d].fileName", i), EnumValidatorError.NotUpdatable.name());
             }
             if (!serverResource.getSize().equals(fileRequestResource.getSize())) {
-                e.rejectValue(String.format("resources[%d].size", i), "ReadOnly");
+                e.rejectValue(String.format("resources[%d].size", i), EnumValidatorError.NotUpdatable.name());
             }
             if (!serverResource.getCreatedOn().toInstant().equals(fileRequestResource.getModifiedOn().toInstant())) {
-                e.rejectValue(String.format("resources[%d].modifiedOn", i), "ReadOnly");
+                e.rejectValue(String.format("resources[%d].modifiedOn", i), EnumValidatorError.NotUpdatable.name());
             }
         }
 
@@ -118,16 +119,16 @@ public class DraftValidator implements Validator {
             final AssetFileTypeEntity format    = this.assetFileTypeRepository.findOneByFormat(resource.getFormat()).orElse(null);
 
             if (format == null) {
-                e.rejectValue(String.format("resources[%d].format", i), "NotFound");
+                e.rejectValue(String.format("resources[%d].format", i), EnumValidatorError.OptionNotFound.name());
             } else if (!format.isEnabled()) {
-                e.rejectValue(String.format("resources[%d].format", i), "NotEnabled");
+                e.rejectValue(String.format("resources[%d].format", i), EnumValidatorError.OptionNotEnabled.name());
             } else if (c.isIngested() && format.getCategory() != EnumAssetSourceType.VECTOR) {
-                e.rejectValue(String.format("resources[%d].format", i), "IngestNotSupported");
+                e.rejectValue(String.format("resources[%d].ingested", i), EnumValidatorError.OperationNotSupported.name());
             } else if (!format.getExtensions().contains(extension)) {
                 if (format.isBundleSupported() && extension.equals("zip")) {
                     continue;
                 }
-                e.rejectValue(String.format("resources[%d].format", i), "NotSupportedExtension");
+                e.rejectValue(String.format("resources[%d].fileName", i), EnumValidatorError.FileExtensionNotSupported.name());
             }
         }
     }
@@ -146,7 +147,7 @@ public class DraftValidator implements Validator {
             }
 
             if (!keys.contains(((AssetFileAdditionalResourceDto) r).getId())) {
-                e.rejectValue(String.format("additionalResources[%d]", i), "NotFound");
+                e.rejectValue(String.format("additionalResources[%d]", i), EnumValidatorError.ResourceNotFound.name());
             }
         }
     }
@@ -154,23 +155,23 @@ public class DraftValidator implements Validator {
     private void validatePricingModels(CatalogueItemCommandDto c, Errors e) {
         // At least one pricing model is required
         if (c.getPricingModels().size() == 0) {
-            e.rejectValue("pricingModels", "NotEmpty");
+            e.rejectValue("pricingModels", EnumValidatorError.NotEmpty.name());
         } else {
             // Validate each pricing model
             for (int i = 0; i < c.getPricingModels().size(); i++) {
                 try {
                     c.getPricingModels().get(i).validate();
                 } catch (final QuotationException ex) {
-                    e.rejectValue(String.format("pricingModels[%d]", i), ex.getMessage());
+                    e.rejectValue(String.format("pricingModels[%d]", i), EnumValidatorError.NotValid.name());
                 }
             }
             // For open datasets, only a single pricing model of type FREE is
             // allowed
             if (c.isOpenDataset()) {
                 if (c.getPricingModels().size() != 1) {
-                    e.rejectValue("pricingModels", "MaxSize");
+                    e.rejectValue("pricingModels", EnumValidatorError.Size.name());
                 } else if (c.getPricingModels().get(0).getType() != EnumPricingModel.FREE) {
-                    e.rejectValue("pricingModels[0]", "TypeNotSupported");
+                    e.rejectValue("pricingModels[0]", EnumValidatorError.OptionNotSupported.name());
                 }
             }
         }

@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
-import eu.opertusmundi.common.model.EnumActivationTokenType;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
-import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.ActivationTokenCommandDto;
-import eu.opertusmundi.common.model.dto.ActivationTokenDto;
+import eu.opertusmundi.common.model.account.AccountCommandDto;
+import eu.opertusmundi.common.model.account.AccountDto;
+import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
+import eu.opertusmundi.common.model.account.ActivationTokenDto;
+import eu.opertusmundi.common.model.account.EnumActivationTokenType;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import eu.opertusmundi.web.model.security.Token;
 import eu.opertusmundi.web.security.UserService;

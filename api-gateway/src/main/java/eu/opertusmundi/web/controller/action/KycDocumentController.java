@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.dto.EnumCustomerType;
+import eu.opertusmundi.common.model.account.EnumCustomerType;
 import eu.opertusmundi.common.model.kyc.KycDocumentCommandDto;
 import eu.opertusmundi.common.model.kyc.KycDocumentDto;
 import eu.opertusmundi.common.model.kyc.KycDocumentPageCommandDto;

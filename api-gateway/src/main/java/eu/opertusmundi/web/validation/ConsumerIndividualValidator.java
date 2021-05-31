@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import eu.opertusmundi.common.model.dto.ConsumerIndividualCommandDto;
+import eu.opertusmundi.common.model.account.ConsumerIndividualCommandDto;
 
 @Component
 public class ConsumerIndividualValidator implements Validator {

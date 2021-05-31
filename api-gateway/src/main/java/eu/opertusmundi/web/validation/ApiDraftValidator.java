@@ -7,6 +7,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
+import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.asset.EnumAssetSourceType;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
@@ -24,7 +25,7 @@ public class ApiDraftValidator implements Validator {
 
     @Autowired
     private UserFileManager userFileManager;
-    
+
     @Override
     public boolean supports(Class<?> clazz) {
         return DraftApiCommandDto.class.isAssignableFrom(clazz);
@@ -37,9 +38,7 @@ public class ApiDraftValidator implements Validator {
         if (c.getServiceType() != null) {
             final EnumSpatialDataServiceType serviceType = EnumSpatialDataServiceType.fromString(c.getServiceType());
 
-            if (serviceType == null) {
-                e.rejectValue("serviceType", "NotSupported");
-            } else {
+            if (serviceType != null) {
                 switch (serviceType) {
                     case WMS :
                     case WFS :
@@ -47,7 +46,7 @@ public class ApiDraftValidator implements Validator {
                         // No action
                         break;
                     default :
-                        e.rejectValue("serviceType", "NotSupported");
+                        e.rejectValue("serviceType", EnumValidatorError.OptionNotSupported.name());
                         break;
                 }
             }
@@ -79,25 +78,25 @@ public class ApiDraftValidator implements Validator {
 
         try {
             this.userFileManager.resolveFilePath(fileCommand);
-        } catch (FileSystemException ex) {
-            e.rejectValue("path", ex.getMessage());
+        } catch (final FileSystemException ex) {
+            e.rejectValue("path", EnumValidatorError.FileNotFound.name());
         }
-        
+
         // Validate format
         if (StringUtils.isBlank(command.getFormat())) {
             return;
         }
 
-        AssetFileTypeEntity format = this.assetFileTypeRepository
+        final AssetFileTypeEntity format = this.assetFileTypeRepository
             .findOneByFormat(command.getFormat())
             .orElse(null);
-        
+
         if (format == null) {
-            e.rejectValue("format", "NotFound");
+            e.rejectValue("format", EnumValidatorError.OptionNotFound.name());
         } else if (!format.isEnabled()) {
-            e.rejectValue("format", "NotEnabled");
+            e.rejectValue("format", EnumValidatorError.OptionNotEnabled.name());
         } else if (format.getCategory() != EnumAssetSourceType.VECTOR) {
-            e.rejectValue("format", "IngestNotSupported");
+            e.rejectValue("format", EnumValidatorError.OptionNotSupported.name());
         }
     }
 

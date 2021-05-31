@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
-import eu.opertusmundi.common.model.dto.AccountDto;
+import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.web.model.security.User;
 
 @Service

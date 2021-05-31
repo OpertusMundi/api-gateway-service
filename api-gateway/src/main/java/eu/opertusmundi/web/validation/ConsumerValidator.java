@@ -7,7 +7,8 @@ import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.domain.CustomerEntity;
-import eu.opertusmundi.common.model.dto.CustomerCommandDto;
+import eu.opertusmundi.common.model.EnumValidatorError;
+import eu.opertusmundi.common.model.account.CustomerCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.CustomerRepository;
 
@@ -40,7 +41,7 @@ public class ConsumerValidator implements Validator {
 
         // Consumer type cannot be modified once set
         if (consumer != null && consumer.getType() != c.getType()) {
-            e.rejectValue("type", "NotUpdatable");
+            e.rejectValue("type", EnumValidatorError.NotUpdatable.name());
         }
 
         // Email must be unique for all consumers
@@ -49,7 +50,7 @@ public class ConsumerValidator implements Validator {
             .orElse(null);
 
         if (otherConsumer != null) {
-            e.rejectValue("email", "NotUnique");
+            e.rejectValue("email", EnumValidatorError.NotUnique.name());
         }
 
         switch (c.getType()) {

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.domain.ActivationTokenEntity;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.dto.ActivationTokenDto;
+import eu.opertusmundi.common.model.account.ActivationTokenDto;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
 import eu.opertusmundi.web.model.security.User;
 import io.swagger.v3.oas.annotations.Hidden;

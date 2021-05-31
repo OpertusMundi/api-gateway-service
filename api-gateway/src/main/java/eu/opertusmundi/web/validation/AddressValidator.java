@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import eu.opertusmundi.common.model.dto.AddressCommandDto;
+import eu.opertusmundi.common.model.account.AddressCommandDto;
 
 @Component
 public class AddressValidator implements Validator {

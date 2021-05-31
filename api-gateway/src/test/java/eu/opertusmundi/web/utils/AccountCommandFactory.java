@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import eu.opertusmundi.common.model.EnumRole;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
-import eu.opertusmundi.common.model.dto.AccountProfileCommandDto;
+import eu.opertusmundi.common.model.account.AccountCommandDto;
+import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 
 public class AccountCommandFactory {
 

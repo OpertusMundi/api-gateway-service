@@ -13,8 +13,9 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.CustomerEntity;
-import eu.opertusmundi.common.model.dto.BankAccountCommandDto;
-import eu.opertusmundi.common.model.dto.ProviderProfessionalCommandDto;
+import eu.opertusmundi.common.model.EnumValidatorError;
+import eu.opertusmundi.common.model.account.BankAccountCommandDto;
+import eu.opertusmundi.common.model.account.ProviderProfessionalCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.CustomerRepository;
 
@@ -43,7 +44,7 @@ public class ProviderValidator implements Validator {
             .orElse(null);
 
         if (otherConsumer != null) {
-            e.rejectValue("email", "NotUnique");
+            e.rejectValue("email", EnumValidatorError.NotUnique.name());
         }
 
         // IBAN validation
@@ -51,7 +52,7 @@ public class ProviderValidator implements Validator {
             try {
                 IbanUtil.validate(bankAccount.getIban());
             } catch (final IbanFormatException | InvalidCheckDigitException | UnsupportedCountryException ex) {
-                e.rejectValue("bankAccount.iban", "NotValid");
+                e.rejectValue("bankAccount.iban", EnumValidatorError.NotValid.name());
             }
         }
         // BIC validation
@@ -59,7 +60,7 @@ public class ProviderValidator implements Validator {
             try {
                 BicUtil.validate(bankAccount.getBic());
             } catch (final BicFormatException | UnsupportedCountryException ex) {
-                e.rejectValue("bankAccount.bic", "NotValid");
+                e.rejectValue("bankAccount.bic", EnumValidatorError.NotValid.name());
             }
         }
     }

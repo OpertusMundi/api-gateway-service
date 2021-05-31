@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.opertusmundi.common.model.EnumRole;
-import eu.opertusmundi.common.model.dto.AccountDto;
+import eu.opertusmundi.common.model.account.AccountDto;
 
 public interface AuthenticationFacade {
 

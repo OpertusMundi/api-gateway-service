@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.AccountProfileDto;
-import eu.opertusmundi.common.model.dto.CustomerCommandDto;
+import eu.opertusmundi.common.model.account.AccountDto;
+import eu.opertusmundi.common.model.account.AccountProfileDto;
+import eu.opertusmundi.common.model.account.CustomerCommandDto;
 import eu.opertusmundi.common.service.ConsumerRegistrationService;
 import eu.opertusmundi.web.validation.ConsumerValidator;
 

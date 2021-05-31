@@ -48,11 +48,11 @@ import com.google.common.net.HttpHeaders;
 
 import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
-import eu.opertusmundi.common.model.EnumActivationStatus;
-import eu.opertusmundi.common.model.FileSystemMessageCode;
 import eu.opertusmundi.common.model.Message.EnumLevel;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
+import eu.opertusmundi.common.model.account.AccountCommandDto;
+import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.file.FilePathCommand;
+import eu.opertusmundi.common.model.file.FileSystemMessageCode;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTestWithSecurity;

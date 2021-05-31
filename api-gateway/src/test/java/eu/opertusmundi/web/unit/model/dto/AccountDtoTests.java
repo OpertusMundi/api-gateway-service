@@ -12,7 +12,7 @@ import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.opertusmundi.common.model.EnumRole;
-import eu.opertusmundi.common.model.dto.AccountDto;
+import eu.opertusmundi.common.model.account.AccountDto;
 
 @JsonTest
 @ExtendWith(SpringExtension.class)

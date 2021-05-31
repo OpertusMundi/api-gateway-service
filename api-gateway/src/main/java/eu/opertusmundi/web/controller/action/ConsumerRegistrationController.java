@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.dto.AccountProfileDto;
-import eu.opertusmundi.common.model.dto.ConsumerIndividualCommandDto;
-import eu.opertusmundi.common.model.dto.ConsumerProfessionalCommandDto;
-import eu.opertusmundi.common.model.dto.CustomerCommandDto;
+import eu.opertusmundi.common.model.account.AccountProfileDto;
+import eu.opertusmundi.common.model.account.ConsumerIndividualCommandDto;
+import eu.opertusmundi.common.model.account.ConsumerProfessionalCommandDto;
+import eu.opertusmundi.common.model.account.CustomerCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

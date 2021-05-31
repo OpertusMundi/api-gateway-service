@@ -9,6 +9,7 @@ import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
+import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.asset.EnumAssetSourceType;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
@@ -19,7 +20,7 @@ public class AssetFileResourceValidator implements Validator {
 
     @Autowired
     private AssetFileTypeRepository assetFileTypeRepository;
-    
+
     @Autowired
     private ProviderAssetDraftRepository providerAssetDraftRepository;
 
@@ -36,22 +37,22 @@ public class AssetFileResourceValidator implements Validator {
             c.getPublisherKey(), c.getDraftKey()
         ).orElse(null);
 
-        String              extension = FilenameUtils.getExtension(c.getFileName());
-        AssetFileTypeEntity format    = this.assetFileTypeRepository.findOneByFormat(c.getFormat()).orElse(null);
+        final String              extension = FilenameUtils.getExtension(c.getFileName());
+        final AssetFileTypeEntity format    = this.assetFileTypeRepository.findOneByFormat(c.getFormat()).orElse(null);
 
         if (format == null) {
-            e.rejectValue("format", "NotFound");
+            e.rejectValue("format", EnumValidatorError.OptionNotFound.name());
         } else if (!format.isEnabled()) {
-            e.rejectValue("format", "NotEnabled");
+            e.rejectValue("format", EnumValidatorError.OptionNotEnabled.name());
         } else if (draft != null && draft.isIngested() && format.getCategory() != EnumAssetSourceType.VECTOR) {
-            e.rejectValue("format", "IngestNotSupported");
+            e.rejectValue("ingested", EnumValidatorError.OperationNotSupported.name());
         } else if (StringUtils.isBlank(extension)) {
-            e.rejectValue("format", "NotSupportedExtension");
+            e.rejectValue("fileName", EnumValidatorError.FileExtensionNotSupported.name());
         } else if (!format.getExtensions().contains(extension)) {
             if (format.isBundleSupported() && extension.equals("zip")) {
                 return;
             }
-            e.rejectValue("format", "NotSupportedExtension");
+            e.rejectValue("fileName", EnumValidatorError.FileExtensionNotSupported.name());
         }
     }
 

@@ -5,13 +5,13 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.account.AccountAssetDto;
 import eu.opertusmundi.common.model.asset.EnumConsumerAssetSortField;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
 import eu.opertusmundi.common.model.catalogue.client.EnumType;
-import eu.opertusmundi.common.model.dto.AccountAssetDto;
-import eu.opertusmundi.common.model.dto.EnumSortingOrder;
 import eu.opertusmundi.common.service.ConsumerAssetService;
 
 @RestController

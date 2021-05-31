@@ -1,7 +1,7 @@
 package eu.opertusmundi.web.model.security;
 
-import eu.opertusmundi.common.model.dto.AccountDto;
-import eu.opertusmundi.common.model.dto.ActivationTokenDto;
+import eu.opertusmundi.common.model.account.AccountDto;
+import eu.opertusmundi.common.model.account.ActivationTokenDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

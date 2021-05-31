@@ -17,7 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.RequestContext;
-import eu.opertusmundi.common.model.dto.AccountDto;
+import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.location.Location;
 import eu.opertusmundi.common.service.GeoIpApiLocationService;
 import eu.opertusmundi.common.service.LocationService;

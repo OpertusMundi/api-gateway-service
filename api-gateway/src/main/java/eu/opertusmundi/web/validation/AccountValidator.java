@@ -7,7 +7,8 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AccountEntity;
-import eu.opertusmundi.common.model.dto.AccountCommandDto;
+import eu.opertusmundi.common.model.EnumValidatorError;
+import eu.opertusmundi.common.model.account.AccountCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 
 @Component
@@ -31,12 +32,12 @@ public class AccountValidator implements Validator {
         account = this.accountRepository.findOneByEmail(a.getEmail()).orElse(null);
 
         if (account != null) {
-            e.rejectValue("email", "NotUnique");
+            e.rejectValue("email", EnumValidatorError.NotUnique.name());
         }
 
         // Check password
         if (!StringUtils.isBlank(a.getPassword()) && !a.getPassword().equals(a.getVerifyPassword())) {
-            e.rejectValue("password", "NotEqual");
+            e.rejectValue("password", EnumValidatorError.NotEqual.name());
         }
     }
 
