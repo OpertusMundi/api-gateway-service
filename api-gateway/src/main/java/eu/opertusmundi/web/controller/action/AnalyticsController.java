@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.analytics.AssetQuery;
+import eu.opertusmundi.common.model.analytics.AssetViewQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
 import eu.opertusmundi.common.model.openapi.schema.AnalyticsEndpointTypes;
@@ -107,13 +107,13 @@ public interface AnalyticsController {
             description = "Query to execute",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = AssetQuery.class)
+                schema = @Schema(implementation = AssetViewQuery.class)
             ),
             required = true
         )
         @Valid
         @RequestBody
-        AssetQuery query,
+        AssetViewQuery query,
         @Parameter(
             hidden = true
         )

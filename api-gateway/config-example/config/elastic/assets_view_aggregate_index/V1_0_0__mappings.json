@@ -1,0 +1,16 @@
+  {
+     "properties": {
+      "country":                { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+      "day":                    { "type": "long"},
+      "id":                     { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+      "month":                  { "type": "long"},
+      "publisherKey":           { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+      "segment":                { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+      "view_count":             { "type": "long"},
+      "search_count":           { "type": "long"},
+      "reference_count":        { "type": "long"},
+      "week":                   { "type": "long"},
+      "year":                   { "type": "long"},
+      "insertTimestamp":        { "type": "date"}
+    }
+  }

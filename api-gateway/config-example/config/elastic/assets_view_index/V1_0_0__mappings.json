@@ -1,0 +1,27 @@
+  {
+     "properties": {
+      "country":                { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+      "dateTime":               { "type": "date"},
+      "day":                    { "type": "long"},
+      "id":                     { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+      "location.country":       { "type": "text"},
+      "location.province":      { "type": "text"},
+      "location.city":          { "type": "text"},
+      "location.latitude":      { "type": "double"},
+      "location.longitude":     { "type": "double"},
+      "location.timezone":      { "type": "text"},
+      "location.ip":            { "type": "text"},
+      "month":                  { "type": "long"},
+      "publisherKey":           { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+      "query":                  { "type": "text"},
+      "remoteIpAddress":        { "type": "text"},
+      "segment":                { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+      "source":                 { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+      "userId":                 { "type": "long"},
+      "userKey":                { "type": "text"},
+      "version":                { "type": "text"},
+      "week":                   { "type": "long"},
+      "year":                   { "type": "long"},
+      "insertTimestamp":        { "type": "date"}
+    }
+  }
