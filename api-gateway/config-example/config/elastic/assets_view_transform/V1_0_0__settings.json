@@ -1,0 +1,35 @@
+{
+  "source": {
+    "index": "assets_view",
+    "query": {
+        "match_all": {}
+    }
+  },
+  "dest": {
+    "index": "assets_view_aggregate"
+  },
+  "pivot": {
+    "group_by": {
+      "country":      { "terms": { "field": "country.keyword" } },
+      "day":          { "terms": { "field": "day" } },
+      "week":         { "terms": { "field": "week" } },
+      "month":        { "terms": { "field": "month" } },
+      "year":         { "terms": { "field": "year" } },
+      "publisherKey": { "terms": { "field": "publisherKey.keyword" } },
+      "segment":      { "terms": { "field": "segment.keyword" } },
+      "id":           { "terms": { "field": "id.keyword" } }
+    },
+    "aggregations": {
+      "view_count":           { "filter": { "term": {"source.keyword": "VIEW"} } },
+      "search_count":         { "filter": { "term": {"source.keyword": "SEARCH"} } },
+      "reference_count":      { "filter": { "term": {"source.keyword": "REFERENCE"} } }
+    }
+  },
+  "frequency": "1m",
+  "sync": {
+    "time": {
+      "field": "insertTimestamp",
+      "delay": "60s"
+    }
+  }
+}

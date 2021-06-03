@@ -1,0 +1,12 @@
+{
+  "description": "Creates a timestamp when a document is initially indexed",
+  "processors": [
+  {
+    "set": 
+    {
+      "field": "_source.insertTimestamp",
+      "value": "{{_ingest.timestamp}}"
+    }
+  }
+  ]
+}
