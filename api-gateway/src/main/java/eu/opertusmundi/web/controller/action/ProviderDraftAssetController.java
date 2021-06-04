@@ -81,7 +81,7 @@ public interface ProviderDraftAssetController {
             mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftCollectionResponse.class)
         )
     )
-    @GetMapping(value = "/drafts", consumes = "application/json")
+    @GetMapping(value = "/drafts")
     RestResponse<?> findAllDraft(
         @Parameter(
             in = ParameterIn.QUERY,
@@ -361,10 +361,10 @@ public interface ProviderDraftAssetController {
         )
         BindingResult validationResult
     );
-   
+
     /**
      * Uploads an additional resource file
-     * 
+     *
      * @param draftKey Draft unique key
      * @param file An instance of {@link MultipartFile} with the uploaded file
      * @param command Metadata for the uploaded file
@@ -408,13 +408,13 @@ public interface ProviderDraftAssetController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Download an additional resource file
      *
      * @param draftKey Draft unique key
      * @param resourceKey Resource unique key
-     * 
+     *
      * @return The requested file
      */
     @Operation(
@@ -454,7 +454,7 @@ public interface ProviderDraftAssetController {
      * @param draftKey Draft unique key
      * @param resourceKey Resource unique key
      * @param propertyName The property name
-     * 
+     *
      * @return The requested property value
      */
     @Operation(
@@ -471,7 +471,7 @@ public interface ProviderDraftAssetController {
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested value"))
     )
     @GetMapping(
-        value = "/drafts/{draftKey}/resources/{resourceKey}/metadata/{propertyName}", 
+        value = "/drafts/{draftKey}/resources/{resourceKey}/metadata/{propertyName}",
         produces = {MediaType.IMAGE_PNG_VALUE, MediaType.APPLICATION_JSON_VALUE}
     )
     ResponseEntity<StreamingResponseBody> getMetadataProperty(
@@ -497,7 +497,7 @@ public interface ProviderDraftAssetController {
     /**
      * Create an API draft from an existing published asset or a file in the
      * user's file system
-     *  
+     *
      * @param command
      * @param validationResult
      * @return
@@ -532,5 +532,5 @@ public interface ProviderDraftAssetController {
         )
         BindingResult validationResult
     );
-    
+
 }
