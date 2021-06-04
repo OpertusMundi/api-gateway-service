@@ -6,106 +6,95 @@ set -u -e -o pipefail
 function _validate_http_url()
 {
     local var_name=$1
-    local pattern="^\(https\|http\):[/][/]\([a-z][-a-z0-9]*\)\([.][a-z][-a-z0-9]*\)*\([:][1-9][0-9]\{1,4\}\)\?\([/]\|$\)"
-    grep -e "${pattern}" || { echo "${var_name} does not seem like an http(s) URL" 1>&2 && false; }
+    local re="^\(https\|http\)://\([a-z][-a-z0-9]*\)\([.][a-z][-a-z0-9]*\)*\([:][1-9][0-9]\{1,4\}\)\?\(/\|$\)"
+    grep -e "${re}" || { echo "${var_name} does not seem like an http(s) URL" 1>&2 && false; }
 }
 
 function _validate_database_url()
 {
     local var_name=$1
-    local pattern="^jdbc:postgresql:[/][/]\([a-z][-a-z0-9]*\)\([.][a-z][-a-z0-9]*\)*\([:][1-9][0-9]\{1,4\}\)\?[/][a-z][-_a-zA-Z0-9]*$"
-    grep -e "${pattern}" || { echo "${var_name} does not seem like a PostgreSQL JDBC connection URL" 1>&2 && false; }
-}
-
-function _generate_configuration_for_self()
-{
-    public_url=$(echo ${PUBLIC_URL} | _validate_http_url "PUBLIC_URL")
-    echo "opertus-mundi.base-url = ${public_url}"
-}
-
-function _generate_configuration_for_datasource()
-{
-    database_url=$(echo ${DATABASE_URL} | _validate_database_url "DATABASE_URL")
-    database_username=${DATABASE_USERNAME}
-    database_password=$(cat ${DATABASE_PASSWORD_FILE} | tr -d '\n')
-    
-    cat <<-EOD
-	spring.datasource.url = ${database_url}
-	spring.datasource.username = ${database_username}
-	spring.datasource.password = ${database_password}
-	EOD
-}
-
-function _generate_configuration_for_clients()
-{
-    jwt_secret=$(cat ${JWT_SECRET_FILE} | tr -d '\n')
-    
-    bpm_rest_base_url=$(echo ${BPM_REST_BASE_URL} | _validate_http_url "BPM_REST_BASE_URL")
-    bpm_rest_username=${BPM_REST_USERNAME}
-    bpm_rest_password=$(cat ${BPM_REST_PASSWORD_FILE} | tr -d '\n')
-
-    mangopay_base_url=$(echo ${MANGOPAY_BASE_URL} | _validate_http_url "MANGOPAY_BASE_URL")
-    mangopay_client_id=${MANGOPAY_CLIENT_ID}
-    mangopay_client_password=$(cat ${MANGOPAY_CLIENT_PASSWORD_FILE} | tr -d '\n')
-
-    catalogue_base_url=$(echo ${CATALOGUE_BASE_URL} | _validate_http_url "CATALOGUE_BASE_URL")
-
-    ingest_base_url=$(echo ${INGEST_BASE_URL} | _validate_http_url "INGEST_BASE_URL")
-
-    transform_base_url=$(echo ${TRANSFORM_BASE_URL} | _validate_http_url "TRANSFORM_BASE_URL")
-   
-    mailer_base_url=$(echo ${MAILER_BASE_URL} | _validate_http_url "MAILER_BASE_URL")
-    
-    messenger_base_url=$(echo ${MESSENGER_BASE_URL} | _validate_http_url "MESSENGER_BASE_URL")
-
-    rating_base_url=$(test -z "${RATING_BASE_URL:-}" && echo -n || \
-        { echo ${RATING_BASE_URL} | _validate_http_url "RATING_BASE_URL"; })
-    rating_username=${RATING_USERNAME}
-    rating_password=$({ test -f "${RATING_PASSWORD_FILE}" && \
-        cat ${RATING_PASSWORD_FILE}; } | tr -d '\n' || echo -n)
-
-    profile_base_url=$(echo ${PROFILE_BASE_URL} | _validate_http_url "PROFILE_BASE_URL")
-
-    pid_base_url=$(echo ${PID_BASE_URL} | _validate_http_url "PID_BASE_URL")
-
-    cat <<-EOD
-	opertusmundi.feign.jwt.secret = ${jwt_secret}
-	opertusmundi.payments.mangopay.base-url = ${mangopay_base_url}
-	opertusmundi.payments.mangopay.client-id = ${mangopay_client_id}
-	opertusmundi.payments.mangopay.client-password = ${mangopay_client_password}
-	opertusmundi.feign.bpm-server.url = ${bpm_rest_base_url}
-	opertusmundi.feign.bpm-server.basic-auth.username = ${bpm_rest_username}
-	opertusmundi.feign.bpm-server.basic-auth.password = ${bpm_rest_password}
-	opertusmundi.feign.catalogue.url = ${catalogue_base_url}
-	opertusmundi.feign.ingest.url = ${ingest_base_url}
-	opertusmundi.feign.transform.url = ${transform_base_url}
-	opertusmundi.feign.email-service.url = ${mailer_base_url}
-	opertusmundi.feign.email-service.jwt.subject = api-gateway
-	opertusmundi.feign.message-service.url = ${messenger_base_url}
-	opertusmundi.feign.message-service.jwt.subject = api-gateway
-	opertusmundi.feign.rating-service.url = ${rating_base_url}
-	opertusmundi.feign.rating-service.basic-auth.username = ${rating_username}
-	opertusmundi.feign.rating-service.basic-auth.password = ${rating_password}
-	opertusmundi.feign.data-profiler.url = ${profile_base_url}
-	opertusmundi.feign.persistent-identifier-service.url= ${pid_base_url}
-	EOD
-}
-
-function _generate_configuration_for_googleanalytics()
-{
-    echo "opertusmundi.googleanalytics.tracker-id = ${GOOGLEANALYTICS_TRACKER_ID:-}"
+    local re="^jdbc:postgresql://\([a-z][-a-z0-9]*\)\([.][a-z][-a-z0-9]*\)*\([:][1-9][0-9]\{1,4\}\)\?/[a-z][-_a-zA-Z0-9]*$"
+    grep -e "${re}" || { echo "${var_name} does not seem like a PostgreSQL JDBC connection URL" 1>&2 && false; }
 }
 
 runtime_profile=$(hostname | md5sum | head -c10)
 
 {
-    _generate_configuration_for_self;
+    public_url=$(echo ${PUBLIC_URL} | _validate_http_url "PUBLIC_URL")
+    echo "opertus-mundi.base-url = ${public_url}"
 
-    _generate_configuration_for_datasource; 
+    database_url=$(echo ${DATABASE_URL} | _validate_database_url "DATABASE_URL")
+    database_username=${DATABASE_USERNAME}
+    database_password=$(cat ${DATABASE_PASSWORD_FILE} | tr -d '\n')
+    echo "spring.datasource.url = ${database_url}"
+    echo "spring.datasource.username = ${database_username}"
+    echo "spring.datasource.password = ${database_password}"
+
+    jwt_secret=$(cat ${JWT_SECRET_FILE} | tr -d '\n')
+    echo "opertusmundi.feign.jwt.secret = ${jwt_secret}"
+
+    bpm_rest_base_url=$(echo ${BPM_REST_BASE_URL} | _validate_http_url "BPM_REST_BASE_URL")
+    bpm_rest_username=${BPM_REST_USERNAME}
+    bpm_rest_password=$(cat ${BPM_REST_PASSWORD_FILE} | tr -d '\n')
+    echo "opertusmundi.feign.bpm-server.url = ${bpm_rest_base_url}"
+    echo "opertusmundi.feign.bpm-server.basic-auth.username = ${bpm_rest_username}"
+    echo "opertusmundi.feign.bpm-server.basic-auth.password = ${bpm_rest_password}"
+
+    mangopay_base_url=$(echo ${MANGOPAY_BASE_URL} | _validate_http_url "MANGOPAY_BASE_URL")
+    mangopay_client_id=${MANGOPAY_CLIENT_ID}
+    mangopay_client_password=$(cat ${MANGOPAY_CLIENT_PASSWORD_FILE} | tr -d '\n')
+    echo "opertusmundi.payments.mangopay.base-url = ${mangopay_base_url}"
+    echo "opertusmundi.payments.mangopay.client-id = ${mangopay_client_id}"
+    echo "opertusmundi.payments.mangopay.client-password = ${mangopay_client_password}"
+
+    catalogue_base_url=$(echo ${CATALOGUE_BASE_URL} | _validate_http_url "CATALOGUE_BASE_URL")
+    echo "opertusmundi.feign.catalogue.url = ${catalogue_base_url}"
+
+    ingest_base_url=$(echo ${INGEST_BASE_URL} | _validate_http_url "INGEST_BASE_URL")
+    echo "opertusmundi.feign.ingest.url = ${ingest_base_url}"
+
+    transform_base_url=$(echo ${TRANSFORM_BASE_URL} | _validate_http_url "TRANSFORM_BASE_URL")
+    echo "opertusmundi.feign.transform.url = ${transform_base_url}"
+
+    mailer_base_url=$(echo ${MAILER_BASE_URL} | _validate_http_url "MAILER_BASE_URL")
+    echo "opertusmundi.feign.email-service.url = ${mailer_base_url}"
+    echo "opertusmundi.feign.email-service.jwt.subject = api-gateway"
+
+    messenger_base_url=$(echo ${MESSENGER_BASE_URL} | _validate_http_url "MESSENGER_BASE_URL")
+    echo "opertusmundi.feign.message-service.url = ${messenger_base_url}"
+    echo "opertusmundi.feign.message-service.jwt.subject = api-gateway"
+
+    rating_base_url=$(test -z "${RATING_BASE_URL:-}" && echo -n || \
+        { echo ${RATING_BASE_URL} | _validate_http_url "RATING_BASE_URL"; })
+    rating_username=${RATING_USERNAME}
+    rating_password=$({ test -f "${RATING_PASSWORD_FILE}" && cat ${RATING_PASSWORD_FILE}; } | tr -d '\n' || echo -n)
+    echo "opertusmundi.feign.rating-service.url = ${rating_base_url}"
+    echo "opertusmundi.feign.rating-service.basic-auth.username = ${rating_username}"
+    echo "opertusmundi.feign.rating-service.basic-auth.password = ${rating_password}"
+
+    profile_base_url=$(echo ${PROFILE_BASE_URL} | _validate_http_url "PROFILE_BASE_URL")
+    echo "opertusmundi.feign.data-profiler.url = ${profile_base_url}"
     
-    _generate_configuration_for_clients;
-    
-    _generate_configuration_for_googleanalytics;
+    pid_base_url=$(echo ${PID_BASE_URL} | _validate_http_url "PID_BASE_URL")
+    echo "opertusmundi.feign.persistent-identifier-service.url= ${pid_base_url}"
+
+    elasticsearch_base_url_pattern="^(http|https)://([a-z][-a-z0-9]*([.][a-z][-a-z0-9]*)*):([1-9][0-9]*)($|/.*)" 
+    elasticsearch_url_scheme=$(echo ${ELASTICSEARCH_BASE_URL} | sed -n -r 's,(http|https)://.*,\1,p' | grep .)
+    elasticsearch_url_host=$(echo ${ELASTICSEARCH_BASE_URL} | sed -n -r "s,${elasticsearch_base_url_pattern},\2,p" | grep .)
+    elasticsearch_url_port=$(echo ${ELASTICSEARCH_BASE_URL} | sed -n -r "s,${elasticsearch_base_url_pattern},\4,p" | grep .)
+    elasticsearch_indices_assets_index_name=${ELASTICSEARCH_INDICES_ASSETS_INDEX_NAME}
+    elasticsearch_indices_assets_view_index_name=${ELASTICSEARCH_INDICES_ASSETS_VIEW_INDEX_NAME}
+    elasticsearch_indices_assets_view_aggregate_index_name=${ELASTICSEARCH_INDICES_ASSETS_VIEW_AGGREGATE_INDEX_NAME}
+    elasticsearch_indices_profiles_index_name=${ELASTICSEARCH_INDICES_PROFILES_INDEX_NAME}
+    echo "opertusmundi.elastic.hosts[0].hostname = ${elasticsearch_url_host}"
+    echo "opertusmundi.elastic.hosts[0].port = ${elasticsearch_url_port}"
+    echo "opertusmundi.elastic.hosts[0].scheme = ${elasticsearch_url_scheme}"
+    echo "opertusmundi.elastic.asset-index.name = ${elasticsearch_indices_assets_index_name}"
+    echo "opertusmundi.elastic.asset-view-index.name = ${elasticsearch_indices_assets_view_index_name}"
+    echo "opertusmundi.elastic.asset-view-aggregate-index.name = ${elasticsearch_indices_assets_view_aggregate_index_name}"
+    echo "opertusmundi.elastic.profile-index.name = ${elasticsearch_indices_profiles_index_name}"
+
+    echo "opertusmundi.googleanalytics.tracker-id = ${GOOGLEANALYTICS_TRACKER_ID:-}"
 
 } > ./config/application-${runtime_profile}.properties
 
