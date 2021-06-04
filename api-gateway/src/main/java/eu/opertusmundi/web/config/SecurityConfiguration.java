@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -165,6 +166,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // Webhooks
                 "/webhooks/**"
              ).permitAll()
+            // Allow access to actuator endpoints (you may restrict details via configuration)
+            .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
             // Secure any other path
             .anyRequest().authenticated();
 
