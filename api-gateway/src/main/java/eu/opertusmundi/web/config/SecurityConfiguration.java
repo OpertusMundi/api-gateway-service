@@ -166,8 +166,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // Webhooks
                 "/webhooks/**"
              ).permitAll()
-            // Allow access to actuator endpoints (you may restrict details via configuration)
-            .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
+            // Restrict access to actuator endpoints (you may further restrict details via configuration)
+            .requestMatchers(EndpointRequest.toAnyEndpoint()).hasIpAddress("127.0.0.1/8")
             // Secure any other path
             .anyRequest().authenticated();
 
