@@ -78,23 +78,21 @@ runtime_profile=$(hostname | md5sum | head -c10)
     pid_base_url=$(echo ${PID_BASE_URL} | _validate_http_url "PID_BASE_URL")
     echo "opertusmundi.feign.persistent-identifier-service.url= ${pid_base_url}"
 
-    elasticsearch_base_url_pattern="^(http|https)://([a-z][-a-z0-9]*([.][a-z][-a-z0-9]*)*):([1-9][0-9]*)($|/.*)" 
-    elasticsearch_url_scheme=$(echo ${ELASTICSEARCH_BASE_URL} | sed -n -r 's,(http|https)://.*,\1,p' | grep .)
-    elasticsearch_url_host=$(echo ${ELASTICSEARCH_BASE_URL} | sed -n -r "s,${elasticsearch_base_url_pattern},\2,p" | grep .)
-    elasticsearch_url_port=$(echo ${ELASTICSEARCH_BASE_URL} | sed -n -r "s,${elasticsearch_base_url_pattern},\4,p" | grep .)
+    elasticsearch_base_url=$(echo ${ELASTICSEARCH_BASE_URL} | _validate_http_url "ELASTICSEARCH_BASE_URL")
     elasticsearch_indices_assets_index_name=${ELASTICSEARCH_INDICES_ASSETS_INDEX_NAME}
     elasticsearch_indices_assets_view_index_name=${ELASTICSEARCH_INDICES_ASSETS_VIEW_INDEX_NAME}
     elasticsearch_indices_assets_view_aggregate_index_name=${ELASTICSEARCH_INDICES_ASSETS_VIEW_AGGREGATE_INDEX_NAME}
     elasticsearch_indices_profiles_index_name=${ELASTICSEARCH_INDICES_PROFILES_INDEX_NAME}
-    echo "opertusmundi.elastic.hosts[0].hostname = ${elasticsearch_url_host}"
-    echo "opertusmundi.elastic.hosts[0].port = ${elasticsearch_url_port}"
-    echo "opertusmundi.elastic.hosts[0].scheme = ${elasticsearch_url_scheme}"
+    echo "spring.elasticsearch.rest.uris = ${elasticsearch_base_url}"
     echo "opertusmundi.elastic.asset-index.name = ${elasticsearch_indices_assets_index_name}"
     echo "opertusmundi.elastic.asset-view-index.name = ${elasticsearch_indices_assets_view_index_name}"
     echo "opertusmundi.elastic.asset-view-aggregate-index.name = ${elasticsearch_indices_assets_view_aggregate_index_name}"
     echo "opertusmundi.elastic.profile-index.name = ${elasticsearch_indices_profiles_index_name}"
 
     echo "opertusmundi.googleanalytics.tracker-id = ${GOOGLEANALYTICS_TRACKER_ID:-}"
+
+    wordpress_base_url=$(echo ${WORDPRESS_BASE_URL} | _validate_http_url "WORDPRESS_BASE_URL")
+    echo "opertus-mundi.wordpress.endpoint = ${wordpress_base_url}"
 
 } > ./config/application-${runtime_profile}.properties
 

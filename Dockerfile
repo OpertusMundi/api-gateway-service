@@ -80,7 +80,8 @@ ENV PUBLIC_URL="" \
     ELASTICSEARCH_INDICES_ASSETS_VIEW_INDEX_NAME="assets_view" \
     ELASTICSEARCH_INDICES_ASSETS_VIEW_AGGREGATE_INDEX_NAME="assets_view_aggregate" \
     ELASTICSEARCH_INDICES_PROFILES_INDEX_NAME="profiles" \
-    GOOGLEANALYTICS_TRACKER_ID=""
+    GOOGLEANALYTICS_TRACKER_ID="" \
+    WORDPRESS_BASE_URL="https://posts.opertusmundi.eu"
 
 VOLUME [ \
     "/var/local/opertusmundi/files/assets", \
