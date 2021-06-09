@@ -41,6 +41,7 @@ services:
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Xms256m -Djava.security.egd=file:///dev/urandom'
       PUBLIC_URL: ${PUBLIC_URL}
+      SECURITY_CSRF_ENABLED: 'true'
       DATABASE_URL: ${DATABASE_URL}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD_FILE: /secrets/database-password

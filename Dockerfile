@@ -55,6 +55,7 @@ RUN mkdir config logs \
     && chmod g=rwx config logs
 
 ENV PUBLIC_URL="" \
+    SECURITY_CSRF_ENABLED="true" \
     DATABASE_URL="jdbc:postgresql://db:5432/opertusmundi" \
     DATABASE_USERNAME="spring" \
     DATABASE_PASSWORD_FILE="/secrets/database-password" \

@@ -23,6 +23,8 @@ runtime_profile=$(hostname | md5sum | head -c10)
     public_url=$(echo ${PUBLIC_URL} | _validate_http_url "PUBLIC_URL")
     echo "opertus-mundi.base-url = ${public_url}"
 
+    echo "opertus-mundi.security.csrf-enabled = ${SECURITY_CSRF_ENABLED:-true}"
+
     database_url=$(echo ${DATABASE_URL} | _validate_database_url "DATABASE_URL")
     database_username=${DATABASE_USERNAME}
     database_password=$(cat ${DATABASE_PASSWORD_FILE} | tr -d '\n')
