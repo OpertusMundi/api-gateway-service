@@ -73,11 +73,13 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
         final PayInDto result = this.paymentService.createPayInBankwireForOrder(payInCommand);
 
         // If payment creation was successful, reset cart
-        try {
-            final CartDto cart = this.cartService.getCart();
-            session.setAttribute(CartConstants.CART_SESSION_KEY, cart.getKey());
-        } catch (final Exception ex) {
-            logger.error(String.format("Failed to reset cart [message=%s]", ex.getMessage()), ex);
+        if (result.getStatus() != EnumTransactionStatus.FAILED) {
+            try {
+                final CartDto cart = this.cartService.getCart();
+                session.setAttribute(CartConstants.CART_SESSION_KEY, cart.getKey());
+            } catch (final Exception ex) {
+                logger.error(String.format("Failed to reset cart [message=%s]", ex.getMessage()), ex);
+            }
         }
 
         // Initialize order fulfillment workflow
