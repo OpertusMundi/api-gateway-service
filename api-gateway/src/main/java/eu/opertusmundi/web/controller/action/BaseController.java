@@ -100,9 +100,9 @@ public abstract class BaseController {
             //
             // If the location service is not enabled, always create a new
             // location instance using the authenticated account profile
-            if (locationService == null) {
+            if (locationService == null && (location == null || location.isEmpty())) {
                 location = Location.empty(ip, this.getAccount() == null ? null : this.getAccount().getCountry());
-            } else if (locationService != null && location == null || !location.getIp().equals(ip)) {
+            } else if (locationService != null && (location == null || location.isEmpty() || !location.getIp().equals(ip))) {
                 location = locationService.getLocation(ip);
                 if (location == null) {
                     location = Location.empty(ip, this.getAccount() == null ? null : this.getAccount().getCountry());
