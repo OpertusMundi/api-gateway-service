@@ -307,7 +307,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-            logger.error(String.format("Failed to upload file. [publisherKey=%s, draftKey=%]", publisherKey, draftKey), ex);
+            logger.error(String.format("Failed to upload file. [publisherKey=%s, draftKey=%s]", publisherKey, draftKey), ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
         }

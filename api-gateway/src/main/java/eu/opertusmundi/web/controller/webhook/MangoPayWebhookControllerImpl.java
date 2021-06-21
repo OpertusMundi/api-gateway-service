@@ -40,7 +40,9 @@ public class MangoPayWebhookControllerImpl implements MangoPayWebhookController 
 
     @Override
     public String secureModeRedirectHandler(UUID payInKey, String transactionId) {
-        this.paymentService.updatePayIn(payInKey, transactionId);
+        // TODO: Reset cart if PayIn is successful
+
+        this.paymentService.sendPayInStatusUpdateMessage(payInKey, transactionId);
 
         return "index";
     }

@@ -80,10 +80,10 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
             } catch (final Exception ex) {
                 logger.error(String.format("Failed to reset cart [message=%s]", ex.getMessage()), ex);
             }
-        }
 
-        // Initialize order fulfillment workflow
-        this.orderFulfillmentService.start(result.getKey());
+            // Initialize order fulfillment workflow and wait for webhook event
+            this.orderFulfillmentService.start(result.getKey(), result.getPayIn(), result.getStatus());
+        }
 
         return RestResponse.result(result);
     }
@@ -149,12 +149,11 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
             } catch (final Exception ex) {
                 logger.error(String.format("Failed to reset cart [message=%s]", ex.getMessage()), ex);
             }
-
         }
 
-        // Initialize order fulfillment workflow
+        // Initialize order fulfillment workflow and wait for webhook event
         if (result.getStatus() != EnumTransactionStatus.FAILED) {
-            this.orderFulfillmentService.start(result.getKey());
+            this.orderFulfillmentService.start(result.getKey(), result.getPayIn(), result.getStatus());
         }
 
         return RestResponse.result(result);

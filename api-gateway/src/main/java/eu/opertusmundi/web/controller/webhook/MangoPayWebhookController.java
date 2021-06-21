@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.v3.oas.annotations.Hidden;
@@ -15,16 +14,15 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @Hidden
-@RequestMapping(path = "/webhooks")
 public interface MangoPayWebhookController {
 
     /**
      * Handles MANGOPAY webhook events
      *
      * For details on method performance requirements see MANGOPAY documentation.
-     * 
+     *
      * @see <a href="https://docs.mangopay.com/endpoints/v2.01/hooks#e246_the-hook-object">The Hook object</a>
-     * 
+     *
      * @param resourceId
      * @param timestamp
      * @param eventType
@@ -39,7 +37,7 @@ public interface MangoPayWebhookController {
         responseCode = "200",
         description = "successful operation"
     )
-    @GetMapping(value = "/mangopay")
+    @GetMapping(value = "/webhooks/mangopay")
     ResponseEntity<Void> mangoPayWebhookHandler(
         @Parameter(
             in = ParameterIn.QUERY,
@@ -65,7 +63,7 @@ public interface MangoPayWebhookController {
      * Handles 3-D Secure validation redirects
      *
      * @see <a href="https://docs.mangopay.com/endpoints/v2.01/payins#e278_create-a-card-direct-payin">Create a Card Direct PayIn</a>
-     * 
+     *
      * @param resourceId
      * @param timestamp
      * @param eventType
@@ -80,7 +78,7 @@ public interface MangoPayWebhookController {
         responseCode = "200",
         description = "successful operation"
     )
-    @GetMapping(value = "/payins/{payInKey}")
+    @GetMapping(value = "/webhooks/payins/{payInKey}")
     String secureModeRedirectHandler(
         @Parameter(
             in = ParameterIn.PATH,
