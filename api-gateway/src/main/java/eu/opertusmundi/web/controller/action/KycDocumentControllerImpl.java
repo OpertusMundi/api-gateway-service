@@ -186,7 +186,7 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
                 }
                 break;
             case PROVIDER :
-                if (!this.hasRole(EnumRole.ROLE_CONSUMER)) {
+                if (!this.hasRole(EnumRole.ROLE_PROVIDER)) {
                     throw new AccessDeniedException("Access Denied");
                 }
                 break;
