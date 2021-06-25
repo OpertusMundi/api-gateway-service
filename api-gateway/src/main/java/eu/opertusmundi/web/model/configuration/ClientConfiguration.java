@@ -6,6 +6,9 @@ import java.util.List;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.asset.AssetFileTypeDto;
 import eu.opertusmundi.common.model.pricing.PricingModelSettings;
+import eu.opertusmundi.common.model.spatial.CountryDto;
+import eu.opertusmundi.common.model.spatial.CountryEuropeDto;
+import eu.opertusmundi.common.model.spatial.LanguageDto;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -26,6 +29,36 @@ public class ClientConfiguration {
     @Getter
 	private final List<EnumAuthProvider> authProviders = new ArrayList<EnumAuthProvider>();
 
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "World countries"
+        ),
+        minItems = 0,
+        uniqueItems = true
+    )
+    @Getter
+    private final List<CountryDto> countries = new ArrayList<CountryDto>();
+
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "European countries"
+        ),
+        minItems = 0,
+        uniqueItems = true
+    )
+    @Getter
+    private final List<CountryEuropeDto> europeCountries = new ArrayList<CountryEuropeDto>();
+
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "European languages"
+        ),
+        minItems = 0,
+        uniqueItems = true
+    )
+    @Getter
+    private final List<LanguageDto> europeLanguages = new ArrayList<LanguageDto>();
+
     @Schema(description = "Asset related configuration settings")
     @Getter
     private final AssetConfiguration asset = new AssetConfiguration();
@@ -34,7 +67,7 @@ public class ClientConfiguration {
     @Schema(description = "WordPress configuration settings")
     @Getter
     private final WordPressConfiguration wordPress = new WordPressConfiguration();
-    
+
     public static class AssetConfiguration {
 
         @ArraySchema(
@@ -55,17 +88,17 @@ public class ClientConfiguration {
             uniqueItems = true
         )
         @Getter
-        private List<PricingModelSettings> pricingModels = new ArrayList<PricingModelSettings>();
+        private final List<PricingModelSettings> pricingModels = new ArrayList<PricingModelSettings>();
 
     }
 
     public static class WordPressConfiguration {
-        
+
         @Schema(description = "WordPress instance endpoint")
         @Getter
         @Setter
         private  String endpoint;
-        
+
     }
 
 }

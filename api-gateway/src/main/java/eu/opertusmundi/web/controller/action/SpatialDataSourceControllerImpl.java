@@ -23,11 +23,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.opertusmundi.common.domain.EpsgEntity;
 import eu.opertusmundi.common.domain.NutsRegionEntity;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.spatial.EpsgDto;
 import eu.opertusmundi.common.model.spatial.FeatureCollectionDto;
 import eu.opertusmundi.common.model.spatial.NutsRegionFeatureDto;
 import eu.opertusmundi.common.model.spatial.NutsRegionPropertiesDto;
+import eu.opertusmundi.common.repository.EpsgRepository;
 import eu.opertusmundi.common.repository.NutsRegionRepository;
 
 @RestController
@@ -62,6 +65,9 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    private EpsgRepository epsgRepository;
+
+    @Autowired
     private NutsRegionRepository nutsRegionRepository;
 
     @Override
@@ -76,6 +82,15 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
             "nuts_name as \"name\"",
             "population"
         ) );
+    }
+
+    @Override
+    public RestResponse<?> findAllEpsg() {
+        final List<EpsgDto> result = this.epsgRepository.findAll().stream()
+            .map(EpsgEntity::toDto)
+            .collect(Collectors.toList());
+
+        return RestResponse.result(result);
     }
 
     @Override

@@ -3,6 +3,7 @@ package eu.opertusmundi.web.model.openapi.schema;
 import java.util.List;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.spatial.EpsgDto;
 import eu.opertusmundi.common.model.spatial.FeatureCollectionDto;
 import eu.opertusmundi.common.model.spatial.NutsRegionFeatureDto;
 import eu.opertusmundi.common.model.spatial.NutsRegionPropertiesDto;
@@ -27,6 +28,11 @@ public class SpatialDataEndpointTypes {
 
     @Schema(description = "NUTS auto-complete response")
     public static class AutoCompleteRegionResponse extends RestResponse<List<NutsRegionPropertiesDto>> {
+
+    }
+
+    @Schema(description = "EPSG code collection response")
+    public static class EpsgCollectionResponse extends RestResponse<List<EpsgDto>> {
 
     }
 

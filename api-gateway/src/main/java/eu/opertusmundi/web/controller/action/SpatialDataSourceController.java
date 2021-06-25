@@ -27,6 +27,26 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface SpatialDataSourceController {
 
     /**
+     * Get all EPSG codes supported by the platform
+     *
+     * @return An instance of {@link SpatialDataEndpointTypes#EpsgCollectionResponse} class
+     */
+    @Operation(
+        operationId = "spatial-nuts-06",
+        summary     = "Get EPSG codes",
+        description = "Gets all EPSG codes supported by the platform"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(implementation = SpatialDataEndpointTypes.EpsgCollectionResponse.class)
+        )
+    )
+    @GetMapping(value = "/epsg")
+    RestResponse<?> findAllEpsg();
+
+    /**
      * Get a list of regions
      *
      * @param codes NUTS codes
@@ -54,7 +74,7 @@ public interface SpatialDataSourceController {
         )
         @RequestParam(name = "code") String codes[]
     );
-    
+
     /**
      * Get all regions by NUTS code prefix
      *
@@ -119,7 +139,7 @@ public interface SpatialDataSourceController {
         )
         @PathVariable(name = "code") String code
     );
-    
+
     /**
      * Search regions by level and name
      *

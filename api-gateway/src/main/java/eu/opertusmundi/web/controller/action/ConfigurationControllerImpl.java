@@ -8,9 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
+import eu.opertusmundi.common.domain.CountryEntity;
+import eu.opertusmundi.common.domain.CountryEuropeEntity;
+import eu.opertusmundi.common.domain.LanguageEuropeEntity;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
+import eu.opertusmundi.common.repository.CountryRepository;
 import eu.opertusmundi.web.model.configuration.ClientConfiguration;
 
 @RestController
@@ -24,6 +28,9 @@ public class ConfigurationControllerImpl implements ConfigurationController {
     private String wordPressEndpoint;
 
     @Autowired
+    private CountryRepository countryRepository;
+
+    @Autowired
     private AssetFileTypeRepository assetFileTypeRepository;
 
     @Override
@@ -33,6 +40,18 @@ public class ConfigurationControllerImpl implements ConfigurationController {
 
     private ClientConfiguration createConfiguration() {
         final ClientConfiguration config = new ClientConfiguration();
+
+        this.countryRepository.getCountries().stream()
+            .map(CountryEntity::toDto)
+            .forEach(c -> config.getCountries().add(c));
+
+        this.countryRepository.getEuropeCountries().stream()
+            .map(CountryEuropeEntity::toDto)
+            .forEach(c -> config.getEuropeCountries().add(c));
+
+        this.countryRepository.getEuropeLanguages().stream()
+            .map(LanguageEuropeEntity::toDto)
+            .forEach(l -> config.getEuropeLanguages().add(l));
 
         Arrays.stream(this.authProviders.split(","))
             .map(String::trim)
