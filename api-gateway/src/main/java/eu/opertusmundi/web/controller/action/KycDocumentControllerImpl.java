@@ -92,6 +92,10 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
     @Override
     public RestResponse<KycDocumentDto> createKycDocument(@Valid KycDocumentCommandDto command, BindingResult validationResult) {
         try {
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
+            }
+
             command.setUserKey(this.currentUserKey());
             verifyRole(command.getCustomerType());
 
