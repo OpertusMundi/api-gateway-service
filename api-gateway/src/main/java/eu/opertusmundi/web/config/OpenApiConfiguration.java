@@ -105,7 +105,9 @@ public class OpenApiConfiguration {
             new TagGroup("Assets", Arrays.asList(
                 EndpointTags.Draft,
                 EndpointTags.Provider,
+                EndpointTags.ContractProvider,
                 EndpointTags.Consumer,
+                EndpointTags.ContractConsumer,
                 EndpointTags.Rating
             )),
             new TagGroup("Messages", Arrays.asList(
