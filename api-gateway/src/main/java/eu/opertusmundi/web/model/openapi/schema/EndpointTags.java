@@ -16,7 +16,11 @@ public class EndpointTags {
     public final static String KycDocument          = "KYC";
     public final static String Message              = "Message";
     public final static String Notification         = "Notification";
-    public final static String Payment              = "Payment";
+    public final static String OrderConsumer        = "Consumer Order";
+    public final static String OrderProvider        = "Provider Order";
+    public final static String PayInConsumer        = "Consumer PayIn";
+    public final static String PayInProvider        = "Provider PayIn";
+    public final static String PayOutProvider       = "Provider PayOut";
     public final static String Profile              = "Profile";
     public final static String Provider             = "Provider";
     public final static String ProviderRegistration = "Provider Registration";

@@ -16,7 +16,6 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.CartConstants;
 import eu.opertusmundi.common.model.order.CartDto;
-import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.model.payment.BankwirePayInCommand;
 import eu.opertusmundi.common.model.payment.CardDirectPayInCommand;
 import eu.opertusmundi.common.model.payment.CardDirectPayInCommandDto;
@@ -33,9 +32,9 @@ import eu.opertusmundi.common.service.OrderFulfillmentService;
 import eu.opertusmundi.common.service.PaymentService;
 
 @RestController
-public class PaymentControllerImpl extends BaseController implements PaymentController {
+public class ConsumerPayInControllerImpl extends BaseController implements ConsumerPayInController {
 
-    private static final Logger logger = LoggerFactory.getLogger(PaymentControllerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConsumerPayInControllerImpl.class);
 
     @Autowired
     private CartService cartService;
@@ -45,23 +44,6 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
 
     @Autowired
     private OrderFulfillmentService orderFulfillmentService;
-
-    @Override
-    public RestResponse<?> checkout(HttpSession session) {
-        // Get current cart
-        final UUID    cartKey = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
-        CartDto cart    = this.cartService.getCart(cartKey);
-
-        // Link authenticated user to the cart
-        if (cart.getAccountId() == null && this.currentUserId() != null) {
-            cart = this.cartService.setAccount(cart.getKey(), this.currentUserId());
-        }
-
-        // Create order
-        final OrderDto order = this.paymentService.createOrderFromCart(cart, this.getLocation());
-
-        return RestResponse.result(order);
-    }
 
     @Override
     public RestResponse<?> createBankwirePayIn(UUID orderKey, HttpSession session) {
@@ -161,7 +143,7 @@ public class PaymentControllerImpl extends BaseController implements PaymentCont
 
     @Override
     public RestResponse<?> findOnePayIn(UUID payInKey) {
-        final PayInDto result = this.paymentService.getPayIn(this.currentUserId(), payInKey);
+        final PayInDto result = this.paymentService.getConsumerPayIn(this.currentUserId(), payInKey);
 
         return RestResponse.result(result);
     }

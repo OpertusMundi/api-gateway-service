@@ -19,10 +19,12 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.order.CartAddCommandDto;
 import eu.opertusmundi.common.model.order.CartConstants;
 import eu.opertusmundi.common.model.order.CartDto;
+import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.model.pricing.EffectivePricingModelDto;
 import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.CatalogueService;
+import eu.opertusmundi.common.service.PaymentService;
 import eu.opertusmundi.common.service.QuotationService;
 
 @RestController
@@ -38,6 +40,9 @@ public class CartControllerImpl extends BaseController implements CartController
 
     @Autowired
     private QuotationService quotationService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @Override
     public RestResponse<CartDto> getCart(HttpSession session) {
@@ -82,6 +87,23 @@ public class CartControllerImpl extends BaseController implements CartController
         this.updateCart(session, cart);
 
         return RestResponse.result(cart);
+    }
+
+    @Override
+    public RestResponse<?> checkout(HttpSession session) {
+        // Get current cart
+        final UUID    cartKey = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
+        CartDto cart    = this.cartService.getCart(cartKey);
+
+        // Link authenticated user to the cart
+        if (cart.getAccountId() == null && this.currentUserId() != null) {
+            cart = this.cartService.setAccount(cart.getKey(), this.currentUserId());
+        }
+
+        // Create order
+        final OrderDto order = this.paymentService.createOrderFromCart(cart, this.getLocation());
+
+        return RestResponse.result(order);
     }
 
     private void updateCart(HttpSession session, CartDto cart) {

@@ -99,7 +99,11 @@ public class OpenApiConfiguration {
                 EndpointTags.Catalogue,
                 EndpointTags.Cart,
                 EndpointTags.Quotation,
-                EndpointTags.Payment,
+                EndpointTags.OrderConsumer,
+                EndpointTags.PayInConsumer,
+                EndpointTags.OrderProvider,
+                EndpointTags.PayInProvider,
+                EndpointTags.PayOutProvider,
                 EndpointTags.Analytics
             )),
             new TagGroup("Assets", Arrays.asList(

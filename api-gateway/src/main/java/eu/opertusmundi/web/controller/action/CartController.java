@@ -14,11 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.CartAddCommandDto;
 import eu.opertusmundi.common.model.order.CartDto;
+import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.web.model.openapi.schema.CartEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
+import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -86,6 +89,13 @@ public interface CartController {
         @Parameter(hidden = true) HttpSession session
     );
 
+    /**
+     * Remove item from cart
+     *
+     * @param itemId
+     * @param session
+     * @return
+     */
     @Operation(
         operationId = "cart-03",
         summary     = "Remove item",
@@ -107,6 +117,12 @@ public interface CartController {
         @Parameter(hidden = true) HttpSession session
     );
 
+    /**
+     * Empty cart
+     *
+     * @param session
+     * @return
+     */
     @Operation(
         operationId = "cart-04",
         summary     = "Clear cart",
@@ -120,4 +136,31 @@ public interface CartController {
     @DeleteMapping(value = "/cart")
     RestResponse<CartDto> clear(@Parameter(hidden = true) HttpSession session);
 
+    /**
+     * Creates a new order from the content of the authenticated user's cart
+     *
+     * @param session
+     * @return A {@link RestResponse} object with a result of type
+     *         {@link OrderDto} if operation was successful; Otherwise an
+     *         instance of {@link BaseResponse} is returned with one or more error
+     *         messages
+     */
+    @Operation(
+        operationId = "cart-05",
+        summary     = "Checkout",
+        description = "Create a new order from the content of the authenticated user's cart. If operation "
+                    + "is successful, an instance of `CheckoutOrderResponse` is returned with the new order; Otherwise "
+                    + "an instance of `BaseResponse` is returned with one or more error messages. Moreover, the cart is "
+                    + "reset at the server. Roles required: <b>ROLE_CONSUMER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CheckoutOrderResponse.class})
+        )
+    )
+    @PostMapping(value = "/cart/checkout")
+    RestResponse<?> checkout(@Parameter(hidden = true) HttpSession session);
 }

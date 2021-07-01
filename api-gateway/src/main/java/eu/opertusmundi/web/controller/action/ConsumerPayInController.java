@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.model.payment.BankwirePayInDto;
 import eu.opertusmundi.common.model.payment.CardDirectPayInCommandDto;
 import eu.opertusmundi.common.model.payment.CardDirectPayInDto;
@@ -41,40 +40,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = EndpointTags.Payment,
-    description = "The payment API"
+    name        = EndpointTags.PayInConsumer,
+    description = "The consumer PayIn API"
 )
-@RequestMapping(path = "/action", produces = "application/json")
+@RequestMapping(path = "/action/consumer", produces = "application/json")
 @Secured({"ROLE_CONSUMER"})
-public interface PaymentController {
-
-    /**
-     * Creates a new order from the content of the authenticated user's cart
-     *
-     * @param session
-     * @return A {@link RestResponse} object with a result of type
-     *         {@link OrderDto} if operation was successful; Otherwise an
-     *         instance of {@link BaseResponse} is returned with one or more error
-     *         messages
-     */
-    @Operation(
-        operationId = "payment-01",
-        summary     = "Checkout",
-        description = "Create a new order from the content of the authenticated user's cart. If operation "
-                    + "is successful, an instance of `CheckoutOrderResponse` is returned with the new order; Otherwise "
-                    + "an instance of `BaseResponse` is returned with one or more error messages. Moreover, the cart is "
-                    + "reset at the server. Roles required: <b>ROLE_CONSUMER</b>"
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "successful operation",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CheckoutOrderResponse.class})
-        )
-    )
-    @PostMapping(value = "/payments/checkout")
-    RestResponse<?> checkout(@Parameter(hidden = true) HttpSession session);
+public interface ConsumerPayInController {
 
     /**
      * Creates a bankwire PayIn for a specific order
@@ -88,7 +59,7 @@ public interface PaymentController {
      *         messages
      */
     @Operation(
-        operationId = "payment-02",
+        operationId = "consumer-payin-01",
         summary     = "Create Bankwire PayIn",
         description = "Create a new bankwire PayIn for the order with the given key. If the operation "
                     + "is successful, an instance of `PayInBankWireResponse` is returned with PayIn details; "
@@ -106,7 +77,7 @@ public interface PaymentController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.BankWirePayInResponse.class})
         )
     )
-    @PostMapping(value = "/payments/bankwire/{orderKey}")
+    @PostMapping(value = "/payins/bankwire/{orderKey}")
     RestResponse<?> createBankwirePayIn(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -126,7 +97,7 @@ public interface PaymentController {
      *         messages
      */
     @Operation(
-        operationId = "payment-03",
+        operationId = "consumer-payin-02",
         summary     = "Get Cards",
         description = "Get all user registered cards. If operation is successful, an instance of "
                     + "`CardCollectionResponse` is returned with the user's cards; Otherwise "
@@ -141,7 +112,7 @@ public interface PaymentController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardCollectionResponse.class})
         )
     )
-    @GetMapping(value = "/payments/cards")
+    @GetMapping(value = "/cards")
     RestResponse<?> getCards(
         @Parameter(
             in          = ParameterIn.QUERY,
@@ -166,7 +137,7 @@ public interface PaymentController {
      *         messages
      */
     @Operation(
-        operationId = "payment-04",
+        operationId = "consumer-payin-03",
         summary     = "Initialize Card Registration",
         description = "Initializes a card registration. If operation is successful, an instance of "
                     + "`CardRegistrationRequestResponse` is returned with the card registration data; "
@@ -184,7 +155,7 @@ public interface PaymentController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardRegistrationRequestResponse.class})
         )
     )
-    @PostMapping(value = "/payments/cards")
+    @PostMapping(value = "/cards")
     RestResponse<?> createCardRegistration();
 
     /**
@@ -196,7 +167,7 @@ public interface PaymentController {
      *         messages
      */
     @Operation(
-        operationId = "payment-05",
+        operationId = "consumer-payin-04",
         summary     = "Complete Card Registration",
         description = "Completes the registration of a new card. If operation is successful, an instance of "
                     + "`CardRegistrationResponse` is returned with the new card information; "
@@ -211,7 +182,7 @@ public interface PaymentController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardRegistrationResponse.class})
         )
     )
-    @PutMapping(value = "/payments/cards", consumes = "application/json")
+    @PutMapping(value = "/cards", consumes = "application/json")
     @Validated
     RestResponse<?> completeCardRegistration(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -245,7 +216,7 @@ public interface PaymentController {
      *         messages
      */
     @Operation(
-        operationId = "payment-06",
+        operationId = "consumer-payin-05",
         summary     = "Create Card Direct PayIn",
         description = "Create a new card direct PayIn for the order with the given key. If the operation "
                     + "is successful, an instance of `CardDirectPayInIntendResponse` is returned with PayIn details; "
@@ -263,7 +234,7 @@ public interface PaymentController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardDirectPayInResponse.class})
         )
     )
-    @PostMapping(value = "/payments/card-direct/{orderKey}", consumes = "application/json")
+    @PostMapping(value = "/payins/card-direct/{orderKey}", consumes = "application/json")
     @Validated
     RestResponse<?> createCardDirectPayIn(
         @Parameter(
@@ -300,7 +271,7 @@ public interface PaymentController {
      *         messages
      */
     @Operation(
-        operationId = "payment-07",
+        operationId = "consumer-payin-06",
         summary     = "Get PayIn",
         description = "Get PayIn details. If the operation is successful, an instance of either `BankWirePayInResponse` "
                     + "or `CardDirectPayInResponse` is returned with PayIn details; Otherwise an instance of `BaseResponse` "
@@ -316,7 +287,7 @@ public interface PaymentController {
             })
         )
     )
-    @GetMapping(value = "/payments/payins/{payInKey}")
+    @GetMapping(value = "/payins/{payInKey}")
     RestResponse<?> findOnePayIn(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -336,7 +307,7 @@ public interface PaymentController {
      * @return
      */
     @Operation(
-        operationId = "payment-08",
+        operationId = "consumer-payin-07",
         summary     = "Consumer PayIns",
         description = "Search consumer PayIn records. Required roles: <b>ROLE_CONSUMER</b>"
     )
@@ -347,8 +318,7 @@ public interface PaymentController {
             mediaType = "application/json", schema = @Schema(implementation = PaymentEndPoints.PayInCollectionResponse.class)
         )
     )
-    @GetMapping(value = "payments/payins/consumer")
-    @Secured({"ROLE_CONSUMER"})
+    @GetMapping(value = "/payins")
     RestResponse<?> findAllConsumerPayIns(
         @Parameter(
             in = ParameterIn.QUERY,
