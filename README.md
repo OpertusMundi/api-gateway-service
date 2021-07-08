@@ -147,6 +147,8 @@ opertusmundi.file-system.data-dir=
 opertusmundi.file-system.draft-dir=
 # Root folder for storing asset files
 opertusmundi.file-system.asset-dir=
+# Root folder for contracts
+opertusmundi.file-system.contract-dir=
 ```
 
 ### Configure Payment service

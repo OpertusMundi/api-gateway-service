@@ -24,6 +24,9 @@ services:
       source: files_assets
       target: /var/local/opertusmundi/files/assets
     - type: 'volume'
+      source: files_contracts
+      target: /var/local/opertusmundi/files/contracts
+    - type: 'volume'
       source: files_drafts
       target: /var/local/opertusmundi/files/drafts
     - type: 'volume'
@@ -85,6 +88,9 @@ volumes:
   files_users:
     external: true
     name: opertusmundi_files_users
+  files_contracts:
+    external: true
+    name: opertusmundi_files_contracts
   files_temp: {}
   ingest_input:
     external: true
