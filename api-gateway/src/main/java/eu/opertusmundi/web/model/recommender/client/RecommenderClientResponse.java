@@ -3,7 +3,7 @@ package eu.opertusmundi.web.model.recommender.client;
 import java.util.List;
 
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.account.PublisherDto;
+import eu.opertusmundi.common.model.account.ProviderDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -18,7 +18,7 @@ public class RecommenderClientResponse extends RestResponse<RecommenderClientRes
         super(result);
     }
 
-    public RecommenderClientResponse(List<CatalogueItemDto> assets, List<PublisherDto> publishers) {
+    public RecommenderClientResponse(List<CatalogueItemDto> assets, List<ProviderDto> publishers) {
         super(new RecommenderClientResult(assets, publishers));
     }
 

@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.payment.BankwirePayInDto;
 import eu.opertusmundi.common.model.payment.CardDirectPayInCommandDto;
-import eu.opertusmundi.common.model.payment.CardDirectPayInDto;
 import eu.opertusmundi.common.model.payment.CardDto;
 import eu.opertusmundi.common.model.payment.CardRegistrationCommandDto;
 import eu.opertusmundi.common.model.payment.EnumPayInSortField;
@@ -62,7 +60,7 @@ public interface ConsumerPayInController {
         operationId = "consumer-payin-01",
         summary     = "Create Bankwire PayIn",
         description = "Create a new bankwire PayIn for the order with the given key. If the operation "
-                    + "is successful, an instance of `PayInBankWireResponse` is returned with PayIn details; "
+                    + "is successful, an instance of `ConsumerBankWirePayInResponse` is returned with PayIn details; "
                     + "Otherwise an instance of `BaseResponse` is returned with one or more error messages. "
                     + "Moreover, on successful execution, the server resets the user cart; Hence, the client "
                     + "must either reset the cart locally or invoke [Get Cart](#operation/cart-01) "
@@ -74,7 +72,7 @@ public interface ConsumerPayInController {
         description = "successful operation",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.BankWirePayInResponse.class})
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ConsumerBankWirePayInResponse.class})
         )
     )
     @PostMapping(value = "/payins/bankwire/{orderKey}")
@@ -219,7 +217,7 @@ public interface ConsumerPayInController {
         operationId = "consumer-payin-05",
         summary     = "Create Card Direct PayIn",
         description = "Create a new card direct PayIn for the order with the given key. If the operation "
-                    + "is successful, an instance of `CardDirectPayInIntendResponse` is returned with PayIn details; "
+                    + "is successful, an instance of `ConsumerCardDirectPayInResponse` is returned with PayIn details; "
                     + "Otherwise an instance of `BaseResponse` is returned with one or more error messages. "
                     + "Moreover, on successful execution, the server resets the user cart; Hence, the client "
                     + "must either reset the cart locally or invoke [Get Cart](#operation/cart-01). If 3-D Secure "
@@ -231,7 +229,7 @@ public interface ConsumerPayInController {
         description = "successful operation",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CardDirectPayInResponse.class})
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ConsumerCardDirectPayInResponse.class})
         )
     )
     @PostMapping(value = "/payins/card-direct/{orderKey}", consumes = "application/json")
@@ -273,8 +271,8 @@ public interface ConsumerPayInController {
     @Operation(
         operationId = "consumer-payin-06",
         summary     = "Get PayIn",
-        description = "Get PayIn details. If the operation is successful, an instance of either `BankWirePayInResponse` "
-                    + "or `CardDirectPayInResponse` is returned with PayIn details; Otherwise an instance of `BaseResponse` "
+        description = "Get PayIn details. If the operation is successful, an instance of either `ConsumerBankWirePayInResponse` "
+                    + "or `ConsumerCardDirectPayInResponse` is returned with PayIn details; Otherwise an instance of `BaseResponse` "
                     + "is returned with one or more error messages. Roles required: <b>ROLE_CONSUMER</b>"
     )
     @ApiResponse(
@@ -283,7 +281,9 @@ public interface ConsumerPayInController {
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(oneOf = {
-                BaseResponse.class, PaymentEndPoints.BankWirePayInResponse.class, PaymentEndPoints.CardDirectPayInResponse.class
+                BaseResponse.class,
+                PaymentEndPoints.ConsumerBankWirePayInResponse.class,
+                PaymentEndPoints.ConsumerCardDirectPayInResponse.class
             })
         )
     )
@@ -315,7 +315,7 @@ public interface ConsumerPayInController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = PaymentEndPoints.PayInCollectionResponse.class)
+            mediaType = "application/json", schema = @Schema(implementation = PaymentEndPoints.ConsumerPayInCollectionResponse.class)
         )
     )
     @GetMapping(value = "/payins")

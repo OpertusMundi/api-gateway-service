@@ -14,7 +14,7 @@ import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
-import eu.opertusmundi.common.model.order.OrderDto;
+import eu.opertusmundi.common.model.order.ProviderOrderDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,7 +38,7 @@ public interface ProviderOrderController {
      *
      * @param orderKey
      * @return A {@link RestResponse} object with a result of type
-     *         {@link OrderDto} if operation was successful; Otherwise an
+     *         {@link ProviderOrderDto} if operation was successful; Otherwise an
      *         instance of {@link BaseResponse} is returned with one or more error
      *         messages
      */
@@ -55,7 +55,7 @@ public interface ProviderOrderController {
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(oneOf = {
-                BaseResponse.class, PaymentEndPoints.OrderResponse.class
+                BaseResponse.class, PaymentEndPoints.ProviderOrderResponse.class
             })
         )
     )
@@ -87,7 +87,8 @@ public interface ProviderOrderController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = PaymentEndPoints.OrderCollectionResponse.class)
+            mediaType = "application/json",
+            schema = @Schema(implementation = PaymentEndPoints.ProviderOrderCollectionResponse.class)
         )
     )
     @GetMapping(value = "orders")

@@ -10,7 +10,7 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.payment.EnumPayInItemSortField;
 import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
-import eu.opertusmundi.common.model.payment.PayInItemDto;
+import eu.opertusmundi.common.model.payment.provider.ProviderPayInItemDto;
 import eu.opertusmundi.common.service.PaymentService;
 
 @RestController
@@ -21,7 +21,7 @@ public class ProviderPayInControllerImpl extends BaseController implements Provi
 
     @Override
     public RestResponse<?> findOnePayInItem(UUID payInKey, Integer index) {
-        final PayInItemDto result = this.paymentService.getProviderPayInItem(this.currentUserId(), payInKey, index);
+        final ProviderPayInItemDto result = this.paymentService.getProviderPayInItem(this.currentUserId(), payInKey, index);
 
         return RestResponse.result(result);
     }
@@ -30,8 +30,8 @@ public class ProviderPayInControllerImpl extends BaseController implements Provi
     public RestResponse<?> findAllProviderPayInItems(
         EnumTransactionStatus status, int pageIndex, int pageSize, EnumPayInItemSortField orderBy, EnumSortingOrder order
     ) {
-        final UUID                    userKey = this.currentUserKey();
-        final PageResultDto<PayInItemDto> result  = this.paymentService.findAllProviderPayInItems(
+        final UUID                                userKey = this.currentUserKey();
+        final PageResultDto<ProviderPayInItemDto> result  = this.paymentService.findAllProviderPayInItems(
             userKey, status, pageIndex, pageSize, orderBy, order
         );
 

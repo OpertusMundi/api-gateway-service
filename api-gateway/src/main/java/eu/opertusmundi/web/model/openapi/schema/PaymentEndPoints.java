@@ -4,14 +4,20 @@ import java.util.List;
 
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.order.ConsumerOrderDto;
 import eu.opertusmundi.common.model.order.OrderDto;
-import eu.opertusmundi.common.model.payment.BankwirePayInDto;
-import eu.opertusmundi.common.model.payment.CardDirectPayInDto;
+import eu.opertusmundi.common.model.order.ProviderOrderDto;
 import eu.opertusmundi.common.model.payment.CardDto;
 import eu.opertusmundi.common.model.payment.CardRegistrationDto;
-import eu.opertusmundi.common.model.payment.PayInDto;
-import eu.opertusmundi.common.model.payment.PayInItemDto;
 import eu.opertusmundi.common.model.payment.PayOutDto;
+import eu.opertusmundi.common.model.payment.consumer.ConsumerBankwirePayInDto;
+import eu.opertusmundi.common.model.payment.consumer.ConsumerCardDirectPayInDto;
+import eu.opertusmundi.common.model.payment.consumer.ConsumerPayInDto;
+import eu.opertusmundi.common.model.payment.helpdesk.HelpdeskBankwirePayInDto;
+import eu.opertusmundi.common.model.payment.helpdesk.HelpdeskCardDirectPayInDto;
+import eu.opertusmundi.common.model.payment.provider.ProviderOrderPayInItemDto;
+import eu.opertusmundi.common.model.payment.provider.ProviderPayInItemDto;
+import eu.opertusmundi.common.model.payment.provider.ProviderSubscriptionBillingPayInItemDto;
 
 public class PaymentEndPoints {
 
@@ -31,31 +37,51 @@ public class PaymentEndPoints {
 
     }
 
-    public static class BankWirePayInResponse extends RestResponse<BankwirePayInDto> {
+    public static class ConsumerBankWirePayInResponse extends RestResponse<ConsumerBankwirePayInDto> {
 
     }
 
-    public static class CardDirectPayInResponse extends RestResponse<CardDirectPayInDto> {
+    public static class HelpdeskBankWirePayInResponse extends RestResponse<HelpdeskBankwirePayInDto> {
 
     }
 
-    public static class PayInCollectionResponse extends RestResponse<PageResultDto<PayInDto>> {
+    public static class ConsumerCardDirectPayInResponse extends RestResponse<ConsumerCardDirectPayInDto> {
 
     }
 
-    public static class PayInItemResponse extends RestResponse<PayInItemDto> {
+    public static class HelpdeskCardDirectPayInResponse extends RestResponse<HelpdeskCardDirectPayInDto> {
 
     }
 
-    public static class PayInItemCollectionResponse extends RestResponse<PageResultDto<PayInItemDto>> {
+    public static class ProviderOrderPayInItemResponse extends RestResponse<ProviderOrderPayInItemDto> {
 
     }
 
-    public static class OrderResponse extends RestResponse<OrderDto> {
+    public static class ProviderSubscriptionBillingPayInItemResponse extends RestResponse<ProviderSubscriptionBillingPayInItemDto> {
 
     }
 
-    public static class OrderCollectionResponse extends RestResponse<PageResultDto<OrderDto>> {
+    public static class ConsumerPayInCollectionResponse extends RestResponse<PageResultDto<ConsumerPayInDto>> {
+
+    }
+
+    public static class ProviderPayInItemCollectionResponse extends RestResponse<PageResultDto<ProviderPayInItemDto>> {
+
+    }
+
+    public static class ConsumerOrderResponse extends RestResponse<ConsumerOrderDto> {
+
+    }
+
+    public static class ProviderOrderResponse extends RestResponse<ProviderOrderDto> {
+
+    }
+
+    public static class ConsumerOrderCollectionResponse extends RestResponse<PageResultDto<ConsumerOrderDto>> {
+
+    }
+
+    public static class ProviderOrderCollectionResponse extends RestResponse<PageResultDto<ProviderOrderDto>> {
 
     }
 

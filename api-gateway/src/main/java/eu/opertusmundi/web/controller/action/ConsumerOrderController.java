@@ -3,7 +3,6 @@ package eu.opertusmundi.web.controller.action;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.data.domain.jaxb.SpringDataJaxb.OrderDto;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +37,7 @@ public interface ConsumerOrderController {
      *
      * @param orderKey
      * @return A {@link RestResponse} object with a result of type
-     *         {@link OrderDto} if operation was successful; Otherwise an
+     *         {@link ConsumerOrderDTo} if operation was successful; Otherwise an
      *         instance of {@link BaseResponse} is returned with one or more error
      *         messages
      */
@@ -55,7 +54,7 @@ public interface ConsumerOrderController {
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(oneOf = {
-                BaseResponse.class, PaymentEndPoints.OrderResponse.class
+                BaseResponse.class, PaymentEndPoints.ConsumerOrderResponse.class
             })
         )
     )
@@ -87,7 +86,8 @@ public interface ConsumerOrderController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = PaymentEndPoints.OrderCollectionResponse.class)
+            mediaType = "application/json",
+            schema = @Schema(implementation = PaymentEndPoints.ConsumerOrderCollectionResponse.class)
         )
     )
     @GetMapping(value = "orders")

@@ -27,6 +27,7 @@ import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
 import eu.opertusmundi.common.model.payment.PayInDto;
 import eu.opertusmundi.common.model.payment.UserCommand;
 import eu.opertusmundi.common.model.payment.UserPaginationCommand;
+import eu.opertusmundi.common.model.payment.consumer.ConsumerPayInDto;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.OrderFulfillmentService;
 import eu.opertusmundi.common.service.PaymentService;
@@ -152,8 +153,8 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
     public RestResponse<?> findAllConsumerPayIns(
         EnumTransactionStatus status, int pageIndex, int pageSize, EnumPayInSortField orderBy, EnumSortingOrder order
     ) {
-        final UUID                    userKey = this.currentUserKey();
-        final PageResultDto<PayInDto> result  = this.paymentService.findAllConsumerPayIns(
+        final UUID                            userKey = this.currentUserKey();
+        final PageResultDto<ConsumerPayInDto> result  = this.paymentService.findAllConsumerPayIns(
             userKey, status, pageIndex, pageSize, orderBy, order
         );
 

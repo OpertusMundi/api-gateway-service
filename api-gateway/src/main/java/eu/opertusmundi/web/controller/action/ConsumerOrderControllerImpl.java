@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.order.ConsumerOrderDto;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
-import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.repository.OrderRepository;
 
 @RestController
@@ -29,7 +29,7 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
 
     @Override
     public RestResponse<?> findOne(UUID orderKey) {
-        final Optional<OrderDto> r = this.orderRepository.findOrderObjectByKeyAndConsumer(this.currentUserKey(), orderKey);
+        final Optional<ConsumerOrderDto> r = this.orderRepository.findOrderObjectByKeyAndConsumer(this.currentUserKey(), orderKey);
         if (r.isPresent()) {
             return RestResponse.result(r.get());
         }
@@ -45,17 +45,17 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
         final Direction   direction   = order == EnumSortingOrder.DESC ? Direction.DESC : Direction.ASC;
         final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by(direction, orderBy.getValue()));
 
-        final Page<OrderDto> p = this.orderRepository.findAllObjectsForConsumer(
+        final Page<ConsumerOrderDto> p = this.orderRepository.findAllObjectsForConsumer(
             this.currentUserKey(),
             referenceNumber,
             status,
             pageRequest,
-            false, false
+            true
         );
 
         final long count = p.getTotalElements();
-        final List<OrderDto> records = p.stream().collect(Collectors.toList());
-        final PageResultDto<OrderDto> result = PageResultDto.of(pageIndex, pageSize, records, count);
+        final List<ConsumerOrderDto> records = p.stream().collect(Collectors.toList());
+        final PageResultDto<ConsumerOrderDto> result = PageResultDto.of(pageIndex, pageSize, records, count);
 
         return RestResponse.result(result);
     }
