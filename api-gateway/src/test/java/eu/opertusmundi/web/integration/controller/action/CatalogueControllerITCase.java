@@ -5,6 +5,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,13 +16,16 @@ import java.net.URL;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,7 +40,9 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.contract.ContractDto;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
+import eu.opertusmundi.common.repository.contract.ProviderTemplateContractHistoryRepository;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
 import eu.opertusmundi.web.utils.ResponsePayload;
 
@@ -106,6 +112,21 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
 
     @Autowired
     private WireMockServer wireMockServer;
+
+    @MockBean
+    private ProviderTemplateContractHistoryRepository contractRepository;
+
+    @BeforeEach
+    public void setUp() {
+        // Object properties must match the values in classpath:/responses/catalogue-service/item.json
+        final ContractDto c = new ContractDto();
+        c.setId(1);
+        c.setKey(UUID.randomUUID());
+        c.setTitle("Title");
+        c.setVersion("1");
+
+        Mockito.when(contractRepository.findOneObjectByIdAndVersion(any(), any(), any())).thenReturn(c);
+    }
 
     /**
      * After each test method, reset mock server requests

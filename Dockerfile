@@ -20,7 +20,7 @@ RUN npm install && npm run build
 
 #FROM maven:3.6.3-openjdk-8 as maven-build
 # see https://github.com/OpertusMundi/java-commons/blob/master/Dockerfile
-FROM opertusmundi/java-commons-builder:1.0.54 as maven-build
+FROM opertusmundi/java-commons-builder:1.0.55 as maven-build
 
 WORKDIR /app
 

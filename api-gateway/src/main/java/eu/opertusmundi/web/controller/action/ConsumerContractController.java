@@ -12,13 +12,14 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.contract.ConsumerContractDto;
+import eu.opertusmundi.common.model.contract.consumer.ConsumerContractDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,6 +37,90 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping(path = "/action/contract/consumer", produces = "application/json")
 @Secured({"ROLE_CONSUMER"})
 public interface ConsumerContractController {
+
+    /**
+     * Print contract
+     *
+     * @param orderKey
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @Operation(
+        operationId = "consumer-contract-01",
+        summary     = "Print Contract",
+        description = "Prints a contract for the specified order item. Currently only one contract "
+                    + "exists since orders can have only a single item. Roles required: <b>ROLE_CONSUMER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested contract file"))
+    )
+    @PostMapping(value = "/order/{key}", params = {"index"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @Validated
+    RestResponse<ConsumerContractDto> print(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable(name = "key", required = true) UUID orderKey,
+        @Parameter(
+            in          = ParameterIn.QUERY,
+            required    = true,
+            description = "Order item index. Index is 1-based."
+        )
+        @RequestParam(name = "index") @Min(1) Integer itemIndex,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
+
+    /**
+     * Sign contract
+     *
+     * @param orderKey
+     * @param itemIndex
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @Operation(
+        operationId = "consumer-contract-02",
+        summary     = "Sign Contract",
+        description = "Signs the contract for the specified order item. Currently only one contract "
+                    + "exists since orders may have only a single item. The contract must already exists "
+                    + ",i.e. `print` action must be invoked first. Roles required: <b>ROLE_CONSUMER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested contract file"))
+    )
+    @PutMapping(value = "/order/{key}", params = {"index"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @Validated
+    RestResponse<ConsumerContractDto> sign(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable(name = "key", required = true) UUID orderKey,
+        @Parameter(
+            in          = ParameterIn.QUERY,
+            required    = true,
+            description = "Order item index. Index is 1-based."
+        )
+        @RequestParam(name = "index") @Min(1) Integer itemIndex,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
 
     /**
      * Download contract
@@ -62,7 +147,7 @@ public interface ConsumerContractController {
     )
     @GetMapping(value = "/order/{key}", params = {"index", "signed"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Validated
-    ResponseEntity<StreamingResponseBody> downloadContract(
+    ResponseEntity<StreamingResponseBody> download(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -78,53 +163,13 @@ public interface ConsumerContractController {
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = true,
-            description = "True if a signed contract is requested."
+            description = "True if a signed contract is requested. For unsigned contracts, `print` action must be invoked first."
+                        + "For signed ones, both `print` and `sign` methods must be invoked before downloading the file; Otherwise "
+                        + "a `404` status code will be returned."
         )
         @RequestParam(name = "signed", required = true) boolean signed,
         @Parameter(hidden = true)
         HttpServletResponse response
     );
-
-    /**
-     * Sign contract
-     *
-     * @param orderKey
-     * @param itemIndex
-     * @param response
-     * @return
-     * @throws IOException
-     */
-    @Operation(
-        operationId = "consumer-contract-02",
-        summary     = "Sign Contract",
-        description = "Signs the contract for the specified order item. Currently only one contract "
-                    + "exists since orders may have only a single item. Roles required: <b>ROLE_CONSUMER</b>",
-        security    = {
-            @SecurityRequirement(name = "cookie")
-        }
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Successful Request",
-        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested contract file"))
-    )
-    @PutMapping(value = "/order/{key}", params = {"index"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @Validated
-    RestResponse<ConsumerContractDto> signContract(
-        @Parameter(
-            in          = ParameterIn.PATH,
-            required    = true,
-            description = "Order unique key"
-        )
-        @PathVariable(name = "key", required = true) UUID orderKey,
-        @Parameter(
-            in          = ParameterIn.QUERY,
-            required    = true,
-            description = "Order item index. Index is 1-based."
-        )
-        @RequestParam(name = "index") @Min(1) Integer itemIndex,
-        @Parameter(hidden = true)
-        HttpServletResponse response
-    ) throws IOException;
 
 }

@@ -28,9 +28,13 @@ import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.repository.AssetAdditionalResourceRepository;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.repository.AssetResourceRepository;
+import eu.opertusmundi.common.repository.contract.ProviderTemplateContractRepository;
 
 @Component
 public class DraftValidator implements Validator {
+
+    @Autowired
+    private ProviderTemplateContractRepository contractRepository;
 
     @Autowired
     private AssetFileTypeRepository assetFileTypeRepository;
@@ -50,10 +54,18 @@ public class DraftValidator implements Validator {
     public void validate(Object o, Errors e) {
         final CatalogueItemCommandDto c = (CatalogueItemCommandDto) o;
 
+        this.validateContract(c, e);
         this.validateFormat(c, e);
         this.validateResources(c, e);
         this.validateAdditionalResources(c, e);
         this.validatePricingModels(c, e);
+    }
+
+    private void validateContract(CatalogueItemCommandDto c, Errors e) {
+        // Provider contract must exist and be active
+        if (!contractRepository.findOneByKey(c.getPublisherKey(), c.getContractTemplateKey()).isPresent()) {
+            e.rejectValue("contractTemplateKey", EnumValidatorError.OptionNotFound.name());
+        }
     }
 
     private void validateFormat(CatalogueItemCommandDto c, Errors e) {

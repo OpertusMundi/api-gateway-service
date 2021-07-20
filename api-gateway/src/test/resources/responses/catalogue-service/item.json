@@ -76,6 +76,8 @@
                 }
             ],
             "conformity": "conformant",
+            "contract_template_id": 1,
+            "contract_template_version": "1",
             "created_at": "2021-05-10T12:27:53.810514",
             "date_start": null,
             "statistics": {
