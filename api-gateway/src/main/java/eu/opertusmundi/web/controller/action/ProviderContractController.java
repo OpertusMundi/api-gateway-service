@@ -469,7 +469,7 @@ public interface ProviderContractController {
         )
     @PostMapping(value = {"/history/{key}"})
     @Secured({"ROLE_PROVIDER"})
-    RestResponse<?> createDraftForTemplate(
+    RestResponse<?> createDraftFromTemplate(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,

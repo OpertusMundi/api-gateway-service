@@ -24,9 +24,13 @@ import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractDt
 import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractQuery;
 import eu.opertusmundi.common.service.contract.MasterTemplateContractService;
 import eu.opertusmundi.common.service.contract.ProviderTemplateContractService;
+import eu.opertusmundi.web.validation.ProviderTemplateContractValidator;
 
 @RestController
 public class ProviderContractControllerImpl extends BaseController implements ProviderContractController {
+
+    @Autowired
+    private ProviderTemplateContractValidator contractValidator;
 
     @Autowired
     private MasterTemplateContractService   masterContractService;
@@ -96,8 +100,10 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
         try {
             command.setUserId(this.currentUserId());
 
+            this.contractValidator.validate(command, validationResult);
+
             if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors());
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
 
             final ProviderTemplateContractDto result = this.templateContractService.updateDraft(command);
@@ -114,8 +120,10 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
             command.setDraftKey(key);
             command.setUserId(this.currentUserId());
 
+            this.contractValidator.validate(command, validationResult);
+
             if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors());
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
 
             final ProviderTemplateContractDto result = this.templateContractService.updateDraft(command);
@@ -188,9 +196,9 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
     }
 
     @Override
-    public RestResponse<?> createDraftForTemplate(UUID key) {
+    public RestResponse<?> createDraftFromTemplate(UUID key) {
         try {
-            final ProviderTemplateContractDto result = this.templateContractService.createForTemplate(
+            final ProviderTemplateContractDto result = this.templateContractService.createFromMasterContract(
                 this.currentUserId(), this.currentUserKey(), key
             );
 
