@@ -442,7 +442,7 @@ public interface ProviderContractController {
             required    = true,
             description = "Contract unique key"
         )
-        @PathVariable UUID id
+        @PathVariable UUID key
     );
 
     /**

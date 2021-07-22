@@ -37,6 +37,7 @@ import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemProviderCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
@@ -266,7 +267,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "draft-asset-07",
+        operationId = "draft-asset-06",
         summary     = "Review draft",
         description = "Accept or reject draft by a provider. "
                       + "The draft status must be <b>PENDING_PROVIDER_REVIEW</b>. "
@@ -300,7 +301,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "draft-asset-08",
+        operationId = "draft-asset-07",
         summary     = "Delete draft",
         description = "Delete a draft item. Required roles: <b>ROLE_PROVIDER</b>"
     )
@@ -328,7 +329,7 @@ public interface ProviderDraftAssetController {
      * @param validationResult
      */
     @Operation(
-        operationId = "draft-asset-09",
+        operationId = "draft-asset-08",
         summary     = "Upload resource",
         description = "Uploads a resource file and links it to selected draft instance. On success, an updated draft is returned "
                     + "with the new resource registration."
@@ -372,7 +373,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "draft-asset-10",
+        operationId = "draft-asset-09",
         summary     = "Upload additional resource",
         description = "Uploads an additional resource file and links it to selected draft instance. On success, an updated draft is returned "
                     + "with the new resource registration."
@@ -418,7 +419,7 @@ public interface ProviderDraftAssetController {
      * @return The requested file
      */
     @Operation(
-        operationId = "draft-asset-11",
+        operationId = "draft-asset-10",
         summary     = "Download additional resource",
         description = "Downloads an additional resource file. Roles required: <b>ROLE_PROVIDER</b>",
         security    = {
@@ -503,7 +504,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "assets-05",
+        operationId = "assets-12",
         summary     = "Create API draft",
         description = "Create a new API draft from an existing published asset or a file in user's file system. "
                    + "Required roles: <b>ROLE_PROVIDER</b>"
@@ -527,6 +528,50 @@ public interface ProviderDraftAssetController {
         @Valid
         @RequestBody
         DraftApiCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+
+    /**
+     * Update reviewed draft
+     *
+     * @param draftKey The item unique key
+     * @param command The update command
+     * @return
+     */
+    @Operation(
+        operationId = "draft-asset-13",
+        summary     = "Update reviewed draft",
+        description = "Update an existing draft item that has been accepted by the Helpdesk application. The draft status must be "
+                    + "`PENDING_PROVIDER_REVIEW`. Required roles: <b>ROLE_PROVIDER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
+    )
+    @PostMapping(value = "/drafts/{draftKey}/review", consumes = "application/json")
+    @Validated
+    RestResponse<AssetDraftDto> updateReviewedDraft(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Item unique key"
+        )
+        @PathVariable UUID draftKey,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Updated item.",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = CatalogueItemProviderCommandDto.class
+            )),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        CatalogueItemProviderCommandDto command,
         @Parameter(
             hidden = true
         )

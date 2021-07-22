@@ -43,6 +43,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionRe
 import eu.opertusmundi.common.model.catalogue.client.CatalogueDraftQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemProviderCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
@@ -51,6 +52,7 @@ import eu.opertusmundi.common.service.CatalogueService;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.web.validation.ApiDraftValidator;
 import eu.opertusmundi.web.validation.AssetFileResourceValidator;
+import eu.opertusmundi.web.validation.DraftReviewValidator;
 import eu.opertusmundi.web.validation.DraftValidator;
 
 @RestController
@@ -60,6 +62,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Autowired
     private DraftValidator draftValidator;
+
+    @Autowired
+    private DraftReviewValidator draftReviewValidator;
 
     @Autowired
     private ApiDraftValidator apiDraftValidator;
@@ -408,6 +413,32 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         };
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
+    }
+
+    @Override
+    public RestResponse<AssetDraftDto> updateReviewedDraft(
+        UUID draftKey, CatalogueItemProviderCommandDto command, BindingResult validationResult
+    ) {
+        try {
+            command.setProviderKey(this.currentUserKey());
+            command.setDraftKey(draftKey);
+
+            this.draftReviewValidator.validate(command, validationResult);
+
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
+            }
+
+            final AssetDraftDto result = this.providerAssetService.updateDraft(command);
+
+            return RestResponse.result(result);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
     }
 
 }
