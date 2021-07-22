@@ -171,6 +171,8 @@ steps:
       from_secret: docker_password
     repo: opertusmundi/api-gateway
     mirror: http://registry-mirror:5000
+    build_args:
+    - git_commit=${DRONE_COMMIT}
 
 - name: publish-image-2
   image: plugins/docker
@@ -186,6 +188,8 @@ steps:
     repo: registry-dev-1-opertusmundi:30474/opertusmundi/api-gateway
     mirror: http://registry-mirror:5000
     registry: registry-dev-1-opertusmundi:30474
+    build_args:
+    - git_commit=${DRONE_COMMIT}
 
 #
 # Services

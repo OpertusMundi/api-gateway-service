@@ -41,6 +41,8 @@ RUN mvn -B compile -DenableJavaBuildProfile -DenableDockerBuildProfile
 
 FROM openjdk:8-jre-alpine
 
+ARG git_commit=
+
 COPY --from=maven-build /app/api-gateway/target/ /app/
 
 RUN addgroup spring && adduser -H -D -G spring spring
@@ -83,6 +85,8 @@ ENV PUBLIC_URL="" \
     ELASTICSEARCH_INDICES_PROFILES_INDEX_NAME="profiles" \
     GOOGLEANALYTICS_TRACKER_ID="" \
     WORDPRESS_BASE_URL="https://posts.opertusmundi.eu"
+
+ENV GIT_COMMIT=${git_commit}
 
 VOLUME [ \
     "/var/local/opertusmundi/files/assets", \
