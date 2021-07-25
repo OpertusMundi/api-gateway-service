@@ -1,5 +1,6 @@
 package eu.opertusmundi.web.integration.controller.action;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,10 +16,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -27,9 +31,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,10 +52,14 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.Message.EnumLevel;
+import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.ServiceResponse;
 import eu.opertusmundi.common.model.account.AccountCommandDto;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
@@ -56,8 +68,6 @@ import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.account.ActivationTokenDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.EnumActivationTokenType;
-import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.ServiceResponse;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTestWithSecurity;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import eu.opertusmundi.web.security.UserService;
@@ -81,6 +91,43 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     private final ArgumentCaptor<ActivationTokenCommandDto> activationTokenCommand = ArgumentCaptor.forClass(ActivationTokenCommandDto.class);
 
     private final ReturnValueCaptor<ServiceResponse<ActivationTokenDto>> activationTokenResponse = new ReturnValueCaptor<>();
+
+    /**
+     * Configure WireMock server lifecycle events
+     */
+    @TestConfiguration
+    public static class WireMockConfiguration {
+
+        @Value("${opertusmundi.feign.bpm-server.url}")
+        private String bpmEngineServiceUrl;
+
+        @Bean(initMethod = "start", destroyMethod = "stop", name = "bpmEngineService")
+        public WireMockServer mockBpmEngineService() throws IOException {
+            // Get port from configuration
+            final URL url = new URL(this.bpmEngineServiceUrl);
+
+            final WireMockServer server = new WireMockServer(url.getPort());
+
+            server.stubFor(WireMock.post(urlPathEqualTo("/engine-rest/message"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                ));
+
+            return server;
+        }
+    }
+
+    @Autowired
+    @Qualifier("bpmEngineService")
+    private WireMockServer bpmEngineService;
+
+    /**
+     * After each test method, reset mock server requests
+     */
+    @AfterEach
+    public void teardown() {
+        this.bpmEngineService.resetRequests();
+    }
 
     @Test
     @Tag(value = "Controller")
@@ -256,7 +303,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         final String code = BasicMessageCode.Validation.key();
 
         // Create command
-        final ActivationTokenCommandDto command = new ActivationTokenCommandDto();
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("");
 
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)
@@ -288,8 +335,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Commit
     void whenRequestActivationTokenForUnregisteredUser_returnEmptyResponse() throws Exception {
         // Create command
-        final ActivationTokenCommandDto command = new ActivationTokenCommandDto();
-        command.setEmail("admin@opertusmundi.eu");
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("admin@opertusmundi.eu");
 
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)
@@ -317,8 +363,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @DisplayName(value = "When request activation token, return empty response")
     @Commit
     void whenRequestActivationToken_returnToken() throws Exception {
-        final ActivationTokenCommandDto command = new ActivationTokenCommandDto();
-        command.setEmail("user@opertusmundi.eu");
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("user@opertusmundi.eu");
 
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)
@@ -391,6 +436,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
 
         // Verify
         verify(this.userService, times(1)).redeemToken(token);
+        this.bpmEngineService.verify(1, WireMock.postRequestedFor(urlPathEqualTo("/engine-rest/message")));
 
         // Assert
         final String             content  = result.getResponse().getContentAsString();

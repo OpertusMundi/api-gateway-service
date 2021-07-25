@@ -89,7 +89,7 @@ public interface UserService {
 
     /**
      * Change password for the authenticated user
-     * 
+     *
      * @param command
      */
     void changePassword(PasswordChangeCommandDto command);

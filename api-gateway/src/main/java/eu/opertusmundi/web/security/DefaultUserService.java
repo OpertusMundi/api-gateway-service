@@ -6,12 +6,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.camunda.bpm.engine.rest.dto.VariableValueDto;
+import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,8 +23,6 @@ import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.domain.ActivationTokenEntity;
 import eu.opertusmundi.common.domain.CustomerEntity;
 import eu.opertusmundi.common.domain.CustomerProfessionalEntity;
-import eu.opertusmundi.common.feign.client.EmailServiceFeignClient;
-import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
@@ -38,13 +35,12 @@ import eu.opertusmundi.common.model.account.ActivationTokenDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.EnumActivationTokenType;
 import eu.opertusmundi.common.model.analytics.ProfileRecord;
-import eu.opertusmundi.common.model.email.EmailAddressDto;
-import eu.opertusmundi.common.model.email.EnumMailType;
-import eu.opertusmundi.common.model.email.MessageDto;
+import eu.opertusmundi.common.model.workflow.EnumProcessInstanceVariable;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
 import eu.opertusmundi.common.service.ElasticSearchService;
-import eu.opertusmundi.common.service.messaging.MailMessageHelper;
+import eu.opertusmundi.common.util.BpmEngineUtils;
+import eu.opertusmundi.common.util.BpmInstanceVariablesBuilder;
 import eu.opertusmundi.web.model.security.CreateAccountResult;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 
@@ -53,8 +49,9 @@ public class DefaultUserService implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUserService.class);
 
-    @Value("${opertus-mundi.base-url}")
-    private String baseUrl;
+    private static final String WORKFLOW_ACCOUNT_REGISTRATION = "account-registration";
+
+    private static final String MESSAGE_EMAIL_VERIFIED = "email-verified-message";
 
     @Autowired
     private AccountRepository accountRepository;
@@ -63,10 +60,7 @@ public class DefaultUserService implements UserService {
     private ActivationTokenRepository activationTokenRepository;
 
     @Autowired
-    private MailMessageHelper messageHelper;
-
-    @Autowired
-    private ObjectProvider<EmailServiceFeignClient> emailClient;
+    protected BpmEngineUtils bpmEngine;
 
     @Autowired(required = false)
     private ElasticSearchService elasticSearchService;
@@ -87,15 +81,32 @@ public class DefaultUserService implements UserService {
         return Optional.ofNullable(account == null ? null : account.toDto());
     }
 
+    /**
+     * Creates a new account registration
+     * <p>
+     * The registration is created in two separate transactions:
+     * <p>
+     * <ol>
+     *  <li>The account is created in the database
+     *  <li>The account registration workflow instance is started
+     * </ol>
+     */
     @Override
-    @Transactional
     public ServiceResponse<CreateAccountResult> createAccount(AccountCommandDto command) {
+        final CreateAccountResult result = this.createAccountRecord(command);
+
+        this.createAccountRegistrationWorkflowInstance(result);
+
+        return ServiceResponse.result(result);
+    }
+
+    @Transactional
+    private CreateAccountResult createAccountRecord(AccountCommandDto command) {
         // Create account
         final AccountDto account = this.accountRepository.create(command);
 
         // Create activation token for account email
-        final ActivationTokenCommandDto tokenCommand = new ActivationTokenCommandDto();
-        tokenCommand.setEmail(command.getEmail());
+        final ActivationTokenCommandDto tokenCommand = ActivationTokenCommandDto.of(command.getEmail());
 
         final ServiceResponse<ActivationTokenDto> tokenResponse = this.createToken(EnumActivationTokenType.ACCOUNT, tokenCommand);
 
@@ -104,7 +115,37 @@ public class DefaultUserService implements UserService {
             elasticSearchService.addProfile(ProfileRecord.from(account));
         }
 
-        return ServiceResponse.result(CreateAccountResult.of(account, tokenResponse.getResult()));
+        return CreateAccountResult.of(account, tokenResponse.getResult());
+    }
+
+    @Transactional
+    private void createAccountRegistrationWorkflowInstance(CreateAccountResult result) {
+        final Integer accountId       = result.getAccount().getId();
+        final String  accountKey      = result.getAccount().getKey().toString();
+        final String  activationToken = result.getToken().getToken().toString();
+
+        try {
+            ProcessInstanceDto instance = this.bpmEngine.findInstance(accountKey);
+
+            if (instance == null) {
+                final Map<String, VariableValueDto> variables = BpmInstanceVariablesBuilder.builder()
+                    .variableAsString(EnumProcessInstanceVariable.START_USER_KEY.getValue(), accountKey)
+                    .variableAsString("userKey", accountKey)
+                    .variableAsString("activationToken", activationToken)
+                    .build();
+
+                instance = bpmEngine.startProcessDefinitionByKey(
+                    WORKFLOW_ACCOUNT_REGISTRATION, accountKey, variables
+                );
+            }
+
+            if (StringUtils.isBlank(result.getAccount().getProcessInstance())) {
+                this.accountRepository.setRegistrationWorkflowInstance(accountId, instance.getDefinitionId(), instance.getId());
+            }
+        } catch (final Exception ex) {
+            // Allow workflow instance initialization to fail
+            logger.warn(String.format("Failed to start account registration workflow instance [accountKey=%s]", accountKey), ex);
+        }
     }
 
     @Override
@@ -143,8 +184,6 @@ public class DefaultUserService implements UserService {
 
         // Create activation token
         final ActivationTokenDto token = this.activationTokenRepository.create(account.getId(), command.getEmail(), 1, type);
-        // Send activation link to client
-        this.sendMail(account.getFullName(), token);
 
         return ServiceResponse.result(token);
     }
@@ -152,7 +191,7 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional
     public ServiceResponse<Void> redeemToken(UUID token) {
-        final ActivationTokenEntity tokenEntity = this.activationTokenRepository.findOneByToken(token).orElse(null);
+        final ActivationTokenEntity tokenEntity = this.activationTokenRepository.findOneByKey(token).orElse(null);
 
         if (tokenEntity == null) {
             return ServiceResponse.error(BasicMessageCode.TokenNotFound, "Token was not found");
@@ -161,13 +200,13 @@ public class DefaultUserService implements UserService {
             return ServiceResponse.error(BasicMessageCode.TokenIsExpired, "Token has expired");
         }
 
-        final AccountEntity accountEntity = this.accountRepository.findById(tokenEntity.getAccount()).orElse(null);
+        final ZonedDateTime now           = ZonedDateTime.now();
+        final AccountEntity accountEntity = tokenEntity.getAccount();
+        boolean             sendMessage   = false;
 
         if (accountEntity == null) {
             return ServiceResponse.error(BasicMessageCode.AccountNotFound, "Account was not found");
         }
-
-        final ZonedDateTime now = ZonedDateTime.now();
 
         this.activationTokenRepository.redeem(tokenEntity);
 
@@ -176,10 +215,14 @@ public class DefaultUserService implements UserService {
                 if (!tokenEntity.getEmail().equals(accountEntity.getEmail())) {
                     return ServiceResponse.error(BasicMessageCode.EmailNotFound, "Email not registered to the account");
                 }
-                if (accountEntity.getActivationStatus() != EnumActivationStatus.COMPLETED) {
+                if (accountEntity.getActivationStatus() == EnumActivationStatus.PENDING) {
                     // Activate account only once
                     accountEntity.setActivatedAt(now);
-                    accountEntity.setActivationStatus(EnumActivationStatus.COMPLETED);
+                    // Workflow will change status to COMPLETED
+                    accountEntity.setActivationStatus(EnumActivationStatus.PROCESSING);
+
+                    // Send message to workflow process instance
+                    sendMessage = true;
                 }
                 // Always verify account
                 accountEntity.setEmailVerified(true);
@@ -211,10 +254,24 @@ public class DefaultUserService implements UserService {
                 break;
         }
 
-        this.accountRepository.save(accountEntity);
+        this.accountRepository.saveAndFlush(accountEntity);
+
+        if (sendMessage) {
+            this.sendTokenToProcessInstance(accountEntity.getKey(), token);
+        }
 
         return ServiceResponse.success();
     }
+
+    private void sendTokenToProcessInstance(UUID accountKey, UUID token) {
+        final String                        businessKey = accountKey.toString();
+        final Map<String, VariableValueDto> variables   = BpmInstanceVariablesBuilder.builder()
+            .variableAsString("activationToken", token.toString())
+            .build();
+
+        this.bpmEngine.correlateMessage(businessKey, MESSAGE_EMAIL_VERIFIED, variables);
+    }
+
 
     @Override
     @Transactional
@@ -289,40 +346,6 @@ public class DefaultUserService implements UserService {
         // TODO: Send mail
 
         logger.info("Password changed. [user={}]", account.getUserName());
-    }
-
-    private void sendMail(String name, ActivationTokenDto token) {
-        try {
-            final EnumMailType        type  = EnumMailType.ACCOUNT_ACTIVATION_TOKEN;
-            final Map<String, Object> model = this.messageHelper.createModel(type);
-            model.put("name", name);
-            model.put("token", token.getToken());
-            model.put("url", this.baseUrl);
-
-            final EmailAddressDto                 sender   = this.messageHelper.getSender(type, model);
-            final String                          subject  = this.messageHelper.composeSubject(type, model);
-            final String                          template = this.messageHelper.resolveTemplate(type, model);
-            final MessageDto<Map<String, Object>> message  = new MessageDto<>();
-
-            message.setSender(sender);
-            message.setSubject(subject);
-            message.setTemplate(template);
-            message.setModel(model);
-
-            if (StringUtils.isBlank(name)) {
-                message.setRecipients(token.getEmail());
-            } else {
-                message.setRecipients(token.getEmail(), name);
-            }
-
-            final ResponseEntity<BaseResponse> response = this.emailClient.getObject().sendMail(message);
-
-            if (!response.getBody().getSuccess()) {
-                logger.error(String.format("Failed to send mail [recipient=%s]", token.getEmail()));
-            }
-        } catch (final Exception ex) {
-            logger.error(String.format("Failed to send mail [recipient=%s]", token.getEmail()), ex);
-        }
     }
 
 }
