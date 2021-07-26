@@ -148,26 +148,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // Configure request authentication
         http.authorizeRequests()
-            // Public
-            .antMatchers(
-                // Application entry point
-                "/",
-                // Login
-                "/login",
-                "/login/*",
-                "/logged-out",
-                // Redirect pages
-                "/token/verify",
-                "/account/registration/**",
-                // Errors
-                "/error/**",
-                // Actions
-                "/action/**",
-                // Webhooks
-                "/webhooks/**"
-             ).permitAll()
             // Restrict access to actuator endpoints (you may further restrict details via configuration)
             .requestMatchers(EndpointRequest.toAnyEndpoint()).hasIpAddress("127.0.0.1/8")
+            // Public
+            .antMatchers(
+                // Permit all endpoints. Actions are secured using
+                // annotations
+                "/**"
+             ).permitAll()
             // Secure any other path
             .anyRequest().authenticated();
 
