@@ -83,6 +83,7 @@ steps:
   - name: maven-repo
     path: /root/.m2
   commands:
+  - mvn -B -pl common install
   - mvn -B dependency:resolve
 
 - name: generate-configuration-for-testing
