@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.contract.consumer.ConsumerContractDto;
 import eu.opertusmundi.common.model.contract.consumer.PrintConsumerContractCommand;
@@ -36,25 +37,21 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
     private ConsumerContractService contractService;
 
     @Override
-    public RestResponse<ConsumerContractDto> print(
+    public BaseResponse print(
         UUID orderKey, Integer itemIndex, HttpServletResponse response
     ) {
-        try {
-            final Path path = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, false, false);
+        final Path path = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, false, false);
 
-            final PrintConsumerContractCommand command = PrintConsumerContractCommand.builder()
-                .userId(this.currentUserId())
-                .orderKey(orderKey)
-                .itemIndex(itemIndex)
-                .path(path)
-                .build();
+        final PrintConsumerContractCommand command = PrintConsumerContractCommand.builder()
+            .userId(this.currentUserId())
+            .orderKey(orderKey)
+            .itemIndex(itemIndex)
+            .path(path)
+            .build();
 
-            final ConsumerContractDto result = this.contractService.print(command);
+        this.contractService.print(command);
 
-            return RestResponse.result(result);
-        } catch (final FileSystemException ex) {
-            throw ex;
-        }
+        return RestResponse.success();
     }
 
     @Override
@@ -85,28 +82,24 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
     public ResponseEntity<StreamingResponseBody> download(
         UUID orderKey, Integer itemIndex, boolean signed, HttpServletResponse response
     ) {
-        try {
-            final Path path = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, signed, true);
-            final File file = path.toFile();
+        final Path path = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, signed, true);
+        final File file = path.toFile();
 
-            if (!file.exists()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found");
-            }
-
-            response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
-            response.setHeader("Content-Type", MediaType.APPLICATION_PDF_VALUE);
-            response.setHeader("Content-Length", Long.toString(file.length()));
-
-            final StreamingResponseBody stream = out -> {
-                try (InputStream inputStream = new FileInputStream(file)) {
-                    IOUtils.copyLarge(inputStream, out);
-                }
-            };
-
-            return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
-        } catch (final FileSystemException ex) {
-            throw ex;
+        if (!file.exists()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found");
         }
+
+        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
+        response.setHeader("Content-Type", MediaType.APPLICATION_PDF_VALUE);
+        response.setHeader("Content-Length", Long.toString(file.length()));
+
+        final StreamingResponseBody stream = out -> {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                IOUtils.copyLarge(inputStream, out);
+            }
+        };
+
+        return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
 
 }

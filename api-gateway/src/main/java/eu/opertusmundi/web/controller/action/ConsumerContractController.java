@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.contract.consumer.ConsumerContractDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -58,11 +59,11 @@ public interface ConsumerContractController {
     @ApiResponse(
         responseCode = "200",
         description = "Successful Request",
-        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested contract file"))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
     @PostMapping(value = "/order/{key}", params = {"index"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Validated
-    RestResponse<ConsumerContractDto> print(
+    BaseResponse print(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
