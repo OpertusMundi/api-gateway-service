@@ -59,7 +59,7 @@ public interface AccountController {
         }
     )
     @GetMapping(value = "/logged-in")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_HELPDESK"})
     RestResponse<Token> loggedIn(
         HttpSession session,
         @Parameter(
@@ -192,7 +192,7 @@ public interface AccountController {
 
     /**
      * Change password for authenticated user
-     * 
+     *
      * @param command Password change command
      * @param validationResult
      * @return

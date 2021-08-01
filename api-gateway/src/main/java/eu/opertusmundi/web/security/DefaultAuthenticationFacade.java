@@ -99,4 +99,17 @@ public class DefaultAuthenticationFacade implements AuthenticationFacade {
         return ((User) authentication.getPrincipal()).hasRole(role);
     }
 
+    @Override
+    public boolean hasAnyRole(EnumRole... roles) {
+        if (roles == null) {
+            return false;
+        }
+        for (final EnumRole role : roles) {
+            if (this.hasRole(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

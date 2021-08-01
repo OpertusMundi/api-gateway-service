@@ -23,6 +23,7 @@ import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.domain.ActivationTokenEntity;
 import eu.opertusmundi.common.domain.CustomerEntity;
 import eu.opertusmundi.common.domain.CustomerProfessionalEntity;
+import eu.opertusmundi.common.domain.HelpdeskAccountEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
@@ -38,6 +39,7 @@ import eu.opertusmundi.common.model.analytics.ProfileRecord;
 import eu.opertusmundi.common.model.workflow.EnumProcessInstanceVariable;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
+import eu.opertusmundi.common.repository.HelpdeskAccountRepository;
 import eu.opertusmundi.common.service.ElasticSearchService;
 import eu.opertusmundi.common.util.BpmEngineUtils;
 import eu.opertusmundi.common.util.BpmInstanceVariablesBuilder;
@@ -57,6 +59,9 @@ public class DefaultUserService implements UserService {
     private AccountRepository accountRepository;
 
     @Autowired
+    private HelpdeskAccountRepository helpdeskAccountRepository;
+
+    @Autowired
     private ActivationTokenRepository activationTokenRepository;
 
     @Autowired
@@ -68,9 +73,17 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional
     public Optional<AccountDto> findOneByUserName(String username) throws UsernameNotFoundException {
-        final AccountEntity account = this.accountRepository.findOneByEmail(username).orElse(null);
+        AccountDto account = this.accountRepository.findOneByEmail(username)
+            .map(AccountEntity::toDto)
+            .orElse(null);
 
-        return Optional.ofNullable(account == null ? null : account.toDto());
+        if (account == null) {
+            account = this.helpdeskAccountRepository.findOneByEmail(username)
+                .map(HelpdeskAccountEntity::toMarketplaceAccountDto)
+                .orElse(null);
+        }
+
+        return Optional.ofNullable(account == null ? null : account);
     }
 
     @Override

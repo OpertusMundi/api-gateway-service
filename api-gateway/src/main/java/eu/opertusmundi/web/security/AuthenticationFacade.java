@@ -72,6 +72,14 @@ public interface AuthenticationFacade {
     boolean hasRole(EnumRole role);
 
     /**
+     * Check if current user has any of the specified roles
+     *
+     * @param roles
+     * @return
+     */
+    boolean hasAnyRole(EnumRole... roles);
+
+    /**
      * Get all roles of the current user
      *
      * @return

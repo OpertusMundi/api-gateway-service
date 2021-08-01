@@ -61,6 +61,10 @@ public abstract class BaseController {
         return this.authenticationFacade.hasRole(role);
     }
 
+    protected boolean hasAnyRole(EnumRole... roles) {
+        return this.authenticationFacade.hasAnyRole(roles);
+    }
+
     protected void ensureRegistered() throws AccessDeniedException {
         if (!this.authenticationFacade.isRegistered()) {
             throw new AccessDeniedException("Access Denied");
