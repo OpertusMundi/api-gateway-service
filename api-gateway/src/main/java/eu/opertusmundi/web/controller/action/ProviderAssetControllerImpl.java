@@ -44,10 +44,6 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
     @Autowired
     private ProviderAssetService providerAssetService;
 
-    // TODO: Implement search using elastic search
-    // TODO: Apply type filter
-    // TODO: Apply sorting and order
-
     @Override
     public RestResponse<?> findAll(
         String query, EnumType type, int pageIndex, int pageSize, EnumProviderAssetSortField orderBy, EnumSortingOrder order

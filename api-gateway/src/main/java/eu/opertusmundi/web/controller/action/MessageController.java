@@ -59,7 +59,7 @@ public interface MessageController {
         )
     )
     @GetMapping(value = "/messages")
-    @Secured({"ROLE_USER", "ROLE_HELPDESK"})
+    @Secured({"ROLE_USER"})
     RestResponse<?> findMessages(
         @Parameter(
             in          = ParameterIn.QUERY,
@@ -127,7 +127,7 @@ public interface MessageController {
         )
     )
     @GetMapping(value = "/notifications")
-    @Secured({"ROLE_USER", "ROLE_HELPDESK"})
+    @Secured({"ROLE_USER"})
     RestResponse<?> findNotifications(
         @Parameter(
             in          = ParameterIn.QUERY,
@@ -228,7 +228,7 @@ public interface MessageController {
         )
     )
     @PostMapping(value = "/message/provider/{key}")
-    @Secured({"ROLE_USER", "ROLE_HELPDESK"})
+    @Secured({"ROLE_USER"})
     BaseResponse sendToProvider(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -293,7 +293,7 @@ public interface MessageController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageReceiptDto.class))
     )
     @PostMapping(value = "/message/{key}")
-    @Secured({"ROLE_USER", "ROLE_PROVIDER", "ROLE_HELPDESK"})
+    @Secured({"ROLE_USER", "ROLE_PROVIDER"})
     BaseResponse replyToMessage(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -328,7 +328,7 @@ public interface MessageController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
     @PutMapping(value = "/message/{key}")
-    @Secured({"ROLE_USER", "ROLE_PROVIDER", "ROLE_HELPDESK"})
+    @Secured({"ROLE_USER", "ROLE_PROVIDER"})
     BaseResponse readMessage(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -357,7 +357,7 @@ public interface MessageController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
     @PutMapping(value = "/notification/{key}")
-    @Secured({"ROLE_USER", "ROLE_PROVIDER", "ROLE_HELPDESK"})
+    @Secured({"ROLE_USER", "ROLE_PROVIDER"})
     BaseResponse readNotification(
         @Parameter(
             in          = ParameterIn.PATH,
