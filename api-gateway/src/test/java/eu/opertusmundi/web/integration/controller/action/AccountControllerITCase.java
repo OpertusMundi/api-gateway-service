@@ -75,6 +75,7 @@ import eu.opertusmundi.web.utils.ReturnValueCaptor;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Sql(scripts = {"classpath:sql/create-helpdesk-account.sql"})
 public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity {
 
     @Value("${opertus-mundi.oauth.failure-uri:/error/401}")

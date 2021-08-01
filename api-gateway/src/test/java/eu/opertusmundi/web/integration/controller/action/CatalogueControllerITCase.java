@@ -47,7 +47,7 @@ import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
 import eu.opertusmundi.web.utils.ResponsePayload;
 
 @SpringBootTest
-@Sql(scripts = {"classpath:sql/create-provider.sql"})
+@Sql(scripts = {"classpath:sql/create-provider-account.sql"})
 public class CatalogueControllerITCase extends AbstractIntegrationTest {
 
     final static private UUID notFoundAssetId = UUID.randomUUID();
