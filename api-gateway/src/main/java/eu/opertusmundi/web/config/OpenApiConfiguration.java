@@ -108,6 +108,7 @@ public class OpenApiConfiguration {
             )),
             new TagGroup("Assets", Arrays.asList(
                 EndpointTags.Draft,
+                EndpointTags.DraftReview,
                 EndpointTags.Provider,
                 EndpointTags.ContractProvider,
                 EndpointTags.Consumer,
