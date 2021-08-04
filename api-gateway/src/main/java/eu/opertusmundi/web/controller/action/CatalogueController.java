@@ -101,8 +101,8 @@ public interface CatalogueController {
      * @return A response with a result of type {@link CatalogueItemDto}
      */
     @Operation(
-        operationId = "catalogue-03",
-        summary     = "Get asset",
+        operationId = "catalogue-03a",
+        summary     = "Get asset by id",
         description = "Get a single catalogue item by its unique identifier."
     )
     @ApiResponse(
@@ -121,6 +121,42 @@ public interface CatalogueController {
             description = "Item unique id"
         )
         @PathVariable String id
+    );
+
+    /**
+     * Get a single catalogue item
+     *
+     * @param id The item unique id
+     * @param version The item version
+     * @return A response with a result of type {@link CatalogueItemDto}
+     */
+    @Operation(
+        operationId = "catalogue-03b",
+        summary     = "Get asset by id and version",
+        description = "Get a single catalogue item by its unique identifier and version."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CatalogueEndpointTypes.ItemResponse.class)
+        )
+    )
+    @GetMapping(value = "/catalogue/history/items/{id}")
+    RestResponse<CatalogueItemDetailsDto> findOne(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Item unique id"
+        )
+        @PathVariable String id,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Item version"
+        )
+        @RequestParam(name = "version", required = true) String version
     );
 
     /**

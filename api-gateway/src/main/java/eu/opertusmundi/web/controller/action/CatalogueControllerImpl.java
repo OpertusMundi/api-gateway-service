@@ -77,6 +77,19 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     }
 
     @Override
+    public RestResponse<CatalogueItemDetailsDto> findOne(String id, String version) {
+        try {
+            final CatalogueItemDetailsDto item = catalogueService.findOne(
+                this.createContext(), id, version, this.currentUserKey(), this.isAuthenticated()
+            );
+
+            return item == null ? RestResponse.notFound() : RestResponse.result(item);
+        } catch (final CatalogueServiceException ex) {
+            return RestResponse.failure();
+        }
+    }
+
+    @Override
     public RestResponse<Void> harvestCatalogue(CatalogueHarvestCommandDto command, BindingResult validationResult) {
         try {
             command.setUserKey(this.currentUserKey());
