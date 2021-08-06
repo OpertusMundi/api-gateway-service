@@ -81,6 +81,11 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
             item.setContractTemplateVersion(contract.getVersion());
             item.setContract(contract);
 
+            // Update metadata property URLs
+            this.providerAssetService.updateMetadataPropertyLinks(
+                draft.getKey().toString(), item.getResources(), item.getAutomatedMetadata(), draft.getStatus()
+            );
+
             // Compute effective pricing models
             this.refreshPricingModels(item);
 
