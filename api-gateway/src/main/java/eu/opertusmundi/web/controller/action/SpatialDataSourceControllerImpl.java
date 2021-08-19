@@ -85,8 +85,29 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
     }
 
     @Override
-    public RestResponse<?> findAllEpsg() {
-        final List<EpsgDto> result = this.epsgRepository.findAll().stream()
+    public RestResponse<?> findAllEpsg(String name, String code) {
+        if (StringUtils.isBlank(name)) {
+            name = null;
+        } else {
+            if (!name.startsWith("%")) {
+                name = "%" + name;
+            }
+            if (!name.endsWith("%")) {
+                name += "%";
+            }
+        }
+        if (StringUtils.isBlank(code)) {
+            code = null;
+        } else {
+            if (!code.startsWith("%")) {
+                code = "%" + code;
+            }
+            if (!code.endsWith("%")) {
+                code += "%";
+            }
+        }
+
+        final List<EpsgDto> result = this.epsgRepository.findAllActive(name, code).stream()
             .map(EpsgEntity::toDto)
             .collect(Collectors.toList());
 

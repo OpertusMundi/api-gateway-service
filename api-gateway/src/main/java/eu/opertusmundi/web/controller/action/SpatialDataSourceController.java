@@ -29,6 +29,8 @@ public interface SpatialDataSourceController {
     /**
      * Get all EPSG codes supported by the platform
      *
+     * @param name
+     * @param code
      * @return An instance of {@link SpatialDataEndpointTypes#EpsgCollectionResponse} class
      */
     @Operation(
@@ -44,7 +46,23 @@ public interface SpatialDataSourceController {
         )
     )
     @GetMapping(value = "/epsg")
-    RestResponse<?> findAllEpsg();
+    RestResponse<?> findAllEpsg(
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Partial name of the EPSG code",
+            example = "Greek"
+        )
+        @RequestParam(name = "name", required = false) String name,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Partial number of the EPSG code",
+            example = "481"
+        )
+        @RequestParam(name = "code", required = false) String code
+    );
+
 
     /**
      * Get a list of regions
