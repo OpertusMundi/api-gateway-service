@@ -14,6 +14,7 @@ import org.springframework.validation.Validator;
 import eu.opertusmundi.common.domain.AssetAdditionalResourceEntity;
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.AssetResourceEntity;
+import eu.opertusmundi.common.domain.ProviderTemplateContractEntity;
 import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.asset.AssetAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
@@ -33,6 +34,13 @@ import eu.opertusmundi.common.repository.contract.ProviderTemplateContractReposi
 @Component
 public class DraftValidator implements Validator {
 
+    public enum EnumValidationMode {
+        UNDEFINED,
+        UPDATE,
+        SUBMIT,
+        ;
+    }
+
     @Autowired
     private ProviderTemplateContractRepository contractRepository;
 
@@ -50,20 +58,29 @@ public class DraftValidator implements Validator {
         return CatalogueItemCommandDto.class.isAssignableFrom(clazz);
     }
 
+
     @Override
     public void validate(Object o, Errors e) {
+        this.validate(o, e, EnumValidationMode.SUBMIT);
+    }
+
+    public void validate(Object o, Errors e, EnumValidationMode mode) {
         final CatalogueItemCommandDto c = (CatalogueItemCommandDto) o;
 
-        this.validateContract(c, e);
+        this.validateContract(c, e, mode);
         this.validateFormat(c, e);
         this.validateResources(c, e);
         this.validateAdditionalResources(c, e);
-        this.validatePricingModels(c, e);
+        this.validatePricingModels(c, e, mode);
     }
 
-    private void validateContract(CatalogueItemCommandDto c, Errors e) {
-        // Provider contract must exist and be active
-        if (!contractRepository.findOneByKey(c.getPublisherKey(), c.getContractTemplateKey()).isPresent()) {
+    private void validateContract(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
+        final ProviderTemplateContractEntity contract = contractRepository
+            .findOneByKey(c.getPublisherKey(), c.getContractTemplateKey())
+            .orElse(null);
+
+        // Provider contract must exist and be active to submit a draft
+        if (contract == null && mode == EnumValidationMode.SUBMIT) {
             e.rejectValue("contractTemplateKey", EnumValidatorError.OptionNotFound.name());
         }
     }
@@ -164,9 +181,9 @@ public class DraftValidator implements Validator {
         }
     }
 
-    private void validatePricingModels(CatalogueItemCommandDto c, Errors e) {
-        // At least one pricing model is required
-        if (c.getPricingModels().size() == 0) {
+    private void validatePricingModels(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
+        // At least one pricing model is required to submit the draft
+        if (c.getPricingModels().size() == 0 && mode == EnumValidationMode.SUBMIT) {
             e.rejectValue("pricingModels", EnumValidatorError.NotEmpty.name());
         } else {
             // Validate each pricing model

@@ -54,6 +54,7 @@ import eu.opertusmundi.web.validation.ApiDraftValidator;
 import eu.opertusmundi.web.validation.AssetFileResourceValidator;
 import eu.opertusmundi.web.validation.DraftReviewValidator;
 import eu.opertusmundi.web.validation.DraftValidator;
+import eu.opertusmundi.web.validation.DraftValidator.EnumValidationMode;
 
 @RestController
 public class ProviderDraftAssetControllerImpl extends BaseController implements ProviderDraftAssetController {
@@ -110,7 +111,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 m.setKey(UUID.randomUUID());
             });
 
-            this.draftValidator.validate(command, validationResult);
+            this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors());
@@ -184,7 +185,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 m.setKey(UUID.randomUUID());
             });
 
-            this.draftValidator.validate(command, validationResult);
+            this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
@@ -208,7 +209,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             command.setPublisherKey(this.currentUserKey());
             command.setAssetKey(draftKey);
 
-            this.draftValidator.validate(command, validationResult);
+            this.draftValidator.validate(command, validationResult, EnumValidationMode.SUBMIT);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
