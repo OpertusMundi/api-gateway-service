@@ -206,7 +206,7 @@ public interface ProviderAssetController {
     )
     @DeleteMapping(value = "/assets/{id}")
     @Secured({"ROLE_PROVIDER"})
-    BaseResponse deleteAsset(
+    BaseResponse unpublishAsset(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,

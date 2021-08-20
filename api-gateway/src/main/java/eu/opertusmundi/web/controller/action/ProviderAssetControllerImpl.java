@@ -26,10 +26,12 @@ import eu.opertusmundi.common.model.asset.EnumProviderAssetSortField;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.catalogue.CatalogueResult;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
+import eu.opertusmundi.common.model.catalogue.CatalogueServiceMessageCode;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumType;
+import eu.opertusmundi.common.model.catalogue.client.UnpublishAssetCommand;
 import eu.opertusmundi.common.service.CatalogueService;
 import eu.opertusmundi.common.service.ProviderAssetService;
 
@@ -119,12 +121,22 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
     }
 
     @Override
-    public BaseResponse deleteAsset(String id) {
+    public BaseResponse unpublishAsset(String id) {
         try {
-            this.catalogueService.deleteAsset(id);
+            final UnpublishAssetCommand command = UnpublishAssetCommand.builder()
+                .userKey(this.currentUserKey())
+                .publisherKey(this.currentUserKey())
+                .pid(id)
+                .build();
+
+            this.providerAssetService.unpublishAsset(command);
 
             return RestResponse.success();
         } catch (final CatalogueServiceException ex) {
+            if (ex.getCode() == CatalogueServiceMessageCode.ITEM_NOT_FOUND) {
+                return RestResponse.notFound();
+            }
+
             logger.error("Operation has failed", ex);
         }
 
