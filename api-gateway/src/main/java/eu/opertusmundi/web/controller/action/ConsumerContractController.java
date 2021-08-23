@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.contract.consumer.ConsumerContractDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -59,11 +56,11 @@ public interface ConsumerContractController {
     @ApiResponse(
         responseCode = "200",
         description = "Successful Request",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested contract file"))
     )
     @PostMapping(value = "/order/{key}", params = {"index"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Validated
-    BaseResponse print(
+    ResponseEntity<StreamingResponseBody> print(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -106,7 +103,7 @@ public interface ConsumerContractController {
     )
     @PutMapping(value = "/order/{key}", params = {"index"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Validated
-    RestResponse<ConsumerContractDto> sign(
+    ResponseEntity<StreamingResponseBody> sign(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,

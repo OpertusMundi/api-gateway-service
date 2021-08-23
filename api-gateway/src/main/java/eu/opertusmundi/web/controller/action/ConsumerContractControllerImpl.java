@@ -18,12 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.contract.consumer.ConsumerContractDto;
 import eu.opertusmundi.common.model.contract.consumer.PrintConsumerContractCommand;
 import eu.opertusmundi.common.model.contract.consumer.SignConsumerContractCommand;
-import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.service.contract.ConsumerContractService;
 import eu.opertusmundi.common.service.contract.ContractFileManager;
 
@@ -37,45 +33,39 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
     private ConsumerContractService contractService;
 
     @Override
-    public BaseResponse print(
+    public ResponseEntity<StreamingResponseBody> print(
         UUID orderKey, Integer itemIndex, HttpServletResponse response
     ) {
-        final Path path = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, false, false);
-
+        // Path will be resolved by the contract service
         final PrintConsumerContractCommand command = PrintConsumerContractCommand.builder()
             .userId(this.currentUserId())
             .orderKey(orderKey)
             .itemIndex(itemIndex)
-            .path(path)
             .build();
 
         this.contractService.print(command);
 
-        return RestResponse.success();
+        final File contractFile = command.getPath().toFile();
+
+        return this.createResponse(response, contractFile);
     }
 
     @Override
-    public RestResponse<ConsumerContractDto> sign(
+    public ResponseEntity<StreamingResponseBody> sign(
         UUID orderKey, Integer itemIndex, HttpServletResponse response
     ) throws IOException {
-        try {
-            final Path sourcePath = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, false, true);
-            final Path targetPath = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, true, false);
+        // Paths will be resolved by the contract service
+        final SignConsumerContractCommand command = SignConsumerContractCommand.builder()
+            .userId(this.currentUserId())
+            .orderKey(orderKey)
+            .itemIndex(itemIndex)
+            .build();
 
-            final SignConsumerContractCommand command = SignConsumerContractCommand.builder()
-                .userId(this.currentUserId())
-                .orderKey(orderKey)
-                .itemIndex(itemIndex)
-                .sourcePath(sourcePath)
-                .targetPath(targetPath)
-                .build();
+        this.contractService.sign(command);
 
-            final ConsumerContractDto result = this.contractService.sign(command);
+        final File contractFile = command.getTargetPath().toFile();
 
-            return RestResponse.result(result);
-        } catch (final FileSystemException ex) {
-            throw ex;
-        }
+        return this.createResponse(response, contractFile);
     }
 
     @Override
@@ -89,6 +79,10 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found");
         }
 
+        return this.createResponse(response, file);
+    }
+
+    private ResponseEntity<StreamingResponseBody> createResponse(HttpServletResponse response, File file) {
         response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
         response.setHeader("Content-Type", MediaType.APPLICATION_PDF_VALUE);
         response.setHeader("Content-Length", Long.toString(file.length()));
