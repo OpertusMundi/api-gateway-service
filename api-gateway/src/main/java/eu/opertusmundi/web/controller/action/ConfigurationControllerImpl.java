@@ -27,6 +27,18 @@ public class ConfigurationControllerImpl implements ConfigurationController {
     @Value("${opertus-mundi.wordpress.endpoint:}")
     private String wordPressEndpoint;
 
+    @Value("${git.commit.id.abbrev}")
+    String commitId;
+
+    @Value("${git.commit.message.short}")
+    String commitComment;
+
+    @Value("${git.commit.id.describe}")
+    String commitIdDescription;
+
+    @Value("${git.build.time}")
+    String buildTimestamp;
+
     @Autowired
     private CountryRepository countryRepository;
 
@@ -64,6 +76,11 @@ public class ConfigurationControllerImpl implements ConfigurationController {
             .forEach(t -> config.getAsset().getFileTypes().add(t));
 
         config.getWordPress().setEndpoint(wordPressEndpoint);
+
+        config.getBuildInfo().setBuildTimestamp(buildTimestamp);
+        config.getBuildInfo().setCommitComment(commitComment);
+        config.getBuildInfo().setCommitId(commitId);
+        config.getBuildInfo().setCommitIdDescription(commitIdDescription);
 
         return config;
     }

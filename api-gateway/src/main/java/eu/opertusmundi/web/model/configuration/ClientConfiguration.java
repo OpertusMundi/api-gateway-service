@@ -68,6 +68,10 @@ public class ClientConfiguration {
     @Getter
     private final WordPressConfiguration wordPress = new WordPressConfiguration();
 
+    @Schema(description = "Build information")
+    @Getter
+    private final BuildVersionConfiguration buildInfo = new BuildVersionConfiguration();
+
     public static class AssetConfiguration {
 
         @ArraySchema(
@@ -98,6 +102,24 @@ public class ClientConfiguration {
         @Getter
         @Setter
         private  String endpoint;
+
+    }
+
+    @Getter
+    @Setter
+    public static class BuildVersionConfiguration {
+
+        @Schema(description = "Commit identifier")
+        private String commitId;
+
+        @Schema(description = "Commit comment")
+        private String commitComment;
+
+        @Schema(description = "Commit identifier description")
+        private String commitIdDescription;
+
+        @Schema(description = "Build timestamp")
+        private String buildTimestamp;
 
     }
 
