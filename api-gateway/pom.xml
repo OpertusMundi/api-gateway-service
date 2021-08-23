@@ -25,94 +25,94 @@
 		<org.jadira.usertype.core.version>6.0.1.GA</org.jadira.usertype.core.version>
 		<org.joda.joda-money.version>1.0.1</org.joda.joda-money.version>
 		<springdoc.version>1.5.4</springdoc.version>
-        <git-commit-id.skip>false</git-commit-id.skip>
+		<git-commit-id.skip>false</git-commit-id.skip>
 	</properties>
 
 	<profiles>
 		<profile>
-            <!-- a profile for java-only builds -->
+			<!-- a profile for java-only builds -->
 			<id>java-build</id>
-            <activation>
-                <property>
-                    <name>enableJavaBuildProfile</name>
-                </property>
-            </activation>
+			<activation>
+				<property>
+					<name>enableJavaBuildProfile</name>
+				</property>
+			</activation>
 			<properties>
 				<frontend.skip>true</frontend.skip>
 			</properties>
 		</profile>
 		<profile>
-            <id>continuous-integration</id>
-            <activation>
-                <property>
-                    <name>enableCiProfile</name>
-                </property>
-            </activation>
+			<id>continuous-integration</id>
+			<activation>
+				<property>
+					<name>enableCiProfile</name>
+				</property>
+			</activation>
 			<properties>
-                <git-commit-id.skip>true</git-commit-id.skip>
+				<git-commit-id.skip>true</git-commit-id.skip>
 			</properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>copy-additional-resources-for-integration-tests</id>
-                                <phase>process-test-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.testOutputDirectory}/</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>resources/integration-tests</directory>
-                                            <filtering>true</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>docker-build</id>
-            <activation>
-                <property>
-                    <name>enableDockerBuildProfile</name>
-                </property>
-            </activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-additional-resources-for-integration-tests</id>
+								<phase>process-test-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.testOutputDirectory}/</outputDirectory>
+									<resources>
+										<resource>
+											<directory>resources/integration-tests</directory>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>docker-build</id>
+			<activation>
+				<property>
+					<name>enableDockerBuildProfile</name>
+				</property>
+			</activation>
 			<properties>
-                <git-commit-id.skip>true</git-commit-id.skip>
+				<git-commit-id.skip>true</git-commit-id.skip>
 			</properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>copy-additional-resources-for-docker-build</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>resources/docker</directory>
-                                            <filtering>true</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-additional-resources-for-docker-build</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.outputDirectory}/</outputDirectory>
+									<resources>
+										<resource>
+											<directory>resources/docker</directory>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 	<dependencyManagement>
@@ -133,64 +133,64 @@
 			<groupId>eu.opertusmundi</groupId>
 			<artifactId>opertus-mundi-common</artifactId>
 		</dependency>
-	
+
 		<!-- Spring-Boot starter dependencies -->
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.security.oauth.boot</groupId>
 			<artifactId>spring-security-oauth2-autoconfigure</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.session</groupId>
 			<artifactId>spring-session-jdbc</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-properties-migrator</artifactId>
@@ -209,13 +209,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>com.github.tomakehurst</groupId>
 			<artifactId>wiremock</artifactId>
@@ -228,7 +228,7 @@
 		    <artifactId>reactive-streams</artifactId>
 		    <scope>test</scope>
 		</dependency>
-	
+
 		<!-- If packaging to WAR, mark dependency on embedded server as provided -->
 
 		<!--
@@ -238,32 +238,32 @@
 			<scope>provided</scope>
 		</dependency>
 		-->
-	
+
 		<!-- JDBC drivers -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-	
+
 		<!-- log4j2 lifecycle hooks in web context -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-web</artifactId>
 		</dependency>
-	
+
 		<!-- HTTP client -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
-	
+
 		<!-- Utilities -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -281,31 +281,31 @@
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>com.jayway.jsonpath</groupId>
 			<artifactId>json-path</artifactId>
 		</dependency>
-		
+
 		<dependency>
     		<groupId>org.apache.tika</groupId>
     		<artifactId>tika-core</artifactId>
     		<version>1.25</version>
 		</dependency>
-	
+
 		<!-- Camunda dependencies (no engine is configured, instead we use DTO definitions -->
 		<dependency>
 			<groupId>org.camunda.bpm</groupId>
 			<artifactId>camunda-engine</artifactId>
 			<version>${org.camunda.bpm.version}</version>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.camunda.bpm</groupId>
 			<artifactId>camunda-engine-rest-core</artifactId>
 			<version>${org.camunda.bpm.version}</version>
 		</dependency>
-	
+
 		<!-- Geometry types -->
 		<dependency>
 			<groupId>org.locationtech.jts</groupId>
@@ -313,20 +313,20 @@
 			<version>${org.locationtech.jts.version}</version>
 			<type>pom</type>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.locationtech.spatial4j</groupId>
 			<artifactId>spatial4j</artifactId>
 			<version>${org.locationtech.jts.spatial4j.version}</version>
 		</dependency>
-	
+
 		<!-- Money types -->
 		<dependency>
 			<groupId>org.joda</groupId>
 			<artifactId>joda-money</artifactId>
 			<version>${org.joda.joda-money.version}</version>
 		</dependency>
-	
+
 		<!-- Serialization -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -337,18 +337,18 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.jadira.usertype</groupId>
 			<artifactId>usertype.core</artifactId>
 			<version>${org.jadira.usertype.core.version}</version>
 		</dependency>
-	
+
 		<!-- Spring Cloud -->
 		<dependency>
 		    <groupId>javax.ws.rs</groupId>
@@ -361,26 +361,26 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		
+
 		<!-- Tracing -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-zipkin</artifactId>
 		</dependency>
-		
+
 		<!-- Open API documentation -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>${springdoc.version}</version>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-security</artifactId>
 			<version>${springdoc.version}</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
@@ -413,7 +413,7 @@
 				</executions>
 				<configuration>
 					<skip>${git-commit-id.skip}</skip>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 					<includeOnlyProperties>
 						<includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
@@ -523,7 +523,7 @@
 					</execution>
 				</executions>
 			</plugin>
-					
+
 			<!-- Configure unit tests -->
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -533,7 +533,7 @@
 					</excludes>
 				</configuration>
 			</plugin>
-			
+
 			<!-- Configure integration tests -->
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -543,7 +543,7 @@
                     </includes>
                 </configuration>
             </plugin>
-		
+
 			<!-- Create test coverage reports -->
 			<!--
 			<plugin>
@@ -644,5 +644,5 @@
 			</plugin>
 		</plugins>
 	</reporting>
-    
+
 </project>
