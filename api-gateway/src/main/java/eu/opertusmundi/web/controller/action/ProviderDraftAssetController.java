@@ -41,6 +41,8 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemProviderComman
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
+import eu.opertusmundi.common.model.catalogue.client.EnumType;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -90,6 +92,18 @@ public interface ProviderDraftAssetController {
             description = "Draft status"
         )
         @RequestParam(name = "status", required = true) Set<EnumProviderAssetDraftStatus> status,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Draft asset type"
+        )
+        @RequestParam(name = "type", required = false) Set<EnumType> type,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Draft service type. Applicable only for asset type `SERVICE`"
+        )
+        @RequestParam(name = "serviceType", required = false) Set<EnumSpatialDataServiceType> serviceType,
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,

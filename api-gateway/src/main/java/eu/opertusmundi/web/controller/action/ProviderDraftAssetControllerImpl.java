@@ -46,6 +46,8 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemProviderCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
+import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
+import eu.opertusmundi.common.model.catalogue.client.EnumType;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.CatalogueService;
@@ -81,14 +83,15 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Override
     public RestResponse<?> findAllDraft(
-        Set<EnumProviderAssetDraftStatus> status, int pageIndex, int pageSize,
+        Set<EnumProviderAssetDraftStatus> status, Set<EnumType> type, Set<EnumSpatialDataServiceType> serviceType,
+        int pageIndex, int pageSize,
         EnumProviderAssetDraftSortField orderBy, EnumSortingOrder order
     ) {
         try {
             final UUID publisherKey = this.currentUserKey();
 
             final PageResultDto<AssetDraftDto> result = this.providerAssetService.findAllDraft(
-                publisherKey, status, pageIndex, pageSize, orderBy, order
+                publisherKey, status, type, serviceType, pageIndex, pageSize, orderBy, order
             );
 
             return RestResponse.result(result);
