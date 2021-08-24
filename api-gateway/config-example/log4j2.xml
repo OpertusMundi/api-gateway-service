@@ -1,63 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
-    
-    <Properties>
-        <Property name="baseDir">./logs</Property>
-    </Properties>
-    
-    <Appenders>
-        <Console name="console" target="SYSTEM_ERR">
-            <PatternLayout
-                pattern="%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId},%X{spanExportable}] %-16X{client.remote-address} %-14.16X{client.username} %-5p %c{1.}:%L - %m%n" 
-            />
-        </Console>
 
-        <RollingFile name="file" filename="${baseDir}/api-gateway.log"
-            filepattern="${baseDir}/api-gateway-%d{MM-dd-yyyy}-%i.log.gz">
-            <PatternLayout
-                pattern="%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId},%X{spanExportable}] %-16X{client.remote-address} %-14.16X{client.username} %-5p %c{1.}:%L - %m%n" />
-            <Policies>
-                <SizeBasedTriggeringPolicy size="25MB" />
-            </Policies>
-            <DefaultRolloverStrategy max="10" />
-        </RollingFile>
+	<Properties>
+		<Property name="baseDir">./logs</Property>
+	</Properties>
 
-        <RollingFile name="webhook" filename="${baseDir}/webhook.log"
-            filepattern="${baseDir}/webhook-%d{MM-dd-yyyy}-%i.log.gz">
-            <PatternLayout
-                pattern="%d{yyyy-MM-dd HH:mm:ss} %-16X{client.remote-address} %m%n" />
-            <Policies>
-                <SizeBasedTriggeringPolicy size="25MB" />
-            </Policies>
-            <DefaultRolloverStrategy max="10" />
-        </RollingFile>
+	<Appenders>
+		<Console name="console" target="SYSTEM_ERR">
+			<PatternLayout
+				pattern="%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId},%X{spanExportable}] %-16X{client.remote-address} %-14.16X{client.username} %-5p %c{1.}:%L - %m%n" />
+		</Console>
 
-        <RollingFile name="asset_views" filename="${baseDir}/asset_views.log"
-            filepattern="${baseDir}/asset_views-%d{MM-dd-yyyy}-%i.log.gz">
-            <PatternLayout
-                pattern="%m%n" />
-            <Policies>
-                <SizeBasedTriggeringPolicy size="512MB" />
-            </Policies>
-            <DefaultRolloverStrategy max="100" />
-        </RollingFile>    
-    </Appenders>
+		<RollingFile name="file"
+			filename="${baseDir}/api-gateway.log"
+			filepattern="${baseDir}/api-gateway-%d{MM-dd-yyyy}-%i.log.gz">
+			<PatternLayout
+				pattern="%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId},%X{spanExportable}] %-16X{client.remote-address} %-14.16X{client.username} %-5p %c{1.}:%L - %m%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="25MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="10" />
+		</RollingFile>
 
-    <Loggers>
-        <Logger name="org.hibernate.SQL" level="INFO"></Logger>
+		<RollingFile name="webhook"
+			filename="${baseDir}/webhook.log"
+			filepattern="${baseDir}/webhook-%d{MM-dd-yyyy}-%i.log.gz">
+			<PatternLayout
+				pattern="%d{yyyy-MM-dd HH:mm:ss} %-16X{client.remote-address} %m%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="25MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="10" />
+		</RollingFile>
 
-        <Logger name="WEBHOOK" level="INFO" additivity="false">
-            <AppenderRef ref="webhook" />
-        </Logger>
+		<RollingFile name="asset_views"
+			filename="${baseDir}/asset_views.log"
+			filepattern="${baseDir}/asset_views-%d{MM-dd-yyyy}-%i.log.gz">
+			<PatternLayout pattern="%m%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="512MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="100" />
+		</RollingFile>
 
-        <Logger name="ASSET_VIEWS" level="INFO" additivity="false">
-            <AppenderRef ref="asset_views" />
-        </Logger>
+		<JDBC name="table" tableName="logging.log4j_message">
+			<ConnectionFactory
+				class="eu.opertusmundi.common.logging.jdbc.ConnectionFactory"
+				method="dataSource" 
+			/>
+			<Column name="application" literal="'api-gateway'" />
+			<Column name="generated" isEventTimestamp="true" />
+			<Column name="level" pattern="%level" isUnicode="false" />
+			<Column name="logger" pattern="%logger" isUnicode="false" />
+			<Column name="message" pattern="%message" isUnicode="false" />
+			<Column name="throwable" pattern="%ex{full}" isUnicode="false" />
+			<Column name="client_address" pattern="%X{client.remote-address}" isUnicode="false" />
+			<Column name="username" pattern="%X{client.username}" isUnicode="false" />
+		</JDBC>
+	</Appenders>
 
-        <Root level="INFO">
-            <AppenderRef ref="console" />
-            <AppenderRef ref="file" />
-        </Root>
-    </Loggers>
+	<Loggers>
+		<Logger name="org.hibernate.SQL" level="INFO"></Logger>
+
+		<Logger name="WEBHOOK" level="INFO" additivity="false">
+			<AppenderRef ref="webhook" />
+		</Logger>
+
+		<Logger name="ASSET_VIEWS" level="INFO" additivity="false">
+			<AppenderRef ref="asset_views" />
+		</Logger>
+
+		<Root level="INFO">
+			<AppenderRef ref="console" />
+			<AppenderRef ref="table" level="WARN" />
+			<AppenderRef ref="file" />
+		</Root>
+	</Loggers>
 
 </Configuration>
