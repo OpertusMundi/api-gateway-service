@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumValidatorError;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemProviderCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemVisibilityCommandDto;
 import eu.opertusmundi.common.repository.DraftRepository;
 
 @Component
@@ -23,12 +23,12 @@ public class DraftReviewValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return CatalogueItemProviderCommandDto.class.isAssignableFrom(clazz);
+        return CatalogueItemVisibilityCommandDto.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void validate(Object o, Errors e) {
-        final CatalogueItemProviderCommandDto c = (CatalogueItemProviderCommandDto) o;
+        final CatalogueItemVisibilityCommandDto c = (CatalogueItemVisibilityCommandDto) o;
 
         final ProviderAssetDraftEntity draft = draftRepository.findOneByPublisherAndKey(c.getProviderKey(), c.getDraftKey()).orElse(null);
         if (draft == null) {

@@ -43,7 +43,8 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionRe
 import eu.opertusmundi.common.model.catalogue.client.CatalogueDraftQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemProviderCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemSamplesCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemVisibilityCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
@@ -420,8 +421,8 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> updateReviewedDraft(
-        UUID draftKey, CatalogueItemProviderCommandDto command, BindingResult validationResult
+    public RestResponse<AssetDraftDto> updateDraftMetadataVisibility(
+        UUID draftKey, CatalogueItemVisibilityCommandDto command, BindingResult validationResult
     ) {
         try {
             command.setProviderKey(this.currentUserKey());
@@ -433,7 +434,31 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
 
-            final AssetDraftDto result = this.providerAssetService.updateDraft(command);
+            final AssetDraftDto result = this.providerAssetService.updateDraftMetadataVisibility(command);
+
+            return RestResponse.result(result);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    @Override
+    public RestResponse<AssetDraftDto> updateDraftSamples(
+        UUID draftKey, CatalogueItemSamplesCommandDto command, BindingResult validationResult
+    ) {
+        try {
+            command.setProviderKey(this.currentUserKey());
+            command.setDraftKey(draftKey);
+
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
+            }
+
+            final AssetDraftDto result = this.providerAssetService.updateDraftMetadataSamples(command);
 
             return RestResponse.result(result);
         } catch (final AssetDraftException ex) {
