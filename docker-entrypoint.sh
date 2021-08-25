@@ -111,6 +111,7 @@ fi
 
 main_class=eu.opertusmundi.web.Application
 default_java_opts="-server -Djava.security.egd=file:///dev/urandom -Xms256m"
-exec java ${JAVA_OPTS:-${default_java_opts}} -cp "/app/classes:/app/dependency/*" ${main_class} \
-  --spring.profiles.active=production,${runtime_profile} --logging.config=${logging_config}
+exec java ${JAVA_OPTS:-${default_java_opts}} -cp "/app/classes:/app/dependency/*" \
+  -Dspring.profiles.active=production,${runtime_profile} -Dlogging.config=${logging_config} \
+  ${main_class}
 
