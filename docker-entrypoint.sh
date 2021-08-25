@@ -32,6 +32,10 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "spring.datasource.username = ${database_username}"
     echo "spring.datasource.password = ${database_password}"
 
+    echo "opertus-mundi.logging.jdbc.url = ${database_url}"
+    echo "opertus-mundi.logging.jdbc.username = ${database_username}"
+    echo "opertus-mundi.logging.jdbc.password = ${database_password}"
+
     jwt_secret=$(cat ${JWT_SECRET_FILE} | tr -d '\n')
     echo "opertusmundi.feign.jwt.secret = ${jwt_secret}"
 
