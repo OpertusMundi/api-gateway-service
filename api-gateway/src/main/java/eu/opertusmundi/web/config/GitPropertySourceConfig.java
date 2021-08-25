@@ -6,7 +6,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Profile({"!testing"})
 @Configuration
-@PropertySource("classpath:git.properties")
+@PropertySource(value = "classpath:git.properties", ignoreResourceNotFound = true)
 public class GitPropertySourceConfig {
 
 }
