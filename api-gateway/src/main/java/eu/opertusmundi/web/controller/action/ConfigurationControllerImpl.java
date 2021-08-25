@@ -27,16 +27,16 @@ public class ConfigurationControllerImpl implements ConfigurationController {
     @Value("${opertus-mundi.wordpress.endpoint:}")
     private String wordPressEndpoint;
 
-    @Value("${git.commit.id.abbrev}")
+    @Value("${git.commit.id.abbrev:}")
     String commitId;
 
-    @Value("${git.commit.message.short}")
+    @Value("${git.commit.message.short:}")
     String commitComment;
 
-    @Value("${git.commit.id.describe}")
+    @Value("${git.commit.id.describe:}")
     String commitIdDescription;
 
-    @Value("${git.build.time}")
+    @Value("${git.build.time:}")
     String buildTimestamp;
 
     @Autowired
