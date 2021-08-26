@@ -1,6 +1,7 @@
 package eu.opertusmundi.web.controller.action;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -8,34 +9,31 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RestController;
 
-import brave.Span;
-import brave.Tracer;
+import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.feign.client.MessageServiceFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.message.client.ClientContactDto;
 import eu.opertusmundi.common.model.message.client.ClientMessageCollectionResponse;
 import eu.opertusmundi.common.model.message.client.ClientMessageCommandDto;
 import eu.opertusmundi.common.model.message.client.ClientMessageDto;
+import eu.opertusmundi.common.model.message.client.ClientMessageThreadResponse;
 import eu.opertusmundi.common.model.message.client.ClientNotificationDto;
-import eu.opertusmundi.common.model.message.client.ClientRecipientDto;
 import eu.opertusmundi.common.model.message.server.ServerBaseMessageCommandDto;
 import eu.opertusmundi.common.model.message.server.ServerMessageCommandDto;
 import eu.opertusmundi.common.model.message.server.ServerMessageDto;
 import eu.opertusmundi.common.model.message.server.ServerNotificationDto;
 import eu.opertusmundi.common.repository.AccountRepository;
+import eu.opertusmundi.common.repository.HelpdeskAccountRepository;
 import feign.FeignException;
 
 @RestController
 public class MessageControllerImpl extends BaseController implements MessageController {
-
-    @Autowired
-    Tracer tracer;
 
     @Autowired
     private ObjectProvider<MessageServiceFeignClient> messageClient;
@@ -43,18 +41,29 @@ public class MessageControllerImpl extends BaseController implements MessageCont
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private HelpdeskAccountRepository helpdeskAccountRepository;
+
     @Override
-    public RestResponse<?> findMessages(Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read) {
-        ResponseEntity<RestResponse<PageResultDto<ServerMessageDto>>> e;
-
-        // Override user key
-        if (userKey == null || !this.hasRole(EnumRole.ROLE_HELPDESK)) {
-            userKey = this.currentUserKey();
-        }
-
-        // Get messages
+    public RestResponse<?> findMessages(Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read) {
         try {
-            e = this.messageClient.getObject().findMessages(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
+            final ResponseEntity<RestResponse<PageResultDto<ServerMessageDto>>> e = this.messageClient.getObject()
+                .findMessages(this.currentUserKey(), pageIndex, pageSize, dateFrom, dateTo, read);
+
+            final RestResponse<PageResultDto<ServerMessageDto>> serviceResponse = e.getBody();
+
+            if(!serviceResponse.getSuccess()) {
+                // TODO: Add logging ...
+                return RestResponse.failure();
+            }
+
+            final List<ClientContactDto> contracts = this.getContacts(serviceResponse.getResult().getItems());
+
+            final PageResultDto<ClientMessageDto> serviceResult = serviceResponse.getResult().convert(ClientMessageDto::from);
+
+            final ClientMessageCollectionResponse result = new ClientMessageCollectionResponse(serviceResult, contracts);
+
+            return result;
         } catch (final FeignException fex) {
             final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
 
@@ -62,53 +71,28 @@ public class MessageControllerImpl extends BaseController implements MessageCont
 
             return RestResponse.error(code, "An error has occurred");
         }
-
-        final RestResponse<PageResultDto<ServerMessageDto>> serviceResponse = e.getBody();
-
-        if(!serviceResponse.getSuccess()) {
-            // TODO: Add logging ...
-            return RestResponse.failure();
-        }
-
-        // Get all recipients in the result
-        final Span span = this.tracer.nextSpan().name("database-recipient").start();
-
-        final List<ClientRecipientDto> recipients;
-
-        try {
-            final UUID[] recipientKeys = serviceResponse.getResult().getItems().stream().map(i -> i.getRecipient()).distinct().toArray(UUID[]::new);
-
-            recipients = this.accountRepository.findAllByKey(recipientKeys).stream()
-                .map(ClientRecipientDto::new)
-                .collect(Collectors.toList());
-
-            // TODO: Check that all recipients exists
-            Assert.isTrue(recipientKeys.length == recipients.size(), "All recipients must exist!");
-        } catch(final Exception ex) {
-            // TODO: Add logging
-            return RestResponse.failure();
-        } finally {
-            span.finish();
-        }
-
-        // Compose response and send
-        final PageResultDto<ClientMessageDto> serviceResult = serviceResponse.getResult().convert(m -> {
-            return new ClientMessageDto(m);
-        });
-
-        final ClientMessageCollectionResponse result = new ClientMessageCollectionResponse(serviceResult, recipients);
-
-        return RestResponse.result(result);
     }
 
     @Override
     public RestResponse<?> findNotifications(Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read) {
-        ResponseEntity<RestResponse<PageResultDto<ServerNotificationDto>>> e;
-
         try {
             final UUID userKey = this.currentUserKey();
 
-            e = this.messageClient.getObject().findNotifications(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
+            final ResponseEntity<RestResponse<PageResultDto<ServerNotificationDto>>> e = this.messageClient.getObject()
+                .findNotifications(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
+
+            final RestResponse<PageResultDto<ServerNotificationDto>> serviceResponse = e.getBody();
+
+            if(!serviceResponse.getSuccess()) {
+                // TODO: Add logging ...
+                return RestResponse.failure();
+            }
+
+            final PageResultDto<ClientNotificationDto> result = serviceResponse.getResult().convert(n -> {
+                return new ClientNotificationDto(n);
+            });
+
+            return RestResponse.result(result);
         } catch (final FeignException fex) {
             final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
 
@@ -116,86 +100,25 @@ public class MessageControllerImpl extends BaseController implements MessageCont
 
             return RestResponse.error(code, "An error has occurred");
         }
-
-        final RestResponse<PageResultDto<ServerNotificationDto>> serviceResponse = e.getBody();
-
-        if(!serviceResponse.getSuccess()) {
-            // TODO: Add logging ...
-            return RestResponse.failure();
-        }
-
-        final PageResultDto<ClientNotificationDto> result = serviceResponse.getResult().convert(n -> {
-            return new ClientNotificationDto(n);
-        });
-
-        return RestResponse.result(result);
     }
 
     @Override
-    public BaseResponse sendToUser(UUID key, ClientMessageCommandDto message) {
-        final ServerMessageCommandDto command = new ServerMessageCommandDto();
-
-        command.setSender(this.currentUserKey());
-        command.setRecipient(key);
-        command.setText(message.getText());
-
-        final BaseResponse serviceResponse = this.send(command);
-
-        final BaseResponse response = this.processSendResponse(serviceResponse);
-
-        return response;
-    }
-
-    @Override
-    public BaseResponse sendToProvider(UUID key, ClientMessageCommandDto message) {
-        final ServerMessageCommandDto command = new ServerMessageCommandDto();
-
-        command.setSender(this.currentUserKey());
-        command.setRecipient(key);
-        command.setText(message.getText());
-
-        final BaseResponse serviceResponse = this.send(command);
-
-        final BaseResponse response = this.processSendResponse(serviceResponse);
-
-        return response;
-    }
-
-    @Override
-    public BaseResponse sendToHelpdesk(ClientMessageCommandDto message) {
-        final ServerMessageCommandDto command = new ServerMessageCommandDto();
-
-        command.setSender(this.currentUserKey());
-        command.setText(message.getText());
-
-        final BaseResponse serviceResponse = this.send(command);
-
-        final BaseResponse response = this.processSendResponse(serviceResponse);
-
-        return response;
-    }
-
-    @Override
-    public BaseResponse replyToMessage(UUID key, ClientMessageCommandDto message) {
-        final ServerMessageCommandDto command = new ServerMessageCommandDto();
-
-        command.setSender(this.currentUserKey());
-        command.setMessage(key);
-        command.setText(message.getText());
-
-        final BaseResponse serviceResponse = this.send(command);
-
-        final BaseResponse response = this.processSendResponse(serviceResponse);
-
-        return response;
-    }
-
-    @Override
-    public BaseResponse readMessage(UUID key) {
-        ResponseEntity<BaseResponse> e;
-
+    public RestResponse<?> sendToProvider(UUID providerKey, ClientMessageCommandDto clientCommand) {
         try {
-            e = this.messageClient.getObject().readMessage(this.currentUserKey(), key);
+            final AccountEntity provider = accountRepository.findOneByKey(providerKey).orElse(null);
+            if (provider == null || !provider.hasRole(EnumRole.ROLE_PROVIDER)) {
+                return RestResponse.error(BasicMessageCode.AccountNotFound, "Provider not found");
+            }
+
+            final ServerMessageCommandDto serverCommand = new ServerMessageCommandDto();
+
+            serverCommand.setSender(this.currentUserKey());
+            serverCommand.setRecipient(providerKey);
+            serverCommand.setText(clientCommand.getText());
+
+            final RestResponse<ServerMessageDto> serviceResponse = this.send(serverCommand);
+
+            return this.processSendResponse(serviceResponse);
         } catch (final FeignException fex) {
             final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
 
@@ -203,24 +126,114 @@ public class MessageControllerImpl extends BaseController implements MessageCont
 
             return RestResponse.error(code, "An error has occurred");
         }
+    }
 
-        final BaseResponse serviceResponse = e.getBody();
+    @Override
+    public RestResponse<?> sendToHelpdesk(ClientMessageCommandDto clientMessage) {
+        try {
+            final ServerMessageCommandDto serverMessage = new ServerMessageCommandDto();
 
-        if(!serviceResponse.getSuccess()) {
+            serverMessage.setSender(this.currentUserKey());
+            serverMessage.setText(clientMessage.getText());
+
+            final RestResponse<ServerMessageDto> serviceResponse = this.send(serverMessage);
+
+            return this.processSendResponse(serviceResponse);
+        } catch (final FeignException fex) {
+            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
+
             // TODO: Add logging ...
-            return RestResponse.failure();
-        }
 
-        // TODO: Format response ...
-        return serviceResponse;
+            return RestResponse.error(code, "An error has occurred");
+        }
+    }
+
+    @Override
+    public RestResponse<?> replyToMessageThread(UUID threadKey, ClientMessageCommandDto clientMessage) {
+            try {
+                final ServerMessageCommandDto command = new ServerMessageCommandDto();
+
+                command.setSender(this.currentUserKey());
+                command.setThread(threadKey);
+                command.setText(clientMessage.getText());
+
+                final RestResponse<ServerMessageDto> serviceResponse = this.send(command);
+
+                return this.processSendResponse(serviceResponse);
+            } catch (final FeignException fex) {
+                final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
+
+                // TODO: Add logging ...
+
+                return RestResponse.error(code, "An error has occurred");
+            }
+    }
+
+    @Override
+    public BaseResponse readMessage(UUID messageKey) {
+        try {
+            final ResponseEntity<RestResponse<ServerMessageDto>> e = this.messageClient.getObject().readMessage(this.currentUserKey(), messageKey);
+
+            final RestResponse<ServerMessageDto> serviceResponse = e.getBody();
+
+            if (serviceResponse.getSuccess()) {
+                return RestResponse.result(ClientMessageDto.from(serviceResponse.getResult()));
+            }
+
+            return RestResponse.failure();
+        } catch (final FeignException fex) {
+            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
+
+            // TODO: Add logging ...
+
+            return RestResponse.error(code, "An error has occurred");
+        }
+    }
+
+    @Override
+    public RestResponse<?> getMessageThread(UUID threadKey) {
+        try {
+            final ResponseEntity<RestResponse<List<ServerMessageDto>>> e = this.messageClient.getObject()
+                .getMessageThread(threadKey, this.currentUserKey());
+
+            final RestResponse<List<ServerMessageDto>> serviceResponse = e.getBody();
+
+            if(!serviceResponse.getSuccess()) {
+                return RestResponse.failure();
+            }
+
+            final List<ClientMessageDto> messages = serviceResponse.getResult().stream()
+               .map(ClientMessageDto::from)
+               .collect(Collectors.toList());
+
+
+            final List<ClientContactDto>      contracts = this.getContacts(serviceResponse.getResult());
+            final ClientMessageThreadResponse result    = new ClientMessageThreadResponse(messages, contracts);
+
+            return result;
+        } catch (final FeignException fex) {
+            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
+
+            // TODO: Add logging ...
+
+            return RestResponse.error(code, "An error has occurred");
+        }
     }
 
     @Override
     public BaseResponse readNotification(UUID key) {
-        ResponseEntity<BaseResponse> e;
-
         try {
-            e = this.messageClient.getObject().readNotification(key);
+            final ResponseEntity<BaseResponse> e = this.messageClient.getObject().readNotification(key);
+
+            final BaseResponse serviceResponse = e.getBody();
+
+            if(!serviceResponse.getSuccess()) {
+                // TODO: Add logging ...
+                return RestResponse.failure();
+            }
+
+            // TODO: Format response ...
+            return serviceResponse;
         } catch (final FeignException fex) {
             final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
 
@@ -228,43 +241,55 @@ public class MessageControllerImpl extends BaseController implements MessageCont
 
             return RestResponse.error(code, "An error has occurred");
         }
-
-        final BaseResponse serviceResponse = e.getBody();
-
-        if(!serviceResponse.getSuccess()) {
-            // TODO: Add logging ...
-            return RestResponse.failure();
-        }
-
-        // TODO: Format response ...
-        return serviceResponse;
     }
 
-    private BaseResponse send(ServerBaseMessageCommandDto command) throws IllegalArgumentException, FeignException {
-        ResponseEntity<BaseResponse> e;
-
+    private RestResponse<ServerMessageDto> send(ServerBaseMessageCommandDto command) throws IllegalArgumentException, FeignException {
         switch (command.getType()) {
             case MESSAGE :
                 final ServerMessageCommandDto message = (ServerMessageCommandDto) command;
+                final ResponseEntity<RestResponse<ServerMessageDto>> e = this.messageClient.getObject().sendMessage(message);
 
-                e = this.messageClient.getObject().sendMessage(message);
-                break;
+                return e.getBody();
 
             default :
                 throw new IllegalArgumentException("Message type is not supported");
         }
-
-        return e.getBody();
     }
 
-    private BaseResponse processSendResponse(BaseResponse response) {
-        if (!response.getSuccess()) {
-            // TODO: Add logging ...
-            return RestResponse.failure();
+    private RestResponse<?> processSendResponse(RestResponse<ServerMessageDto> response) {
+        if (response.getSuccess()) {
+            final ClientMessageDto result = ClientMessageDto.from(response.getResult());
+            return RestResponse.result(result);
         }
 
-        // TODO: Format response ...
-        return response;
+        return RestResponse.failure();
     }
+
+
+    private List<ClientContactDto> getContacts(List<ServerMessageDto> messages) {
+        final List<ClientContactDto> contacts     = new ArrayList<>();
+        final List<UUID>             contractKeys = new ArrayList<>();
+
+        messages.stream()
+            .map(i -> i.getSender())
+            .forEach(contractKeys::add);
+
+        messages.stream()
+            .map(i -> i.getRecipient())
+            .forEach(contractKeys::add);
+
+        final List<UUID> uniqueContractKeys = contractKeys.stream().filter(k -> k != null).distinct().collect(Collectors.toList());
+
+        this.accountRepository.findAllByKey(uniqueContractKeys).stream()
+            .map(ClientContactDto::new)
+            .forEach(contacts::add);
+
+        this.helpdeskAccountRepository.findAllByKey(uniqueContractKeys).stream()
+            .map(ClientContactDto::new)
+            .forEach(contacts::add);
+
+        return contacts;
+    }
+
 
 }

@@ -17,6 +17,7 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.message.client.ClientMessageCollectionResponse;
 import eu.opertusmundi.common.model.message.client.ClientMessageCommandDto;
+import eu.opertusmundi.common.model.message.client.ClientMessageThreadResponse;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.MessageEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 
 /**
- * Endpoint messages and notifications
+ * Endpoint for user messages and notifications
  */
 @RequestMapping(path = "/action", produces = MediaType.APPLICATION_JSON_VALUE)
 public interface MessageController {
@@ -38,12 +39,10 @@ public interface MessageController {
      *
      * @param pageIndex
      * @param pageSize
-     * @param userKey
      * @param dateFrom
      * @param dateTo
      * @param read
-     *
-     * @return An instance of {@link BaseResponse}
+     * @return
      */
     @Operation(
         operationId = "message-01",
@@ -78,12 +77,6 @@ public interface MessageController {
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = false,
-            description = "Filter user by key"
-        )
-        @RequestParam(name = "user", required = false) UUID userKey,
-        @Parameter(
-            in          = ParameterIn.QUERY,
-            required    = false,
             description = "Filter messages after date"
         )
         @RequestParam(name = "date-from", required = false) ZonedDateTime dateFrom,
@@ -106,12 +99,10 @@ public interface MessageController {
      *
      * @param pageIndex
      * @param pageSize
-     * @param userKey
      * @param dateFrom
      * @param dateTo
      * @param read
-     *
-     * @return An instance of {@link BaseResponse}
+     * @return
      */
     @Operation(
         operationId = "notification-01",
@@ -164,57 +155,15 @@ public interface MessageController {
     );
 
     /**
-     * Send a message to the platform user with the specified key
-     *
-     * @param key Recipient user unique key
-     * @param message Message command object
-     *
-     * @return An instance of {@link BaseResponse}
-     */
-    @Operation(
-        operationId = "message-04",
-        summary     = "Send a message to a platform user",
-        description = "Sends a message to the specified user from a Helpdesk account",
-        tags        = { EndpointTags.Message }
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "successful operation",
-        content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
-            schema = @Schema(implementation = MessageEndpointTypes.MessageReceiptDto.class)
-        )
-    )
-    @PostMapping(value = "/message/user/{key}")
-    @Secured({"ROLE_HELPDESK"})
-    BaseResponse sendToUser(
-        @Parameter(
-            in          = ParameterIn.PATH,
-            required    = true,
-            description = "User unique key"
-        )
-        @PathVariable(name = "key", required = true) UUID key,
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Message",
-            content = @Content(
-                mediaType = MediaType.APPLICATION_JSON_VALUE,
-                schema = @Schema(implementation = ClientMessageCommandDto.class)
-            ),
-            required = true
-        )
-        @RequestBody(required = true) ClientMessageCommandDto message
-    );
-
-    /**
      * Send a message to the provider with the specified key
      *
-     * @param key Recipient provider unique key
-     * @param message Message command object
+     * @param providerKey Recipient provider unique key
+     * @param command Message command object
      *
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
-        operationId = "message-05",
+        operationId = "message-02",
         summary     = "Send a message to a provider",
         description = "Sends a message to the specified provider from the authenticated user",
         tags        = { EndpointTags.Message }
@@ -222,37 +171,34 @@ public interface MessageController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
-            schema = @Schema(implementation = MessageEndpointTypes.MessageReceiptDto.class)
-        )
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageResponseDto.class))
     )
-    @PostMapping(value = "/message/provider/{key}")
-    @Secured({"ROLE_USER"})
-    BaseResponse sendToProvider(
+    @PostMapping(value = "/messages/provider/{providerKey}")
+    @Secured({"ROLE_CONSUMER"})
+    RestResponse<?> sendToProvider(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
             description = "Provider unique id"
         )
-        @PathVariable(name = "key", required = true) UUID key,
+        @PathVariable(name = "providerKey", required = true) UUID providerKey,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Message",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ClientMessageCommandDto.class)),
             required = true
         )
-        @RequestBody(required = true) ClientMessageCommandDto message
+        @RequestBody(required = true) ClientMessageCommandDto command
     );
 
     /**
      * Send message to Helpdesk
      *
-     * @param message Message configuration object
+     * @param command Message command object
      *
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
-        operationId = "message-06",
+        operationId = "message-03",
         summary     = "Send a message to Helpdesk",
         description = "Sends a message to Helpdesk from the authenticated user",
         tags        = { EndpointTags.Message }
@@ -260,64 +206,64 @@ public interface MessageController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageReceiptDto.class))
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageResponseDto.class))
     )
-    @PostMapping(value = "/message/helpdesk")
-    @Secured({"ROLE_USER", "ROLE_PROVIDER"})
-    BaseResponse sendToHelpdesk(
+    @PostMapping(value = "/messages/helpdesk")
+    @Secured({"ROLE_USER"})
+    RestResponse<?> sendToHelpdesk(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Message",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ClientMessageCommandDto.class)),
             required = true
         )
-        @RequestBody(required = true) ClientMessageCommandDto message
+        @RequestBody(required = true) ClientMessageCommandDto command
     );
 
     /**
      * Reply to message
      *
-     * @param key Reply to message with the specified key
-     * @param message Message command object
+     * @param threadKey Reply to message thread with the specified key
+     * @param command Message command object
      *
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
-        operationId = "message-03",
+        operationId = "message-04",
         summary     = "Reply to a message",
-        description = "Reply to a message accessible to the authenticated user",
+        description = "Reply to a message thread that belongs to the authenticated user",
         tags        = { EndpointTags.Message }
     )
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageReceiptDto.class))
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageResponseDto.class))
     )
-    @PostMapping(value = "/message/{key}")
-    @Secured({"ROLE_USER", "ROLE_PROVIDER"})
-    BaseResponse replyToMessage(
+    @PostMapping(value = "/messages/thread/{threadKey}")
+    @Secured({"ROLE_CONSUMER", "ROLE_PROVIDER"})
+    RestResponse<?> replyToMessageThread(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
-            description = "Message unique key"
+            description = "Message thread unique key"
         )
-        @PathVariable(name = "key", required = true) UUID key,
+        @PathVariable(name = "threadKey", required = true) UUID threadKey,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Message",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ClientMessageCommandDto.class)),
             required = true
         )
-        @RequestBody(required = true) ClientMessageCommandDto message
+        @RequestBody(required = true) ClientMessageCommandDto command
     );
 
     /**
      * Mark message as read
      *
-     * @param key The message to mark as read
+     * @param messageKey The message to mark as read
      *
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
-        operationId = "message-02",
+        operationId = "message-05",
         summary     = "Read message",
         description = "Marks a message as read",
         tags        = { EndpointTags.Message }
@@ -327,15 +273,44 @@ public interface MessageController {
         description = "successful operation",
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
-    @PutMapping(value = "/message/{key}")
-    @Secured({"ROLE_USER", "ROLE_PROVIDER"})
+    @PutMapping(value = "/messages/{messageKey}")
+    @Secured({"ROLE_USER"})
     BaseResponse readMessage(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
             description = "Message unique key"
         )
-        @PathVariable(name = "key", required = true) UUID key
+        @PathVariable(name = "messageKey", required = true) UUID messageKey
+    );
+
+    /**
+     * Get all thread messages
+     *
+     * @param threadKey The key of any message thread
+     *
+     * @return An instance of {@link BaseResponse}
+     */
+    @Operation(
+        operationId = "message-06",
+        summary     = "Get message thread",
+        description = "Get all messages of a thread",
+        tags        = { EndpointTags.Message }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ClientMessageThreadResponse.class))
+    )
+    @GetMapping(value = "/messages/thread/{threadKey}")
+    @Secured({"ROLE_USER"})
+    RestResponse<?> getMessageThread(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Message thread unique key"
+        )
+        @PathVariable(name = "threadKey", required = true) UUID threadKey
     );
 
     /**
@@ -356,8 +331,8 @@ public interface MessageController {
         description = "successful operation",
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
-    @PutMapping(value = "/notification/{key}")
-    @Secured({"ROLE_USER", "ROLE_PROVIDER"})
+    @PutMapping(value = "/notifications/{key}")
+    @Secured({"ROLE_USER"})
     BaseResponse readNotification(
         @Parameter(
             in          = ParameterIn.PATH,
