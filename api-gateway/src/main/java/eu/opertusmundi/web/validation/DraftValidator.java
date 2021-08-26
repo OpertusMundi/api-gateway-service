@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +16,12 @@ import org.springframework.validation.Validator;
 import eu.opertusmundi.common.domain.AssetAdditionalResourceEntity;
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.AssetResourceEntity;
+import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
 import eu.opertusmundi.common.domain.ProviderTemplateContractEntity;
 import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.asset.AssetAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
+import eu.opertusmundi.common.model.asset.AssetMessageCode;
 import eu.opertusmundi.common.model.asset.EnumAssetAdditionalResource;
 import eu.opertusmundi.common.model.asset.EnumAssetSourceType;
 import eu.opertusmundi.common.model.asset.EnumResourceType;
@@ -29,7 +33,9 @@ import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.repository.AssetAdditionalResourceRepository;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.repository.AssetResourceRepository;
+import eu.opertusmundi.common.repository.DraftRepository;
 import eu.opertusmundi.common.repository.contract.ProviderTemplateContractRepository;
+import eu.opertusmundi.common.service.AssetDraftException;
 
 @Component
 public class DraftValidator implements Validator {
@@ -53,6 +59,9 @@ public class DraftValidator implements Validator {
     @Autowired
     private AssetAdditionalResourceRepository assetAdditionalResourceRepository;
 
+    @Autowired
+    private DraftRepository draftRepository;
+
     @Override
     public boolean supports(Class<?> clazz) {
         return CatalogueItemCommandDto.class.isAssignableFrom(clazz);
@@ -61,10 +70,14 @@ public class DraftValidator implements Validator {
 
     @Override
     public void validate(Object o, Errors e) {
-        this.validate(o, e, EnumValidationMode.SUBMIT);
+        throw new AssetDraftException(AssetMessageCode.VALIDATION, "Operation not supported");
     }
 
     public void validate(Object o, Errors e, EnumValidationMode mode) {
+        this.validate(o, e, mode, null);
+    }
+
+    public void validate(Object o, Errors e, EnumValidationMode mode, @Nullable UUID draftKey) {
         final CatalogueItemCommandDto c = (CatalogueItemCommandDto) o;
 
         this.validateContract(c, e, mode);
@@ -72,6 +85,14 @@ public class DraftValidator implements Validator {
         this.validateResources(c, e);
         this.validateAdditionalResources(c, e);
         this.validatePricingModels(c, e, mode);
+
+        if (draftKey != null) {
+            final ProviderAssetDraftEntity draft = draftRepository.findOneByKey(draftKey).orElse(null);
+            if (draft != null && !StringUtils.equals(draft.getParentId(), c.getParentId())) {
+                // Cannot change parent id once set
+                e.rejectValue("parentId", EnumValidatorError.NotUpdatable.name());
+            }
+        }
     }
 
     private void validateContract(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
