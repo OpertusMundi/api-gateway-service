@@ -41,7 +41,11 @@ RUN mvn -B compile -DenableJavaBuildProfile -DenableDockerBuildProfile
 
 FROM openjdk:8-jre-alpine
 
+ARG git_url=
 ARG git_commit=
+ARG git_commit_message= 
+ARG git_tags=
+ARG git_build_time=
 
 COPY --from=maven-build /app/api-gateway/target/ /app/
 
@@ -86,7 +90,11 @@ ENV PUBLIC_URL="" \
     GOOGLEANALYTICS_TRACKER_ID="" \
     WORDPRESS_BASE_URL="https://posts.opertusmundi.eu"
 
-ENV GIT_COMMIT=${git_commit}
+ENV GIT_URL=${git_url} \
+    GIT_COMMIT=${git_commit} \
+    GIT_COMMIT_MESSAGE=${git_commit_message} \
+    GIT_TAGS=${git_tags} \
+    GIT_BUILD_TIME=${git_build_time}
 
 VOLUME [ \
     "/var/local/opertusmundi/files/assets", \
