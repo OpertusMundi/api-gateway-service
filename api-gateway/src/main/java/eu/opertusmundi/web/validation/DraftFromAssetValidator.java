@@ -26,9 +26,8 @@ public class DraftFromAssetValidator implements Validator {
     public void validate(Object o, Errors e) {
         final DraftFromAssetCommandDto c = (DraftFromAssetCommandDto) o;
 
-        if (c.getPid() != null) {
+        if (!StringUtils.isBlank(c.getPid())) {
             final ProviderAssetDraftEntity draft = draftRepository.findAllByParentId(c.getPid()).stream()
-                .filter(d -> StringUtils.equals(d.getParentId(), c.getPid()))
                 .findFirst()
                 .orElse(null);
 

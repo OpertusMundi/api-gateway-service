@@ -88,7 +88,7 @@ public class DraftValidator implements Validator {
 
         if (draftKey != null) {
             final ProviderAssetDraftEntity draft = draftRepository.findOneByKey(draftKey).orElse(null);
-            if (draft != null && !StringUtils.equals(draft.getParentId(), c.getParentId())) {
+            if (draft != null && !StringUtils.isBlank(draft.getParentId()) && !StringUtils.equals(draft.getParentId(), c.getParentId())) {
                 // Cannot change parent id once set
                 e.rejectValue("parentId", EnumValidatorError.NotUpdatable.name());
             }
