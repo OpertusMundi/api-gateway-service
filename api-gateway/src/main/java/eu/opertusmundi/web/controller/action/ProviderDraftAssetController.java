@@ -42,6 +42,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemVisibilityComm
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.catalogue.client.EnumType;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
@@ -138,7 +139,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "draft-asset-02",
+        operationId = "draft-asset-02a",
         summary     = "Create draft",
         description = "Create draft item. Required roles: <b>ROLE_PROVIDER</b>"
     )
@@ -158,6 +159,38 @@ public interface ProviderDraftAssetController {
         @Valid
         @RequestBody
         CatalogueItemCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+
+    /**
+     * Create a new draft item from an existing asset
+     *
+     * @param command The item to create
+     * @return
+     */
+    @Operation(
+        operationId = "draft-asset-02b",
+        summary     = "Create draft from asset",
+        description = "Create a new draft item from an existing asset. Required roles: <b>ROLE_PROVIDER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
+    )
+    @PostMapping(value = "/drafts/asset", consumes = "application/json")
+    RestResponse<AssetDraftDto> createDraftFromAsset(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Draft create command",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = DraftFromAssetCommandDto.class)),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        DraftFromAssetCommandDto command,
         @Parameter(
             hidden = true
         )

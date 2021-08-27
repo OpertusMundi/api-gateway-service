@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.opertusmundi.common.domain.AssetDomainRestrictionEntity;
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.CountryEntity;
 import eu.opertusmundi.common.domain.CountryEuropeEntity;
 import eu.opertusmundi.common.domain.LanguageEuropeEntity;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.repository.AssetDomainRestrictionRepository;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.repository.CountryRepository;
 import eu.opertusmundi.web.model.configuration.ClientConfiguration;
@@ -43,7 +45,10 @@ public class ConfigurationControllerImpl implements ConfigurationController {
     private CountryRepository countryRepository;
 
     @Autowired
-    private AssetFileTypeRepository assetFileTypeRepository;
+    private AssetFileTypeRepository fileTypeRepository;
+
+    @Autowired
+    private AssetDomainRestrictionRepository domainRestrictionRepository;
 
     @Override
     public RestResponse<ClientConfiguration> getConfiguration(String locale) {
@@ -69,11 +74,15 @@ public class ConfigurationControllerImpl implements ConfigurationController {
             .map(String::trim)
             .map(EnumAuthProvider::fromString)
             .filter(s -> s != null)
-            .forEach(s -> config.getAuthProviders().add(s));
+            .forEach(config.getAuthProviders()::add);
 
-        this.assetFileTypeRepository.findAllEnabled().parallelStream()
+        this.fileTypeRepository.findAllEnabled().stream()
             .map(AssetFileTypeEntity::toDto)
-            .forEach(t -> config.getAsset().getFileTypes().add(t));
+            .forEach(config.getAsset().getFileTypes()::add);
+
+        this.domainRestrictionRepository.findAllActive().stream()
+            .map(AssetDomainRestrictionEntity::getName)
+            .forEach(config.getAsset().getDomains()::add);
 
         config.getWordPress().setEndpoint(wordPressEndpoint);
 

@@ -82,7 +82,7 @@ public class ClientConfiguration {
             uniqueItems = true
         )
         @Getter
-        private final List<AssetFileTypeDto> fileTypes = new ArrayList<AssetFileTypeDto>();
+        private final List<AssetFileTypeDto> fileTypes = new ArrayList<>();
 
         @ArraySchema(
             arraySchema = @Schema(
@@ -92,7 +92,17 @@ public class ClientConfiguration {
             uniqueItems = true
         )
         @Getter
-        private final List<PricingModelSettings> pricingModels = new ArrayList<PricingModelSettings>();
+        private final List<PricingModelSettings> pricingModels = new ArrayList<>();
+
+        @ArraySchema(
+            arraySchema = @Schema(
+                description = "Asset domains"
+            ),
+            minItems = 1,
+            uniqueItems = true
+        )
+        @Getter
+        private final List<String> domains = new ArrayList<>();
 
     }
 

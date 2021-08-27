@@ -46,6 +46,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemSamplesCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemVisibilityCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.catalogue.client.EnumType;
@@ -55,6 +56,7 @@ import eu.opertusmundi.common.service.CatalogueService;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.web.validation.ApiDraftValidator;
 import eu.opertusmundi.web.validation.AssetFileResourceValidator;
+import eu.opertusmundi.web.validation.DraftFromAssetValidator;
 import eu.opertusmundi.web.validation.DraftReviewValidator;
 import eu.opertusmundi.web.validation.DraftValidator;
 import eu.opertusmundi.web.validation.DraftValidator.EnumValidationMode;
@@ -66,6 +68,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Autowired
     private DraftValidator draftValidator;
+
+    @Autowired
+    private DraftFromAssetValidator draftFromAssetValidator;
 
     @Autowired
     private DraftReviewValidator draftReviewValidator;
@@ -118,7 +123,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE);
 
             if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors());
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
 
             final AssetDraftDto result = this.providerAssetService.updateDraft(command);
@@ -130,6 +135,28 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             logger.error("Operation has failed", ex);
         }
 
+        return RestResponse.failure();
+    }
+
+    @Override
+    public RestResponse<AssetDraftDto> createDraftFromAsset(DraftFromAssetCommandDto command, BindingResult validationResult) {
+        try {
+            command.setPublisherKey(this.currentUserKey());
+
+            this.draftFromAssetValidator.validate(command, validationResult);
+
+            if (validationResult.hasErrors()) {
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
+            }
+
+            final AssetDraftDto result = this.providerAssetService.createDraftFromAsset(command);
+
+            return RestResponse.result(result);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("Operation has failed", ex);
+        }
         return RestResponse.failure();
     }
 
@@ -189,7 +216,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 m.setKey(UUID.randomUUID());
             });
 
-            this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE);
+            this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE, draftKey);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
@@ -213,7 +240,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             command.setPublisherKey(this.currentUserKey());
             command.setAssetKey(draftKey);
 
-            this.draftValidator.validate(command, validationResult, EnumValidationMode.SUBMIT);
+            this.draftValidator.validate(command, validationResult, EnumValidationMode.SUBMIT, draftKey);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
