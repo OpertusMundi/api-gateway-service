@@ -52,6 +52,7 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "opertusmundi.payments.mangopay.base-url = ${mangopay_base_url}"
     echo "opertusmundi.payments.mangopay.client-id = ${mangopay_client_id}"
     echo "opertusmundi.payments.mangopay.client-password = ${mangopay_client_password}"
+    echo "opertusmundi.payments.mangopay.secure-mode-return-url = ${public_url}"
 
     catalogue_base_url=$(echo ${CATALOGUE_BASE_URL} | _validate_http_url "CATALOGUE_BASE_URL")
     echo "opertusmundi.feign.catalogue.url = ${catalogue_base_url}"
