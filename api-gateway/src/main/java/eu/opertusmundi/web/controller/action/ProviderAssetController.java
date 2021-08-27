@@ -62,7 +62,7 @@ public interface ProviderAssetController {
             mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
         )
     )
-    @GetMapping(value = "/assets", consumes = "application/json")
+    @GetMapping(value = "/assets")
     @Secured({"ROLE_PROVIDER"})
     RestResponse<?> findAll(
         @Parameter(
