@@ -96,6 +96,9 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "opertusmundi.elastic.asset-view-aggregate-index.name = ${elasticsearch_indices_assets_view_aggregate_index_name}"
     echo "opertusmundi.elastic.profile-index.name = ${elasticsearch_indices_profiles_index_name}"
 
+    geoserver_base_url=$(echo ${GEOSERVER_BASE_URL%/} | _validate_http_url "GEOSERVER_BASE_URL")
+    echo "opertusmundi.geoserver.endpoint = ${geoserver_base_url}"
+
     echo "opertusmundi.googleanalytics.tracker-id = ${GOOGLEANALYTICS_TRACKER_ID:-}"
 
     wordpress_base_url=$(echo ${WORDPRESS_BASE_URL} | _validate_http_url "WORDPRESS_BASE_URL")
