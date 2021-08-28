@@ -83,6 +83,7 @@ ENV PUBLIC_URL="" \
     ELASTICSEARCH_INDICES_ASSETS_VIEW_INDEX_NAME="assets_view" \
     ELASTICSEARCH_INDICES_ASSETS_VIEW_AGGREGATE_INDEX_NAME="assets_view_aggregate" \
     ELASTICSEARCH_INDICES_PROFILES_INDEX_NAME="profiles" \
+    GEOSERVER_BASE_URL="http://geoserver:8080/geoserver" \
     GOOGLEANALYTICS_TRACKER_ID="" \
     WORDPRESS_BASE_URL="https://posts.opertusmundi.eu"
 
