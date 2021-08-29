@@ -43,9 +43,10 @@ FROM openjdk:8-jre-alpine
 
 ARG git_url=
 ARG git_commit=
-ARG git_commit_message= 
 ARG git_tags=
 ARG git_build_time=
+
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 
 COPY --from=maven-build /app/api-gateway/target/ /app/
 
@@ -91,11 +92,18 @@ ENV PUBLIC_URL="" \
     GOOGLEANALYTICS_TRACKER_ID="" \
     WORDPRESS_BASE_URL="https://posts.opertusmundi.eu"
 
-ENV GIT_URL=${git_url} \
-    GIT_COMMIT=${git_commit} \
-    GIT_COMMIT_MESSAGE=${git_commit_message} \
-    GIT_TAGS=${git_tags} \
-    GIT_BUILD_TIME=${git_build_time}
+ENV GIT_URL="${git_url}" \
+    GIT_COMMIT="${git_commit}" \
+    GIT_TAGS="${git_tags}" \
+    GIT_BUILD_TIME="${git_build_time}"
+
+RUN /bin/echo -e \
+    "\ngit.remote.origin.url=${GIT_URL}" \
+    "\ngit.commit.id=${GIT_COMMIT}" \
+    "\ngit.commit.id.describe=${GIT_TAGS}" \
+    "\ngit.tags=${GIT_TAGS}" \
+    "\ngit.build.time=${GIT_BUILD_TIME}" \
+  | sed -E -e 's/[[:space:]]+$//' | tee classes/git.properties 
 
 VOLUME [ \
     "/var/local/opertusmundi/files/assets", \

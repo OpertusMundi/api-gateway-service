@@ -175,7 +175,6 @@ steps:
     build_args: &build_args
     - git_url=${DRONE_GIT_HTTP_URL}
     - git_commit=${DRONE_COMMIT}
-    - git_commit_message=${DRONE_COMMIT_MESSAGE}
     - git_tags=${DRONE_TAG}
     - git_build_time=${DRONE_BUILD_STARTED}
 
