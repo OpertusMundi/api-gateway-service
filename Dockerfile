@@ -98,8 +98,10 @@ ENV GIT_URL="${git_url}" \
     GIT_BUILD_TIME="${git_build_time}"
 
 RUN /bin/echo -e \
-    "\ngit.remote.origin.url=${GIT_URL}" \
+    "git.remote.origin.url=${GIT_URL}" \
     "\ngit.commit.id=${GIT_COMMIT}" \
+    "\ngit.commit.id.full=${GIT_COMMIT}" \
+    "\ngit.commit.id.abbrev=${GIT_COMMIT:0:7}" \
     "\ngit.commit.id.describe=${GIT_TAGS}" \
     "\ngit.tags=${GIT_TAGS}" \
     "\ngit.build.time=${GIT_BUILD_TIME}" \
