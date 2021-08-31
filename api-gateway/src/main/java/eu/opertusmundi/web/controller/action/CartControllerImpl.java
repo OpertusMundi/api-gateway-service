@@ -57,6 +57,10 @@ public class CartControllerImpl extends BaseController implements CartController
 
     @Override
     public RestResponse<CartDto> addItem(CartAddCommandDto command, BindingResult validationResult, HttpSession session) {
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
         final UUID cartKey = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
         command.setCartKey(cartKey);
 
@@ -140,7 +144,7 @@ public class CartControllerImpl extends BaseController implements CartController
                     cartItem.setAsset(catalogueItem);
 
                     final EffectivePricingModelDto pricingModel = quotationService.createQuotation(
-                        catalogueItem, cartItem.getPricingModelKey(), cartItem.getQuotationParameters()
+                        catalogueItem, cartItem.getPricingModelKey(), cartItem.getQuotationParameters(), false
                     );
 
                     cartItem.setPricingModel(pricingModel);

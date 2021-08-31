@@ -30,7 +30,7 @@ public class QuotationControllerImpl extends BaseController implements Quotation
         try {
             final CatalogueItemDetailsDto  asset     = catalogueService.findOne(null, command.getAssetId(), null, false);
             final EffectivePricingModelDto quotation = quotationService.createQuotation(
-                asset, command.getPricingModelKey(), command.getParameters()
+                asset, command.getPricingModelKey(), command.getParameters(), false
             );
 
             return RestResponse.result(quotation);
