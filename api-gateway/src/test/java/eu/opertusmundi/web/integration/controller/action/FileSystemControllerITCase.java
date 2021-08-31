@@ -114,7 +114,9 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
     @BeforeAll
     public void setupAccounts() {
         // Reset database
-        JdbcTestUtils.deleteFromTables(this.jdbcTemplate, "web.account");
+        JdbcTestUtils.deleteFromTables(this.jdbcTemplate,
+            "contract.provider_contract_history", "contract.master_contract_history", "web.account"
+        );
 
         // Create default account with authority ROLE_USER
         final AccountCommandDto command = AccountCommandFactory.user("user@opertusmundi.eu").build();

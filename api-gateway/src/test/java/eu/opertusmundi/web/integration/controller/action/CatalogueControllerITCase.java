@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -30,11 +31,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
+import eu.opertusmundi.common.domain.ProviderTemplateContractHistoryEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
@@ -47,7 +50,10 @@ import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
 import eu.opertusmundi.web.utils.ResponsePayload;
 
 @SpringBootTest
-@Sql(scripts = {"classpath:sql/create-provider-account.sql"})
+@Sql(scripts = {
+    "classpath:sql/create-provider-account.sql",
+    "classpath:sql/create-contract-templates.sql"
+})
 public class CatalogueControllerITCase extends AbstractIntegrationTest {
 
     final static private UUID notFoundAssetId = UUID.randomUUID();
@@ -124,6 +130,16 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
         c.setKey(UUID.randomUUID());
         c.setTitle("Title");
         c.setVersion("1");
+
+        final ProviderTemplateContractHistoryEntity e = new ProviderTemplateContractHistoryEntity();
+
+        ReflectionTestUtils.invokeSetterMethod(e, "setId", 1);
+        ReflectionTestUtils.invokeSetterMethod(e, "setKey", UUID.randomUUID());
+
+        e.setTitle("Template");
+        e.setVersion("1");
+
+        Mockito.when(contractRepository.findByIdAndVersion(any(), any(), any())).thenReturn(Optional.of(e));
 
         Mockito.when(contractRepository.findOneObjectByIdAndVersion(any(), any(), any())).thenReturn(c);
     }
