@@ -95,6 +95,11 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "opertusmundi.elastic.asset-view-index.name = ${elasticsearch_indices_assets_view_index_name}"
     echo "opertusmundi.elastic.asset-view-aggregate-index.name = ${elasticsearch_indices_assets_view_aggregate_index_name}"
     echo "opertusmundi.elastic.profile-index.name = ${elasticsearch_indices_profiles_index_name}"
+    
+    jupyterhub_base_url=$(echo ${JUPYTERHUB_BASE_URL%/} | _validate_http_url "JUPYTERHUB_BASE_URL")
+    jupyterhub_access_token=$(cat ${JUPYTERHUB_ACCESS_TOKEN_FILE} | tr -d '\n')
+    echo "opertusmundi.jupyterhub.url = ${jupyterhub_base_url}"
+    echo "opertusmundi.jupyterhub.access-token = ${jupyterhub_access_token}" 
 
     geoserver_base_url=$(echo ${GEOSERVER_BASE_URL%/} | _validate_http_url "GEOSERVER_BASE_URL")
     echo "opertusmundi.geoserver.endpoint = ${geoserver_base_url}"
