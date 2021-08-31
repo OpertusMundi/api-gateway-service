@@ -32,12 +32,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.Message.EnumLevel;
+import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountCommandDto;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
-import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTestWithSecurity;
 import eu.opertusmundi.web.utils.AccountCommandFactory;
@@ -58,7 +58,9 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
     @BeforeAll
     public void setupAccounts() {
         // Reset database
-        JdbcTestUtils.deleteFromTables(this.jdbcTemplate, "web.account");
+        JdbcTestUtils.deleteFromTables(this.jdbcTemplate,
+            "contract.provider_contract_history", "contract.master_contract_history", "web.account"
+        );
 
         // Create default account with authority ROLE_USER
         final AccountCommandDto command = AccountCommandFactory.user().build();
