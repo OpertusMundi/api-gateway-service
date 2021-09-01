@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.domain.OrderEntity;
+import eu.opertusmundi.common.model.contract.EnumContract;
 import eu.opertusmundi.common.model.contract.consumer.PrintConsumerContractCommand;
 import eu.opertusmundi.common.model.contract.consumer.SignConsumerContractCommand;
 import eu.opertusmundi.common.repository.OrderRepository;
@@ -49,6 +50,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
             .userId(this.currentUserId())
             .orderKey(orderKey)
             .itemIndex(itemIndex)
+            .type(EnumContract.USER_CONTRACT)
             .build();
 
         this.contractService.print(command);
