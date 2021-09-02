@@ -304,7 +304,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         final String code = BasicMessageCode.Validation.key();
 
         // Create command
-        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("");
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("", 1);
 
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)
@@ -336,7 +336,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Commit
     void whenRequestActivationTokenForUnregisteredUser_returnEmptyResponse() throws Exception {
         // Create command
-        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("admin@opertusmundi.eu");
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("admin@opertusmundi.eu", 1);
 
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)
@@ -364,7 +364,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @DisplayName(value = "When request activation token, return empty response")
     @Commit
     void whenRequestActivationToken_returnToken() throws Exception {
-        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("user@opertusmundi.eu");
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("user@opertusmundi.eu", 1);
 
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)

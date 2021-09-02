@@ -11,6 +11,7 @@ import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -54,6 +55,12 @@ public class DefaultUserService implements UserService {
     private static final String WORKFLOW_ACCOUNT_REGISTRATION = "account-registration";
 
     private static final String MESSAGE_EMAIL_VERIFIED = "email-verified-message";
+
+    /**
+     * Activation token duration in hours
+     */
+    @Value("${user.service.toke-duration:360}")
+    private int tokenDuration;
 
     @Autowired
     private AccountRepository accountRepository;
@@ -119,7 +126,7 @@ public class DefaultUserService implements UserService {
         final AccountDto account = this.accountRepository.create(command);
 
         // Create activation token for account email
-        final ActivationTokenCommandDto tokenCommand = ActivationTokenCommandDto.of(command.getEmail());
+        final ActivationTokenCommandDto tokenCommand = ActivationTokenCommandDto.of(command.getEmail(), this.tokenDuration);
 
         final ServiceResponse<ActivationTokenDto> tokenResponse = this.createToken(EnumActivationTokenType.ACCOUNT, tokenCommand);
 
@@ -196,7 +203,9 @@ public class DefaultUserService implements UserService {
         }
 
         // Create activation token
-        final ActivationTokenDto token = this.activationTokenRepository.create(account.getId(), command.getEmail(), 1, type);
+        final ActivationTokenDto token = this.activationTokenRepository.create(
+            account.getId(), command.getEmail(), command.getDuration(), type
+        );
 
         return ServiceResponse.result(token);
     }
