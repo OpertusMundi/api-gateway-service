@@ -82,7 +82,7 @@ public class DraftValidator implements Validator {
 
         this.validateContract(c, e, mode);
         this.validateFormat(c, e);
-        this.validateResources(c, e);
+        this.validateResources(c, e, mode);
         this.validateAdditionalResources(c, e);
         this.validatePricingModels(c, e, mode);
 
@@ -122,10 +122,15 @@ public class DraftValidator implements Validator {
         }
     }
 
-    private void validateResources(CatalogueItemCommandDto c, Errors e) {
+    private void validateResources(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
         final List<AssetResourceEntity> serverResources = this.assetResourceRepository.findAllResourcesByDraftKey(c.getAssetKey());
         final List<UUID>                serverKeys      = serverResources.stream().map(r -> r.getKey()).collect(Collectors.toList());
         final List<UUID>                requestKeys     = c.getResources().stream().map(r -> r.getId()).collect(Collectors.toList());
+
+        // For submitted drafts, at least one resource must exist
+        if (mode == EnumValidationMode.SUBMIT && c.getResources().isEmpty()) {
+            e.rejectValue("resources", EnumValidatorError.NotEmpty.name());
+        }
 
         // All request resource keys must exist at the server
         for (int i = 0; i < requestKeys.size(); i++) {

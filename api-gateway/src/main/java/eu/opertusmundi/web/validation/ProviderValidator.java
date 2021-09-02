@@ -39,12 +39,21 @@ public class ProviderValidator implements Validator {
         final BankAccountCommandDto          bankAccount = c.getBankAccount();
 
         // Email must be unique for all providers
-        final CustomerEntity otherConsumer = this.customerRepository
+        final CustomerEntity customerWithSameMail = this.customerRepository
             .findProviderByEmailAndAccountIdNot(c.getEmail(), c.getUserId())
             .orElse(null);
 
-        if (otherConsumer != null) {
+        if (customerWithSameMail != null) {
             e.rejectValue("email", EnumValidatorError.NotUnique.name());
+        }
+
+        // Name must be unique
+        final CustomerEntity customerWithSameName = this.customerRepository
+            .findProviderByNameAndAccountIdNot(c.getName(), c.getUserId())
+            .orElse(null);
+
+        if (customerWithSameName != null) {
+            e.rejectValue("name", EnumValidatorError.NotUnique.name());
         }
 
         // IBAN validation
