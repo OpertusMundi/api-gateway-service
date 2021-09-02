@@ -113,12 +113,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public RestResponse<AssetDraftDto> createDraft(CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
-            command.setPublisherKey(this.currentUserKey());
-
-            command.getPricingModels().stream().forEach(m-> {
-                // Always override the key with a value generated at the server
-                m.setKey(UUID.randomUUID());
-            });
+            this.injectCatalogueItemCommandProperties(command);
 
             this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE);
 
@@ -208,13 +203,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public RestResponse<AssetDraftDto> updateDraft(UUID draftKey, CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
-            command.setPublisherKey(this.currentUserKey());
-            command.setAssetKey(draftKey);
-
-            command.getPricingModels().stream().forEach(m-> {
-                // Always override the key with a value generated at the server
-                m.setKey(UUID.randomUUID());
-            });
+            this.injectCatalogueItemCommandProperties(draftKey, command);
 
             this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE, draftKey);
 
@@ -237,8 +226,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public BaseResponse submitDraft(UUID draftKey, CatalogueItemCommandDto command, BindingResult validationResult) {
         try {
-            command.setPublisherKey(this.currentUserKey());
-            command.setAssetKey(draftKey);
+            this.injectCatalogueItemCommandProperties(draftKey, command);
 
             this.draftValidator.validate(command, validationResult, EnumValidationMode.SUBMIT, draftKey);
 
@@ -495,6 +483,21 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         }
 
         return RestResponse.failure();
+    }
+
+    private void injectCatalogueItemCommandProperties(CatalogueItemCommandDto command) {
+        this.injectCatalogueItemCommandProperties(null, command);
+    }
+
+    private void injectCatalogueItemCommandProperties(UUID draftKey, CatalogueItemCommandDto command) {
+        command.setAssetKey(draftKey);
+        command.setPublisherKey(this.currentUserKey());
+
+        command.getPricingModels().stream().forEach(m-> {
+            // Always override the key with a value generated at the server
+            m.setKey(UUID.randomUUID());
+        });
+
     }
 
 }
