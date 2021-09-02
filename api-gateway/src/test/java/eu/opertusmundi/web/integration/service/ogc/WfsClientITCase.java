@@ -130,7 +130,7 @@ public class WfsClientITCase {
             .addParameter("REQUEST", "GetCapabilities")
             .build();
 
-        final ServiceResourceDto resource = client.GetMetadata(uri.toString(), workspace, typeName);
+        final ServiceResourceDto resource = client.getMetadata(uri.toString(), workspace, typeName);
 
         this.wireMockServer.verify(1, WireMock.getRequestedFor(urlPathEqualTo(uri.getPath())));
 

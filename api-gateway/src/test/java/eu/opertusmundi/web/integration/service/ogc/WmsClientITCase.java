@@ -130,7 +130,7 @@ public class WmsClientITCase {
             .addParameter("REQUEST", "GetCapabilities")
             .build();
 
-        final ServiceResourceDto resource = client.GetMetadata(uri.toURL(), layerName);
+        final ServiceResourceDto resource = client.getMetadata(uri.toURL(), layerName);
 
         this.wireMockServer.verify(1, WireMock.getRequestedFor(urlPathEqualTo(uri.getPath())));
 
