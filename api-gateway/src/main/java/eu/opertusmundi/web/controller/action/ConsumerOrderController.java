@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -14,6 +16,7 @@ import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
+import eu.opertusmundi.common.model.order.OrderDeliveryCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
 import io.swagger.v3.oas.annotations.Operation;
@@ -128,6 +131,44 @@ public interface ConsumerOrderController {
             description = "Sorting order"
         )
         @RequestParam(name = "order", defaultValue = "ASC") EnumSortingOrder order
+    );
+
+    /**
+     * Ship order
+     *
+     * @param orderKey The order unique key
+     * @param command The delivery command
+     * @return
+     */
+    @Operation(
+        operationId = "consumer-order-03",
+        summary     = "Confirm order delivery",
+        description = "Confirm that an order that is shipped externally from the platform has been delivered. "
+                    + "The order status must be <b>PENDING_CONSUMER_RECEIVE_CONFIRMATION</b>. "
+                    + "Required roles: <b>ROLE_CONSUMER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ConsumerOrderResponse.class})
+        )
+    )
+    @PutMapping(value = "/orders/{orderKey}/delivery")
+    BaseResponse deliverOrder(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable UUID orderKey,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Order delivery command.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderDeliveryCommandDto.class)),
+            required = true
+        )
+        @RequestBody OrderDeliveryCommandDto command
     );
 
 }

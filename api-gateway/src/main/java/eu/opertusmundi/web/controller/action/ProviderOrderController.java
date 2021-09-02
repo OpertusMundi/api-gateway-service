@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -14,6 +16,8 @@ import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
+import eu.opertusmundi.common.model.order.OrderConfirmCommandDto;
+import eu.opertusmundi.common.model.order.OrderShippingCommandDto;
 import eu.opertusmundi.common.model.order.ProviderOrderDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
@@ -129,6 +133,82 @@ public interface ProviderOrderController {
             description = "Sorting order"
         )
         @RequestParam(name = "order", defaultValue = "ASC") EnumSortingOrder order
+    );
+
+    /**
+     * Confirm order
+     *
+     * @param orderKey The order unique key
+     * @param command The confirmation command
+     * @return
+     */
+    @Operation(
+        operationId = "provider-order-03",
+        summary     = "Confirm order",
+        description = "Accept or reject an order when consumer vetting is required. "
+                    + "The order status must be <b>PENDING_PROVIDER_APPROVAL</b>. "
+                    + "Required roles: <b>ROLE_PROVIDER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ProviderOrderResponse.class})
+        )
+    )
+    @PutMapping(value = "/orders/{orderKey}")
+    BaseResponse confirmOrder(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable UUID orderKey,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Confirmation command.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderConfirmCommandDto.class)),
+            required = true
+        )
+        @RequestBody OrderConfirmCommandDto command
+    );
+
+    /**
+     * Ship order
+     *
+     * @param orderKey The order unique key
+     * @param command The shipping command
+     * @return
+     */
+    @Operation(
+        operationId = "provider-order-04",
+        summary     = "Ship order",
+        description = "Confirm that an order that is delivered externally from the platform has been shipped. "
+                    + "The order status must be <b>PENDING_PROVIDER_SEND_CONFIRMATION</b>. "
+                    + "Required roles: <b>ROLE_PROVIDER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ProviderOrderResponse.class})
+        )
+    )
+    @PutMapping(value = "/orders/{orderKey}/shipping")
+    BaseResponse shipOrder(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable UUID orderKey,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Order shipping command.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderShippingCommandDto.class)),
+            required = true
+        )
+        @RequestBody OrderShippingCommandDto command
     );
 
 }

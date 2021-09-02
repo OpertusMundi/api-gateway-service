@@ -65,7 +65,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
             }
 
             // Initialize order fulfillment workflow and wait for webhook event
-            this.orderFulfillmentService.start(result.getKey(), result.getPayIn(), result.getStatus());
+            this.orderFulfillmentService.startOrderWorkflow(result.getKey(), result.getPayIn(), result.getStatus());
         }
 
         return RestResponse.result(result);
@@ -136,7 +136,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
 
         // Initialize order fulfillment workflow and wait for webhook event
         if (result.getStatus() != EnumTransactionStatus.FAILED) {
-            this.orderFulfillmentService.start(result.getKey(), result.getPayIn(), result.getStatus());
+            this.orderFulfillmentService.startOrderWorkflow(result.getKey(), result.getPayIn(), result.getStatus());
         }
 
         return RestResponse.result(result);
