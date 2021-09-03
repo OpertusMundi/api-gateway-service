@@ -59,7 +59,7 @@ public class DefaultUserService implements UserService {
     /**
      * Activation token duration in hours
      */
-    @Value("${user.service.toke-duration:360}")
+    @Value("${user.service.token-duration:360}")
     private int tokenDuration;
 
     @Autowired
@@ -126,7 +126,7 @@ public class DefaultUserService implements UserService {
         final AccountDto account = this.accountRepository.create(command);
 
         // Create activation token for account email
-        final ActivationTokenCommandDto tokenCommand = ActivationTokenCommandDto.of(command.getEmail(), this.tokenDuration);
+        final ActivationTokenCommandDto tokenCommand = ActivationTokenCommandDto.of(command.getEmail());
 
         final ServiceResponse<ActivationTokenDto> tokenResponse = this.createToken(EnumActivationTokenType.ACCOUNT, tokenCommand);
 
@@ -204,7 +204,7 @@ public class DefaultUserService implements UserService {
 
         // Create activation token
         final ActivationTokenDto token = this.activationTokenRepository.create(
-            account.getId(), command.getEmail(), command.getDuration(), type
+            account.getId(), command.getEmail(), this.tokenDuration, type
         );
 
         return ServiceResponse.result(token);

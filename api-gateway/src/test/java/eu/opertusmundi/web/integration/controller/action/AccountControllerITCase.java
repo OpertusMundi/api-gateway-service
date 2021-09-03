@@ -304,12 +304,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         final String code = BasicMessageCode.Validation.key();
 
         // Create command
-        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("", 1);
-
-        // Capture return value (arguments will be captured in verify)
-        doAnswer(this.activationTokenResponse)
-            .when(this.userService)
-            .createToken(any(), any());
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("");
 
         this.mockMvc.perform(post("/action/account/token/request")
             .contentType(MediaType.APPLICATION_JSON)
@@ -336,12 +331,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Commit
     void whenRequestActivationTokenForUnregisteredUser_returnEmptyResponse() throws Exception {
         // Create command
-        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("admin@opertusmundi.eu", 1);
-
-        // Capture return value (arguments will be captured in verify)
-        doAnswer(this.activationTokenResponse)
-            .when(this.userService)
-            .createToken(any(), any());
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("admin@opertusmundi.eu");
 
         this.mockMvc.perform(post("/action/account/token/request")
             .contentType(MediaType.APPLICATION_JSON)
@@ -364,7 +354,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @DisplayName(value = "When request activation token, return empty response")
     @Commit
     void whenRequestActivationToken_returnToken() throws Exception {
-        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("user@opertusmundi.eu", 1);
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("user@opertusmundi.eu");
 
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)
@@ -388,7 +378,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         assertThat(this.activationTokenResponse.getResult().getMessages()).isEmpty();
         assertThat(this.activationTokenResponse.getResult().getResult()).isNotNull();
 
-        final String                   content  = result.getResponse().getContentAsString();
+        final String             content  = result.getResponse().getContentAsString();
         final RestResponse<Void> response = this.objectMapper.readValue(content, new TypeReference<RestResponse<Void>>() { });
 
         assertThat(response).isNotNull();
