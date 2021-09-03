@@ -16,6 +16,7 @@ public class EndpointTags {
     public final static String FileSystem           = "File System";
     public final static String KycDocument          = "KYC";
     public final static String Message              = "Message";
+    public final static String Notebooks            = "Notebooks";
     public final static String Notification         = "Notification";
     public final static String OrderConsumer        = "Consumer Order";
     public final static String OrderProvider        = "Provider Order";

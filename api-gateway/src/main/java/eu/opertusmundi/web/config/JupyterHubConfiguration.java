@@ -18,29 +18,33 @@ import eu.opertusmundi.common.model.jupyter.JupyterHubProfile;
 
 @Configuration
 @ConfigurationProperties(prefix = "opertusmundi.jupyterhub", ignoreUnknownFields = true)
-@PropertySource(value = "file:config/jupyterhub.properties", ignoreResourceNotFound = true)
+@PropertySource(value = "${opertusmundi.jupyterhub.config}", ignoreResourceNotFound = true)
 @Validated
 @lombok.Getter
 @lombok.Setter
 public class JupyterHubConfiguration implements InitializingBean
 {
     private static final Logger logger = LoggerFactory.getLogger(JupyterHubConfiguration.class);
-    
+
     /**
      * The public URL for JupyterHub application
      */
     @NotNull
     private URL url;
-    
+
     /**
-     * The list of available server profiles 
+     * The list of available server profiles
      */
     private List<JupyterHubProfile> profiles = Collections.emptyList();
-   
+
     @Override
-    public void afterPropertiesSet() throws Exception 
+    public void afterPropertiesSet() throws Exception
     {
         logger.info("Pointing at {}. The following server profiles are present: {}",
             url, profiles.stream().map(JupyterHubProfile::getName).toArray());
+    }
+
+    public JupyterHubProfile getProfileByName(String name) {
+        return this.profiles.stream().filter(p -> p.getName().equals(name)).findFirst().orElse(null);
     }
 }
