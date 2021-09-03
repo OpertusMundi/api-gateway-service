@@ -62,7 +62,7 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
             referenceNumber,
             status,
             pageRequest,
-            false, false
+            true, false
         );
 
         final long                            count   = p.getTotalElements();
