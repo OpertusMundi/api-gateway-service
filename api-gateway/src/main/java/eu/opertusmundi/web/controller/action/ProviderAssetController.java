@@ -19,7 +19,7 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetSortField;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
+import eu.opertusmundi.common.model.asset.EnumProviderSubSortField;
 import eu.opertusmundi.common.model.catalogue.client.EnumType;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -43,15 +43,16 @@ public interface ProviderAssetController {
      * Search catalogue items published by the provider
      *
      * @param query
+     * @param type
      * @param pageIndex
      * @param pageSize
      * @param orderBy
      * @param order
-     * @return An instance of {@link CatalogueClientCollectionResponse} class
+     * @return
      */
     @Operation(
         operationId = "assets-01",
-        summary     = "Search",
+        summary     = "Published assets",
         description = "Search catalogue for provider's published assets. "
                     + "Required roles: <b>ROLE_PROVIDER</b>"
     )
@@ -64,7 +65,7 @@ public interface ProviderAssetController {
     )
     @GetMapping(value = "/assets")
     @Secured({"ROLE_PROVIDER"})
-    RestResponse<?> findAll(
+    RestResponse<?> findAllAssets(
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,
@@ -104,6 +105,59 @@ public interface ProviderAssetController {
     );
 
     /**
+     * Search the registered subscriptions of provider
+     *
+     * @param query
+     * @param type
+     * @param pageIndex
+     * @param pageSize
+     * @param orderBy
+     * @param order
+     * @return
+     */
+    @Operation(
+        operationId = "assets-02",
+        summary     = "Registered subscriptions",
+        description = "Search the registered subscriptions of provider. "
+                    + "Required roles: <b>ROLE_PROVIDER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.SubCollectionResponse.class)
+        )
+    )
+    @GetMapping(value = "/subscriptions")
+    @Secured({"ROLE_PROVIDER"})
+    RestResponse<?> findAllSubscriptions(
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Page index"
+        )
+        @RequestParam(name = "page", defaultValue = "0") int pageIndex,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Page size"
+        )
+        @RequestParam(name = "size", defaultValue = "10") int pageSize,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Order by property"
+        )
+        @RequestParam(name = "orderBy", defaultValue = "TITLE") EnumProviderSubSortField orderBy,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Sorting order"
+        )
+        @RequestParam(name = "order", defaultValue = "ASC") EnumSortingOrder order
+    );
+
+    /**
      * Download an additional resource file
      *
      * @param pid Asset persistent identifier (PID)
@@ -112,7 +166,7 @@ public interface ProviderAssetController {
      * @return The requested file
      */
     @Operation(
-        operationId = "assets-02",
+        operationId = "assets-03",
         summary     = "Download additional resource",
         description = "Downloads an additional resource file"
     )
@@ -149,7 +203,7 @@ public interface ProviderAssetController {
      * @return The requested property value
      */
     @Operation(
-        operationId = "assets-03",
+        operationId = "assets-04",
         summary     = "Get metadata property",
         description = "Gets metadata property value for the specified resource file. Roles required: <b>ROLE_USER</b>",
         security    = {
@@ -195,7 +249,7 @@ public interface ProviderAssetController {
      * @return
      */
     @Operation(
-        operationId = "assets-04",
+        operationId = "assets-05",
         summary     = "Delete asset",
         description = "Delete asset from catalogue. Required roles: <b>ROLE_PROVIDER</b>"
     )

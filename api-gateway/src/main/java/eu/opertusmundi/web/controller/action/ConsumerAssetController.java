@@ -113,7 +113,7 @@ public interface ConsumerAssetController {
         @Parameter(
             in = ParameterIn.QUERY,
             required = false,
-            description = "Asset type"
+            description = "Service type"
         )
         @RequestParam(name = "type", required = false) EnumSpatialDataServiceType type,
         @Parameter(

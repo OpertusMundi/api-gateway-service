@@ -21,8 +21,10 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
+import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetSortField;
+import eu.opertusmundi.common.model.asset.EnumProviderSubSortField;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.catalogue.CatalogueResult;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
@@ -32,6 +34,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionRe
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumType;
 import eu.opertusmundi.common.model.catalogue.client.UnpublishAssetCommand;
+import eu.opertusmundi.common.model.payment.provider.ProviderAccountSubscriptionDto;
 import eu.opertusmundi.common.service.CatalogueService;
 import eu.opertusmundi.common.service.ProviderAssetService;
 
@@ -47,7 +50,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
     private ProviderAssetService providerAssetService;
 
     @Override
-    public RestResponse<?> findAll(
+    public RestResponse<?> findAllAssets(
         String query, EnumType type, int pageIndex, int pageSize, EnumProviderAssetSortField orderBy, EnumSortingOrder order
     ) {
         try {
@@ -62,6 +65,22 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
             final CatalogueResult<CatalogueItemDto> result = this.catalogueService.findAll(this.createContext(true), searchQuery);
 
             return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
+        } catch (final CatalogueServiceException ex) {
+            return RestResponse.failure();
+        }
+    }
+
+    @Override
+    public RestResponse<?> findAllSubscriptions(
+        int pageIndex, int pageSize, EnumProviderSubSortField orderBy, EnumSortingOrder order
+    ) {
+        try {
+            final UUID                                          publisherKey = this.currentUserKey();
+            final PageResultDto<ProviderAccountSubscriptionDto> result       = this.providerAssetService.findAllSubscriptions(
+                publisherKey, pageIndex, pageSize, orderBy, order
+            );
+
+            return RestResponse.result(result);
         } catch (final CatalogueServiceException ex) {
             return RestResponse.failure();
         }
