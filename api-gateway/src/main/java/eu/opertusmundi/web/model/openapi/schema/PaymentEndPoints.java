@@ -12,9 +12,11 @@ import eu.opertusmundi.common.model.payment.CardRegistrationDto;
 import eu.opertusmundi.common.model.payment.PayOutDto;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerBankwirePayInDto;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerCardDirectPayInDto;
+import eu.opertusmundi.common.model.payment.consumer.ConsumerFreePayInDto;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerPayInDto;
 import eu.opertusmundi.common.model.payment.helpdesk.HelpdeskBankwirePayInDto;
 import eu.opertusmundi.common.model.payment.helpdesk.HelpdeskCardDirectPayInDto;
+import eu.opertusmundi.common.model.payment.helpdesk.HelpdeskFreePayInDto;
 import eu.opertusmundi.common.model.payment.provider.ProviderOrderPayInItemDto;
 import eu.opertusmundi.common.model.payment.provider.ProviderPayInItemDto;
 import eu.opertusmundi.common.model.payment.provider.ProviderSubscriptionBillingPayInItemDto;
@@ -34,6 +36,14 @@ public class PaymentEndPoints {
     }
 
     public static class CardRegistrationResponse extends RestResponse<CardDto> {
+
+    }
+
+    public static class ConsumerFreePayInResponse extends RestResponse<ConsumerFreePayInDto> {
+
+    }
+
+    public static class HelpdeskFreePayInResponse extends RestResponse<HelpdeskFreePayInDto> {
 
     }
 

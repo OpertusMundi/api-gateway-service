@@ -24,6 +24,7 @@ import eu.opertusmundi.common.model.payment.CardRegistrationCommandDto;
 import eu.opertusmundi.common.model.payment.CardRegistrationDto;
 import eu.opertusmundi.common.model.payment.EnumPayInSortField;
 import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
+import eu.opertusmundi.common.model.payment.FreePayInCommand;
 import eu.opertusmundi.common.model.payment.PayInDto;
 import eu.opertusmundi.common.model.payment.UserCommand;
 import eu.opertusmundi.common.model.payment.UserPaginationCommand;
@@ -65,7 +66,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
             }
 
             // Initialize order fulfillment workflow and wait for webhook event
-            this.orderFulfillmentService.startOrderWorkflow(result.getKey(), result.getPayIn(), result.getStatus());
+            this.orderFulfillmentService.startOrderWithPayInWorkflow(result.getKey(), result.getPayIn(), result.getStatus());
         }
 
         return RestResponse.result(result);
@@ -136,8 +137,24 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
 
         // Initialize order fulfillment workflow and wait for webhook event
         if (result.getStatus() != EnumTransactionStatus.FAILED) {
-            this.orderFulfillmentService.startOrderWorkflow(result.getKey(), result.getPayIn(), result.getStatus());
+            this.orderFulfillmentService.startOrderWithPayInWorkflow(result.getKey(), result.getPayIn(), result.getStatus());
         }
+
+        return RestResponse.result(result);
+    }
+
+    @Override
+    public RestResponse<?> createFreePayIn(UUID orderKey, HttpSession session) {
+        final FreePayInCommand payInCommand = FreePayInCommand.builder()
+                .userKey(this.currentUserKey())
+                .orderKey(orderKey)
+                .build();
+
+        final PayInDto result = this.paymentService.createPayInFreeForOrder(payInCommand);
+
+        // The status of a free payment is always successful. Initialize order
+        // fulfillment workflow
+        this.orderFulfillmentService.startOrderWithoutPayInWorkflow(result.getKey());
 
         return RestResponse.result(result);
     }

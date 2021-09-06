@@ -25,6 +25,7 @@ import eu.opertusmundi.common.model.payment.CardRegistrationCommandDto;
 import eu.opertusmundi.common.model.payment.EnumPayInSortField;
 import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
 import eu.opertusmundi.common.model.payment.PayInDto;
+import eu.opertusmundi.common.model.payment.consumer.ConsumerFreePayInDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints.CardCollectionResponse;
@@ -350,6 +351,47 @@ public interface ConsumerPayInController {
             description = "Sorting order"
         )
         @RequestParam(name = "order", defaultValue = "ASC") EnumSortingOrder order
+    );
+
+    /**
+     * Creates a free PayIn for a specific order
+     *
+     * @param orderKey
+     * @param session
+     *
+     * @return A {@link RestResponse} object with a result of type
+     *         {@link ConsumerFreePayInDto} if operation was successful; Otherwise an
+     *         instance of {@link BaseResponse} is returned with one or more error
+     *         messages
+     */
+    @Operation(
+        operationId = "consumer-payin-08",
+        summary     = "Create free PayIn",
+        description = "Create a new free PayIn for the order with the given key. If the operation "
+                    + "is successful, an instance of `ConsumerFreePayInResponse` is returned with PayIn details; "
+                    + "Otherwise an instance of `BaseResponse` is returned with one or more error messages. "
+                    + "Moreover, on successful execution, the server resets the user cart; Hence, the client "
+                    + "must either reset the cart locally or invoke [Get Cart](#operation/cart-01) "
+                    + "should refresh"
+                    + "Roles required: <b>ROLE_CONSUMER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ConsumerFreePayInResponse.class})
+        )
+    )
+    @PostMapping(value = "/payins/free/{orderKey}")
+    RestResponse<?> createFreePayIn(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+            )
+        @PathVariable UUID orderKey,
+        @Parameter(hidden = true) HttpSession session
     );
 
 }
