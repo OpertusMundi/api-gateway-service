@@ -57,4 +57,20 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
         }
     }
 
+    @Override
+    public RestResponse<?> findSubscription(UUID orderKey) {
+        try {
+            final UUID userKey = this.currentUserKey();
+
+            final AccountSubscriptionDto result = this.consumerAssetService.findSubscription(userKey, orderKey);
+
+            if (result == null) {
+                return RestResponse.notFound();
+            }
+            return RestResponse.result(result);
+        } catch (final CatalogueServiceException ex) {
+            return RestResponse.failure();
+        }
+    }
+
 }

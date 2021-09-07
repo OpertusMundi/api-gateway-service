@@ -1,7 +1,10 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.util.UUID;
+
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -104,7 +107,7 @@ public interface ConsumerAssetController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = ConsumerEndpointTypes.AssetSubscriptionResponse.class)
+            mediaType = "application/json", schema = @Schema(implementation = ConsumerEndpointTypes.SubscriptionCollectionResponse.class)
         )
     )
     @GetMapping(value = "/consumer/subscriptions")
@@ -142,4 +145,31 @@ public interface ConsumerAssetController {
         @RequestParam(name = "order", defaultValue = "ASC") EnumSortingOrder order
     );
 
+    /**
+     * Get a single subscription record
+     *
+     * @param key
+     * @return
+     */
+    @Operation(
+        operationId = "consumer-assets-03",
+        summary     = "Get subscription",
+        description = "Get a single subscription registered to the user's account. Required roles: <b>ROLE_CONSUMER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(implementation = ConsumerEndpointTypes.SubscriptionResponse.class)
+        )
+    )
+    @GetMapping(value = "/consumer/subscriptions/{key}")
+    @Secured({"ROLE_CONSUMER"})
+    RestResponse<?> findSubscription(
+        @Parameter(
+            in = ParameterIn.PATH,
+            description = "Subscription key (equal to the linked order key)"
+        )
+        @PathVariable(name = "key") UUID orderKey
+    );
 }
