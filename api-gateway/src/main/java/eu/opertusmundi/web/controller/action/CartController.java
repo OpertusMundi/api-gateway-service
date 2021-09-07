@@ -5,6 +5,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -162,5 +163,6 @@ public interface CartController {
         )
     )
     @PostMapping(value = "/cart/checkout")
+    @Secured({"ROLE_CONSUMER"})
     RestResponse<?> checkout(@Parameter(hidden = true) HttpSession session);
 }
