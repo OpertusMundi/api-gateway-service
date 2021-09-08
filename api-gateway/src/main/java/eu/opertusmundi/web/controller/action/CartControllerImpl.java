@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -96,8 +97,8 @@ public class CartControllerImpl extends BaseController implements CartController
     @Override
     public RestResponse<?> checkout(HttpSession session) {
         // Get current cart
-        final UUID    cartKey = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
-        CartDto cart    = this.cartService.getCart(cartKey);
+        final UUID cartKey = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
+        CartDto    cart    = this.cartService.getCart(cartKey);
 
         // Link authenticated user to the cart
         if (cart.getAccountId() == null && this.currentUserId() != null) {
@@ -111,6 +112,9 @@ public class CartControllerImpl extends BaseController implements CartController
     }
 
     private void updateCart(HttpSession session, CartDto cart) {
+        Assert.notNull(session, "Expected a non-null session");
+        Assert.notNull(cart, "Expected a non-null cart");
+
         try {
             // Update cart key in session
             session.setAttribute(CartConstants.CART_SESSION_KEY, cart.getKey());
