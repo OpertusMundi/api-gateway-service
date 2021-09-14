@@ -68,7 +68,7 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
             final CatalogueItemDetailsDto item    = new CatalogueItemDetailsDto(feature);
 
             // Inject publisher details
-            final ProviderDto publisher = this.providerRepository.findOneByKey(draft.getPublisher().getKey()).getProvider().toProviderDto();
+            final ProviderDto publisher = this.providerRepository.findOneByKey(draft.getPublisher().getKey()).getProvider().toProviderDto(true);
             item.setPublisherId(publisher.getKey());
             item.setPublisher(publisher);
 

@@ -61,7 +61,7 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
             referenceNumber,
             status,
             pageRequest,
-            true
+            true, false
         );
 
         final long count = p.getTotalElements();
