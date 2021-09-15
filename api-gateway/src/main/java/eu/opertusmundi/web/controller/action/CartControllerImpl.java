@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceException;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.order.CartAddCommandDto;
 import eu.opertusmundi.common.model.order.CartConstants;
@@ -127,9 +128,9 @@ public class CartControllerImpl extends BaseController implements CartController
             final String[] keys = cart.getItems().stream().map(i -> i.getAssetId()).toArray(String[]::new);
 
             if (keys.length != 0) {
-                final List<CatalogueItemDto> result = this.catalogueService.findAllById(keys);
+                final List<CatalogueItemDetailsDto> result = this.catalogueService.findAllById(keys);
 
-                final List<CatalogueItemDto> catalogueItems = result.stream()
+                final List<CatalogueItemDetailsDto> catalogueItems = result.stream()
                     .map(item -> {
                         // Do not return metadata/ingestion information
                         item.setAutomatedMetadata(null);
