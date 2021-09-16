@@ -13,6 +13,7 @@ public class EndpointTags {
     public final static String ContractProvider     = "Provider Contracts";
     public final static String Draft                = "Drafts";
     public final static String DraftReview          = "Review Drafts";
+    public final static String Favorites            = "Favorites";
     public final static String FileSystem           = "File System";
     public final static String KycDocument          = "KYC";
     public final static String Message              = "Message";

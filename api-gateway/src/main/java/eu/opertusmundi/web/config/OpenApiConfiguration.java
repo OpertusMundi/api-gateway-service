@@ -94,7 +94,8 @@ public class OpenApiConfiguration {
                 EndpointTags.ProviderRegistration,
                 EndpointTags.KycDocument,
                 EndpointTags.UboDeclaration,
-                EndpointTags.Notebooks
+                EndpointTags.Notebooks,
+                EndpointTags.Favorites
             )),
             new TagGroup("Orders", Arrays.asList(
                 EndpointTags.Catalogue,
