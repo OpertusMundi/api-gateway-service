@@ -16,8 +16,10 @@ import eu.opertusmundi.common.feign.client.MessageServiceFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
+import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.message.EnumNotificationSortField;
 import eu.opertusmundi.common.model.message.client.ClientContactDto;
 import eu.opertusmundi.common.model.message.client.ClientMessageCollectionResponse;
 import eu.opertusmundi.common.model.message.client.ClientMessageCommandDto;
@@ -74,12 +76,16 @@ public class MessageControllerImpl extends BaseController implements MessageCont
     }
 
     @Override
-    public RestResponse<?> findNotifications(Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read) {
+    public RestResponse<?> findNotifications(
+        Integer pageIndex, Integer pageSize,
+        ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read,
+        EnumNotificationSortField orderBy, EnumSortingOrder order
+    ) {
         try {
             final UUID userKey = this.currentUserKey();
 
             final ResponseEntity<RestResponse<PageResultDto<ServerNotificationDto>>> e = this.messageClient.getObject()
-                .findNotifications(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
+                .findNotifications(pageIndex, pageSize, userKey, dateFrom, dateTo, read, orderBy, order);
 
             final RestResponse<PageResultDto<ServerNotificationDto>> serviceResponse = e.getBody();
 

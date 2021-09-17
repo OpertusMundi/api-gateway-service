@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
+import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.message.EnumNotificationSortField;
 import eu.opertusmundi.common.model.message.client.ClientMessageCollectionResponse;
 import eu.opertusmundi.common.model.message.client.ClientMessageCommandDto;
 import eu.opertusmundi.common.model.message.client.ClientMessageThreadResponse;
@@ -151,7 +153,19 @@ public interface MessageController {
             required    = false,
             description = "Filter read notifications"
         )
-        @RequestParam(name = "read", required = false) Boolean read
+        @RequestParam(name = "read", required = false) Boolean read,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Order by property"
+        )
+        @RequestParam(name = "orderBy", defaultValue = "SEND_AT") EnumNotificationSortField orderBy,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Sorting order"
+        )
+        @RequestParam(name = "order", defaultValue = "DESC") EnumSortingOrder order
     );
 
     /**
