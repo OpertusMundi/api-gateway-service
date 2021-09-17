@@ -1,0 +1,28 @@
+{
+  "dynamic":  "false",
+  "properties": {
+   "country":                { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "dateTime":               { "type": "date"},
+   "day":                    { "type": "long"},
+   "id":                     { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "location.country":       { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "location.province":      { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "location.city":          { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "location.latitude":      { "type": "double"},
+   "location.longitude":     { "type": "double"},
+   "location.timezone":      { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "location.ip":            { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "month":                  { "type": "long"},
+   "publisherKey":           { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "query":                  { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "remoteIpAddress":        { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "segment":                { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "source":                 { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "userId":                 { "type": "long"},
+   "userKey":                { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "version":                { "type": "text", "fields": {"keyword": {"type": "keyword"}}},
+   "week":                   { "type": "long"},
+   "year":                   { "type": "long"},
+   "insertTimestamp":        { "type": "date"}
+ }
+}
