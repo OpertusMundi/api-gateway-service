@@ -249,6 +249,29 @@ public class MessageControllerImpl extends BaseController implements MessageCont
         }
     }
 
+    @Override
+    public BaseResponse readAllNotifications() {
+        try {
+            final ResponseEntity<BaseResponse> e = this.messageClient.getObject().readAllNotifications(this.currentUserKey());
+
+            final BaseResponse serviceResponse = e.getBody();
+
+            if(!serviceResponse.getSuccess()) {
+                // TODO: Add logging ...
+                return RestResponse.failure();
+            }
+
+            // TODO: Format response ...
+            return serviceResponse;
+        } catch (final FeignException fex) {
+            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
+
+            // TODO: Add logging ...
+
+            return RestResponse.error(code, "An error has occurred");
+        }
+    }
+
     private RestResponse<ServerMessageDto> send(ServerBaseMessageCommandDto command) throws IllegalArgumentException, FeignException {
         switch (command.getType()) {
             case MESSAGE :

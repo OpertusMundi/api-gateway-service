@@ -356,4 +356,24 @@ public interface MessageController {
         @PathVariable(name = "key", required = true) UUID key
     );
 
+    /**
+     * Mark all notifications as read
+     *
+     * @return An instance of {@link BaseResponse}
+     */
+    @Operation(
+        operationId = "notification-03",
+        summary     = "Read all notifications",
+        description = "Marks all notifications as read",
+        tags        = { EndpointTags.Notification }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
+    )
+    @PutMapping(value = "/notifications")
+    @Secured({"ROLE_USER"})
+    BaseResponse readAllNotifications();
+
 }
