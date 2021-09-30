@@ -95,7 +95,7 @@ public class AccountControllerImpl extends BaseController implements AccountCont
 
     @Override
     public BaseResponse changePassword(PasswordChangeCommandDto command, BindingResult validationResult) {
-        logger.info("Password change request. [userKey={}]", this.currentUserKey());
+        logger.info("Password change request. [key={}, email={}]", this.currentUserKey(), this.currentUserEmail());
 
         try {
             command.setUserName(this.currentUserEmail());
