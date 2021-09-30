@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.favorite.EnumFavoriteSortField;
 import eu.opertusmundi.common.model.favorite.EnumFavoriteType;
 import eu.opertusmundi.common.model.favorite.FavoriteAssetCommandDto;
 import eu.opertusmundi.common.model.favorite.FavoriteCommandDto;
-import eu.opertusmundi.common.model.favorite.FavoriteDto;
 import eu.opertusmundi.common.model.favorite.FavoriteProviderCommandDto;
 import eu.opertusmundi.common.model.openapi.schema.FavoriteEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -55,7 +55,10 @@ public interface ConsumerFavoriteController {
     @Operation(
         operationId = "consumer-favorites-01",
         summary     = "Find",
-        description = "Browse consumer's favorite assets and providers. Required roles: <b>ROLE_CONSUMER</b>"
+        description = "Browse consumer's favorite assets and providers. Required roles: <b>ROLE_CONSUMER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
     )
     @ApiResponse(
         responseCode = "200",
@@ -109,14 +112,21 @@ public interface ConsumerFavoriteController {
         operationId = "consumer-favorites-02",
         summary     = "Add",
         description = "Adds a new favorite for an asset or provider. If a record already exists, "
-                   + "the existing record is returned. Roles required: <b>ROLE_CONSUMER</b>",
+                    + "the existing record is returned. Roles required: <b>ROLE_CONSUMER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
     )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(implementation = FavoriteEndpointTypes.FavoriteItemResponse.class)
+        )
+    )
     @PostMapping(value = "", consumes = { "application/json" })
     @Validated
-    RestResponse<FavoriteDto> addFavorite(
+    RestResponse<?> addFavorite(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Favorite add command",
             content = @Content(
@@ -149,8 +159,7 @@ public interface ConsumerFavoriteController {
         }
     )
     @DeleteMapping(value = "{key}")
-    @Validated
-    RestResponse<Void> updateProfile(
+    BaseResponse removeFavorite(
         @Parameter(
             in = ParameterIn.PATH,
             required = true,
