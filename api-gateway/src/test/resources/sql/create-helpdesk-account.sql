@@ -1,5 +1,8 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+DELETE FROM contract.provider_contract_history;
+DELETE FROM contract.master_contract_history;
+
 DELETE FROM "admin"."account";
 
 INSERT INTO "admin"."account" (
