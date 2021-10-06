@@ -32,7 +32,7 @@ import eu.opertusmundi.common.model.catalogue.CatalogueServiceMessageCode;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.client.EnumType;
+import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.UnpublishAssetCommand;
 import eu.opertusmundi.common.model.payment.provider.ProviderAccountSubscriptionDto;
 import eu.opertusmundi.common.service.CatalogueService;
@@ -51,7 +51,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
     @Override
     public RestResponse<?> findAllAssets(
-        String query, EnumType type, int pageIndex, int pageSize, EnumProviderAssetSortField orderBy, EnumSortingOrder order
+        String query, EnumAssetType type, int pageIndex, int pageSize, EnumProviderAssetSortField orderBy, EnumSortingOrder order
     ) {
         try {
             final UUID                 publisherKey = this.currentUserKey();

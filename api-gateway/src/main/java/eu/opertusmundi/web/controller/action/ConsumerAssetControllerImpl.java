@@ -14,7 +14,7 @@ import eu.opertusmundi.common.model.asset.EnumConsumerAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumConsumerSubSortField;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
-import eu.opertusmundi.common.model.catalogue.client.EnumType;
+import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.service.ConsumerAssetService;
 
 @RestController
@@ -25,7 +25,7 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
 
     @Override
     public RestResponse<?> findAllAssets(
-        EnumType type, int pageIndex, int pageSize, EnumConsumerAssetSortField orderBy, EnumSortingOrder order
+        EnumAssetType type, int pageIndex, int pageSize, EnumConsumerAssetSortField orderBy, EnumSortingOrder order
     ) {
         try {
             final UUID userKey = this.currentUserKey();

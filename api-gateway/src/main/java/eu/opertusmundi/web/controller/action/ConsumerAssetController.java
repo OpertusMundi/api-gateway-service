@@ -13,7 +13,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.EnumConsumerAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumConsumerSubSortField;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
-import eu.opertusmundi.common.model.catalogue.client.EnumType;
+import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.openapi.schema.ConsumerEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,7 +61,7 @@ public interface ConsumerAssetController {
             required = false,
             description = "Asset type"
         )
-        @RequestParam(name = "type", required = false) EnumType type,
+        @RequestParam(name = "type", required = false) EnumAssetType type,
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,

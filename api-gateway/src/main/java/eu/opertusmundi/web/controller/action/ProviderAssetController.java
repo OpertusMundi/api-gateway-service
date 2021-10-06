@@ -20,7 +20,7 @@ import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderSubSortField;
-import eu.opertusmundi.common.model.catalogue.client.EnumType;
+import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -77,7 +77,7 @@ public interface ProviderAssetController {
             required = true,
             description = "Asset type"
         )
-        @RequestParam(name = "type", required = false) EnumType type,
+        @RequestParam(name = "type", required = false) EnumAssetType type,
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,

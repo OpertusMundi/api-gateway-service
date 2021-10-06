@@ -23,11 +23,11 @@ import eu.opertusmundi.common.model.asset.AssetAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetMessageCode;
 import eu.opertusmundi.common.model.asset.EnumAssetAdditionalResource;
-import eu.opertusmundi.common.model.asset.EnumAssetSourceType;
 import eu.opertusmundi.common.model.asset.EnumResourceType;
 import eu.opertusmundi.common.model.asset.FileResourceDto;
 import eu.opertusmundi.common.model.asset.ResourceDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.pricing.EnumPricingModel;
 import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.repository.AssetAdditionalResourceRepository;
@@ -81,6 +81,7 @@ public class DraftValidator implements Validator {
         final CatalogueItemCommandDto c = (CatalogueItemCommandDto) o;
 
         this.validateContract(c, e, mode);
+        this.validateType(c, e);
         this.validateFormat(c, e);
         this.validateResources(c, e, mode);
         this.validateAdditionalResources(c, e);
@@ -106,18 +107,25 @@ public class DraftValidator implements Validator {
         }
     }
 
+    private void validateType(CatalogueItemCommandDto c, Errors e) {
+        if (c.getSpatialDataServiceType() != null && c.getType() != EnumAssetType.SERVICE) {
+            e.rejectValue("spatialDataServiceType", EnumValidatorError.OperationNotSupported.name());
+        }
+    }
+
     private void validateFormat(CatalogueItemCommandDto c, Errors e) {
         if (StringUtils.isBlank(c.getFormat())) {
             return;
         }
 
-        final AssetFileTypeEntity format = this.assetFileTypeRepository.findOneByFormat(c.getFormat()).orElse(null);
+        final EnumAssetType       category = c.getType() == EnumAssetType.SERVICE ? EnumAssetType.VECTOR : c.getType();
+        final AssetFileTypeEntity format   = this.assetFileTypeRepository.findOneByCategoryAndFormat(category, c.getFormat()).orElse(null);
 
         if (format == null) {
             e.rejectValue("format", EnumValidatorError.OptionNotFound.name());
         } else if (!format.isEnabled()) {
             e.rejectValue("format", EnumValidatorError.OptionNotEnabled.name());
-        } else if (c.isIngested() && format.getCategory() != EnumAssetSourceType.VECTOR) {
+        } else if (c.isIngested() && format.getCategory() != EnumAssetType.VECTOR) {
             e.rejectValue("ingested", EnumValidatorError.OperationNotSupported.name());
         }
     }
@@ -171,13 +179,14 @@ public class DraftValidator implements Validator {
             final UUID                key       = requestKeys.get(i);
             final AssetResourceEntity resource  = serverResources.stream().filter(r -> r.getKey().equals(key)).findFirst().orElse(null);
             final String              extension = FilenameUtils.getExtension(resource.getFileName());
-            final AssetFileTypeEntity format    = this.assetFileTypeRepository.findOneByFormat(resource.getFormat()).orElse(null);
+            final EnumAssetType       category  = c.getType() == EnumAssetType.SERVICE ? EnumAssetType.VECTOR : c.getType();
+            final AssetFileTypeEntity format    = this.assetFileTypeRepository.findOneByCategoryAndFormat(category, resource.getFormat()).orElse(null);
 
             if (format == null) {
                 e.rejectValue(String.format("resources[%d].format", i), EnumValidatorError.OptionNotFound.name());
             } else if (!format.isEnabled()) {
                 e.rejectValue(String.format("resources[%d].format", i), EnumValidatorError.OptionNotEnabled.name());
-            } else if (c.isIngested() && format.getCategory() != EnumAssetSourceType.VECTOR) {
+            } else if (c.isIngested() && format.getCategory() != EnumAssetType.VECTOR) {
                 e.rejectValue(String.format("resources[%d].ingested", i), EnumValidatorError.OperationNotSupported.name());
             } else if (!format.getExtensions().contains(extension)) {
                 if (format.isBundleSupported() && extension.equals("zip")) {

@@ -8,9 +8,9 @@ import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.model.EnumValidatorError;
-import eu.opertusmundi.common.model.asset.EnumAssetSourceType;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemException;
@@ -88,14 +88,14 @@ public class ApiDraftValidator implements Validator {
         }
 
         final AssetFileTypeEntity format = this.assetFileTypeRepository
-            .findOneByFormat(command.getFormat())
+            .findOneByCategoryAndFormat(EnumAssetType.VECTOR, command.getFormat())
             .orElse(null);
 
         if (format == null) {
             e.rejectValue("format", EnumValidatorError.OptionNotFound.name());
         } else if (!format.isEnabled()) {
             e.rejectValue("format", EnumValidatorError.OptionNotEnabled.name());
-        } else if (format.getCategory() != EnumAssetSourceType.VECTOR) {
+        } else if (format.getCategory() != EnumAssetType.VECTOR) {
             e.rejectValue("format", EnumValidatorError.OptionNotSupported.name());
         }
     }
