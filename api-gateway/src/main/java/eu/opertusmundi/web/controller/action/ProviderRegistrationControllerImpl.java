@@ -13,6 +13,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
 import eu.opertusmundi.common.model.account.ProviderProfessionalCommandDto;
+import eu.opertusmundi.common.model.account.ProviderProfileCommandDto;
 import eu.opertusmundi.common.service.ProviderRegistrationService;
 import eu.opertusmundi.web.validation.ProviderValidator;
 
@@ -59,6 +60,32 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
             return RestResponse.error(BasicMessageCode.InternalServerError, argEx.getMessage());
         } catch (final Exception ex) {
             logger.error(String.format("Provider update has failed. [userKey=%s]", userKey), ex);
+
+            return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
+        }
+    }
+
+    @Override
+    public RestResponse<AccountProfileDto> updateProfile(ProviderProfileCommandDto command, BindingResult validationResult) {
+        this.ensureRegistered();
+
+        final Integer id = this.currentUserId();
+
+        // Inject user id (id property is always ignored during serialization)
+        command.setUserId(id);
+
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
+        try {
+            final AccountDto account = this.providerService.updateProfile(command);
+
+            return RestResponse.result(account.getProfile());
+        } catch (final IllegalArgumentException argEx) {
+            return RestResponse.error(BasicMessageCode.InternalServerError, argEx.getMessage());
+        } catch (final Exception ex) {
+            logger.error(String.format("Provider profile update has failed. [userId=%d]", id), ex);
 
             return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
         }

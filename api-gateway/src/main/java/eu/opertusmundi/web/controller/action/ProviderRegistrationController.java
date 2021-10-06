@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
 import eu.opertusmundi.common.model.account.ProviderProfessionalCommandDto;
+import eu.opertusmundi.common.model.account.ProviderProfileCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -121,4 +122,38 @@ public interface ProviderRegistrationController {
     @Secured({ "ROLE_USER" })
     RestResponse<AccountProfileDto> cancelRegistration();
 
+    /**
+     * Update provider profile
+     *
+     * @param request Updates to provider's profile
+     *
+     * @return The updated user profile
+     */
+    @Operation(
+        operationId = "provider-registration-04",
+        summary     = "Update profile",
+        description = "Update optional properties of a provider's profile. Required roles: <b>ROLE_PROVIDER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @PostMapping(value = "/provider/profile", consumes = { "application/json" })
+    @Secured({ "ROLE_PROVIDER" })
+    @Validated
+    RestResponse<AccountProfileDto> updateProfile(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Update profile command",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ProviderProfileCommandDto.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        ProviderProfileCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult);
 }
