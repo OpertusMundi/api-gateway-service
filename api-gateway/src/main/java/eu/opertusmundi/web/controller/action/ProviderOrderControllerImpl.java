@@ -22,6 +22,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
 import eu.opertusmundi.common.model.order.OrderConfirmCommandDto;
+import eu.opertusmundi.common.model.order.OrderException;
 import eu.opertusmundi.common.model.order.OrderShippingCommandDto;
 import eu.opertusmundi.common.model.order.ProviderOrderDto;
 import eu.opertusmundi.common.repository.OrderRepository;
@@ -103,7 +104,7 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
             this.orderFulfillmentService.sendOrderByProvider(command);
 
             return this.findOne(orderKey);
-        } catch (final AssetDraftException ex) {
+        } catch (final OrderException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
             logger.error("Operation has failed", ex);

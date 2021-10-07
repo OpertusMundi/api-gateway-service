@@ -22,9 +22,9 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.ConsumerOrderDto;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
-import eu.opertusmundi.common.model.order.OrderDeliveryCommandDto;
+import eu.opertusmundi.common.model.order.OrderDeliveryCommand;
+import eu.opertusmundi.common.model.order.OrderException;
 import eu.opertusmundi.common.repository.OrderRepository;
-import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.OrderFulfillmentService;
 
 @RestController
@@ -72,15 +72,17 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
     }
 
     @Override
-    public BaseResponse deliverOrder(UUID orderKey, OrderDeliveryCommandDto command) {
+    public BaseResponse deliverOrder(UUID orderKey) {
         try {
-            command.setOrderKey(orderKey);
-            command.setConsumerKey(this.currentUserKey());
+            final OrderDeliveryCommand command = OrderDeliveryCommand.builder()
+                .orderKey(orderKey)
+                .consumerKey(this.currentUserKey())
+                .build();
 
             this.orderFulfillmentService.receiveOrderByConsumer(command);
 
             return this.findOne(orderKey);
-        } catch (final AssetDraftException ex) {
+        } catch (final OrderException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
             logger.error("Operation has failed", ex);

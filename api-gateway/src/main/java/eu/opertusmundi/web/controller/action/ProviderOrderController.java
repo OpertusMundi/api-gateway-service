@@ -195,7 +195,7 @@ public interface ProviderOrderController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ProviderOrderResponse.class})
         )
     )
-    @PutMapping(value = "/orders/{orderKey}/shipping")
+    @PutMapping(value = "/orders/{orderKey}/shipping", consumes = "application/json")
     BaseResponse shipOrder(
         @Parameter(
             in          = ParameterIn.PATH,
