@@ -12,6 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
+import eu.opertusmundi.common.model.BasicMessageCode;
+import eu.opertusmundi.common.model.MessageCode;
+import eu.opertusmundi.common.model.ServiceException;
+import eu.opertusmundi.common.model.payment.PaymentException;
+import eu.opertusmundi.common.model.payment.PaymentMessageCode;
 import eu.opertusmundi.common.service.MangoPayWebhookHandler;
 import eu.opertusmundi.common.service.PaymentService;
 
@@ -28,14 +33,32 @@ public class MangoPayWebhookControllerImpl implements MangoPayWebhookController 
 
     @Override
     public ResponseEntity<Void> mangoPayWebhookHandler(String resourceId, Long timestamp, String eventType) {
-        logger.info(String.format("%30s %30s %30s", eventType, resourceId, timestamp));
+        HttpStatus  status = HttpStatus.INTERNAL_SERVER_ERROR;
+        MessageCode code   = BasicMessageCode.InternalServerError;
 
-        final ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.UTC);
+        try {
+            final ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.UTC);
 
-        this.handler.handleWebHook(eventType, resourceId, date);
+            this.handler.handleWebHook(eventType, resourceId, date);
 
-        // Webhook received successfully
-        return new ResponseEntity<Void>(HttpStatus.OK);
+            status = HttpStatus.OK;
+            code   = BasicMessageCode.Success;
+        } catch (final Exception ex) {
+            // Ignore errors
+            if (ex instanceof PaymentException) {
+                final PaymentException pEx = (PaymentException) ex;
+                // Ignore unregistered web hooks
+                if (pEx.getCode() == PaymentMessageCode.WEB_HOOK_NOT_SUPPORTED) {
+                    status = HttpStatus.OK;
+                }
+            }
+            if (ex instanceof ServiceException) {
+                code = ((ServiceException) ex).getCode();
+            }
+        }
+
+        logger.info(String.format("%30s %30s %30s %d %s", eventType, resourceId, timestamp, status.value(), code.key()));
+        return new ResponseEntity<Void>(status);
     }
 
     @Override
