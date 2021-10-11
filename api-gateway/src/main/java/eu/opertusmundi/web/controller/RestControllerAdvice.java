@@ -49,9 +49,9 @@ public class RestControllerAdvice {
         description = "Bad Request",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
-    public @ResponseBody BaseResponse handleException(HttpMessageNotReadableException ex) {
+    public @ResponseBody BaseResponse handleException(HttpMessageNotReadableException ex, HttpServletRequest request) {
 
-        logger.error(String.format("400 - Bad Request. [message=%s]", ex.getMessage()), ex);
+        logger.error(String.format("400 - Bad Request. [path=%s, message=%s]", request.getRequestURI(), ex.getMessage()), ex);
 
         final MessageCode code        = BasicMessageCode.BadRequest;
         final String      description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
@@ -120,10 +120,10 @@ public class RestControllerAdvice {
         description = "Internal Server Error",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
-    public @ResponseBody BaseResponse handleException(ServiceException ex) {
+    public @ResponseBody BaseResponse handleException(ServiceException ex, HttpServletRequest request) {
 
         if (ex.isLogEntryRequired()) {
-            logger.error(String.format("500 - Internal Server Error. [message=%s]", ex.getMessage()), ex);
+            logger.error(String.format("500 - Internal Server Error. [path=%s, message=%s]", request.getRequestURI(), ex.getMessage()), ex);
         }
 
         final MessageCode      code        = ex.getCode();
@@ -145,9 +145,9 @@ public class RestControllerAdvice {
         description = "Internal Server Error",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
-    public @ResponseBody BaseResponse handleException(Exception ex) {
+    public @ResponseBody BaseResponse handleException(Exception ex, HttpServletRequest request) {
 
-        logger.error(String.format("500 - Internal Server Error. [message=%s]", ex.getMessage()), ex);
+        logger.error(String.format("500 - Internal Server Error. [path=%s, message=%s]", request.getRequestURI(), ex.getMessage()), ex);
 
         final MessageCode      code        = BasicMessageCode.InternalServerError;
         final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
