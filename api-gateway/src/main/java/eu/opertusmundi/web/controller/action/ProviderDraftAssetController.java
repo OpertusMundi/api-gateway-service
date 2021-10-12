@@ -43,8 +43,8 @@ import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
-import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
+import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -492,7 +492,7 @@ public interface ProviderDraftAssetController {
             required    = true,
             description = "Resource unique key"
         )
-        @PathVariable UUID resourceKey,
+        @PathVariable String resourceKey,
         @Parameter(hidden = true)
         HttpServletResponse response
     ) throws IOException;
@@ -533,7 +533,7 @@ public interface ProviderDraftAssetController {
             in          = ParameterIn.PATH,
             description = "Resource unique key"
         )
-        @PathVariable UUID resourceKey,
+        @PathVariable String resourceKey,
         @Parameter(
             in          = ParameterIn.PATH,
             description = "Property name"

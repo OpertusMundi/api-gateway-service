@@ -101,7 +101,7 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
 
     @Override
     public ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
-        UUID draftKey, UUID resourceKey, HttpServletResponse response
+        UUID draftKey, String resourceKey, HttpServletResponse response
     ) throws IOException {
         final AssetDraftDto draft        = this.providerAssetService.findOneDraft(draftKey);
         final UUID          publisherKey = draft.getPublisher().getKey();
@@ -128,7 +128,7 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
 
     @Override
     public ResponseEntity<StreamingResponseBody> getMetadataProperty(
-        UUID draftKey, UUID resourceKey, String propertyName, HttpServletResponse response
+        UUID draftKey, String resourceKey, String propertyName, HttpServletResponse response
     ) throws IOException {
         final AssetDraftDto    draft        = this.providerAssetService.findOneDraft(draftKey);
         final UUID             publisherKey = draft.getPublisher().getKey();

@@ -88,7 +88,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
     @Override
     public ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
-        String pid, UUID resourceKey, HttpServletResponse response
+        String pid, String resourceKey, HttpServletResponse response
     ) throws IOException {
         final Path path = this.providerAssetService.resolveAssetAdditionalResource(pid, resourceKey);
         final File file = path.toFile();
@@ -113,7 +113,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
     @Override
     public ResponseEntity<StreamingResponseBody> getMetadataProperty(
-        String pid, UUID resourceKey, String propertyName, HttpServletResponse response
+        String pid, String resourceKey, String propertyName, HttpServletResponse response
     ) throws IOException {
         final MetadataProperty property = this.providerAssetService.resolveAssetMetadataProperty(
             pid, resourceKey, propertyName

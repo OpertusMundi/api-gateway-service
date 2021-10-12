@@ -102,7 +102,7 @@ public interface HelpdeskDraftAssetController {
             required    = true,
             description = "Resource unique key"
         )
-        @PathVariable UUID resourceKey,
+        @PathVariable String resourceKey,
         @Parameter(hidden = true)
         HttpServletResponse response
     ) throws IOException;
@@ -143,7 +143,7 @@ public interface HelpdeskDraftAssetController {
             in          = ParameterIn.PATH,
             description = "Resource unique key"
         )
-        @PathVariable UUID resourceKey,
+        @PathVariable String resourceKey,
         @Parameter(
             in          = ParameterIn.PATH,
             description = "Property name"

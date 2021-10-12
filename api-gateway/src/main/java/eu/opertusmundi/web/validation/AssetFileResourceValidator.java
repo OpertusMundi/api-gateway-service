@@ -37,6 +37,11 @@ public class AssetFileResourceValidator implements Validator {
             c.getPublisherKey(), c.getDraftKey()
         ).orElse(null);
 
+        if (draft.getType() == EnumAssetType.BUNDLE) {
+            e.reject(EnumValidatorError.OperationNotSupported.name());
+            return;
+        }
+
         final String              extension = FilenameUtils.getExtension(c.getFileName());
         final AssetFileTypeEntity format    = this.assetFileTypeRepository.findOneByCategoryAndFormat(draft.getType(), c.getFormat()).orElse(null);
 

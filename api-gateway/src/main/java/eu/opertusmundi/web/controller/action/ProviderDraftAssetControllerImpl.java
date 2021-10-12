@@ -47,9 +47,9 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemSamplesCommand
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemVisibilityCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
-import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.CatalogueService;
@@ -324,7 +324,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         this.assetResourceValidator.validate(command, validationResult);
 
         if (validationResult.hasErrors()) {
-            return RestResponse.invalid(validationResult.getFieldErrors());
+            return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
         }
 
         try (final InputStream input = new ByteArrayInputStream(resource.getBytes())) {
@@ -380,7 +380,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Override
     public ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
-        UUID draftKey, UUID resourceKey, HttpServletResponse response
+        UUID draftKey, String resourceKey, HttpServletResponse response
     ) throws IOException {
         final UUID publisherKey = this.currentUserKey();
 
@@ -407,7 +407,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Override
     public ResponseEntity<StreamingResponseBody> getMetadataProperty(
-        UUID draftKey, UUID resourceKey, String propertyName, HttpServletResponse response
+        UUID draftKey, String resourceKey, String propertyName, HttpServletResponse response
     ) throws IOException {
         final UUID publisherKey = this.currentUserKey();
 

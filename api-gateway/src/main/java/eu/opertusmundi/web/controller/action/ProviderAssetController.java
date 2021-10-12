@@ -1,7 +1,6 @@
 package eu.opertusmundi.web.controller.action;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -188,7 +187,7 @@ public interface ProviderAssetController {
             required    = true,
             description = "Resource unique key"
         )
-        @PathVariable UUID resourceKey,
+        @PathVariable String resourceKey,
         @Parameter(hidden = true)
         HttpServletResponse response
     ) throws IOException;
@@ -232,7 +231,7 @@ public interface ProviderAssetController {
             required    = true,
             description = "Resource unique key"
         )
-        @PathVariable UUID resourceKey,
+        @PathVariable String resourceKey,
         @Parameter(
             in          = ParameterIn.PATH,
             description = "Property name"

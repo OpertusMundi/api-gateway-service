@@ -22,11 +22,13 @@ import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.asset.AssetAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetMessageCode;
+import eu.opertusmundi.common.model.asset.BundleAssetResourceDto;
 import eu.opertusmundi.common.model.asset.EnumAssetAdditionalResource;
 import eu.opertusmundi.common.model.asset.EnumResourceType;
 import eu.opertusmundi.common.model.asset.FileResourceDto;
 import eu.opertusmundi.common.model.asset.ResourceDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.pricing.EnumPricingModel;
 import eu.opertusmundi.common.model.pricing.QuotationException;
@@ -36,6 +38,7 @@ import eu.opertusmundi.common.repository.AssetResourceRepository;
 import eu.opertusmundi.common.repository.DraftRepository;
 import eu.opertusmundi.common.repository.contract.ProviderTemplateContractRepository;
 import eu.opertusmundi.common.service.AssetDraftException;
+import eu.opertusmundi.common.service.CatalogueService;
 
 @Component
 public class DraftValidator implements Validator {
@@ -61,6 +64,9 @@ public class DraftValidator implements Validator {
 
     @Autowired
     private DraftRepository draftRepository;
+
+    @Autowired
+    private CatalogueService catalogueService;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -132,8 +138,15 @@ public class DraftValidator implements Validator {
 
     private void validateResources(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
         final List<AssetResourceEntity> serverResources = this.assetResourceRepository.findAllResourcesByDraftKey(c.getAssetKey());
-        final List<UUID>                serverKeys      = serverResources.stream().map(r -> r.getKey()).collect(Collectors.toList());
-        final List<UUID>                requestKeys     = c.getResources().stream().map(r -> r.getId()).collect(Collectors.toList());
+        final List<String>              serverKeys      = serverResources.stream().map(r -> r.getKey()).collect(Collectors.toList());
+        final List<String>              fileKeys        = c.getResources().stream()
+            .filter(r -> r.getType() == EnumResourceType.FILE)
+            .map(r -> r.getId())
+            .collect(Collectors.toList());
+        final List<String>              assetKeys       = c.getResources().stream()
+            .filter(r -> r.getType() == EnumResourceType.ASSET)
+            .map(r -> r.getId())
+            .collect(Collectors.toList());
 
         // For submitted drafts, at least one resource must exist
         if (mode == EnumValidationMode.SUBMIT && c.getResources().isEmpty()) {
@@ -141,14 +154,40 @@ public class DraftValidator implements Validator {
         }
 
         // All request resource keys must exist at the server
-        for (int i = 0; i < requestKeys.size(); i++) {
-            if (!serverKeys.contains(requestKeys.get(i))) {
+        for (int i = 0; i < fileKeys.size(); i++) {
+            if (!serverKeys.contains(fileKeys.get(i))) {
                 e.rejectValue(String.format("resources[%d]", i), EnumValidatorError.ResourceNotFound.name());
             }
         }
 
         if(e.hasErrors()) {
             return;
+        }
+
+        // Check bundle resources
+        if (c.getType() == EnumAssetType.BUNDLE) {
+            for (int i = 0; i < c.getResources().size(); i++) {
+                final ResourceDto r = c.getResources().get(i);
+                if (r.getType() != EnumResourceType.ASSET) {
+                    e.rejectValue(String.format("resources[%d].type", i), EnumValidatorError.NotValid.name());
+                }
+            }
+            // Query catalogue service only if no errors have already found
+            if (!e.hasErrors() &&  mode == EnumValidationMode.SUBMIT && !assetKeys.isEmpty()) {
+                final List<CatalogueItemDetailsDto> assets = this.catalogueService
+                    .findAllById(assetKeys.toArray(new String[assetKeys.size()]));
+
+                if (assets.size() != assetKeys.size()) {
+                    for (int i = 0; i < c.getResources().size(); i++) {
+                        final ResourceDto             r  = c.getResources().get(i);
+                        final BundleAssetResourceDto  br = (BundleAssetResourceDto) r;
+                        final CatalogueItemDetailsDto ca = assets.stream().filter(a -> a.getId().equals(br.getId())).findFirst().orElse(null);
+                        if (ca == null) {
+                            e.rejectValue(String.format("resources[%d].id", i), EnumValidatorError.ReferenceNotFound.name());
+                        }
+                    }
+                }
+            }
         }
 
         // Check read-only properties
@@ -175,8 +214,8 @@ public class DraftValidator implements Validator {
         }
 
         // Check registered resources format
-        for (int i = 0; i < requestKeys.size(); i++) {
-            final UUID                key       = requestKeys.get(i);
+        for (int i = 0; i < fileKeys.size(); i++) {
+            final String              key       = fileKeys.get(i);
             final AssetResourceEntity resource  = serverResources.stream().filter(r -> r.getKey().equals(key)).findFirst().orElse(null);
             final String              extension = FilenameUtils.getExtension(resource.getFileName());
             final EnumAssetType       category  = c.getType() == EnumAssetType.SERVICE ? EnumAssetType.VECTOR : c.getType();
@@ -201,7 +240,7 @@ public class DraftValidator implements Validator {
         final List<AssetAdditionalResourceEntity> resources = this.assetAdditionalResourceRepository
             .findAllResourcesByDraftKey(c.getAssetKey());
 
-        final List<UUID> keys = resources.stream().map(r -> r.getKey()).collect(Collectors.toList());
+        final List<String> keys = resources.stream().map(r -> r.getKey()).collect(Collectors.toList());
 
         // All file additional resource keys must exist
         for (int i = 0; i < c.getAdditionalResources().size(); i++) {
