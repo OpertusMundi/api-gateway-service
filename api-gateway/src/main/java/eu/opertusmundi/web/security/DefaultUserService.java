@@ -44,6 +44,7 @@ import eu.opertusmundi.common.repository.HelpdeskAccountRepository;
 import eu.opertusmundi.common.service.ElasticSearchService;
 import eu.opertusmundi.common.util.BpmEngineUtils;
 import eu.opertusmundi.common.util.BpmInstanceVariablesBuilder;
+import eu.opertusmundi.common.util.ImageUtils;
 import eu.opertusmundi.web.model.security.CreateAccountResult;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 
@@ -72,7 +73,10 @@ public class DefaultUserService implements UserService {
     private ActivationTokenRepository activationTokenRepository;
 
     @Autowired
-    protected BpmEngineUtils bpmEngine;
+    private BpmEngineUtils bpmEngine;
+
+    @Autowired
+    private ImageUtils imageUtils;
 
     @Autowired(required = false)
     private ElasticSearchService elasticSearchService;
@@ -113,6 +117,10 @@ public class DefaultUserService implements UserService {
      */
     @Override
     public ServiceResponse<CreateAccountResult> createAccount(AccountCommandDto command) {
+        command.getProfile().setImage(imageUtils.resizeImage(
+            command.getProfile().getImage(), command.getProfile().getImageMimeType()
+        ));
+
         final CreateAccountResult result = this.createAccountRecord(command);
 
         this.createAccountRegistrationWorkflowInstance(result);
@@ -298,6 +306,8 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional
     public AccountDto updateProfile(AccountProfileCommandDto command) {
+        command.setImage(imageUtils.resizeImage(command.getImage(), command.getImageMimeType()));
+
         final AccountDto account = this.accountRepository.updateProfile(command);
 
         // Update account profile
