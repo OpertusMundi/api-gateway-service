@@ -643,7 +643,7 @@ public class DefaultUserService implements UserService {
 
         final PasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        if (!encoder.matches(currentPassword, account.getPassword())) {
+        if (currentPassword != null && !encoder.matches(currentPassword, account.getPassword())) {
             throw new BadCredentialsException(email);
         }
 
