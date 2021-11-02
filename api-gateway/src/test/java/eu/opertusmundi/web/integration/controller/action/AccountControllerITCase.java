@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,7 +21,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +37,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -52,6 +53,8 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
@@ -60,7 +63,6 @@ import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.Message.EnumLevel;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.account.AccountCommandDto;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
@@ -68,6 +70,7 @@ import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.account.ActivationTokenDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.EnumActivationTokenType;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTestWithSecurity;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import eu.opertusmundi.web.security.UserService;
@@ -102,6 +105,12 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         @Value("${opertusmundi.feign.bpm-server.url}")
         private String bpmEngineServiceUrl;
 
+        @Value("${opertusmundi.feign.email-service.url}")
+        private String emailService;
+
+        @Autowired
+        private ObjectMapper objectMapper;
+
         @Bean(initMethod = "start", destroyMethod = "stop", name = "bpmEngineService")
         public WireMockServer mockBpmEngineService() throws IOException {
             // Get port from configuration
@@ -116,11 +125,34 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
 
             return server;
         }
+
+        @Bean(initMethod = "start", destroyMethod = "stop", name = "emailService")
+        public WireMockServer emailService() throws IOException {
+            // Get port from configuration
+            final URL url = new URL(this.emailService);
+
+            final WireMockServer server = new WireMockServer(url.getPort());
+
+            final JsonNode body = this.objectMapper.readTree("{\"success\":true,\"messages\":[]}");
+
+            server.stubFor(WireMock.post(urlPathEqualTo("/v1/email/send"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                    .withJsonBody(body)
+                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                ));
+
+            return server;
+        }
     }
 
     @Autowired
     @Qualifier("bpmEngineService")
     private WireMockServer bpmEngineService;
+
+    @Autowired
+    @Qualifier("emailService")
+    private WireMockServer emailService;
 
     /**
      * After each test method, reset mock server requests
@@ -128,6 +160,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @AfterEach
     public void teardown() {
         this.bpmEngineService.resetRequests();
+        this.emailService.resetRequests();
     }
 
     @Test
@@ -138,8 +171,8 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         final String code = BasicMessageCode.Validation.key();
 
         // Empty command
-        final AccountProfileCommandDto profileCommand = new AccountProfileCommandDto();
-        final AccountCommandDto        command        = new AccountCommandDto();
+        final AccountProfileCommandDto  profileCommand = new AccountProfileCommandDto();
+        final PlatformAccountCommandDto command        = new PlatformAccountCommandDto();
 
         command.setProfile(profileCommand);
 
@@ -171,7 +204,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.result").doesNotExist());
 
         // Verify user service
-        verify(this.userService, times(0)).createToken(any(), any());
+        verify(this.userService, times(0)).createToken(any(EnumActivationTokenType.class), any(), anyBoolean());
     }
 
     @Test
@@ -190,7 +223,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         profileCommand.setLocale("el");
         profileCommand.setMobile("+30690000000");
 
-        final AccountCommandDto command = new AccountCommandDto();
+        final PlatformAccountCommandDto command = new PlatformAccountCommandDto();
         command.setEmail(email);
         command.setPassword("password");
         command.setVerifyPassword("password");
@@ -199,7 +232,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)
             .when(this.userService)
-            .createToken(any(), any());
+            .createToken(any(EnumActivationTokenType.class), any(), anyBoolean());
 
         // Send request
         final MvcResult result = this.mockMvc.perform(post("/action/account/register")
@@ -210,7 +243,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andReturn();
 
         // Verify user service
-        verify(this.userService, times(1)).createToken(this.activationTokenType.capture(), this.activationTokenCommand.capture());
+        verify(this.userService, times(1)).createToken(this.activationTokenType.capture(), this.activationTokenCommand.capture(), anyBoolean());
 
         // Assert
         assertThat(this.activationTokenType.getValue()).isEqualTo(EnumActivationTokenType.ACCOUNT);
@@ -267,7 +300,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         profileCommand.setLocale("el");
         profileCommand.setMobile("+30690000000");
 
-        final AccountCommandDto command = new AccountCommandDto();
+        final PlatformAccountCommandDto command = new PlatformAccountCommandDto();
         command.setEmail(email);
         command.setPassword("password1");
         command.setVerifyPassword("password2");
@@ -292,7 +325,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.result").doesNotExist());
 
         // Verify user service
-        verify(this.userService, times(0)).createToken(any(), any());
+        verify(this.userService, times(0)).createToken(any(EnumActivationTokenType.class), any(), anyBoolean());
     }
 
     @Test
@@ -321,7 +354,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.result").doesNotExist());
 
         // Verify user service
-        verify(this.userService, times(0)).createToken(any(), any());
+        verify(this.userService, times(0)).createToken(any(EnumActivationTokenType.class), any(), anyBoolean());
     }
 
     @Test
@@ -345,7 +378,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.result").doesNotExist());
 
         // Verify user service
-        verify(this.userService, times(1)).createToken(any(), any());
+        verify(this.userService, times(1)).createToken(any(), anyBoolean());
     }
 
     @Test
@@ -359,7 +392,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)
             .when(this.userService)
-            .createToken(any(), any());
+            .createToken(any(EnumActivationTokenType.class), any(), anyBoolean());
 
         final MvcResult result = this.mockMvc.perform(post("/action/account/token/request")
             .contentType(MediaType.APPLICATION_JSON)
@@ -369,10 +402,10 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andReturn();
 
         // Verify user service
-        verify(this.userService, times(1)).createToken(this.activationTokenType.capture(), this.activationTokenCommand.capture());
+        verify(this.userService, times(1)).createToken(this.activationTokenType.capture(), this.activationTokenCommand.capture(), anyBoolean());
 
         // Assert
-        assertThat(this.activationTokenType.getValue()).isEqualTo(EnumActivationTokenType.ACCOUNT);
+        assertThat(this.activationTokenType.getValue()).isNull();
         assertThat(this.activationTokenCommand.getValue()).isNotNull();
         assertThat(this.activationTokenResponse.getResult()).isNotNull();
         assertThat(this.activationTokenResponse.getResult().getMessages()).isEmpty();
@@ -386,80 +419,6 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         assertThat(response.getMessages()).isEmpty();
 
         assertEquals(2, this.countRowsInTable("web.activation_token"), "Number of rows in the [web.activation_token] table.");
-    }
-
-    @Test
-    @Order(30)
-    @Tag(value = "Controller")
-    @DisplayName(value = "When token not found, return error")
-    @Commit
-    void whenActivationTokenNotFound_returnError() throws Exception {
-        final UUID token = UUID.randomUUID();
-
-        this.mockMvc.perform(post("/action/account/token/verify/{token}", token)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.success").isBoolean())
-            .andExpect(jsonPath("$.success").value(false))
-            .andExpect(jsonPath("$.messages").isArray())
-            .andExpect(jsonPath("$.messages", hasSize(1)))
-            .andExpect(jsonPath("$.messages[0].code").value(BasicMessageCode.TokenNotFound.key()))
-            .andExpect(jsonPath("$.result").doesNotExist());
-
-        // Verify
-        verify(this.userService, times(1)).redeemToken(token);
-    }
-
-    @Test
-    @Order(31)
-    @Tag(value = "Controller")
-    @DisplayName(value = "When verify activation token, return empty response")
-    @Commit
-    void whenVerifyActivationToken_activateAccount() throws Exception {
-        final UUID token = this.activationTokenResponse.getResult().getResult().getToken();
-
-        final MvcResult result = this.mockMvc.perform(post("/action/account/token/verify/{token}", token)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        // Verify
-        verify(this.userService, times(1)).redeemToken(token);
-        this.bpmEngineService.verify(1, WireMock.postRequestedFor(urlPathEqualTo("/engine-rest/message")));
-
-        // Assert
-        final String             content  = result.getResponse().getContentAsString();
-        final RestResponse<Void> response = this.objectMapper.readValue(content, new TypeReference<RestResponse<Void>>() { });
-
-        assertThat(response).isNotNull();
-        assertThat(response.getSuccess()).isTrue();
-        assertThat(response.getMessages()).isEmpty();
-    }
-
-    @Test
-    @Order(32)
-    @Tag(value = "Controller")
-    @DisplayName(value = "When verify expired activation token, return error")
-    @Commit
-    void whenVerifyExpiredActivationToken_returnError() throws Exception {
-        final UUID token = this.activationTokenResponse.getResult().getResult().getToken();
-
-        // Attempt to redeem the same token
-        this.mockMvc.perform(post("/action/account/token/verify/{token}", token)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.success").isBoolean())
-            .andExpect(jsonPath("$.success").value(false))
-            .andExpect(jsonPath("$.messages").isArray())
-            .andExpect(jsonPath("$.messages", hasSize(1)))
-            .andExpect(jsonPath("$.messages[0].code").value(BasicMessageCode.TokenIsExpired.key()))
-            .andExpect(jsonPath("$.result").doesNotExist());
-
-        // Verify
-        verify(this.userService, times(1)).redeemToken(token);
     }
 
     @Test

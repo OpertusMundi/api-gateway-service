@@ -19,7 +19,8 @@ INSERT INTO "web"."account" (
     "activation_at", 
     "idp_name", 
     "terms_accepted", 
-    "terms_accepted_at"
+    "terms_accepted_at",
+    "type"
 ) VALUES (
     1, 
     'db50feb4-85d6-46cb-bfe7-b1ca30f43e10', 
@@ -36,7 +37,8 @@ INSERT INTO "web"."account" (
     '2021-01-08 11:20:26.941', 
     NULL, 
     true, 
-    '2021-01-08 11:18:02.502'
+    '2021-01-08 11:18:02.502',
+    'OPERTUSMUNDI'
 );
 
 INSERT INTO "web"."customer" (

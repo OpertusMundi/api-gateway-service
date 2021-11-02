@@ -49,7 +49,7 @@ import com.google.common.net.HttpHeaders;
 import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.Message.EnumLevel;
-import eu.opertusmundi.common.model.account.AccountCommandDto;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
@@ -119,7 +119,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
         );
 
         // Create default account with authority ROLE_USER
-        final AccountCommandDto command = AccountCommandFactory.user("user@opertusmundi.eu").build();
+        final PlatformAccountCommandDto command = AccountCommandFactory.user("user@opertusmundi.eu").build();
 
         this.accountRepository.create(command);
 

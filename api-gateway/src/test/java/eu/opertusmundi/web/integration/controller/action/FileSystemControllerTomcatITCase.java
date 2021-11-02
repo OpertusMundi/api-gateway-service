@@ -51,7 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.account.AccountCommandDto;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.web.utils.AccountCommandFactory;
@@ -128,7 +128,7 @@ public class FileSystemControllerTomcatITCase {
         );
 
         // Create default account with authority ROLE_USER
-        final AccountCommandDto command = AccountCommandFactory.user().build();
+        final PlatformAccountCommandDto command = AccountCommandFactory.user().build();
 
         this.accountRepository.create(command);
     }

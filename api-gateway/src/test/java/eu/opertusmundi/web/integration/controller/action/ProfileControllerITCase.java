@@ -33,7 +33,7 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.Message.EnumLevel;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.account.AccountCommandDto;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
@@ -63,7 +63,7 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
         );
 
         // Create default account with authority ROLE_USER
-        final AccountCommandDto command = AccountCommandFactory.user().build();
+        final PlatformAccountCommandDto command = AccountCommandFactory.user().build();
 
         this.accountRepository.create(command);
     }

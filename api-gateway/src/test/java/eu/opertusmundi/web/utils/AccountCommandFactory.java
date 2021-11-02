@@ -1,12 +1,7 @@
 package eu.opertusmundi.web.utils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import eu.opertusmundi.common.model.EnumRole;
-import eu.opertusmundi.common.model.account.AccountCommandDto;
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 
 public class AccountCommandFactory {
 
@@ -19,25 +14,21 @@ public class AccountCommandFactory {
             .phone("+302100000000");
     }
 
-    public static AccountCommandDto.AccountCommandDtoBuilder user() {
+    public static PlatformAccountCommandDto.PlatformAccountCommandDtoBuilder user() {
         return AccountCommandFactory.user("user@opertusmundi.eu", "password");
     }
 
-    public static AccountCommandDto.AccountCommandDtoBuilder user(String email) {
+    public static PlatformAccountCommandDto.PlatformAccountCommandDtoBuilder user(String email) {
         return AccountCommandFactory.user(email, "password");
     }
 
-    public static AccountCommandDto.AccountCommandDtoBuilder user(String email, String password) {
-        final EnumRole[]    roleArray = {EnumRole.ROLE_USER};
-        final Set<EnumRole> roleSet   = new HashSet<EnumRole>(Arrays.asList(roleArray));
-
-        return AccountCommandDto.builder()
+    public static PlatformAccountCommandDto.PlatformAccountCommandDtoBuilder user(String email, String password) {
+        return PlatformAccountCommandDto.builder()
             .active(true)
             .blocked(false)
             .email(email)
             .password(password)
-            .profile(AccountCommandFactory.profile().build())
-            .roles(roleSet);
+            .profile(AccountCommandFactory.profile().build());
     }
 
 }

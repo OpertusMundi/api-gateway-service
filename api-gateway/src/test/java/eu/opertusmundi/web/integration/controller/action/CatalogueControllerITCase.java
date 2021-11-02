@@ -223,8 +223,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
         this.wireMockServer.verify(1, WireMock.getRequestedFor(urlPathMatching("/api/published/([a-zA-Z0-9-]+)")));
 
         final String                                content  = mvcResult.getResponse().getContentAsString();
-        final RestResponse<CatalogueItemDetailsDto> response =
-            this.objectMapper.readValue(content, CatalogueEndpointTypes.ItemResponse.class);
+        final RestResponse<CatalogueItemDetailsDto> response = this.objectMapper.readValue(content, CatalogueEndpointTypes.ItemResponse.class);
 
         assertThat(response.getSuccess()).isTrue();
         assertThat(response.getMessages()).isEmpty();
