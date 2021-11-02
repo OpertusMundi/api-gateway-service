@@ -97,7 +97,7 @@ public class VendorAccountControllerImpl extends BaseController implements Vendo
             return RestResponse.error(response.getMessages());
         }
 
-        return RestResponse.success();
+        return RestResponse.result(response.getResult());
     }
 
     @Override
