@@ -85,6 +85,7 @@ public class OpenApiConfiguration {
         api.addExtension("x-tagGroups", new TagGroup[] {
             new TagGroup("Account", Arrays.asList(
                 EndpointTags.Account,
+                EndpointTags.VendorAccount,
                 EndpointTags.Profile,
                 EndpointTags.Configuration,
                 EndpointTags.FileSystem
