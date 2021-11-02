@@ -19,14 +19,13 @@ import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.RequestContext;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.location.Location;
-import eu.opertusmundi.common.service.GeoIpApiLocationService;
 import eu.opertusmundi.common.service.LocationService;
 import eu.opertusmundi.web.model.Constants;
 import eu.opertusmundi.web.security.AuthenticationFacade;
 
 public abstract class BaseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(GeoIpApiLocationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     @Value("#{environment.getActiveProfiles()[0] == 'development' ? '${opertusmundi.debug.remote-ip-address:}' : ''}")
     private String fixedRemoteIpAddress;
@@ -49,8 +48,16 @@ public abstract class BaseController {
         return this.authenticationFacade.getCurrentUserId();
     }
 
+    protected Integer currentUserParentId() {
+        return this.authenticationFacade.getCurrentUserParentId();
+    }
+
     protected UUID currentUserKey() {
         return this.authenticationFacade.getCurrentUserKey();
+    }
+
+    protected UUID currentUserParentKey() {
+        return this.authenticationFacade.getCurrentUserParentKey();
     }
 
     protected String currentUserEmail() {

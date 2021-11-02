@@ -67,7 +67,7 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     public RestResponse<CatalogueItemDetailsDto> findOne(String id) {
         try {
             final CatalogueItemDetailsDto item = catalogueService.findOne(
-                this.createContext(), id, this.currentUserKey(), this.isAuthenticated()
+                this.createContext(), id, this.currentUserParentKey(), this.isAuthenticated()
             );
 
             return item == null ? RestResponse.notFound() : RestResponse.result(item);
@@ -80,7 +80,7 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     public RestResponse<CatalogueItemDetailsDto> findOne(String id, String version) {
         try {
             final CatalogueItemDetailsDto item = catalogueService.findOne(
-                this.createContext(), id, version, this.currentUserKey(), this.isAuthenticated()
+                this.createContext(), id, version, this.currentUserParentKey(), this.isAuthenticated()
             );
 
             return item == null ? RestResponse.notFound() : RestResponse.result(item);

@@ -105,7 +105,9 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
     ) throws IOException {
         final AssetDraftDto draft        = this.providerAssetService.findOneDraft(draftKey);
         final UUID          publisherKey = draft.getPublisher().getKey();
-        final Path          path         = this.providerAssetService.resolveDraftAdditionalResource(publisherKey, draftKey, resourceKey);
+        // We set publisher key to the owner key value. Helpdesk account can
+        // review any draft
+        final Path          path         = this.providerAssetService.resolveDraftAdditionalResource(publisherKey, publisherKey, draftKey, resourceKey);
         final File          file         = path.toFile();
 
         String contentType = Files.probeContentType(path);
@@ -132,8 +134,10 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
     ) throws IOException {
         final AssetDraftDto    draft        = this.providerAssetService.findOneDraft(draftKey);
         final UUID             publisherKey = draft.getPublisher().getKey();
+        // We set publisher key to the owner key value. Helpdesk account can
+        // review any draft
         final MetadataProperty property     = this.providerAssetService.resolveDraftMetadataProperty(
-            publisherKey, draftKey, resourceKey, propertyName
+            publisherKey, publisherKey, draftKey, resourceKey, propertyName
         );
 
         final File file = property.getPath().toFile();

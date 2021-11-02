@@ -30,7 +30,10 @@ public class DraftReviewValidator implements Validator {
     public void validate(Object o, Errors e) {
         final CatalogueItemVisibilityCommandDto c = (CatalogueItemVisibilityCommandDto) o;
 
-        final ProviderAssetDraftEntity draft = draftRepository.findOneByPublisherAndKey(c.getProviderKey(), c.getDraftKey()).orElse(null);
+        final ProviderAssetDraftEntity draft = c.getOwnerKey().equals(c.getPublisherKey())
+            ? draftRepository.findOneByPublisherAndKey(c.getPublisherKey(), c.getDraftKey()).orElse(null)
+            : draftRepository.findOneByOwnerAndPublisherAndKey(c.getOwnerKey(), c.getPublisherKey(), c.getDraftKey()).orElse(null);
+
         if (draft == null) {
             e.reject(BasicMessageCode.RecordNotFound.key(), "Draft not found");
         }

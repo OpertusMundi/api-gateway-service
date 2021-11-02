@@ -60,7 +60,7 @@ public interface MessageController {
         )
     )
     @GetMapping(value = "/messages")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
     RestResponse<?> findMessages(
         @Parameter(
             in          = ParameterIn.QUERY,
@@ -120,7 +120,7 @@ public interface MessageController {
         )
     )
     @GetMapping(value = "/notifications")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
     RestResponse<?> findNotifications(
         @Parameter(
             in          = ParameterIn.QUERY,
@@ -223,7 +223,7 @@ public interface MessageController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageResponseDto.class))
     )
     @PostMapping(value = "/messages/helpdesk")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
     RestResponse<?> sendToHelpdesk(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Message",
@@ -253,7 +253,7 @@ public interface MessageController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageResponseDto.class))
     )
     @PostMapping(value = "/messages/thread/{threadKey}")
-    @Secured({"ROLE_CONSUMER", "ROLE_PROVIDER"})
+    @Secured({"ROLE_CONSUMER", "ROLE_PROVIDER", "ROLE_VENDOR_USER"})
     RestResponse<?> replyToMessageThread(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -288,7 +288,7 @@ public interface MessageController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
     @PutMapping(value = "/messages/{messageKey}")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
     BaseResponse readMessage(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -317,7 +317,7 @@ public interface MessageController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ClientMessageThreadResponse.class))
     )
     @GetMapping(value = "/messages/thread/{threadKey}")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
     RestResponse<?> getMessageThread(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -346,7 +346,7 @@ public interface MessageController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
     @PutMapping(value = "/notifications/{key}")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
     BaseResponse readNotification(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -373,7 +373,7 @@ public interface MessageController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
     @PutMapping(value = "/notifications")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
     BaseResponse readAllNotifications();
 
 }

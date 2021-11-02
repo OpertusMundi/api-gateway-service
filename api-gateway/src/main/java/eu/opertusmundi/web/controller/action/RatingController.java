@@ -65,7 +65,6 @@ public interface RatingController {
         @PathVariable(name = "id", required = true) UUID id
     );
 
-
     /**
      * Get ratings for a single provider
      *

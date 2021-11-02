@@ -55,7 +55,7 @@ public interface AnalyticsController {
         )
     )
     @PostMapping(value = "/sales", consumes = { "application/json" })
-    @Secured({ "ROLE_PROVIDER" })
+    @Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
     @Validated
     RestResponse<?> executeSalesQuery(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -100,7 +100,7 @@ public interface AnalyticsController {
         )
     )
     @PostMapping(value = "/assets", consumes = { "application/json" })
-    @Secured({ "ROLE_PROVIDER" })
+    @Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
     @Validated
     RestResponse<?> executeAssetQuery(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(

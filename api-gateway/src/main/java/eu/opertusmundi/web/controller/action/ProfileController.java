@@ -63,7 +63,7 @@ public interface ProfileController {
         }
     )
     @PostMapping(value = "/profile", consumes = { "application/json" })
-    @Secured({ "ROLE_USER" })
+    @Secured({ "ROLE_USER", "ROLE_VENDOR_USER" })
     @Validated
     RestResponse<AccountDto> updateProfile(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(

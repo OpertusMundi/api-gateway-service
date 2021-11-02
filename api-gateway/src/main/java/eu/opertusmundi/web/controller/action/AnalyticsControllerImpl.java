@@ -27,7 +27,8 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
             query.setPublishers(new ArrayList<>());
         }
         query.getPublishers().clear();
-        query.getPublishers().add(this.currentUserKey());
+        // View parent account (vendor) analytics
+        query.getPublishers().add(this.currentUserParentKey());
 
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
@@ -45,7 +46,8 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
             query.setPublishers(new ArrayList<>());
         }
         query.getPublishers().clear();
-        query.getPublishers().add(this.currentUserKey());
+        // View parent account (vendor) analytics
+        query.getPublishers().add(this.currentUserParentKey());
 
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());

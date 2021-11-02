@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The notebooks API"
 )
 @RequestMapping(path = "/action/notebooks", produces = "application/json")
-@Secured({"ROLE_CONSUMER"})
+@Secured({"ROLE_CONSUMER", "ROLE_VENDOR_CONSUMER"})
 public interface ConsumerNotebookController {
 
     /**

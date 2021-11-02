@@ -13,8 +13,8 @@ import eu.opertusmundi.common.model.account.AccountSubscriptionDto;
 import eu.opertusmundi.common.model.asset.EnumConsumerAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumConsumerSubSortField;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
-import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
+import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.service.ConsumerAssetService;
 
 @RestController

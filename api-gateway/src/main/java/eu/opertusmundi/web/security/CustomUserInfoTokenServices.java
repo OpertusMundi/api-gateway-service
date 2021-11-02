@@ -12,9 +12,9 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
-import eu.opertusmundi.common.model.account.AccountCommandDto;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.web.config.OAuthUserInfoDetailResolver;
 import eu.opertusmundi.web.model.security.User;
 
@@ -47,7 +47,7 @@ public class CustomUserInfoTokenServices extends UserInfoTokenServices {
         final OAuth2Authentication authentication = super.loadAuthentication(accessToken);
 
         // Create custom user details
-        final AccountCommandDto command = new AccountCommandDto();
+        final PlatformAccountCommandDto command = new PlatformAccountCommandDto();
         command.setProfile(new AccountProfileCommandDto());
 
         // Identity provider addition
@@ -93,7 +93,7 @@ public class CustomUserInfoTokenServices extends UserInfoTokenServices {
             command.setIdpName(this.provider);
             command.setProfile(new AccountProfileCommandDto());
 
-            account = this.userService.createAccount(command).getResult().getAccount();
+            account = this.userService.createPlatformAccount(command).getResult().getAccount();
         }
 
         // Inject identity provider information

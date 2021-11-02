@@ -21,7 +21,7 @@ public class ProviderPayOutControllerImpl extends BaseController implements Prov
 
     @Override
     public RestResponse<?> findOnePayOut(UUID payOutKey) {
-        final PayOutDto result = this.paymentService.getProviderPayOut(this.currentUserId(), payOutKey);
+        final PayOutDto result = this.paymentService.getProviderPayOut(this.currentUserParentId(), payOutKey);
 
         return RestResponse.result(result);
     }
@@ -30,7 +30,7 @@ public class ProviderPayOutControllerImpl extends BaseController implements Prov
     public RestResponse<?> findAllProviderPayOuts(
         EnumTransactionStatus status, int pageIndex, int pageSize, EnumPayOutSortField orderBy, EnumSortingOrder order
     ) {
-        final UUID                    userKey = this.currentUserKey();
+        final UUID                    userKey = this.currentUserParentKey();
         final PageResultDto<PayOutDto> result  = this.paymentService.findAllProviderPayOuts(
             userKey, status, pageIndex, pageSize, orderBy, order
         );

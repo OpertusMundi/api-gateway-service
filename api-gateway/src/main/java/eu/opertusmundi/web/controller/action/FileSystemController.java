@@ -44,7 +44,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The user file system API"
 )
 @RequestMapping(path = "/action", produces = MediaType.APPLICATION_JSON_VALUE)
-@Secured({"ROLE_USER"})
+@Secured({"ROLE_USER", "ROLE_VENDOR_CONSUMER"})
 public interface FileSystemController {
 
     /**
@@ -149,8 +149,7 @@ public interface FileSystemController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemEndpointTypes.FileSystemResponse.class))
     )
-    @DeleteMapping(value = "/file-system", params = { "path" })
-    public RestResponse<?> deletePath(
+    @DeleteMapping(value = "/file-system", params = { "path" }) RestResponse<?> deletePath(
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = true,

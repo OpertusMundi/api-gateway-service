@@ -158,12 +158,13 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
 
     @Override
     public RestResponse<?> findAllTemplates(int page, int size, EnumProviderContractSortField orderBy, EnumSortingOrder order) {
+        // Get all publisher (vendor) templates
         final ProviderTemplateContractQuery query = ProviderTemplateContractQuery.builder()
             .page(page)
             .size(size)
             .order(order)
             .orderBy(orderBy)
-            .providerKey(this.currentUserKey())
+            .providerKey(this.currentUserParentKey())
             .build();
 
         final PageResultDto<ProviderTemplateContractDto> result = templateContractService.findAll(query);
@@ -174,7 +175,7 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
     @Override
     public RestResponse<?> findOneTemplate(UUID key) {
         final ProviderTemplateContractDto result = this.templateContractService.findOneByKey(
-            this.currentUserId(), key
+            this.currentUserParentId(), key
         ).orElse(null);
 
         if (result == null) {

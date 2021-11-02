@@ -26,7 +26,7 @@ public class ProfileControllerImpl extends BaseController implements ProfileCont
 
     @Override
     public RestResponse<AccountDto> getProfile() {
-        if (!this.hasAnyRole(EnumRole.ROLE_USER, EnumRole.ROLE_HELPDESK)) {
+        if (!this.hasAnyRole(EnumRole.ROLE_USER, EnumRole.ROLE_HELPDESK, EnumRole.ROLE_VENDOR_USER)) {
             return RestResponse.accessDenied();
         }
 

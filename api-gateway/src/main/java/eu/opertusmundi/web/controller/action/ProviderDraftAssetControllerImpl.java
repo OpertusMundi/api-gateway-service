@@ -37,22 +37,15 @@ import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
-import eu.opertusmundi.common.model.catalogue.CatalogueResult;
-import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueDraftQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDraftDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemSamplesCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemVisibilityCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
-import eu.opertusmundi.common.model.catalogue.client.EnumDraftStatus;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
 import eu.opertusmundi.common.service.AssetDraftException;
-import eu.opertusmundi.common.service.CatalogueService;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.web.validation.ApiDraftValidator;
 import eu.opertusmundi.web.validation.AssetFileResourceValidator;
@@ -82,9 +75,6 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     private AssetFileResourceValidator assetResourceValidator;
 
     @Autowired
-    private CatalogueService catalogueService;
-
-    @Autowired
     private ProviderAssetService providerAssetService;
 
     @Override
@@ -94,10 +84,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         EnumProviderAssetDraftSortField orderBy, EnumSortingOrder order
     ) {
         try {
-            final UUID publisherKey = this.currentUserKey();
+            final UUID ownerKey     = this.currentUserKey();
+            final UUID publisherKey = this.currentUserParentKey();
 
             final PageResultDto<AssetDraftDto> result = this.providerAssetService.findAllDraft(
-                publisherKey, status, type, serviceType, pageIndex, pageSize, orderBy, order
+                ownerKey, publisherKey, status, type, serviceType, pageIndex, pageSize, orderBy, order
             );
 
             return RestResponse.result(result);
@@ -136,7 +127,8 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public RestResponse<AssetDraftDto> createDraftFromAsset(DraftFromAssetCommandDto command, BindingResult validationResult) {
         try {
-            command.setPublisherKey(this.currentUserKey());
+            command.setPublisherKey(this.currentUserParentKey());
+            command.setOwnerKey(this.currentUserKey());
 
             this.draftFromAssetValidator.validate(command, validationResult);
 
@@ -158,8 +150,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public BaseResponse createApiDraft(DraftApiCommandDto command, BindingResult validationResult) {
         try {
+            command.setPublisherKey(this.currentUserParentKey());
+            command.setOwnerKey(this.currentUserKey());
             command.setUserId(this.currentUserId());
-            command.setPublisherKey(this.currentUserKey());
 
             this.apiDraftValidator.validate(command, validationResult);
 
@@ -182,9 +175,10 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public RestResponse<AssetDraftDto> findOneDraft(UUID draftKey) {
         try {
-            final UUID publisherKey = this.currentUserKey();
+            final UUID ownerKey     = this.currentUserKey();
+            final UUID publisherKey = this.currentUserParentKey();
 
-            final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, draftKey);
+            final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey);
 
             if(draft ==null) {
                 return RestResponse.notFound();
@@ -251,8 +245,12 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public BaseResponse reviewDraft(UUID draftKey, AssetDraftReviewCommandDto command) {
         try {
-            command.setAssetKey(draftKey);
-            command.setPublisherKey(this.currentUserKey());
+            final UUID ownerKey     = this.currentUserKey();
+            final UUID publisherKey = this.currentUserParentKey();
+
+            command.setDraftKey(draftKey);
+            command.setOwnerKey(ownerKey);
+            command.setPublisherKey(publisherKey);
 
             if (command.isRejected()) {
                 this.providerAssetService.rejectProvider(command);
@@ -273,9 +271,10 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     @Override
     public BaseResponse deleteDraft(UUID draftKey) {
         try {
-            final UUID publisherKey = this.currentUserKey();
+            final UUID ownerKey     = this.currentUserKey();
+            final UUID publisherKey = this.currentUserParentKey();
 
-            this.providerAssetService.deleteDraft(publisherKey, draftKey);
+            this.providerAssetService.deleteDraft(ownerKey, publisherKey, draftKey);
 
             return RestResponse.success();
         } catch (final AssetDraftException ex) {
@@ -287,34 +286,19 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
-    public RestResponse<?> findAllDraftTemp(EnumDraftStatus status, int pageIndex, int pageSize) {
-        try {
-            final CatalogueDraftQuery draftQuery = CatalogueDraftQuery.builder()
-                .page(pageIndex)
-                .size(pageSize)
-                .status(status)
-                .publisherKey(this.currentUserKey().toString())
-                .build();
-
-            final CatalogueResult<CatalogueItemDraftDto> result = this.catalogueService.findAllDraft(draftQuery);
-
-            return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
-        } catch (final CatalogueServiceException ex) {
-            return RestResponse.failure();
-        }
-    }
-
     @Override
     public RestResponse<?> uploadResource(
         UUID draftKey, MultipartFile resource, FileResourceCommandDto command, BindingResult validationResult
     ) {
-        final UUID publisherKey = this.currentUserKey();
+        final UUID ownerKey     = this.currentUserKey();
+        final UUID publisherKey = this.currentUserParentKey();
 
         if (resource == null || resource.getSize() == 0) {
             return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
         }
 
         command.setDraftKey(draftKey);
+        command.setOwnerKey(ownerKey);
         command.setPublisherKey(publisherKey);
         command.setSize(resource.getSize());
         if (StringUtils.isBlank(command.getFileName())) {
@@ -337,7 +321,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
         }
 
-        final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, draftKey);
+        final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey);
 
         return RestResponse.result(draft);
     }
@@ -346,7 +330,8 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     public RestResponse<?> uploadAdditionalResource(
         UUID draftKey, MultipartFile resource, AssetFileAdditionalResourceCommandDto command, BindingResult validationResult
     ) {
-        final UUID          publisherKey = this.currentUserKey();
+        final UUID ownerKey     = this.currentUserKey();
+        final UUID publisherKey = this.currentUserParentKey();
 
         if (resource == null || resource.getSize() == 0) {
             return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
@@ -358,6 +343,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
         try (final InputStream input = new ByteArrayInputStream(resource.getBytes())) {
             command.setDraftKey(draftKey);
+            command.setOwnerKey(ownerKey);
             command.setPublisherKey(publisherKey);
             command.setSize(resource.getSize());
             if (StringUtils.isBlank(command.getFileName())) {
@@ -373,7 +359,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
         }
 
-        final AssetDraftDto draft = this.providerAssetService.findOneDraft(publisherKey, draftKey);
+        final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey);
 
         return RestResponse.result(draft);
     }
@@ -382,9 +368,10 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     public ResponseEntity<StreamingResponseBody> getAdditionalResourceFile(
         UUID draftKey, String resourceKey, HttpServletResponse response
     ) throws IOException {
-        final UUID publisherKey = this.currentUserKey();
+        final UUID ownerKey     = this.currentUserKey();
+        final UUID publisherKey = this.currentUserParentKey();
 
-        final Path path = this.providerAssetService.resolveDraftAdditionalResource(publisherKey, draftKey, resourceKey);
+        final Path path = this.providerAssetService.resolveDraftAdditionalResource(ownerKey, publisherKey, draftKey, resourceKey);
         final File file = path.toFile();
 
         String contentType = Files.probeContentType(path);
@@ -409,10 +396,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     public ResponseEntity<StreamingResponseBody> getMetadataProperty(
         UUID draftKey, String resourceKey, String propertyName, HttpServletResponse response
     ) throws IOException {
-        final UUID publisherKey = this.currentUserKey();
+        final UUID ownerKey     = this.currentUserKey();
+        final UUID publisherKey = this.currentUserParentKey();
 
         final MetadataProperty property = this.providerAssetService.resolveDraftMetadataProperty(
-            publisherKey, draftKey, resourceKey, propertyName
+            ownerKey, publisherKey, draftKey, resourceKey, propertyName
         );
 
         final File file = property.getPath().toFile();
@@ -440,8 +428,12 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         UUID draftKey, CatalogueItemVisibilityCommandDto command, BindingResult validationResult
     ) {
         try {
-            command.setProviderKey(this.currentUserKey());
+            final UUID ownerKey     = this.currentUserKey();
+            final UUID publisherKey = this.currentUserParentKey();
+
             command.setDraftKey(draftKey);
+            command.setOwnerKey(ownerKey);
+            command.setPublisherKey(publisherKey);
 
             this.draftReviewValidator.validate(command, validationResult);
 
@@ -466,8 +458,12 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         UUID draftKey, CatalogueItemSamplesCommandDto command, BindingResult validationResult
     ) {
         try {
-            command.setProviderKey(this.currentUserKey());
+            final UUID ownerKey     = this.currentUserKey();
+            final UUID publisherKey = this.currentUserParentKey();
+
             command.setDraftKey(draftKey);
+            command.setOwnerKey(ownerKey);
+            command.setPublisherKey(publisherKey);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
@@ -490,8 +486,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     private void injectCatalogueItemCommandProperties(UUID draftKey, CatalogueItemCommandDto command) {
-        command.setAssetKey(draftKey);
-        command.setPublisherKey(this.currentUserKey());
+        command.setDraftKey(draftKey);
+        command.setOwnerKey(this.currentUserKey());
+        command.setPublisherKey(this.currentUserParentKey());
 
         command.getPricingModels().stream().forEach(m-> {
             // Always override the key with a value generated at the server

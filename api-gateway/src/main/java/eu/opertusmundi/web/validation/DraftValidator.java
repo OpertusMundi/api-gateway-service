@@ -137,7 +137,7 @@ public class DraftValidator implements Validator {
     }
 
     private void validateResources(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
-        final List<AssetResourceEntity> serverResources = this.assetResourceRepository.findAllResourcesByDraftKey(c.getAssetKey());
+        final List<AssetResourceEntity> serverResources = this.assetResourceRepository.findAllResourcesByDraftKey(c.getDraftKey());
         final List<String>              serverKeys      = serverResources.stream().map(r -> r.getKey()).collect(Collectors.toList());
         final List<String>              fileKeys        = c.getResources().stream()
             .filter(r -> r.getType() == EnumResourceType.FILE)
@@ -238,7 +238,7 @@ public class DraftValidator implements Validator {
 
     private void validateAdditionalResources(CatalogueItemCommandDto c,  Errors e) {
         final List<AssetAdditionalResourceEntity> resources = this.assetAdditionalResourceRepository
-            .findAllResourcesByDraftKey(c.getAssetKey());
+            .findAllResourcesByDraftKey(c.getDraftKey());
 
         final List<String> keys = resources.stream().map(r -> r.getKey()).collect(Collectors.toList());
 

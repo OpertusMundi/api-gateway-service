@@ -32,5 +32,6 @@ public class EndpointTags {
     public final static String Recommender          = "Recommender";
     public final static String SpatialData          = "Spatial Data Source";
     public final static String UboDeclaration       = "UBO";
+    public final static String VendorAccount        = "Vendor Account";
 
 }

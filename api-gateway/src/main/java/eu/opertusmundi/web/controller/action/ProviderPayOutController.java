@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The provider PayOut API"
 )
 @RequestMapping(path = "/action/provider", produces = "application/json")
-@Secured({"ROLE_PROVIDER"})
+@Secured({"ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS"})
 public interface ProviderPayOutController {
 
     /**

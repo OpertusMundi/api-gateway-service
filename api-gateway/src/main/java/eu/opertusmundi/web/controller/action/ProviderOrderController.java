@@ -34,7 +34,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The provider order API"
 )
 @RequestMapping(path = "/action/provider", produces = "application/json")
-@Secured({"ROLE_PROVIDER"})
 public interface ProviderOrderController {
 
     /**
@@ -64,6 +63,7 @@ public interface ProviderOrderController {
         )
     )
     @GetMapping(value = "/orders/{orderKey}")
+    @Secured({"ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS"})
     RestResponse<?> findOne(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -96,6 +96,7 @@ public interface ProviderOrderController {
         )
     )
     @GetMapping(value = "orders")
+    @Secured({"ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS"})
     RestResponse<?> findAll(
         @Parameter(
             in = ParameterIn.QUERY,
@@ -158,6 +159,7 @@ public interface ProviderOrderController {
         )
     )
     @PutMapping(value = "/orders/{orderKey}")
+    @Secured({"ROLE_PROVIDER"})
     BaseResponse confirmOrder(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -196,6 +198,7 @@ public interface ProviderOrderController {
         )
     )
     @PutMapping(value = "/orders/{orderKey}/shipping", consumes = "application/json")
+    @Secured({"ROLE_PROVIDER"})
     BaseResponse shipOrder(
         @Parameter(
             in          = ParameterIn.PATH,

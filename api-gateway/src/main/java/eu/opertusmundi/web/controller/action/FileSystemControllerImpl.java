@@ -32,7 +32,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
 
     @Autowired
     private UserFileManager fileManager;
-   
+
     @Override
     public RestResponse<?> browseDirectory() {
         this.ensureRegistered();
@@ -96,7 +96,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     @Override
     public RestResponse<?> deletePath(String path) {
         this.ensureRegistered();
-       
+
         try {
             final FilePathCommand command = FilePathCommand.builder()
                 .userId(this.currentUserId())
@@ -118,11 +118,11 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
         if (file == null || file.getSize() == 0) {
             return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
         }
-        
+
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
-        
+
         try (final InputStream input = new ByteArrayInputStream(file.getBytes())) {
             command.setUserId(this.currentUserId());
             command.setSize(file.getSize());

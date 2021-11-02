@@ -1,7 +1,5 @@
 package eu.opertusmundi.web.controller.action;
 
-import java.util.UUID;
-
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -17,11 +15,10 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
-import eu.opertusmundi.common.model.account.AccountCommandDto;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.account.ActivationTokenDto;
-import eu.opertusmundi.common.model.account.EnumActivationTokenType;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import eu.opertusmundi.web.model.security.Token;
 import eu.opertusmundi.web.security.UserService;
@@ -53,14 +50,14 @@ public class AccountControllerImpl extends BaseController implements AccountCont
     }
 
     @Override
-    public BaseResponse register(AccountCommandDto command, BindingResult validationResult) {
+    public BaseResponse register(PlatformAccountCommandDto command, BindingResult validationResult) {
         this.accountValidator.validate(command, validationResult);
 
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        final AccountDto account = this.userService.createAccount(command).getResult().getAccount();
+        final AccountDto account = this.userService.createPlatformAccount(command).getResult().getAccount();
 
         return RestResponse.result(account);
     }
@@ -71,26 +68,13 @@ public class AccountControllerImpl extends BaseController implements AccountCont
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        final ServiceResponse<ActivationTokenDto> response = this.userService.createToken(EnumActivationTokenType.ACCOUNT, command);
+        final ServiceResponse<ActivationTokenDto> response = this.userService.createToken(command, true);
 
         if (response.getResult() == null) {
             return RestResponse.error(response.getMessages());
         }
 
         return RestResponse.success();
-    }
-
-    @Override
-    public BaseResponse verifyActivationToken(UUID token) {
-        logger.info("Redeem activation token. [token={}]", token);
-
-        final ServiceResponse<Void> response = this.userService.redeemToken(token);
-
-        if (response.getMessages().isEmpty()) {
-            return RestResponse.success();
-        }
-
-        return RestResponse.error(response.getMessages());
     }
 
     @Override

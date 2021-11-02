@@ -61,12 +61,34 @@ public class DefaultAuthenticationFacade implements AuthenticationFacade {
     }
 
     @Override
+    public Integer getCurrentUserParentId() {
+        final Authentication authentication = this.getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        final AccountDto account = ((User) authentication.getPrincipal()).getAccount();
+
+        return account == null ? null : account.getParentId() == null ? account.getId() : account.getParentId();
+    }
+
+    @Override
     public UUID getCurrentUserKey() {
         final Authentication authentication = this.getAuthentication();
         if (authentication == null) {
             return null;
         }
         return ((User) authentication.getPrincipal()).getAccount().getKey();
+    }
+
+    @Override
+    public UUID getCurrentUserParentKey() {
+        final Authentication authentication = this.getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        final AccountDto account = ((User) authentication.getPrincipal()).getAccount();
+
+        return account.getParentKey() == null ? account.getKey() : account.getParentKey();
     }
 
     @Override

@@ -21,7 +21,7 @@ public class ProviderPayInControllerImpl extends BaseController implements Provi
 
     @Override
     public RestResponse<?> findOnePayInItem(UUID payInKey, Integer index) {
-        final ProviderPayInItemDto result = this.paymentService.getProviderPayInItem(this.currentUserId(), payInKey, index);
+        final ProviderPayInItemDto result = this.paymentService.getProviderPayInItem(this.currentUserParentId(), payInKey, index);
 
         return RestResponse.result(result);
     }
@@ -30,7 +30,7 @@ public class ProviderPayInControllerImpl extends BaseController implements Provi
     public RestResponse<?> findAllProviderPayInItems(
         EnumTransactionStatus status, int pageIndex, int pageSize, EnumPayInItemSortField orderBy, EnumSortingOrder order
     ) {
-        final UUID                                userKey = this.currentUserKey();
+        final UUID                                userKey = this.currentUserParentKey();
         final PageResultDto<ProviderPayInItemDto> result  = this.paymentService.findAllProviderPayInItems(
             userKey, status, pageIndex, pageSize, orderBy, order
         );

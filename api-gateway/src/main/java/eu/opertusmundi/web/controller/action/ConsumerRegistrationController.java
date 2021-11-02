@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The consumer API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
+@Secured({ "ROLE_USER" })
 public interface ConsumerRegistrationController {
 
     /**
@@ -50,7 +51,6 @@ public interface ConsumerRegistrationController {
         }
     )
     @PostMapping(value = "/consumer/registration", consumes = { "application/json" })
-    @Secured({ "ROLE_USER" })
     @Validated
     RestResponse<AccountProfileDto> updateRegistration(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -85,7 +85,6 @@ public interface ConsumerRegistrationController {
         }
     )
     @PutMapping(value = "/consumer/registration", consumes = { "application/json" })
-    @Secured({ "ROLE_USER" })
     @Validated
     RestResponse<AccountProfileDto> submitRegistration(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -119,7 +118,6 @@ public interface ConsumerRegistrationController {
         }
     )
     @DeleteMapping(value = "/consumer/registration")
-    @Secured({ "ROLE_USER" })
     RestResponse<AccountProfileDto> cancelRegistration();
 
 }

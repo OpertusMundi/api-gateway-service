@@ -61,7 +61,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The asset publication API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
-@Secured({"ROLE_PROVIDER"})
+@Secured({"ROLE_PROVIDER", "ROLE_VENDOR_PROVIDER"})
 public interface ProviderDraftAssetController {
 
     /**
@@ -182,6 +182,7 @@ public interface ProviderDraftAssetController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
     @PostMapping(value = "/drafts/asset", consumes = "application/json")
+    @Validated
     RestResponse<AssetDraftDto> createDraftFromAsset(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Draft create command",
@@ -563,7 +564,7 @@ public interface ProviderDraftAssetController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
     @PostMapping(value = "/drafts/api")
-    @Secured({"ROLE_PROVIDER"})
+    @Validated
     BaseResponse createApiDraft(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Draft creation command",

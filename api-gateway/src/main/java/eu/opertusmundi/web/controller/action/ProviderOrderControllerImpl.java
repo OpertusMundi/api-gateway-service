@@ -42,7 +42,7 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
 
     @Override
     public RestResponse<?> findOne(UUID orderKey) {
-        final Optional<ProviderOrderDto> r = this.orderRepository.findOrderObjectByKeyAndProvider(this.currentUserKey(), orderKey);
+        final Optional<ProviderOrderDto> r = this.orderRepository.findOrderObjectByKeyAndProvider(this.currentUserParentKey(), orderKey);
         if (r.isPresent()) {
             return RestResponse.result(r.get());
         }
@@ -59,7 +59,7 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
         final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by(direction, orderBy.getValue()));
 
         final Page<ProviderOrderDto> p = this.orderRepository.findAllObjectsForProvider(
-            this.currentUserKey(),
+            this.currentUserParentKey(),
             referenceNumber,
             status,
             pageRequest,

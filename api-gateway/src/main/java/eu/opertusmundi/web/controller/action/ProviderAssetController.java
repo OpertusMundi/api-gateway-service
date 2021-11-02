@@ -218,7 +218,7 @@ public interface ProviderAssetController {
         value = "/assets/{pid}/resources/{resourceKey}/metadata/{propertyName}",
         produces = {MediaType.IMAGE_PNG_VALUE, MediaType.APPLICATION_JSON_VALUE}
     )
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
     ResponseEntity<StreamingResponseBody> getMetadataProperty(
         @Parameter(
             in          = ParameterIn.PATH,

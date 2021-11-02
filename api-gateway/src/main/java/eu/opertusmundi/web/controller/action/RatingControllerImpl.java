@@ -103,10 +103,10 @@ public class RatingControllerImpl extends BaseController implements RatingContro
     public BaseResponse addAssetRating(UUID id, ClientRatingCommandDto command, BindingResult validationResult) {
         final ServerAssetRatingCommandDto c = new ServerAssetRatingCommandDto(command);
         c.setAccount(this.currentUserKey());
-        
+
         // TODO: Check if consumer owns the data asset
         this.assetRatingValidator.validate(command, validationResult);
-        
+
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
@@ -138,11 +138,11 @@ public class RatingControllerImpl extends BaseController implements RatingContro
 
         // TODO: Check if consumer has purchased a data asset/service from the provider
         this.providerRatingValidator.validate(command, validationResult);
-        
+
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
-        
+
         try {
             final ResponseEntity<BaseResponse> response = this.ratingClient.getObject().addProviderRating(id, c);
 

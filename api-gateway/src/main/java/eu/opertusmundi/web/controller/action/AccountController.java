@@ -1,7 +1,5 @@
 package eu.opertusmundi.web.controller.action;
 
-import java.util.UUID;
-
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -10,22 +8,20 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.account.AccountCommandDto;
 import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
+import eu.opertusmundi.web.model.openapi.schema.AccountEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
-import eu.opertusmundi.web.model.security.AccountRegisterResponse;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import eu.opertusmundi.web.model.security.Token;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -59,7 +55,7 @@ public interface AccountController {
         }
     )
     @GetMapping(value = "/logged-in")
-    @Secured({"ROLE_USER", "ROLE_HELPDESK"})
+    @Secured({"ROLE_USER", "ROLE_HELPDESK", "ROLE_VENDOR_USER"})
     RestResponse<Token> loggedIn(
         HttpSession session,
         @Parameter(
@@ -80,8 +76,7 @@ public interface AccountController {
         summary     = "Successful logout redirect endpoint",
         description = "Default redirect endpoint for successful logout operations, used for refreshing the CSRF token"
     )
-    @GetMapping(value = "/logged-out")
-    public RestResponse<Token> loggedOut(
+    @GetMapping(value = "/logged-out") RestResponse<Token> loggedOut(
         HttpSession session,
         @Parameter(
             hidden = true
@@ -97,14 +92,14 @@ public interface AccountController {
      * @return
      */
     @Operation(
-        operationId = "account-04",
+        operationId = "account-03",
         summary     = "Register account",
         description = "Register a new account"
     )
     @ApiResponse(
         responseCode = "200",
         description  = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountRegisterResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountEndpointTypes.AccountResponse.class))
     )
     @PostMapping(value = "/action/account/register")
     @Validated
@@ -113,13 +108,13 @@ public interface AccountController {
             description = "Account registration command",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = AccountCommandDto.class)
+                schema = @Schema(implementation = PlatformAccountCommandDto.class)
             ),
             required = true
         )
         @Valid
         @RequestBody
-        AccountCommandDto command,
+        PlatformAccountCommandDto command,
         @Parameter(
             hidden = true
         )
@@ -134,14 +129,14 @@ public interface AccountController {
      * @return
      */
     @Operation(
-        operationId = "account-05",
+        operationId = "account-04",
         summary     = "Request activation token",
         description = "Request an activation token for verifying an email or activating an account"
     )
     @ApiResponse(
         responseCode = "200",
         description  = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountRegisterResponse.class))
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountEndpointTypes.AccountResponse.class))
     )
     @PostMapping(value = "/action/account/token/request")
     @Validated
@@ -161,36 +156,6 @@ public interface AccountController {
     );
 
     /**
-     * Redeem activation token
-     *
-     * @param id The activation token to redeem
-     * @return
-     */
-    @Operation(
-        operationId = "account-06",
-        summary     = "Verify activation token",
-        description = "Redeem an activation token to verify an email or activate an account"
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description  = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
-    )
-    @PostMapping(value = "/action/account/token/verify/{token}")
-    BaseResponse verifyActivationToken(
-        @Parameter(
-            in          = ParameterIn.PATH,
-            required    = true,
-            description = "The token"
-        )
-        @PathVariable(
-            name        = "token",
-            required    = true
-        )
-        UUID token
-    );
-
-    /**
      * Change password for authenticated user
      *
      * @param command Password change command
@@ -198,9 +163,9 @@ public interface AccountController {
      * @return
      */
     @Operation(
-        operationId = "account-07",
+        operationId = "account-05",
         summary     = "Change password",
-        description = "Change password for authenticated user. Required role: `ROLE_USER`"
+        description = "Change password for authenticated user. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -208,7 +173,7 @@ public interface AccountController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
     @PostMapping(value = "/action/account/password/change")
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
     @Validated
     BaseResponse changePassword(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(

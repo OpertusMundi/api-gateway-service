@@ -38,7 +38,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The provider contract API"
 )
 @RequestMapping(path = "/action/contract/provider", produces = "application/json")
-@Secured({"ROLE_PROVIDER"})
 public interface ProviderContractController {
 
     /**
@@ -359,7 +358,7 @@ public interface ProviderContractController {
         )
     )
     @GetMapping(value = "/templates")
-    @Secured({"ROLE_PROVIDER"})
+    @Secured({"ROLE_PROVIDER", "ROLE_VENDOR_PROVIDER"})
     RestResponse<?> findAllTemplates(
         @Parameter(
             in = ParameterIn.QUERY,
@@ -406,7 +405,7 @@ public interface ProviderContractController {
         )
     )
     @GetMapping(value = "/templates/{key}")
-    @Secured({"ROLE_PROVIDER"})
+    @Secured({"ROLE_PROVIDER", "ROLE_VENDOR_PROVIDER"})
     RestResponse<?> findOneTemplate(
         @Parameter(
             in          = ParameterIn.PATH,

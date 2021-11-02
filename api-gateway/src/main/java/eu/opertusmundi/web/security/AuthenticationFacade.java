@@ -49,11 +49,28 @@ public interface AuthenticationFacade {
     Integer getCurrentUserId();
 
     /**
+     * Get the user parent id
+     *
+     * @return the user parent id or the user id if parent (vendor) does not
+     *         exist. If the user is not authenticated, {@code null} is
+     *         returned.
+     */
+    Integer getCurrentUserParentId();
+
+    /**
      * Get the user key
      *
-     * @return the user id or {@code null} if the user is not authenticated
+     * @return the user key or {@code null} if the user is not authenticated
      */
     UUID getCurrentUserKey();
+
+    /**
+     * Get the user parent key
+     *
+     * @return the user parent key or user key if there is not parent. If the
+     *         user is not authenticated, {@code null} is returned
+     */
+    UUID getCurrentUserParentKey();
 
     /**
      * Get the user email

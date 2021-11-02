@@ -153,7 +153,7 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
     }
 
     @Override
-    public RestResponse<KycDocumentDto> submitKycDocument(String kycDocumentId,KycDocumentCommandDto command, BindingResult validationResult) {
+    public RestResponse<KycDocumentDto> submitKycDocument(String kycDocumentId, KycDocumentCommandDto command, BindingResult validationResult) {
         try {
             command.setUserKey(this.currentUserKey());
             verifyRole(command.getCustomerType());
@@ -162,7 +162,7 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
                 return RestResponse.invalid(validationResult.getFieldErrors());
             }
 
-            final KycDocumentCommand serviceCommand = KycDocumentCommand.of(this.currentUserKey(), command.getCustomerType(), kycDocumentId);
+            final KycDocumentCommand serviceCommand = KycDocumentCommand.of(command.getUserKey(), command.getCustomerType(), kycDocumentId);
             final KycDocumentDto     result         = this.customerVerificationService.submitKycDocument(serviceCommand);
 
             return RestResponse.result(result);
