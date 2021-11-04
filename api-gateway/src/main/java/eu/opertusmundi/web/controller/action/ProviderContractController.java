@@ -1,13 +1,18 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.IOException;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
@@ -31,6 +37,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
@@ -404,6 +411,10 @@ public interface ProviderContractController {
             schema = @Schema(implementation = ContractEndpointTypes.ProviderContractTemplate.class)
         )
     )
+    @ApiResponse(
+        responseCode = "404",
+        description = "not found"
+    )
     @GetMapping(value = "/templates/{key}")
     @Secured({"ROLE_PROVIDER", "ROLE_VENDOR_PROVIDER"})
     RestResponse<?> findOneTemplate(
@@ -414,6 +425,40 @@ public interface ProviderContractController {
         )
         @PathVariable UUID key
     );
+
+    /**
+     * Print contract template
+     *
+     * @param templateKey
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @Operation(
+        operationId = "provider-contract-11",
+        summary     = "Print template",
+        description = "Prints a contract template using sample data. Roles required: <b>ROLE_PROVIDER</b>",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested contract file"))
+    )
+    @GetMapping(value = "/templates/pdf/{key}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @Validated
+    ResponseEntity<StreamingResponseBody> print(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Template unique key"
+        )
+        @PathVariable(name = "key", required = true) UUID templateKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
 
     /**
      * Delete (deactivate) a contract template

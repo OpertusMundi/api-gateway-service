@@ -4,11 +4,17 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.ApplicationException;
 import eu.opertusmundi.common.model.EnumSortingOrder;
@@ -19,9 +25,11 @@ import eu.opertusmundi.common.model.contract.helpdesk.EnumMasterContractSortFiel
 import eu.opertusmundi.common.model.contract.helpdesk.MasterContractDto;
 import eu.opertusmundi.common.model.contract.helpdesk.MasterContractQueryDto;
 import eu.opertusmundi.common.model.contract.provider.EnumProviderContractSortField;
+import eu.opertusmundi.common.model.contract.provider.PrintProviderContractCommand;
 import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractCommandDto;
 import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractDto;
 import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractQuery;
+import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.service.contract.MasterTemplateContractService;
 import eu.opertusmundi.common.service.contract.ProviderTemplateContractService;
 import eu.opertusmundi.web.validation.ProviderTemplateContractValidator;
@@ -183,6 +191,42 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
         }
 
         return RestResponse.result(result);
+    }
+
+    @Override
+    public ResponseEntity<StreamingResponseBody> print(
+        UUID templateKey, HttpServletResponse response
+    ) {
+        try {
+            // Check if template exists
+            final ProviderTemplateContractDto template = this.templateContractService.findOneByKey(
+                this.currentUserParentId(), templateKey
+            ).orElse(null);
+
+            if (template == null) {
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            }
+
+            // Print template
+            final PrintProviderContractCommand command = PrintProviderContractCommand.builder()
+                .providerKey(this.currentUserParentKey())
+                .contractKey(templateKey)
+                .build();
+
+            final byte[] result = this.templateContractService.print(command);
+
+            response.setHeader("Content-Disposition", String.format("attachment; filename=%s.pdf", template.getTitle()));
+            response.setHeader("Content-Type", MediaType.APPLICATION_PDF_VALUE);
+            response.setHeader("Content-Length", Long.toString(result.length));
+
+            final StreamingResponseBody stream = out -> {
+                    IOUtils.write(result, out);
+            };
+
+            return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
+        } catch (final FileSystemException ex) {
+            throw ex;
+        }
     }
 
     @Override
