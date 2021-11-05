@@ -44,7 +44,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The user file system API"
 )
 @RequestMapping(path = "/action", produces = MediaType.APPLICATION_JSON_VALUE)
-@Secured({"ROLE_USER", "ROLE_VENDOR_CONSUMER"})
+@Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
 public interface FileSystemController {
 
     /**
