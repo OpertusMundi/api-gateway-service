@@ -135,13 +135,15 @@ public interface ProviderDraftAssetController {
     /**
      * Create a new draft item
      *
-     * @param command The item to create
+     * @param command
+     * @param lock
+     * @param validationResult
      * @return
      */
     @Operation(
         operationId = "draft-asset-02a",
         summary     = "Create draft",
-        description = "Create draft item. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Create draft item. By default the new record is locked. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -160,6 +162,12 @@ public interface ProviderDraftAssetController {
         @RequestBody
         CatalogueItemCommandDto command,
         @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "`true` if the new record must be also locked"
+        )
+        @RequestParam(name = "lock", required = false, defaultValue = "true") boolean lock,
+        @Parameter(
             hidden = true
         )
         BindingResult validationResult
@@ -168,7 +176,9 @@ public interface ProviderDraftAssetController {
     /**
      * Create a new draft item from an existing asset
      *
-     * @param command The item to create
+     * @param command
+     * @param lock
+     * @param validationResult
      * @return
      */
     @Operation(
@@ -193,6 +203,12 @@ public interface ProviderDraftAssetController {
         @RequestBody
         DraftFromAssetCommandDto command,
         @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "`true` if the new record must also be locked"
+        )
+        @RequestParam(name = "lock", required = false, defaultValue = "true") boolean lock,
+        @Parameter(
             hidden = true
         )
         BindingResult validationResult
@@ -202,13 +218,14 @@ public interface ProviderDraftAssetController {
      * Get a single catalogue draft item
      *
      * @param draftKey The item unique key
+     * @param lock
      * @return A response with a result of type {@link CatalogueItemDto}
      */
     @Operation(
         operationId = "draft-asset-03",
         summary     = "Get draft",
         description = "Get a single catalogue draft item by its unique identifier. "
-                      + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -224,7 +241,14 @@ public interface ProviderDraftAssetController {
             required    = true,
             description = "Item unique key"
         )
-        @PathVariable UUID draftKey
+        @PathVariable UUID draftKey,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "`true` if the selected record must be also locked. If a lock already exists "
+                        + "and belongs to another user, an error is returned."
+        )
+        @RequestParam(name = "lock", required = false, defaultValue = "false") boolean lock
     );
 
     /**
@@ -232,13 +256,16 @@ public interface ProviderDraftAssetController {
      *
      * @param draftKey The item unique key
      * @param command The updated item
+     * @param lock
+     * @param validationResult
      * @return
      */
     @Operation(
         operationId = "draft-asset-04",
         summary     = "Update draft",
         description = "Update an existing draft item. Resources that are not included in the request, are automatically "
-                    + "deleted. Required roles: <b>ROLE_PROVIDER</b>"
+                    + "deleted. If `lock` parameter is `true`, the record remains locked. Otherwise, the lock is released "
+                    + "once the record is successfully saved. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -263,6 +290,13 @@ public interface ProviderDraftAssetController {
         @RequestBody
         CatalogueItemCommandDto command,
         @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "`true` if the record must remain locked after a successful save operation. "
+                        + "If a lock already exists and belongs to another user, an error is returned."
+        )
+        @RequestParam(name = "lock", required = false, defaultValue = "false") boolean lock,
+        @Parameter(
             hidden = true
         )
         BindingResult validationResult
@@ -273,12 +307,14 @@ public interface ProviderDraftAssetController {
      *
      * @param draftKey The item unique key
      * @param command The status update command
+     * @param validationResult
      * @return
      */
     @Operation(
         operationId = "draft-asset-05",
         summary     = "Submit existing draft",
-        description = "Update draft and submit for review and publication. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Update draft and submit for review and publication. The lock on the record is automatically released. "
+                    + "Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -318,9 +354,9 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "draft-asset-06",
         summary     = "Review draft",
-        description = "Accept or reject draft by a provider. "
-                      + "The draft status must be <b>PENDING_PROVIDER_REVIEW</b>. "
-                      + "Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Accept or reject draft by a provider. If the draft is locked by another user,"
+                    + "the operation will fail. The draft status must be <b>PENDING_PROVIDER_REVIEW</b>. "
+                    + "Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -352,7 +388,8 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "draft-asset-07",
         summary     = "Delete draft",
-        description = "Delete a draft item. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Delete a draft item. If the record is locked by another user, the operation will fail. "
+                    + "Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -381,7 +418,7 @@ public interface ProviderDraftAssetController {
         operationId = "draft-asset-08",
         summary     = "Upload resource",
         description = "Uploads a resource file and links it to selected draft instance. On success, an updated draft is returned "
-                    + "with the new resource registration."
+                    + "with the new resource registration. If the record is locked by another user, the operation will fail. "
                     + "Roles required: <b>ROLE_PROVIDER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
@@ -425,7 +462,7 @@ public interface ProviderDraftAssetController {
         operationId = "draft-asset-09",
         summary     = "Upload additional resource",
         description = "Uploads an additional resource file and links it to selected draft instance. On success, an updated draft is returned "
-                    + "with the new resource registration."
+                    + "with the new resource registration. If the record is locked by another user, the operation will fail. "
                     + "Roles required: <b>ROLE_PROVIDER</b>",
         security    = {
             @SecurityRequirement(name = "cookie")
@@ -549,6 +586,7 @@ public interface ProviderDraftAssetController {
      * user's file system
      *
      * @param command
+     * @param lock
      * @param validationResult
      * @return
      */
@@ -556,7 +594,7 @@ public interface ProviderDraftAssetController {
         operationId = "assets-12",
         summary     = "Create API draft",
         description = "Create a new API draft from an existing published asset or a file in user's file system. "
-                   + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "By default, a lock is acquired for the new record. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -578,6 +616,12 @@ public interface ProviderDraftAssetController {
         @RequestBody
         DraftApiCommandDto command,
         @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "`true` if the new record must also be locked"
+        )
+        @RequestParam(name = "lock", required = false, defaultValue = "true") boolean lock,
+        @Parameter(
             hidden = true
         )
         BindingResult validationResult
@@ -595,7 +639,8 @@ public interface ProviderDraftAssetController {
         summary     = "Update metadata visibility",
         description = "Update the visibility of metadata properties of an existing draft item that "
                     + "has been accepted by the Helpdesk application. The draft status must be "
-                    + "`PENDING_PROVIDER_REVIEW`. Required roles: <b>ROLE_PROVIDER</b>"
+                    + "`PENDING_PROVIDER_REVIEW`. If the record is locked by another user, the operation "
+                    + "will fail. Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -640,6 +685,7 @@ public interface ProviderDraftAssetController {
         summary     = "Update draft samples",
         description = "Update metadata samples of an existing draft item that has been accepted by "
                     + "the Helpdesk application. The draft status must be `PENDING_PROVIDER_REVIEW`. "
+                    + "If the record is already locked by another user, the operation will fail. "
                     + "Required roles: <b>ROLE_PROVIDER</b>"
     )
     @ApiResponse(
@@ -671,6 +717,37 @@ public interface ProviderDraftAssetController {
             hidden = true
         )
         BindingResult validationResult
+    );
+
+    /**
+     * Release lock
+     *
+     * @param draftKey The draft unique key
+     * @return
+     */
+    @Operation(
+        operationId = "draft-asset-15",
+        summary     = "Release lock",
+        description = "Release the record lock if the authenticated user already owns it. "
+                    + "If the record is not locked, the request is ignored. If a lock exists "
+                    + "and belongs to another user, an error is returned. "
+                    + "Required roles: <b>ROLE_PROVIDER</b>"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json"
+        )
+    )
+    @DeleteMapping(value = "/drafts/{draftKey}/lock")
+    BaseResponse releaseLock(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Item unique key"
+        )
+        @PathVariable UUID draftKey
     );
 
 }

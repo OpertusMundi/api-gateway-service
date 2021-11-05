@@ -102,9 +102,10 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> createDraft(CatalogueItemCommandDto command, BindingResult validationResult) {
+    public RestResponse<AssetDraftDto> createDraft(CatalogueItemCommandDto command, boolean lock,  BindingResult validationResult) {
         try {
             this.injectCatalogueItemCommandProperties(command);
+            command.setLocked(lock);
 
             this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE);
 
@@ -125,10 +126,11 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> createDraftFromAsset(DraftFromAssetCommandDto command, BindingResult validationResult) {
+    public RestResponse<AssetDraftDto> createDraftFromAsset(DraftFromAssetCommandDto command, boolean lock, BindingResult validationResult) {
         try {
             command.setPublisherKey(this.currentUserParentKey());
             command.setOwnerKey(this.currentUserKey());
+            command.setLocked(lock);
 
             this.draftFromAssetValidator.validate(command, validationResult);
 
@@ -148,11 +150,12 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public BaseResponse createApiDraft(DraftApiCommandDto command, BindingResult validationResult) {
+    public BaseResponse createApiDraft(DraftApiCommandDto command, boolean lock,  BindingResult validationResult) {
         try {
             command.setPublisherKey(this.currentUserParentKey());
             command.setOwnerKey(this.currentUserKey());
             command.setUserId(this.currentUserId());
+            command.setLocked(lock);
 
             this.apiDraftValidator.validate(command, validationResult);
 
@@ -173,14 +176,14 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> findOneDraft(UUID draftKey) {
+    public RestResponse<AssetDraftDto> findOneDraft(UUID draftKey, boolean lock) {
         try {
             final UUID ownerKey     = this.currentUserKey();
             final UUID publisherKey = this.currentUserParentKey();
 
-            final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey);
+            final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey, lock);
 
-            if(draft ==null) {
+            if (draft == null) {
                 return RestResponse.notFound();
             }
 
@@ -195,9 +198,10 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> updateDraft(UUID draftKey, CatalogueItemCommandDto command, BindingResult validationResult) {
+    public RestResponse<AssetDraftDto> updateDraft(UUID draftKey, CatalogueItemCommandDto command, boolean lock, BindingResult validationResult) {
         try {
             this.injectCatalogueItemCommandProperties(draftKey, command);
+            command.setLocked(lock);
 
             this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE, draftKey);
 
@@ -321,7 +325,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
         }
 
-        final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey);
+        final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey, false);
 
         return RestResponse.result(draft);
     }
@@ -359,7 +363,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
         }
 
-        final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey);
+        final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey, false);
 
         return RestResponse.result(draft);
     }
@@ -495,6 +499,17 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             m.setKey(UUID.randomUUID());
         });
 
+    }
+
+    @Override
+    public BaseResponse releaseLock(UUID draftKey) {
+        try {
+            this.providerAssetService.releaseLock(this.currentUserKey(), draftKey);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        }
+
+        return RestResponse.success();
     }
 
 }
