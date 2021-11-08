@@ -3,6 +3,7 @@ package eu.opertusmundi.web.validation;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -61,46 +62,60 @@ public class ProviderTemplateContractValidator implements Validator {
         final List<MasterSectionHistoryEntity> requiredSections = template.getSections().stream().collect(Collectors.toList());
 
         if (!c.getSections().isEmpty()) {
-            for (int i = 0; i < c.getSections().size(); i++) {
-                final ProviderTemplateSectionDto templateSection = c.getSections().get(i);
+            for (int sIndex = 0; sIndex < c.getSections().size(); sIndex++) {
+                final ProviderTemplateSectionDto templateSection = c.getSections().get(sIndex);
                 final MasterSectionHistoryEntity masterSection   = template.findSectionById(templateSection.getMasterSectionId());
 
                 if (masterSection == null) {
                     // Master section was not found
-                    e.rejectValue(String.format("sections[%d].masterSectionId", i), EnumValidatorError.ReferenceNotFound.name());
+                    e.rejectValue(String.format("sections[%d].masterSectionId", sIndex), EnumValidatorError.ReferenceNotFound.name());
                 } else {
                     // Required master section exists
                     if (requiredSections.contains(masterSection)) {
                         requiredSections.remove(masterSection);
                     } else {
                         // Duplicate template section
-                        e.rejectValue(String.format("sections[%d].masterSectionId", i), EnumValidatorError.NotUnique.name());
+                        e.rejectValue(String.format("sections[%d].masterSectionId", sIndex), EnumValidatorError.NotUnique.name());
                     }
                     // Check optional flag
                     if (templateSection.isOptional() && !masterSection.isOptional()) {
-                        e.rejectValue(String.format("sections[%d].optional", i), EnumValidatorError.NotValid.name());
+                        e.rejectValue(String.format("sections[%d].optional", sIndex), EnumValidatorError.NotValid.name());
                     }
                     // Check option
                     if (templateSection.getOption() != null && masterSection.findOptionByIndex(templateSection.getOption()) == null) {
-                        e.rejectValue(String.format("sections[%d].option", i), EnumValidatorError.ReferenceNotFound.name());
+                        e.rejectValue(String.format("sections[%d].option", sIndex), EnumValidatorError.ReferenceNotFound.name());
                     }
-                    // Check sub option
-                    if (templateSection.getSubOption() != null) {
+                    // Check sub options
+                    if (!CollectionUtils.isEmpty(templateSection.getSubOption())) {
                         if (templateSection.getOption() == null) {
                             // Option index must be set
-                            e.rejectValue(String.format("sections[%d].option", i), EnumValidatorError.NotValid.name());
-                        } else if (masterSection.findSubOptionByIndex(templateSection.getOption(), templateSection.getSubOption()) == null) {
-                            // Sub option must exist
-                            e.rejectValue(String.format("sections[%d].subOption", i), EnumValidatorError.NotValid.name());
+                            e.rejectValue(String.format("sections[%d].option", sIndex), EnumValidatorError.NotValid.name());
+                        } else {
+                            // Check list size for mutually exclusive sub options
+                            final Boolean mutexSubOptions = masterSection.getOptions()
+                                .get(templateSection.getOption())
+                                .getMutexSuboptions();
+
+                            if (mutexSubOptions != null && mutexSubOptions.equals(true) && templateSection.getSubOption().size() > 1) {
+                                e.rejectValue(String.format("sections[%d].subOption", sIndex), EnumValidatorError.NotValid.name());
+                            }
+                            // Check that all referenced sub-options exist
+                            for (int oIndex = 0; oIndex < templateSection.getSubOption().size(); oIndex++) {
+                                final int subOption = templateSection.getSubOption().get(oIndex);
+                                if (masterSection.findSubOptionByIndex(templateSection.getOption(), subOption) == null) {
+                                    // Sub option must exist
+                                    e.rejectValue(String.format("sections[%d].subOption[%d]", sIndex, oIndex), EnumValidatorError.OptionNotFound.name());
+                                }
+                            }
                         }
                     }
                 }
             }
-
-            // Required template must be empty
-            for (final MasterSectionHistoryEntity r : requiredSections) {
-                e.reject("MasterSectionNotFound", r.getId().toString());
-            }
+        }
+        // Required sections collection must be empty after validating all
+        // provider template sections
+        for (final MasterSectionHistoryEntity r : requiredSections) {
+            e.reject("MasterSectionNotFound", r.getId().toString());
         }
     }
 
