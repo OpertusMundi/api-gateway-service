@@ -30,6 +30,8 @@ import eu.opertusmundi.common.model.asset.ResourceDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
+import eu.opertusmundi.common.model.catalogue.client.EnumDeliveryMethod;
+import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
 import eu.opertusmundi.common.model.pricing.EnumPricingModel;
 import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.repository.AssetAdditionalResourceRepository;
@@ -276,6 +278,15 @@ public class DraftValidator implements Validator {
                 } else if (c.getPricingModels().get(0).getType() != EnumPricingModel.FREE) {
                     e.rejectValue("pricingModels[0]", EnumValidatorError.OptionNotSupported.name());
                 }
+            }
+            // If FREE pricing model is selected, delivery method must be DIGITAL_PLATFORM
+            final BasePricingModelCommandDto freeModel = c.getPricingModels().stream()
+                .filter(m -> m.getType() == EnumPricingModel.FREE)
+                .findFirst()
+                .orElse(null);
+
+            if (freeModel != null && c.getDeliveryMethod() != EnumDeliveryMethod.DIGITAL_PLATFORM) {
+                e.rejectValue("deliveryMethod", EnumValidatorError.OperationNotSupported.name());
             }
         }
     }
