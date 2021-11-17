@@ -1,5 +1,6 @@
 package eu.opertusmundi.web.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -38,6 +39,9 @@ public class OpenApiConfiguration {
 
     @Value("${server.servlet.session.cookie.name}")
     private String sessionCookieName;
+
+    @Value("${opertusmundi.sentinel-hub.enabled:false}")
+    private boolean sentinelHubIntegration;
 
     /**
      * Provide configuration for OpenAPI auto-generated
@@ -82,7 +86,9 @@ public class OpenApiConfiguration {
                 .build()
         );
 
-        api.addExtension("x-tagGroups", new TagGroup[] {
+        final List<TagGroup> tagGroups = new ArrayList<>();
+
+        tagGroups.addAll(Arrays.asList(new TagGroup[] {
             new TagGroup("Account", Arrays.asList(
                 EndpointTags.Account,
                 EndpointTags.VendorAccount,
@@ -125,7 +131,17 @@ public class OpenApiConfiguration {
             new TagGroup("Misc", Arrays.asList(
                 EndpointTags.SpatialData
             ))
-        });
+        }));
+
+        if(this.sentinelHubIntegration) {
+            tagGroups.add(
+                new TagGroup("Integration", Arrays.asList(
+                    EndpointTags.SentinelHub
+                ))
+            );
+        }
+
+        api.addExtension("x-tagGroups", tagGroups);
 
         return api;
     }

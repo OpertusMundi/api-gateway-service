@@ -34,4 +34,6 @@ public class EndpointTags {
     public final static String UboDeclaration       = "UBO";
     public final static String VendorAccount        = "Vendor Account";
 
+    public final static String SentinelHub = "Sentinel Hub";
+
 }
