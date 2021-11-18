@@ -3,6 +3,7 @@ package eu.opertusmundi.web.controller.integration;
 import javax.validation.Valid;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "Sentinel Hub"
 )
 @RequestMapping(path = "/action/integration/sentinel-hub", produces = MediaType.APPLICATION_JSON_VALUE)
+@Secured({ "ROLE_USER" })
 public interface SentinelHubController {
 
     /**
@@ -41,7 +43,7 @@ public interface SentinelHubController {
     @Operation(
         operationId = "integration-sentinel-hub-01",
         summary     = "Search",
-        description = "Search satellite images from Sentinel Hub using the Catalogue API"
+        description = "Search satellite images from Sentinel Hub using the Catalogue API. Roles required: <b>ROLE_USER</b>"
     )
     @ApiResponse(
         responseCode = "200",
@@ -78,7 +80,7 @@ public interface SentinelHubController {
     @Operation(
         operationId = "integration-sentinel-hub-02",
         summary     = "Subscription Plans",
-        description = "Get all available subscription plans for open data collections"
+        description = "Get all available subscription plans for open data collections. Roles required: <b>ROLE_USER</b>"
     )
     @ApiResponse(
         responseCode = "200",
