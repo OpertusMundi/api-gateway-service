@@ -48,7 +48,8 @@ public interface AccountController {
     @Operation(
         operationId = "account-01",
         summary     = "Successful login redirect endpoint",
-        description = "Default redirect endpoint for successful forms login operations, used for refreshing the CSRF token",
+        description = "Default redirect endpoint for successful forms login operations, used for refreshing the CSRF token. "
+                    + "Required role: `ROLE_USER`, `ROLE_HELPDESK`, `ROLE_VENDOR_USER`",
         tags        = { "Account" },
         security    = {
             @SecurityRequirement(name = "cookie")

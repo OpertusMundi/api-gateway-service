@@ -44,7 +44,7 @@ public interface ConsumerAssetController {
     @Operation(
         operationId = "consumer-assets-01",
         summary     = "Owned Assets",
-        description = "Browse consumer's owned assets. Required roles: <b>ROLE_CONSUMER</b>"
+        description = "Browse consumer's owned assets. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -101,7 +101,7 @@ public interface ConsumerAssetController {
     @Operation(
         operationId = "consumer-assets-02",
         summary     = "Registered subscriptions",
-        description = "Browse consumer's registered subscriptions. Required roles: <b>ROLE_CONSUMER</b>"
+        description = "Browse consumer's registered subscriptions. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -154,7 +154,7 @@ public interface ConsumerAssetController {
     @Operation(
         operationId = "consumer-assets-03",
         summary     = "Get subscription",
-        description = "Get a single subscription registered to the user's account. Required roles: <b>ROLE_CONSUMER</b>"
+        description = "Get a single subscription registered to the user's account. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",

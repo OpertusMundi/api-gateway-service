@@ -55,7 +55,7 @@ public interface FileSystemController {
     @Operation(
         operationId = "file-system-01",
         summary     = "Get file system",
-        description = "List (recursively) files and folders for user's directory. Roles required: <b>ROLE_USER</b>",
+        description = "List (recursively) files and folders for user's directory. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -78,7 +78,7 @@ public interface FileSystemController {
         operationId = "file-system-02",
         summary     = "Create new folder",
         description = "Creates a directory in the user's remote file system by creating all nonexistent parent directories first."
-                    + " Roles required: <b>ROLE_USER</b>",
+                    + " Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -107,7 +107,7 @@ public interface FileSystemController {
     @Operation(
         operationId = "file-system-04",
         summary     = "Download file",
-        description = "Downloads a file. Roles required: <b>ROLE_USER</b>",
+        description = "Downloads a file. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -139,7 +139,7 @@ public interface FileSystemController {
     @Operation(
         operationId = "file-system-05",
         summary     = "Delete file or directory",
-        description = "Deletes a file or directory. A directory must be empty before deletion. Roles required: <b>ROLE_USER</b>",
+        description = "Deletes a file or directory. A directory must be empty before deletion. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -170,7 +170,7 @@ public interface FileSystemController {
         summary     = "Upload file",
         description = "Uploads a file to the user's remote file system. If the path does not exist, it is created. "
                       + "If the file already exists, the overwrite attribute must be set to true, or an error is returned. "
-                      + "Roles required: <b>ROLE_USER</b>",
+                      + "Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }

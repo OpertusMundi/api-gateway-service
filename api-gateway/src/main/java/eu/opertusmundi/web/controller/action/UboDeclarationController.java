@@ -49,7 +49,7 @@ public interface UboDeclarationController {
         operationId = "ubo-01",
         summary     = "Search Declarations",
         description = "Enumerate all UBO declarations for the authenticated provider. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -73,7 +73,7 @@ public interface UboDeclarationController {
         )
         @RequestParam(name = "size", defaultValue = "10", required = false) int pageSize
     );
-    
+
     /**
      * Get UBO declaration
      *
@@ -83,7 +83,7 @@ public interface UboDeclarationController {
     @Operation(
         operationId = "ubo-02",
         summary     = "Get Declaration",
-        description = "Get a single UBO declaration by its unique identifier. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Get a single UBO declaration by its unique identifier. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -101,7 +101,7 @@ public interface UboDeclarationController {
         )
         @PathVariable String uboDeclarationId
     );
-    
+
     /**
      * Create new UBO declaration
      *
@@ -112,7 +112,7 @@ public interface UboDeclarationController {
         operationId = "ubo-03",
         summary     = "Create Declaration",
         description = "Creates a draft UBO declaration with status `CREATED`. Only a single UBO declaration with status `CREATED`, "
-                    + "`INCOMPLETE` or `VALIDATION_ASKED` can exist. Required roles: <b>ROLE_PROVIDER</b>"
+                    + "`INCOMPLETE` or `VALIDATION_ASKED` can exist. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -133,7 +133,7 @@ public interface UboDeclarationController {
         operationId = "ubo-04",
         summary     = "Add UBO",
         description = "Adds a new UBO to the draft UBO declaration. Only records with status `CREATED` or `INCOMPLETE` can be updated. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -162,7 +162,7 @@ public interface UboDeclarationController {
         )
         BindingResult validationResult
     );
-   
+
     /**
      * Update UBO
      *
@@ -175,7 +175,7 @@ public interface UboDeclarationController {
         operationId = "ubo-05",
         summary     = "Update UBO",
         description = "Updates an existing UBO of the draft UBO declaration. Only records with status `CREATED` "
-                    + "or `INCOMPLETE`can be updated. Required roles: <b>ROLE_PROVIDER</b>"
+                    + "or `INCOMPLETE`can be updated. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -210,7 +210,7 @@ public interface UboDeclarationController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Remove UBO
      *
@@ -222,7 +222,7 @@ public interface UboDeclarationController {
         operationId = "ubo-06",
         summary     = "Remove UBO",
         description = "Removes a UBO from the draft UBO declaration. Only records with status `CREATED` "
-                    + "or `INCOMPLETE` can be updated. Required roles: <b>ROLE_PROVIDER</b>"
+                    + "or `INCOMPLETE` can be updated. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -245,7 +245,7 @@ public interface UboDeclarationController {
         )
         @PathVariable String uboId
     );
-    
+
     /**
      * Submit UBO
      *
@@ -256,7 +256,7 @@ public interface UboDeclarationController {
         operationId = "ubo-07",
         summary     = "Submit Declaration",
         description = "Submit the draft UBO declaration for validation. The declaration status must be `CREATED` or `INCOMPLETE`. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -272,5 +272,5 @@ public interface UboDeclarationController {
         )
         @PathVariable String uboDeclarationId
     );
- 
+
 }

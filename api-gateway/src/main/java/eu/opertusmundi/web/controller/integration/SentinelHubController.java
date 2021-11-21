@@ -43,7 +43,7 @@ public interface SentinelHubController {
     @Operation(
         operationId = "integration-sentinel-hub-01",
         summary     = "Search",
-        description = "Search satellite images from Sentinel Hub using the Catalogue API. Roles required: <b>ROLE_USER</b>"
+        description = "Search satellite images from Sentinel Hub using the Catalogue API. Required role: `ROLE_USER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -80,7 +80,7 @@ public interface SentinelHubController {
     @Operation(
         operationId = "integration-sentinel-hub-02",
         summary     = "Subscription Plans",
-        description = "Get all available subscription plans for open data collections. Roles required: <b>ROLE_USER</b>"
+        description = "Get all available subscription plans for open data collections. Required role: `ROLE_USER`"
     )
     @ApiResponse(
         responseCode = "200",

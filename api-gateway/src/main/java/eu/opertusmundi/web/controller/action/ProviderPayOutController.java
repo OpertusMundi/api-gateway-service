@@ -46,7 +46,7 @@ public interface ProviderPayOutController {
         summary     = "Get PayOut",
         description = "Get PayOut details. If the operation is successful, an instance of `PayOutResponse` "
                     + "is returned with PayOut details; Otherwise an instance of `BaseResponse` "
-                    + "is returned with one or more error messages. Roles required: <b>ROLE_PROVIDER</b>"
+                    + "is returned with one or more error messages. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -80,7 +80,7 @@ public interface ProviderPayOutController {
     @Operation(
         operationId = "provider-payout-02",
         summary     = "Provider PayOuts",
-        description = "Search provider PayOut records. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Search provider PayOut records. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`"
     )
     @ApiResponse(
         responseCode = "200",

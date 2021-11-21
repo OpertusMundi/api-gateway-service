@@ -53,7 +53,7 @@ public interface ProviderAssetController {
         operationId = "assets-01",
         summary     = "Published assets",
         description = "Search catalogue for provider's published assets. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -118,7 +118,7 @@ public interface ProviderAssetController {
         operationId = "assets-02",
         summary     = "Registered subscriptions",
         description = "Search the registered subscriptions of provider. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -204,7 +204,7 @@ public interface ProviderAssetController {
     @Operation(
         operationId = "assets-04",
         summary     = "Get metadata property",
-        description = "Gets metadata property value for the specified resource file. Roles required: <b>ROLE_USER</b>",
+        description = "Gets metadata property value for the specified resource file. Required role: `ROLE_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -250,7 +250,7 @@ public interface ProviderAssetController {
     @Operation(
         operationId = "assets-05",
         summary     = "Delete asset",
-        description = "Delete asset from catalogue. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Delete asset from catalogue. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",

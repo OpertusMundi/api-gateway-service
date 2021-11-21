@@ -66,7 +66,7 @@ public interface ConsumerPayInController {
                     + "Moreover, on successful execution, the server resets the user cart; Hence, the client "
                     + "must either reset the cart locally or invoke [Get Cart](#operation/cart-01) "
                     + "should refresh"
-                    + "Roles required: <b>ROLE_CONSUMER</b>"
+                    + "Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -101,7 +101,7 @@ public interface ConsumerPayInController {
         description = "Get all user registered cards. If operation is successful, an instance of "
                     + "`CardCollectionResponse` is returned with the user's cards; Otherwise "
                     + "an instance of `BaseResponse` is returned with one or more error messages. "
-                    + "Roles required: <b>ROLE_CONSUMER</b>"
+                    + "Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -144,7 +144,7 @@ public interface ConsumerPayInController {
                     + "<br/>"
                     + "Client must post card details to `cardRegistrationUrl` as explained in [MANGOPAY Documentation]"
                     + "(https://docs.mangopay.com/endpoints/v2.01/cards#e1042_post-card-info) page. "
-                    + "Roles required: <b>ROLE_CONSUMER</b>"
+                    + "Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -171,7 +171,7 @@ public interface ConsumerPayInController {
         description = "Completes the registration of a new card. If operation is successful, an instance of "
                     + "`CardRegistrationResponse` is returned with the new card information; "
                     + "Otherwise an instance of `BaseResponse` is returned with one or more error messages. "
-                    + "Roles required: <b>ROLE_CONSUMER</b>"
+                    + "Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -223,7 +223,7 @@ public interface ConsumerPayInController {
                     + "Moreover, on successful execution, the server resets the user cart; Hence, the client "
                     + "must either reset the cart locally or invoke [Get Cart](#operation/cart-01). If 3-D Secure "
                     + "validation is required or the operation fails, the cart is not updated. "
-                    + "Roles required: <b>ROLE_CONSUMER</b>"
+                    + "Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -274,7 +274,7 @@ public interface ConsumerPayInController {
         summary     = "Get PayIn",
         description = "Get PayIn details. If the operation is successful, an instance of either `ConsumerBankWirePayInResponse` "
                     + "or `ConsumerCardDirectPayInResponse` is returned with PayIn details; Otherwise an instance of `BaseResponse` "
-                    + "is returned with one or more error messages. Roles required: <b>ROLE_CONSUMER</b>"
+                    + "is returned with one or more error messages. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -310,7 +310,7 @@ public interface ConsumerPayInController {
     @Operation(
         operationId = "consumer-payin-07",
         summary     = "Consumer PayIns",
-        description = "Search consumer PayIn records. Required roles: <b>ROLE_CONSUMER</b>"
+        description = "Search consumer PayIn records. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -373,7 +373,7 @@ public interface ConsumerPayInController {
                     + "Moreover, on successful execution, the server resets the user cart; Hence, the client "
                     + "must either reset the cart locally or invoke [Get Cart](#operation/cart-01) "
                     + "should refresh"
-                    + "Roles required: <b>ROLE_CONSUMER</b>"
+                    + "Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",

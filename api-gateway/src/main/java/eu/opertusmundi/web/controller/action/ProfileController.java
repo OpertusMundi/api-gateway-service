@@ -39,7 +39,7 @@ public interface ProfileController {
     @Operation(
         operationId = "profile-01",
         summary     = "Get profile",
-        description = "Get user data for the authenticated user. Roles required: <b>ROLE_USER</b>",
+        description = "Get user data for the authenticated user. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -57,7 +57,7 @@ public interface ProfileController {
     @Operation(
         operationId = "profile-02",
         summary     = "Update profile",
-        description = "Update the profile of the authenticated user. Roles required: <b>ROLE_USER</b>",
+        description = "Update the profile of the authenticated user. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }

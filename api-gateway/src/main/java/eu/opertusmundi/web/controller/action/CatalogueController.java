@@ -170,7 +170,7 @@ public interface CatalogueController {
         summary     = "Harvest catalogue",
         description = "Harvest catalogue for metadata. The user can optionally select the type of the "
                     + "catalogue. If type is not set, the default `EnumCatalogueType.CSW` value is used. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -210,7 +210,7 @@ public interface CatalogueController {
     @Operation(
         operationId = "catalogue-05",
         summary     = "Search harvested assets",
-        description = "Search external catalogue harvested items. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Search external catalogue harvested items. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -258,7 +258,7 @@ public interface CatalogueController {
     @Operation(
         operationId = "catalogue-06",
         summary     = "Import drafts",
-        description = "Create drafts from items harvested from an external catalogue. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Create drafts from items harvested from an external catalogue. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",

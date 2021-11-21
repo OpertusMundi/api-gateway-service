@@ -103,7 +103,7 @@ public interface RatingController {
     @Operation(
         operationId = "rating-02",
         summary     = "Add asset rating",
-        description = "Adds a new rating for a specific asset. Required roles: <b>ROLE_CONSUMER</b>"
+        description = "Adds a new rating for a specific asset. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -141,7 +141,7 @@ public interface RatingController {
     @Operation(
         operationId = "rating-03",
         summary     = "Add provider rating",
-        description = "Adds a new rating for a specific provider. Required roles: <b>ROLE_CONSUMER</b>"
+        description = "Adds a new rating for a specific provider. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",

@@ -47,7 +47,7 @@ public interface ConsumerOrderController {
         summary     = "Get Order",
         description = "Get Order details. If the operation is successful, an instance of `OrderResponse` "
                     + "is returned with Order details; Otherwise an instance of `BaseResponse` "
-                    + "is returned with one or more error messages. Roles required: <b>ROLE_CONSUMER</b>"
+                    + "is returned with one or more error messages. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -81,7 +81,7 @@ public interface ConsumerOrderController {
     @Operation(
         operationId = "consumer-order-02",
         summary     = "Consumer Orders",
-        description = "Search consumer Order records. Required roles: <b>ROLE_CONSUMER</b>"
+        description = "Search consumer Order records. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -142,8 +142,8 @@ public interface ConsumerOrderController {
         operationId = "consumer-order-03",
         summary     = "Confirm order delivery",
         description = "Confirm that an order that is shipped externally from the platform has been delivered. "
-                    + "The order status must be <b>PENDING_CONSUMER_RECEIVE_CONFIRMATION</b>. "
-                    + "Required roles: <b>ROLE_CONSUMER</b>"
+                    + "The order status must be `PENDING_CONSUMER_RECEIVE_CONFIRMATION`. "
+                    + "Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",

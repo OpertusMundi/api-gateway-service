@@ -56,7 +56,7 @@ public interface ProviderContractController {
         operationId = "provider-contract-01",
         summary     = "Query master templates",
         description = "Query master contract templates. This method is invoked by the provider client for initializing "
-                    + "provider template creation. Required roles: <b>ROLE_PROVIDER</b>"
+                    + "provider template creation. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -109,7 +109,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-02",
         summary     = "Get master template",
-        description = "Get a master contract template details by its unique key. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Get a master contract template details by its unique key. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -138,7 +138,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-03",
         summary     = "Query drafts",
-        description = "Query provider's contract template drafts. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Query provider's contract template drafts. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -185,7 +185,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-04",
         summary     = "Get draft",
-        description = "Get provider's contract template draft by key. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Get provider's contract template draft by key. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -214,7 +214,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-05",
         summary     = "Create draft",
-        description = "Creates a new contract template draft. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Creates a new contract template draft. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -252,7 +252,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-06",
         summary     = "Update draft",
-        description = "Updates an existing contract template. A draft template must already exists. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Updates an existing contract template. A draft template must already exists. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -296,7 +296,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-07",
         summary     = "Delete draft",
-        description = "Deletes a draft contract template. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Deletes a draft contract template. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -325,7 +325,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-08",
         summary     = "Publish draft",
-        description = "Publish a contract template draft. A draft template must already exists. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Publish a contract template draft. A draft template must already exists. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -354,7 +354,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-09",
         summary     = "Query contract templates",
-        description = "Query provider's contract templates. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Query provider's contract templates. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -401,7 +401,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-10",
         summary     = "Get contract template",
-        description = "Get provider's contract template by key. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Get provider's contract template by key. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -437,7 +437,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-11",
         summary     = "Print template",
-        description = "Prints a contract template using sample data. Roles required: <b>ROLE_PROVIDER</b>",
+        description = "Prints a contract template using sample data. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -449,6 +449,7 @@ public interface ProviderContractController {
     )
     @GetMapping(value = "/templates/pdf/{key}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Validated
+    @Secured({"ROLE_PROVIDER", "ROLE_VENDOR_PROVIDER"})
     ResponseEntity<StreamingResponseBody> print(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -468,7 +469,7 @@ public interface ProviderContractController {
     @Operation(
         operationId = "provider-contract-12",
         summary     = "Deactivate template",
-        description = "Deactivates a contract template. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Deactivates a contract template. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -501,7 +502,7 @@ public interface ProviderContractController {
             operationId = "provider-contract-07",
             summary     = "Create draft from template",
             description = "Create a new draft from an existing contract template. The selected"
-                        + "template must exist and have a status in [`ACTIVE`, `INACTIVE`]. Required roles: <b>ROLE_PROVIDER</b>"
+                        + "template must exist and have a status in [`ACTIVE`, `INACTIVE`]. Required role: `ROLE_PROVIDER`"
         )
         @ApiResponse(
             responseCode = "200",

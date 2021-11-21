@@ -55,7 +55,7 @@ public interface ConsumerFavoriteController {
     @Operation(
         operationId = "consumer-favorites-01",
         summary     = "Find",
-        description = "Browse consumer's favorite assets and providers. Required roles: <b>ROLE_CONSUMER</b>",
+        description = "Browse consumer's favorite assets and providers. Required role: `ROLE_CONSUMER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -112,7 +112,7 @@ public interface ConsumerFavoriteController {
         operationId = "consumer-favorites-02",
         summary     = "Add",
         description = "Adds a new favorite for an asset or provider. If a record already exists, "
-                    + "the existing record is returned. Roles required: <b>ROLE_CONSUMER</b>",
+                    + "the existing record is returned. Required role: `ROLE_CONSUMER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -153,7 +153,7 @@ public interface ConsumerFavoriteController {
     @Operation(
         operationId = "consumer-favorites-03",
         summary     = "Remove",
-        description = "Deletes a favorite for an asset or provider. Roles required: <b>ROLE_CONSUMER</b>",
+        description = "Deletes a favorite for an asset or provider. Required role: `ROLE_CONSUMER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }

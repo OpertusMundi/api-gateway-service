@@ -49,6 +49,7 @@ public interface MessageController {
     @Operation(
         operationId = "message-01",
         summary     = "Find messages",
+        description = "Find the messages of the authenticated user. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         tags        = { EndpointTags.Message }
     )
     @ApiResponse(
@@ -109,6 +110,7 @@ public interface MessageController {
     @Operation(
         operationId = "notification-01",
         summary     = "Find notifications",
+        description = "Find the notifications of the authenticated user. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         tags        = { EndpointTags.Notification }
     )
     @ApiResponse(
@@ -179,7 +181,7 @@ public interface MessageController {
     @Operation(
         operationId = "message-02",
         summary     = "Send a message to a provider",
-        description = "Sends a message to the specified provider from the authenticated user",
+        description = "Sends a message to the specified provider from the authenticated user. Required role: `ROLE_CONSUMER`",
         tags        = { EndpointTags.Message }
     )
     @ApiResponse(
@@ -214,7 +216,7 @@ public interface MessageController {
     @Operation(
         operationId = "message-03",
         summary     = "Send a message to Helpdesk",
-        description = "Sends a message to Helpdesk from the authenticated user",
+        description = "Sends a message to Helpdesk from the authenticated user. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         tags        = { EndpointTags.Message }
     )
     @ApiResponse(
@@ -244,7 +246,8 @@ public interface MessageController {
     @Operation(
         operationId = "message-04",
         summary     = "Reply to a message",
-        description = "Reply to a message thread that belongs to the authenticated user",
+        description = "Reply to a message thread that belongs to the authenticated user. "
+                    + "Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`, `ROLE_VENDOR_USER`",
         tags        = { EndpointTags.Message }
     )
     @ApiResponse(
@@ -279,7 +282,7 @@ public interface MessageController {
     @Operation(
         operationId = "message-05",
         summary     = "Read message",
-        description = "Marks a message as read",
+        description = "Marks a message as read. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         tags        = { EndpointTags.Message }
     )
     @ApiResponse(
@@ -308,7 +311,7 @@ public interface MessageController {
     @Operation(
         operationId = "message-06",
         summary     = "Get message thread",
-        description = "Get all messages of a thread",
+        description = "Get all messages of a thread. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         tags        = { EndpointTags.Message }
     )
     @ApiResponse(
@@ -337,7 +340,7 @@ public interface MessageController {
     @Operation(
         operationId = "notification-02",
         summary     = "Read notification",
-        description = "Marks a notification as read",
+        description = "Marks a notification as read. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         tags        = { EndpointTags.Notification }
     )
     @ApiResponse(
@@ -364,7 +367,7 @@ public interface MessageController {
     @Operation(
         operationId = "notification-03",
         summary     = "Read all notifications",
-        description = "Marks all notifications as read",
+        description = "Marks all notifications as read. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         tags        = { EndpointTags.Notification }
     )
     @ApiResponse(

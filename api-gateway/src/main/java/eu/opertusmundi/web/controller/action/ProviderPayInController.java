@@ -47,7 +47,7 @@ public interface ProviderPayInController {
         summary     = "Get PayInItem",
         description = "Get PayInItem details. If the operation is successful, an instance of either `ProviderOrderPayInItemResponse` "
                     + "or `ProviderSubscriptionBillingPayInItemResponse` is returned with PayIn item details; Otherwise an instance "
-                    + "of `BaseResponse` is returned with one or more error messages. Roles required: <b>ROLE_PROVIDER</b>"
+                    + "of `BaseResponse` is returned with one or more error messages. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -89,7 +89,7 @@ public interface ProviderPayInController {
     @Operation(
         operationId = "provider-payin-02",
         summary     = "Provider PayInItems",
-        description = "Search provider PayIn item records. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Search provider PayIn item records. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`"
     )
     @ApiResponse(
         responseCode = "200",

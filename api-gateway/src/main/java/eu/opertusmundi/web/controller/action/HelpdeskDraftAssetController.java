@@ -46,7 +46,7 @@ public interface HelpdeskDraftAssetController {
         description = "Get a single catalogue draft item by its unique identifier. "
                     + "The draft is returned as if it has been published to the catalogue. "
                     + "All automated metadata is displayed (including hidden ones). "
-                    + "Required roles: <b>ROLE_HELPDESK</b>"
+                    + "Required role: `ROLE_HELPDESK`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -76,7 +76,7 @@ public interface HelpdeskDraftAssetController {
     @Operation(
         operationId = "helpdesk-draft-asset-02",
         summary     = "Download additional resource",
-        description = "Downloads an additional resource file. Roles required: <b>ROLE_HELPDESK</b>",
+        description = "Downloads an additional resource file. Required role: `ROLE_HELPDESK`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -119,7 +119,7 @@ public interface HelpdeskDraftAssetController {
     @Operation(
         operationId = "helpdesk-draft-asset-03",
         summary     = "Get metadata property",
-        description = "Gets metadata property value for the specified resource file. Roles required: <b>ROLE_HELPDESK</b>",
+        description = "Gets metadata property value for the specified resource file. Required role: `ROLE_HELPDESK`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }

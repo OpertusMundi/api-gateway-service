@@ -53,7 +53,7 @@ public interface KycDocumentController {
         operationId = "kyc-01",
         summary     = "Search Documents",
         description = "Enumerate all KYC documents for the authenticated provider or consumer. "
-                    + "Required roles: <b>[ROLE_CONSUMER, ROLE_PROVIDER]</b>"
+                    + "Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -84,7 +84,7 @@ public interface KycDocumentController {
         )
         @RequestParam(name = "size", defaultValue = "10", required = false) int pageSize
     );
-    
+
     /**
      * Get KYC document
      *
@@ -94,7 +94,7 @@ public interface KycDocumentController {
     @Operation(
         operationId = "kyc-02",
         summary     = "Get Document",
-        description = "Get a single KYC document by its unique identifier. Required roles: <b>[ROLE_CONSUMER, ROLE_PROVIDER]</b>"
+        description = "Get a single KYC document by its unique identifier. Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -119,7 +119,7 @@ public interface KycDocumentController {
         )
         @RequestParam(name = "type") EnumCustomerType customerType
     );
-    
+
     /**
      * Create new KYC document
      *
@@ -129,7 +129,7 @@ public interface KycDocumentController {
     @Operation(
         operationId = "kyc-03",
         summary     = "Create Document",
-        description = "Creates a draft KYC document with status `CREATED`. Required roles: <b>[ROLE_CONSUMER, ROLE_PROVIDER]</b>"
+        description = "Creates a draft KYC document with status `CREATED`. Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -166,7 +166,7 @@ public interface KycDocumentController {
         summary     = "Add Page",
         description = "Adds a new page to a draft KYC document. Pages can be added only to documents with "
                     + "status `CREATED`. The maximum size per page is `7MB`. The supported formats for the documents "
-                    + "are `pdf`, `jpeg`, `jpg` and `png`. The minimum size is `1Kb`. Required roles: <b>[ROLE_CONSUMER, ROLE_PROVIDER]</b>"
+                    + "are `pdf`, `jpeg`, `jpg` and `png`. The minimum size is `1Kb`. Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -203,7 +203,7 @@ public interface KycDocumentController {
         operationId = "kyc-05",
         summary     = "Submit Document",
         description = "Submit a draft KYC document for validation. The document status must be `CREATED` . "
-                    + "Required roles: <b>[ROLE_CONSUMER, ROLE_PROVIDER]</b>"
+                    + "Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -227,5 +227,5 @@ public interface KycDocumentController {
         )
         BindingResult validationResult
     );
- 
+
 }

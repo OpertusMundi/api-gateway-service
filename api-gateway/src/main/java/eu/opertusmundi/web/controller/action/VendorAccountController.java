@@ -61,7 +61,7 @@ public interface VendorAccountController {
     @Operation(
         operationId = "vendor-account-01",
         summary     = "Find",
-        description = "Search vendor accounts. Roles required: <b>ROLE_PROVIDER</b>"
+        description = "Search vendor accounts. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -116,7 +116,7 @@ public interface VendorAccountController {
     @Operation(
         operationId = "vendor-account-02",
         summary     = "Create",
-        description = "Creates a new vendor account. Roles required: <b>ROLE_PROVIDER</b>"
+        description = "Creates a new vendor account. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -155,7 +155,7 @@ public interface VendorAccountController {
     @Operation(
         operationId = "vendor-account-03",
         summary     = "Update",
-        description = "Updates an existing vendor account. Roles required: <b>ROLE_PROVIDER</b>"
+        description = "Updates an existing vendor account. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -199,7 +199,7 @@ public interface VendorAccountController {
         operationId = "vendor-account-04",
         summary     = "Invite",
         description = "Invites a user to activate her vendor account. "
-                    + "An email is sent with a new activation token. Roles required: <b>ROLE_PROVIDER</b>"
+                    + "An email is sent with a new activation token. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -272,7 +272,7 @@ public interface VendorAccountController {
         summary     = "Enable",
         description = "Enable vendor account. A vendor can enable only accounts with activation status `COMPLETED`. "
                     + "If the account activation status is `UNDEFINED` an error is returned. If the status is either "
-                    + "`PENDING` or `PROCESSING`, the action is ignored. Roles required: <b>ROLE_PROVIDER</b>"
+                    + "`PENDING` or `PROCESSING`, the action is ignored. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -300,7 +300,7 @@ public interface VendorAccountController {
         operationId = "vendor-account-07",
         summary     = "Disable",
         description = "Disable vendor account. If the account activation status is either `PENDING` or `PROCESSING`, "
-                    + "the action is ignored. Roles required: <b>ROLE_PROVIDER</b>"
+                    + "the action is ignored. Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",

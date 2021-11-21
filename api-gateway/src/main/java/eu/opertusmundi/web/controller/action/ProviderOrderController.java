@@ -50,7 +50,7 @@ public interface ProviderOrderController {
         summary     = "Get Order",
         description = "Get Order details. If the operation is successful, an instance of `OrderResponse` "
                     + "is returned with Order details; Otherwise an instance of `BaseResponse` "
-                    + "is returned with one or more error messages. Roles required: <b>ROLE_PROVIDER</b>"
+                    + "is returned with one or more error messages. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -85,7 +85,7 @@ public interface ProviderOrderController {
     @Operation(
         operationId = "provider-order-02",
         summary     = "Provider Orders",
-        description = "Search provider Order records. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Search provider Order records. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -147,8 +147,8 @@ public interface ProviderOrderController {
         operationId = "provider-order-03",
         summary     = "Confirm order",
         description = "Accept or reject an order when consumer vetting is required. "
-                    + "The order status must be <b>PENDING_PROVIDER_APPROVAL</b>. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "The order status must be `PENDING_PROVIDER_APPROVAL`. "
+                    + "Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -186,8 +186,8 @@ public interface ProviderOrderController {
         operationId = "provider-order-04",
         summary     = "Ship order",
         description = "Confirm that an order that is delivered externally from the platform has been shipped. "
-                    + "The order status must be <b>PENDING_PROVIDER_SEND_CONFIRMATION</b>. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "The order status must be `PENDING_PROVIDER_SEND_CONFIRMATION`. "
+                    + "Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",

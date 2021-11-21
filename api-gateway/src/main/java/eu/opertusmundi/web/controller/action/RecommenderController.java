@@ -38,7 +38,7 @@ public interface RecommenderController {
     @Operation(
         operationId = "recommended-01",
         summary     = "Get recommended assets",
-        description = "Get a list of recommended assets for the currently authenticated user."
+        description = "Get a list of recommended assets for the currently authenticated user. Required role: `ROLE_USER`"
     )
     @ApiResponse(
         responseCode = "200",

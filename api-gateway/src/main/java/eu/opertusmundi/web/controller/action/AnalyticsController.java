@@ -28,6 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "Data analysis API"
 )
 @RequestMapping(path = "/action/analytics", produces = "application/json")
+@Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
 public interface AnalyticsController {
 
     /**
@@ -40,7 +41,7 @@ public interface AnalyticsController {
     @Operation(
         operationId = "analytics-01",
         summary     = "Sales",
-        description = "Execute a query on sales data and return a single data series. Required roles: <b>ROLE_PROVIDER</b>",
+        description = "Execute a query on sales data and return a single data series. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -55,7 +56,6 @@ public interface AnalyticsController {
         )
     )
     @PostMapping(value = "/sales", consumes = { "application/json" })
-    @Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
     @Validated
     RestResponse<?> executeSalesQuery(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -85,7 +85,7 @@ public interface AnalyticsController {
     @Operation(
         operationId = "analytics-02",
         summary     = "Assets",
-        description = "Execute a query on asset views and return a single data series. Required roles: <b>ROLE_PROVIDER</b>",
+        description = "Execute a query on asset views and return a single data series. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -100,7 +100,6 @@ public interface AnalyticsController {
         )
     )
     @PostMapping(value = "/assets", consumes = { "application/json" })
-    @Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
     @Validated
     RestResponse<?> executeAssetQuery(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(

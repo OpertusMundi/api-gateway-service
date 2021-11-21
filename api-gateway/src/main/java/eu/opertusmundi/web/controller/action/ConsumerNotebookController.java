@@ -36,7 +36,7 @@ public interface ConsumerNotebookController {
         description = "Get notebook configuration information. The response, contains all available Jupyter images, "
                     + "user groups, user registered groups and available profiles. If the operation is successful, an "
                     + "instance of `ConfigurationResponse` is returned with Order details; Otherwise an instance of `BaseResponse` "
-                    + "is returned with one or more error messages. Roles required: <b>ROLE_CONSUMER</b>"
+                    + "is returned with one or more error messages. Required role: `ROLE_CONSUMER`, `ROLE_VENDOR_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -63,7 +63,7 @@ public interface ConsumerNotebookController {
         operationId = "consumer-notebooks-02",
         summary     = "Start server",
         description = "Start a notebook server for the selected profile. Any other running server must "
-                    + "be stopped first. Roles required: <b>ROLE_CONSUMER</b>"
+                    + "be stopped first. Required role: `ROLE_CONSUMER`, `ROLE_VENDOR_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -93,7 +93,7 @@ public interface ConsumerNotebookController {
     @Operation(
         operationId = "consumer-notebooks-03",
         summary     = "Start server",
-        description = "Get server status. Roles required: <b>ROLE_CONSUMER</b>"
+        description = "Get server status. Required role: `ROLE_CONSUMER`, `ROLE_VENDOR_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -116,7 +116,7 @@ public interface ConsumerNotebookController {
     @Operation(
         operationId = "consumer-notebooks-04",
         summary     = "Stop server",
-        description = "Stop running notebook server. Roles required: <b>ROLE_CONSUMER</b>"
+        description = "Stop running notebook server. Required role: `ROLE_CONSUMER`, `ROLE_VENDOR_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",

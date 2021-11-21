@@ -48,7 +48,7 @@ public interface ConsumerContractController {
         operationId = "consumer-contract-01",
         summary     = "Print Contract",
         description = "Prints a contract for the specified order item. Currently only one contract "
-                    + "exists since orders can have only a single item. Roles required: <b>ROLE_CONSUMER</b>",
+                    + "exists since orders can have only a single item. Required role: `ROLE_CONSUMER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -91,7 +91,7 @@ public interface ConsumerContractController {
         summary     = "Sign Contract",
         description = "Signs the contract for the specified order item. Currently only one contract "
                     + "exists since orders may have only a single item. The contract must already exists "
-                    + ",i.e. `print` action must be invoked first. Roles required: <b>ROLE_CONSUMER</b>",
+                    + ",i.e. `print` action must be invoked first. Required role: `ROLE_CONSUMER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -133,7 +133,7 @@ public interface ConsumerContractController {
         operationId = "consumer-contract-01",
         summary     = "Download Contract",
         description = "Downloads the contract for the specified order item. Currently only one contract "
-                    + "exists since orders may have only a single item. Roles required: <b>ROLE_CONSUMER</b>",
+                    + "exists since orders may have only a single item. Required role: `ROLE_CONSUMER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }

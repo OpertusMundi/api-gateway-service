@@ -77,7 +77,7 @@ public interface ProviderDraftAssetController {
         operationId = "draft-asset-01",
         summary     = "Search drafts",
         description = "Search catalogue for provider's draft items based on one or more criteria. Supports data paging and sorting. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -143,7 +143,7 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "draft-asset-02a",
         summary     = "Create draft",
-        description = "Create draft item. By default the new record is locked. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Create draft item. By default the new record is locked. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -184,7 +184,7 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "draft-asset-02b",
         summary     = "Create draft from asset",
-        description = "Create a new draft item from an existing asset. Required roles: <b>ROLE_PROVIDER</b>"
+        description = "Create a new draft item from an existing asset. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -225,7 +225,7 @@ public interface ProviderDraftAssetController {
         operationId = "draft-asset-03",
         summary     = "Get draft",
         description = "Get a single catalogue draft item by its unique identifier. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -265,7 +265,7 @@ public interface ProviderDraftAssetController {
         summary     = "Update draft",
         description = "Update an existing draft item. Resources that are not included in the request, are automatically "
                     + "deleted. If `lock` parameter is `true`, the record remains locked. Otherwise, the lock is released "
-                    + "once the record is successfully saved. Required roles: <b>ROLE_PROVIDER</b>"
+                    + "once the record is successfully saved. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -314,7 +314,7 @@ public interface ProviderDraftAssetController {
         operationId = "draft-asset-05",
         summary     = "Submit existing draft",
         description = "Update draft and submit for review and publication. The lock on the record is automatically released. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -355,8 +355,8 @@ public interface ProviderDraftAssetController {
         operationId = "draft-asset-06",
         summary     = "Review draft",
         description = "Accept or reject draft by a provider. If the draft is locked by another user,"
-                    + "the operation will fail. The draft status must be <b>PENDING_PROVIDER_REVIEW</b>. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "the operation will fail. The draft status must be `PENDING_PROVIDER_REVIEW`. "
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -389,7 +389,7 @@ public interface ProviderDraftAssetController {
         operationId = "draft-asset-07",
         summary     = "Delete draft",
         description = "Delete a draft item. If the record is locked by another user, the operation will fail. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -419,7 +419,7 @@ public interface ProviderDraftAssetController {
         summary     = "Upload resource",
         description = "Uploads a resource file and links it to selected draft instance. On success, an updated draft is returned "
                     + "with the new resource registration. If the record is locked by another user, the operation will fail. "
-                    + "Roles required: <b>ROLE_PROVIDER</b>",
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -463,7 +463,7 @@ public interface ProviderDraftAssetController {
         summary     = "Upload additional resource",
         description = "Uploads an additional resource file and links it to selected draft instance. On success, an updated draft is returned "
                     + "with the new resource registration. If the record is locked by another user, the operation will fail. "
-                    + "Roles required: <b>ROLE_PROVIDER</b>",
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -507,7 +507,7 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "draft-asset-10",
         summary     = "Download additional resource",
-        description = "Downloads an additional resource file. Roles required: <b>ROLE_PROVIDER</b>",
+        description = "Downloads an additional resource file. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -547,7 +547,7 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "draft-asset-11",
         summary     = "Get metadata property",
-        description = "Gets metadata property value for the specified resource file. Roles required: <b>ROLE_PROVIDER</b>",
+        description = "Gets metadata property value for the specified resource file. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -594,7 +594,7 @@ public interface ProviderDraftAssetController {
         operationId = "assets-12",
         summary     = "Create API draft",
         description = "Create a new API draft from an existing published asset or a file in user's file system. "
-                    + "By default, a lock is acquired for the new record. Required roles: <b>ROLE_PROVIDER</b>"
+                    + "By default, a lock is acquired for the new record. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -640,7 +640,7 @@ public interface ProviderDraftAssetController {
         description = "Update the visibility of metadata properties of an existing draft item that "
                     + "has been accepted by the Helpdesk application. The draft status must be "
                     + "`PENDING_PROVIDER_REVIEW`. If the record is locked by another user, the operation "
-                    + "will fail. Required roles: <b>ROLE_PROVIDER</b>"
+                    + "will fail. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -686,7 +686,7 @@ public interface ProviderDraftAssetController {
         description = "Update metadata samples of an existing draft item that has been accepted by "
                     + "the Helpdesk application. The draft status must be `PENDING_PROVIDER_REVIEW`. "
                     + "If the record is already locked by another user, the operation will fail. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -731,7 +731,7 @@ public interface ProviderDraftAssetController {
         description = "Release the record lock if the authenticated user already owns it. "
                     + "If the record is not locked, the request is ignored. If a lock exists "
                     + "and belongs to another user, an error is returned. "
-                    + "Required roles: <b>ROLE_PROVIDER</b>"
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
