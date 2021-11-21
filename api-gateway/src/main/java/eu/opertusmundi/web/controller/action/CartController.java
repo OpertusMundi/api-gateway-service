@@ -39,6 +39,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The cart API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
+@Secured({"ROLE_CONSUMER"})
 public interface CartController {
 
     /**
@@ -49,7 +50,7 @@ public interface CartController {
     @Operation(
         operationId = "cart-01",
         summary     = "Get cart",
-        description = "Get shopping cart for the current user session",
+        description = "Get shopping cart for the current user session. Required role: `ROLE_CONSUMER`",
         tags        = { "Cart" }
     )
     @ApiResponse(
@@ -70,7 +71,7 @@ public interface CartController {
     @Operation(
         operationId = "cart-02",
         summary     = "Add item",
-        description = "Add item to cart"
+        description = "Add item to cart. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -100,7 +101,7 @@ public interface CartController {
     @Operation(
         operationId = "cart-03",
         summary     = "Remove item",
-        description = "Remove item from cart"
+        description = "Remove item from cart. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -127,7 +128,7 @@ public interface CartController {
     @Operation(
         operationId = "cart-04",
         summary     = "Clear cart",
-        description = "Remove all items from the cart"
+        description = "Remove all items from the cart. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -152,7 +153,7 @@ public interface CartController {
         description = "Create a new order from the content of the authenticated user's cart. If operation "
                     + "is successful, an instance of `CheckoutOrderResponse` is returned with the new order; Otherwise "
                     + "an instance of `BaseResponse` is returned with one or more error messages. Moreover, the cart is "
-                    + "reset at the server. Roles required: <b>ROLE_CONSUMER</b>"
+                    + "reset at the server. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -163,6 +164,5 @@ public interface CartController {
         )
     )
     @PostMapping(value = "/cart/checkout")
-    @Secured({"ROLE_CONSUMER"})
     RestResponse<?> checkout(@Parameter(hidden = true) HttpSession session);
 }
