@@ -2610,7 +2610,7 @@
           <Title>overlay:ne_10m_admin_0_boundary_lines_land</Title>
           <LegendURL width="2" height="1">
             <Format>image/png</Format>
-            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://eumetview.eumetsat.int/geoserver/ows?service=WMS&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=overlay%3Ane_10m_admin_0_boundary_lines_land"/>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://raw.githubusercontent.com/OpertusMundi/api-gateway-service/master/api-gateway/src/test/resources/assets/wms-legend-image.png"/>
           </LegendURL>
         </Style>
         <MaxScaleDenominator>1.5E8</MaxScaleDenominator>

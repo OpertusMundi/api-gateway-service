@@ -1,76 +1,106 @@
 {
-    "attributes": {
-        "queryable": true,
-        "cascaded": false,
-        "opaque": null,
-        "noSubsets": null,
-        "fixedWidth": null,
-        "fixedHeight": null
-    },
-    "attribution": "University of Liège, GeoHydrodynamics and Environment Research",
-    "bbox": {
-        "type": "Polygon",
-        "coordinates": [
-            [
-                [
-                    -45.0,
-                    24.0
-                ],
-                [
-                    70.0,
-                    24.0
-                ],
-                [
-                    70.0,
-                    83.0
-                ],
-                [
-                    -45.0,
-                    83.0
-                ],
-                [
-                    -45.0,
-                    24.0
-                ]
-            ]
+  "attributes": {
+    "queryable": true,
+    "cascaded": false,
+    "opaque": null,
+    "noSubsets": null,
+    "fixedWidth": null,
+    "fixedHeight": null
+  },
+  "attribution": "University of Liège, GeoHydrodynamics and Environment Research",
+  "bbox": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -45.0,
+          24.0
+        ],
+        [
+          70.0,
+          24.0
+        ],
+        [
+          70.0,
+          83.0
+        ],
+        [
+          -45.0,
+          83.0
+        ],
+        [
+          -45.0,
+          24.0
         ]
+      ]
+    ]
+  },
+  "crs": [
+    "EPSG:3857",
+    "EPSG:4326",
+    "CRS:84",
+    "EPSG:54004"
+  ],
+  "dimensions": [
+    {
+      "name": "elevation",
+      "unit": "meters",
+      "defaultValue": null,
+      "values": null
     },
-    "crs": [
-        "EPSG:3857",
-        "EPSG:4326",
-        "CRS:84",
-        "EPSG:54004"
-    ],
-    "dimensions": [
+    {
+      "name": "time",
+      "unit": "month",
+      "defaultValue": null,
+      "values": null
+    }
+  ],
+  "endpoint": null,
+  "filterCapabilities": null,
+  "id": null,
+  "maxScale": null,
+  "minScale": null,
+  "outputFormats": [
+    "application/vnd.ogc.gml",
+    "text/xml",
+    "text/html"
+  ],
+  "serviceType": "WMS",
+  "styles": [
+    {
+      "name": "pcolor_flat",
+      "title": "Flat shading",
+      "abstract": null,
+      "legendUrls": [
         {
-            "name": "elevation",
-            "unit": "meters",
-            "defaultValue": null,
-            "values": null
-        },
-        {
-            "name": "time",
-            "unit": "month",
-            "defaultValue": null,
-            "values": null
+          "image": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAABgAAAAYADwa0LPAAAAPklEQVRIx+3QMQoAIAxD0Y+3K97/Aq330KWDo0tRMA8yhpaAiPylAwMIwCoOBDAzflpqt2fZWX7uFE0kIq9aMJgId2Opeg8AAAAldEVYdGRhdGU6Y3JlYXRlADIwMjEtMTEtMjNUMTI6MDE6MTgrMDA6MDC5EezjAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIxLTExLTIzVDEyOjAxOjE4KzAwOjAwyExUXwAAAABJRU5ErkJggg==",
+          "url": "https://raw.githubusercontent.com/OpertusMundi/api-gateway-service/master/api-gateway/src/test/resources/assets/wms-legend-image.png"
         }
-    ],
-    "endpoint": null,
-    "filterCapabilities": null,
-    "id": null,
-    "maxScale": null,
-    "minScale": null,
-    "outputFormats": [
-        "application/vnd.ogc.gml",
-        "text/xml",
-        "text/html"
-    ],
-    "serviceType": "WMS",
-    "styles": [
-        "http://ec.oceanbrowser.net/emodnet/Python/web/wms?request=GetLegendGraphic;service=WMS;version=1.3.0;width=100;height=300;format=image/png;layer=All%20European%20Seas/Water_body_chlorophyll-a.nc%2AWater%20body%20chlorophyll-a;style=pcolor_flat",
-        "http://ec.oceanbrowser.net/emodnet/Python/web/wms?request=GetLegendGraphic;service=WMS;version=1.3.0;width=100;height=300;format=image/png;layer=All%20European%20Seas/Water_body_chlorophyll-a.nc%2AWater%20body%20chlorophyll-a;style=contourf",
-        "http://ec.oceanbrowser.net/emodnet/Python/web/wms?request=GetLegendGraphic;service=WMS;version=1.3.0;width=100;height=300;format=image/png;layer=All%20European%20Seas/Water_body_chlorophyll-a.nc%2AWater%20body%20chlorophyll-a;style=contour"
-    ],
-    "tileSets": null,
-    "type": "SERVICE"
+      ]
+    },
+    {
+      "name": "contourf",
+      "title": "Filled contours",
+      "abstract": null,
+      "legendUrls": [
+        {
+          "image": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAABgAAAAYADwa0LPAAAAPklEQVRIx+3QMQoAIAxD0Y+3K97/Aq330KWDo0tRMA8yhpaAiPylAwMIwCoOBDAzflpqt2fZWX7uFE0kIq9aMJgId2Opeg8AAAAldEVYdGRhdGU6Y3JlYXRlADIwMjEtMTEtMjNUMTI6MDE6MTgrMDA6MDC5EezjAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIxLTExLTIzVDEyOjAxOjE4KzAwOjAwyExUXwAAAABJRU5ErkJggg==",
+          "url": "https://raw.githubusercontent.com/OpertusMundi/api-gateway-service/master/api-gateway/src/test/resources/assets/wms-legend-image.png"
+        }
+      ]
+    },
+    {
+      "name": "contour",
+      "title": "Contours",
+      "abstract": null,
+      "legendUrls": [
+        {
+          "image": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAABgAAAAYADwa0LPAAAAPklEQVRIx+3QMQoAIAxD0Y+3K97/Aq330KWDo0tRMA8yhpaAiPylAwMIwCoOBDAzflpqt2fZWX7uFE0kIq9aMJgId2Opeg8AAAAldEVYdGRhdGU6Y3JlYXRlADIwMjEtMTEtMjNUMTI6MDE6MTgrMDA6MDC5EezjAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIxLTExLTIzVDEyOjAxOjE4KzAwOjAwyExUXwAAAABJRU5ErkJggg==",
+          "url": "https://raw.githubusercontent.com/OpertusMundi/api-gateway-service/master/api-gateway/src/test/resources/assets/wms-legend-image.png"
+        }
+      ]
+    }
+  ],
+  "tileSets": null,
+  "type": "SERVICE"
 }

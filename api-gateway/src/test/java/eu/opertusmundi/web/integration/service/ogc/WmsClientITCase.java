@@ -16,6 +16,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -141,8 +142,13 @@ public class WmsClientITCase {
         assertThat(resource.getMaxScale()).isEqualTo(expected.getMaxScale());
         assertThat(resource.getMinScale()).isEqualTo(expected.getMinScale());
         assertThat(resource.getOutputFormats()).isEqualTo(expected.getOutputFormats());
-        assertThat(resource.getStyles()).isEqualTo(expected.getStyles());
         assertThat(resource.getServiceType()).isEqualTo(EnumSpatialDataServiceType.WMS);
+
+        JSONAssert.assertEquals(
+            objectMapper.writeValueAsString(resource.getStyles()),
+            objectMapper.writeValueAsString(expected.getStyles()),
+            true
+        );
     }
 
 }
