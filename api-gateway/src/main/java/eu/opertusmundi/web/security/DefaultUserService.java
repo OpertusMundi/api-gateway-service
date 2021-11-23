@@ -129,17 +129,8 @@ public class DefaultUserService implements UserService {
         return Optional.ofNullable(account == null ? null : account.toDto());
     }
 
-    /**
-     * Creates a new account registration
-     * <p>
-     * The registration is created in two separate transactions:
-     * <p>
-     * <ol>
-     *  <li>The account is created in the database
-     *  <li>The account registration workflow instance is started
-     * </ol>
-     */
     @Override
+    @Transactional
     public ServiceResponse<CreateAccountResult> createPlatformAccount(PlatformAccountCommandDto command) {
         command.getProfile().setImage(imageUtils.resizeImage(
             command.getProfile().getImage(), command.getProfile().getImageMimeType()
@@ -152,7 +143,6 @@ public class DefaultUserService implements UserService {
         return ServiceResponse.result(result);
     }
 
-    @Transactional
     private CreateAccountResult createPlatformAccountRecord(PlatformAccountCommandDto command) {
         // Create account
         final AccountDto account = this.accountRepository.create(command);
@@ -172,7 +162,6 @@ public class DefaultUserService implements UserService {
         return CreateAccountResult.of(account, tokenResponse.getResult());
     }
 
-    @Transactional
     private void startPlatformAccountRegistrationWorkflow(CreateAccountResult result) {
         final Integer accountId       = result.getAccount().getId();
         final String  accountKey      = result.getAccount().getKey().toString();
@@ -231,7 +220,6 @@ public class DefaultUserService implements UserService {
         return ServiceResponse.result(account);
     }
 
-    @Transactional
     private ActivationTokenDto startVendorAccountInvitationWorkflow(Integer userId, UUID userKey, String email) {
         try {
             // Create activation token for account email
@@ -633,7 +621,6 @@ public class DefaultUserService implements UserService {
         this.changePassword(command.getEmail(), null, command.getPassword());
     }
 
-    @Transactional
     private void changePassword(String email, @Nullable String currentPassword, String newPassword) {
         final AccountEntity account = this.accountRepository.findOneByUsername(email).orElse(null);
 
