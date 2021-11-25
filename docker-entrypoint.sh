@@ -110,6 +110,13 @@ runtime_profile=$(hostname | md5sum | head -c10)
 
     wordpress_base_url=$(echo ${WORDPRESS_BASE_URL} | _validate_http_url "WORDPRESS_BASE_URL")
     echo "opertus-mundi.wordpress.endpoint = ${wordpress_base_url}"
+    
+    sentinelhub_enabled=${SENTINELHUB_ENABLED:-false}
+    sentinelhub_client_id=${SENTINELHUB_CLIENT_ID}
+    sentinelhub_client_secret=$(test -n "${SENTINELHUB_CLIENT_ID}" && cat ${SENTINELHUB_CLIENT_SECRET_FILE} | tr -d '\n')
+    echo "opertusmundi.sentinel-hub.enabled = ${sentinelhub_enabled}"
+    echo "opertusmundi.sentinel-hub.client-id = ${sentinelhub_client_id}" 
+    echo "opertusmundi.sentinel-hub.client-secret = ${sentinelhub_client_secret}"
 
 } > ./config/application-${runtime_profile}.properties
 

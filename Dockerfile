@@ -93,7 +93,10 @@ ENV PUBLIC_URL="" \
     JUPYTERHUB_API_KEY_FILE="/secrets/jupyterhub-access-token" \
     GEOSERVER_BASE_URL="http://geoserver:8080/geoserver" \
     GOOGLEANALYTICS_TRACKER_ID="" \
-    WORDPRESS_BASE_URL="https://posts.opertusmundi.eu"
+    WORDPRESS_BASE_URL="https://posts.opertusmundi.eu" \
+    SENTINELHUB_ENABLED="false" \
+    SENTINELHUB_CLIENT_ID="" \
+    SENTINELHUB_CLIENT_SECRET_FILE="/secrets/sentinelhub-client-secret"
 
 ENV GIT_URL="${git_url}" \
     GIT_COMMIT="${git_commit}" \
