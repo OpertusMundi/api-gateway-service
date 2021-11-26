@@ -32,10 +32,6 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "spring.datasource.username = ${database_username}"
     echo "spring.datasource.password = ${database_password}"
 
-    echo "opertus-mundi.logging.jdbc.url = ${database_url}"
-    echo "opertus-mundi.logging.jdbc.username = ${database_username}"
-    echo "opertus-mundi.logging.jdbc.password = ${database_password}"
-
     jwt_secret=$(cat ${JWT_SECRET_FILE} | tr -d '\n')
     echo "opertusmundi.feign.jwt.secret = ${jwt_secret}"
 
@@ -102,7 +98,7 @@ runtime_profile=$(hostname | md5sum | head -c10)
 
     profile_base_url=$(echo ${PROFILE_BASE_URL} | _validate_http_url "PROFILE_BASE_URL")
     echo "opertusmundi.feign.data-profiler.url = ${profile_base_url}"
-    
+
     pid_base_url=$(echo ${PID_BASE_URL} | _validate_http_url "PID_BASE_URL")
     echo "opertusmundi.feign.persistent-identifier-service.url= ${pid_base_url}"
 
@@ -116,7 +112,7 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "opertusmundi.elastic.asset-view-index.name = ${elasticsearch_indices_assets_view_index_name}"
     echo "opertusmundi.elastic.asset-view-aggregate-index.name = ${elasticsearch_indices_assets_view_aggregate_index_name}"
     echo "opertusmundi.elastic.profile-index.name = ${elasticsearch_indices_profiles_index_name}"
-    
+
     jupyterhub_url=$(echo ${JUPYTERHUB_URL%/} | _validate_http_url "JUPYTERHUB_URL")
     jupyterhub_api_url=$(echo ${JUPYTERHUB_API_URL%/} | _validate_http_url "JUPYTERHUB_API_URL")
     jupyterhub_api_key=$(cat ${JUPYTERHUB_API_KEY_FILE} | tr -d '\n')
@@ -131,12 +127,12 @@ runtime_profile=$(hostname | md5sum | head -c10)
 
     wordpress_base_url=$(echo ${WORDPRESS_BASE_URL} | _validate_http_url "WORDPRESS_BASE_URL")
     echo "opertus-mundi.wordpress.endpoint = ${wordpress_base_url}"
-    
+
     sentinelhub_enabled=${SENTINELHUB_ENABLED:-false}
     sentinelhub_client_id=${SENTINELHUB_CLIENT_ID}
     sentinelhub_client_secret=$(test -n "${SENTINELHUB_CLIENT_ID}" && cat ${SENTINELHUB_CLIENT_SECRET_FILE} | tr -d '\n')
     echo "opertusmundi.sentinel-hub.enabled = ${sentinelhub_enabled}"
-    echo "opertusmundi.sentinel-hub.client-id = ${sentinelhub_client_id}" 
+    echo "opertusmundi.sentinel-hub.client-id = ${sentinelhub_client_id}"
     echo "opertusmundi.sentinel-hub.client-secret = ${sentinelhub_client_secret}"
 
 } > ./config/application-${runtime_profile}.properties

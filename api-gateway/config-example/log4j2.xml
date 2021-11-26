@@ -42,21 +42,6 @@
 			</Policies>
 			<DefaultRolloverStrategy max="100" />
 		</RollingFile>
-
-		<JDBC name="table" tableName="logging.log4j_message">
-			<ConnectionFactory
-				class="eu.opertusmundi.common.logging.jdbc.ConnectionFactory"
-				method="dataSource" 
-			/>
-			<Column name="application" literal="'api-gateway'" />
-			<Column name="generated" isEventTimestamp="true" />
-			<Column name="level" pattern="%level" isUnicode="false" />
-			<Column name="logger" pattern="%logger" isUnicode="false" />
-			<Column name="message" pattern="%message" isUnicode="false" />
-			<Column name="throwable" pattern="%ex{full}" isUnicode="false" />
-			<Column name="client_address" pattern="%X{client.remote-address}" isUnicode="false" />
-			<Column name="username" pattern="%X{client.username}" isUnicode="false" />
-		</JDBC>
 	</Appenders>
 
 	<Loggers>
@@ -72,7 +57,6 @@
 
 		<Root level="INFO">
 			<AppenderRef ref="console" />
-			<AppenderRef ref="table" level="WARN" />
 			<AppenderRef ref="file" />
 		</Root>
 	</Loggers>

@@ -28,14 +28,6 @@ spring.datasource.url = jdbc:postgresql://localhost:5432/opertus-mundi
 spring.datasource.username = username
 spring.datasource.password = password
 spring.datasource.driver-class-name = org.postgresql.Driver
-
-#
-# Logging with a log4j2 JDBC appender
-#
-
-opertus-mundi.logging.jdbc.url = jdbc:postgresql://localhost:5432/opertus-mundi
-opertus-mundi.logging.jdbc.username = username
-opertus-mundi.logging.jdbc.password = password
 ```
 
 * application-testing.properties
@@ -79,8 +71,8 @@ google.client.clientId =
 google.client.clientSecret =
 
 # OpertusMundi
-opertus-mundi.client.clientId = 
-opertus-mundi.client.clientSecret = 
+opertus-mundi.client.clientId =
+opertus-mundi.client.clientSecret =
 opertus-mundi.client.preEstablishedRedirectUri =
 ```
 
@@ -197,7 +189,7 @@ Ensure that the following section is not commented (to avoid packaging an embedd
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-tomcat</artifactId>
     <scope>provided</scope>
-</dependency>    
+</dependency>
 ```
 
 Rebuild, and deploy generated `target/opertus-mundi-api-gateway-1.0.0.war` on a Tomcat 9.x servlet container.

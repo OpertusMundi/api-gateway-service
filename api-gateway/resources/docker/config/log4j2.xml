@@ -2,7 +2,7 @@
 <Configuration status="WARN">
     <Properties>
         <Property name="baseDir">/app/logs</Property>
-        <Property name="appName">api-gateway</Property> 
+        <Property name="appName">api-gateway</Property>
     </Properties>
     <Appenders>
         <Console name="console" target="SYSTEM_ERR">
@@ -35,17 +35,6 @@
             </Policies>
             <DefaultRolloverStrategy max="50" />
         </RollingFile>
-        <JDBC name="table" tableName="logging.log4j_message">
-            <ConnectionFactory class="eu.opertusmundi.common.logging.jdbc.ConnectionFactory" method="dataSource" />
-            <Column name="application" literal="'api-gateway'" />
-            <Column name="generated" isEventTimestamp="true" />
-            <Column name="level" pattern="%level" isUnicode="false" />
-            <Column name="logger" pattern="%logger" isUnicode="false" />
-            <Column name="message" pattern="%message" isUnicode="false" />
-            <Column name="throwable" pattern="%ex{full}" isUnicode="false" />
-            <Column name="client_address" pattern="%X{client.remote-address}" isUnicode="false" />
-            <Column name="username" pattern="%X{client.username}" isUnicode="false" />
-        </JDBC>
     </Appenders>
     <Loggers>
         <Logger name="WEBHOOK" level="INFO" additivity="false">
@@ -57,7 +46,6 @@
         <Root level="INFO">
             <AppenderRef ref="console" />
             <AppenderRef ref="file" />
-            <AppenderRef ref="table" level="WARN" />
         </Root>
     </Loggers>
 </Configuration>
