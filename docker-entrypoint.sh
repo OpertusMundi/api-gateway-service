@@ -39,6 +39,27 @@ runtime_profile=$(hostname | md5sum | head -c10)
     jwt_secret=$(cat ${JWT_SECRET_FILE} | tr -d '\n')
     echo "opertusmundi.feign.jwt.secret = ${jwt_secret}"
 
+    if [ -n "${OIDC_AUTH_URL}" ]; then
+        oidc_auth_url=$(echo ${OIDC_AUTH_URL} | _validate_http_url "OIDC_AUTH_URL")
+        oidc_token_url=$(echo ${OIDC_TOKEN_URL} | _validate_http_url "OIDC_TOKEN_URL")
+        oidc_userinfo_url=$(echo ${OIDC_USERINFO_URL} | _validate_http_url "OIDC_USERINFO_URL")
+        oidc_jwks_url=$(echo ${OIDC_JWKS_URL} | _validate_http_url "OIDC_JWKS_URL")
+        oidc_scope=${OIDC_SCOPE:-openid}
+        oidc_client_id=${OIDC_CLIENT_ID}
+        oidc_client_secret=$(cat ${OIDC_CLIENT_SECRET_FILE} | tr -d '\n')
+        # See https://github.com/OpertusMundi/api-gateway-service/blob/26a5b59baa2bb03a38fc324e336f1a2689c662be/api-gateway/config-example/config/application.properties#L58
+        echo "opertus-mundi.authentication-providers = opertusmundi"
+        echo "opertus-mundi.client.clientId = ${oidc_client_id}"
+        echo "opertus-mundi.client.clientSecret = ${oidc_client_secret}"
+        echo "opertus-mundi.client.accessTokenUri = ${oidc_token_url}"
+        echo "opertus-mundi.client.userAuthorizationUri = ${oidc_auth_url}"
+        echo "opertus-mundi.client.useCurrentUri = false"
+        echo "opertus-mundi.client.preEstablishedRedirectUri ="
+        echo "opertus-mundi.client.scope = ${oidc_scope}"
+        echo "opertus-mundi.user-info-endpoint = ${oidc_userinfo_url}"
+        echo "opertus-mundi.jwks-uri = ${oidc_jwks_url}"
+    fi
+
     bpm_rest_base_url=$(echo ${BPM_REST_BASE_URL} | _validate_http_url "BPM_REST_BASE_URL")
     bpm_rest_username=${BPM_REST_USERNAME}
     bpm_rest_password=$(cat ${BPM_REST_PASSWORD_FILE} | tr -d '\n')
