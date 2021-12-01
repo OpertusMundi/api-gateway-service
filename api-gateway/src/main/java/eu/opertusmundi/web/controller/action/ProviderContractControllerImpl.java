@@ -25,7 +25,7 @@ import eu.opertusmundi.common.model.contract.helpdesk.EnumMasterContractSortFiel
 import eu.opertusmundi.common.model.contract.helpdesk.MasterContractDto;
 import eu.opertusmundi.common.model.contract.helpdesk.MasterContractQueryDto;
 import eu.opertusmundi.common.model.contract.provider.EnumProviderContractSortField;
-import eu.opertusmundi.common.model.contract.provider.PrintProviderContractCommand;
+import eu.opertusmundi.common.model.contract.provider.ProviderContractCommand;
 import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractCommandDto;
 import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractDto;
 import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractQuery;
@@ -208,7 +208,7 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
             }
 
             // Print template
-            final PrintProviderContractCommand command = PrintProviderContractCommand.builder()
+            final ProviderContractCommand command = ProviderContractCommand.builder()
                 .providerKey(this.currentUserParentKey())
                 .contractKey(templateKey)
                 .build();

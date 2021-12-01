@@ -20,7 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.contract.EnumContract;
-import eu.opertusmundi.common.model.contract.consumer.PrintConsumerContractCommand;
+import eu.opertusmundi.common.model.contract.consumer.ConsumerContractCommand;
 import eu.opertusmundi.common.model.contract.consumer.SignConsumerContractCommand;
 import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.repository.OrderRepository;
@@ -46,7 +46,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
         final OrderDto order = this.ensureOwner(orderKey);
 
         // Path will be resolved by the contract service
-        final PrintConsumerContractCommand command = PrintConsumerContractCommand.builder()
+        final ConsumerContractCommand command = ConsumerContractCommand.builder()
             .userId(this.currentUserId())
             .orderKey(orderKey)
             .itemIndex(itemIndex)
@@ -67,7 +67,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
         final OrderDto order = this.ensureOwner(orderKey);
 
         // Paths will be resolved by the contract service
-        final SignConsumerContractCommand command = SignConsumerContractCommand.builder()
+        final ConsumerContractCommand command = ConsumerContractCommand.builder()
             .userId(this.currentUserId())
             .orderKey(orderKey)
             .itemIndex(itemIndex)
@@ -75,7 +75,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
 
         this.contractService.sign(command);
 
-        final File contractFile = command.getTargetPath().toFile();
+        final File contractFile = command.getPath().toFile();
 
         return this.createResponse(response, contractFile, this.getFilename(order));
     }
