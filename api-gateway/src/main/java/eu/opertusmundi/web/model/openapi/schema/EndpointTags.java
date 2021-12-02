@@ -7,7 +7,7 @@ public class EndpointTags {
     public final static String Cart                 = "Cart";
     public final static String Catalogue            = "Catalogue";
     public final static String Configuration        = "Configuration";
-    public final static String Consumer             = "Consumer";
+    public final static String ConsumerAssets       = "Consumer Assets";
     public final static String ConsumerRegistration = "Consumer Registration";
     public final static String ContractConsumer     = "Consumer Contracts";
     public final static String ContractProvider     = "Provider Contracts";
@@ -25,7 +25,7 @@ public class EndpointTags {
     public final static String PayInProvider        = "Provider PayIn";
     public final static String PayOutProvider       = "Provider PayOut";
     public final static String Profile              = "Profile";
-    public final static String Provider             = "Provider";
+    public final static String ProviderAssets       = "Provider Assets";
     public final static String ProviderRegistration = "Provider Registration";
     public final static String Quotation            = "Quotation";
     public final static String Rating               = "Rating";

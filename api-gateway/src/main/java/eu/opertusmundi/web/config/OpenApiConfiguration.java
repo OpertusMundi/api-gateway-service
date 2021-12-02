@@ -89,46 +89,55 @@ public class OpenApiConfiguration {
         final List<TagGroup> tagGroups = new ArrayList<>();
 
         tagGroups.addAll(Arrays.asList(new TagGroup[] {
+            new TagGroup("System", Arrays.asList(
+                EndpointTags.Configuration
+            )),
             new TagGroup("Account", Arrays.asList(
                 EndpointTags.Account,
                 EndpointTags.VendorAccount,
                 EndpointTags.Profile,
-                EndpointTags.Configuration,
                 EndpointTags.FileSystem
             )),
-            new TagGroup("Customers", Arrays.asList(
-                EndpointTags.ConsumerRegistration,
-                EndpointTags.ProviderRegistration,
+            new TagGroup("KYC", Arrays.asList(
                 EndpointTags.KycDocument,
-                EndpointTags.UboDeclaration,
-                EndpointTags.Notebooks,
-                EndpointTags.Favorites
+                EndpointTags.UboDeclaration
             )),
-            new TagGroup("Orders", Arrays.asList(
-                EndpointTags.Catalogue,
-                EndpointTags.Cart,
-                EndpointTags.Quotation,
+            new TagGroup("Consumers", Arrays.asList(
+                EndpointTags.ConsumerRegistration,
+                EndpointTags.Favorites,
+                EndpointTags.Notebooks,
                 EndpointTags.OrderConsumer,
                 EndpointTags.PayInConsumer,
+                EndpointTags.ContractConsumer,
+                EndpointTags.ConsumerAssets
+            )),
+            new TagGroup("Providers", Arrays.asList(
+                EndpointTags.ProviderRegistration,
                 EndpointTags.OrderProvider,
                 EndpointTags.PayInProvider,
                 EndpointTags.PayOutProvider,
+                EndpointTags.ContractProvider,
+                EndpointTags.ProviderAssets,
                 EndpointTags.Analytics
+            )),
+            new TagGroup("Helpdesk", Arrays.asList(
+                EndpointTags.DraftReview
             )),
             new TagGroup("Assets", Arrays.asList(
                 EndpointTags.Draft,
-                EndpointTags.DraftReview,
-                EndpointTags.Provider,
-                EndpointTags.ContractProvider,
-                EndpointTags.Consumer,
-                EndpointTags.ContractConsumer,
-                EndpointTags.Rating
+                EndpointTags.Samples
+            )),
+            new TagGroup("Purchase", Arrays.asList(
+                EndpointTags.Catalogue,
+                EndpointTags.Cart,
+                EndpointTags.Quotation
             )),
             new TagGroup("Messages", Arrays.asList(
                 EndpointTags.Message,
                 EndpointTags.Notification
             )),
             new TagGroup("Misc", Arrays.asList(
+                EndpointTags.Rating,
                 EndpointTags.SpatialData
             ))
         }));

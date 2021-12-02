@@ -32,8 +32,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = EndpointTags.Provider,
-    description = "The Provider API"
+    name        = EndpointTags.ProviderAssets,
+    description = "API for browsing provider published assets and active subscriptions"
 )
 @RequestMapping(path = "/action", produces = "application/json")
 public interface ProviderAssetController {
