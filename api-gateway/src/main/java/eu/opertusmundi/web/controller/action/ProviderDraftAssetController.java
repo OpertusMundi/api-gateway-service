@@ -37,8 +37,7 @@ import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemSamplesCommandDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemVisibilityCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemMetadataCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
@@ -636,56 +635,11 @@ public interface ProviderDraftAssetController {
      */
     @Operation(
         operationId = "draft-asset-13",
-        summary     = "Update metadata visibility",
-        description = "Update the visibility of metadata properties of an existing draft item that "
-                    + "has been accepted by the Helpdesk application. The draft status must be "
-                    + "`PENDING_PROVIDER_REVIEW`. If the record is locked by another user, the operation "
-                    + "will fail. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "successful operation",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
-    )
-    @PostMapping(value = "/drafts/{draftKey}/metadata/visibility", consumes = "application/json")
-    @Validated
-    RestResponse<AssetDraftDto> updateDraftMetadataVisibility(
-        @Parameter(
-            in          = ParameterIn.PATH,
-            required    = true,
-            description = "Item unique key"
-        )
-        @PathVariable UUID draftKey,
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Updated item.",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = CatalogueItemVisibilityCommandDto.class
-            )),
-            required = true
-        )
-        @Valid
-        @RequestBody
-        CatalogueItemVisibilityCommandDto command,
-        @Parameter(
-            hidden = true
-        )
-        BindingResult validationResult
-    );
-
-    /**
-     * Update draft metadata samples
-     *
-     * @param draftKey The item unique key
-     * @param command The update command
-     * @return
-     */
-    @Operation(
-        operationId = "draft-asset-14",
-        summary     = "Update draft samples",
-        description = "Update metadata samples of an existing draft item that has been accepted by "
-                    + "the Helpdesk application. The draft status must be `PENDING_PROVIDER_REVIEW`. "
-                    + "If the record is already locked by another user, the operation will fail. "
+        summary     = "Update metadata",
+        description = "Update the metadata properties of an existing draft item that "
+                    + "has been accepted by the Helpdesk application. The draft status "
+                    + "must be `PENDING_PROVIDER_REVIEW`. If the record is locked by "
+                    + "another user, the operation will fail. "
                     + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
@@ -693,9 +647,9 @@ public interface ProviderDraftAssetController {
         description = "successful operation",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
     )
-    @PostMapping(value = "/drafts/{draftKey}/metadata/samples", consumes = "application/json")
+    @PostMapping(value = "/drafts/{draftKey}/metadata", consumes = "application/json")
     @Validated
-    RestResponse<AssetDraftDto> updateDraftSamples(
+    RestResponse<AssetDraftDto> updateDraftMetadata(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -706,13 +660,13 @@ public interface ProviderDraftAssetController {
             description = "Updated item.",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = CatalogueItemSamplesCommandDto.class
+                schema = @Schema(implementation = CatalogueItemMetadataCommandDto.class
             )),
             required = true
         )
         @Valid
         @RequestBody
-        CatalogueItemSamplesCommandDto command,
+        CatalogueItemMetadataCommandDto command,
         @Parameter(
             hidden = true
         )

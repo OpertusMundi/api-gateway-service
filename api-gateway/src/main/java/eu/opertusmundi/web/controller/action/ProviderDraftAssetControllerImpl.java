@@ -38,8 +38,7 @@ import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemSamplesCommandDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemVisibilityCommandDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemMetadataCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
@@ -428,8 +427,8 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> updateDraftMetadataVisibility(
-        UUID draftKey, CatalogueItemVisibilityCommandDto command, BindingResult validationResult
+    public RestResponse<AssetDraftDto> updateDraftMetadata(
+        UUID draftKey, CatalogueItemMetadataCommandDto command, BindingResult validationResult
     ) {
         try {
             final UUID ownerKey     = this.currentUserKey();
@@ -445,35 +444,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
             }
 
-            final AssetDraftDto result = this.providerAssetService.updateDraftMetadataVisibility(command);
-
-            return RestResponse.result(result);
-        } catch (final AssetDraftException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
-        } catch (final Exception ex) {
-            logger.error("Operation has failed", ex);
-        }
-
-        return RestResponse.failure();
-    }
-
-    @Override
-    public RestResponse<AssetDraftDto> updateDraftSamples(
-        UUID draftKey, CatalogueItemSamplesCommandDto command, BindingResult validationResult
-    ) {
-        try {
-            final UUID ownerKey     = this.currentUserKey();
-            final UUID publisherKey = this.currentUserParentKey();
-
-            command.setDraftKey(draftKey);
-            command.setOwnerKey(ownerKey);
-            command.setPublisherKey(publisherKey);
-
-            if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
-            }
-
-            final AssetDraftDto result = this.providerAssetService.updateDraftMetadataSamples(command);
+            final AssetDraftDto result = this.providerAssetService.updateDraftMetadata(command);
 
             return RestResponse.result(result);
         } catch (final AssetDraftException ex) {
