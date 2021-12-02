@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import eu.opertusmundi.common.model.contract.EnumContract;
 import eu.opertusmundi.common.model.contract.consumer.ConsumerContractCommand;
-import eu.opertusmundi.common.model.contract.consumer.SignConsumerContractCommand;
 import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.repository.OrderRepository;
 import eu.opertusmundi.common.service.contract.ConsumerContractService;
@@ -46,12 +44,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
         final OrderDto order = this.ensureOwner(orderKey);
 
         // Path will be resolved by the contract service
-        final ConsumerContractCommand command = ConsumerContractCommand.builder()
-            .userId(this.currentUserId())
-            .orderKey(orderKey)
-            .itemIndex(itemIndex)
-            .type(EnumContract.USER_CONTRACT)
-            .build();
+        final ConsumerContractCommand command = this.createCommand(orderKey, itemIndex);
 
         this.contractService.print(command);
 
@@ -67,11 +60,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
         final OrderDto order = this.ensureOwner(orderKey);
 
         // Paths will be resolved by the contract service
-        final ConsumerContractCommand command = ConsumerContractCommand.builder()
-            .userId(this.currentUserId())
-            .orderKey(orderKey)
-            .itemIndex(itemIndex)
-            .build();
+        final ConsumerContractCommand command = this.createCommand(orderKey, itemIndex);
 
         this.contractService.sign(command);
 
@@ -86,7 +75,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
     ) {
         final OrderDto order = this.ensureOwner(orderKey);
 
-        final Path path = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, signed, true);
+        final Path path = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, signed);
         final File file = path.toFile();
 
         if (!file.exists()) {
@@ -120,6 +109,16 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
         }
 
         return order;
+    }
+
+    private ConsumerContractCommand createCommand(UUID orderKey, Integer itemIndex) {
+        final ConsumerContractCommand command = ConsumerContractCommand.builder()
+                .userId(this.currentUserId())
+                .orderKey(orderKey)
+                .itemIndex(itemIndex)
+                .build();
+
+        return command;
     }
 
     private String getFilename(OrderDto order) {
