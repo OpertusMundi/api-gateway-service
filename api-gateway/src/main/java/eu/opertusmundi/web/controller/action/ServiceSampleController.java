@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
+import eu.opertusmundi.common.model.catalogue.client.WmsLayerSample;
 import eu.opertusmundi.common.service.ogc.OgcServiceClientException;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.ServiceSamplesEndpointTypes;
@@ -102,26 +103,19 @@ public interface ServiceSampleController {
      @Operation(
          operationId = "draft-samples-02",
          summary     = "Get sample",
-         description = "Creates a sample for a `WMS` or `WFS` service. For `WMS` endpoints, an image is returned. "
-                     + "For `WFS` endpoints, a JSON object is returned. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
+         description = "Creates a sample for a `WMS` or `WFS` service. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
      )
      @ApiResponse(
          responseCode = "200",
          description = "successful operation",
-         content = {
-             @Content(
-                 mediaType = MediaType.APPLICATION_JSON_VALUE,
-                 schema = @Schema(implementation = ServiceSamplesEndpointTypes.WfsLayerSampleType.class)
-             ),
-             @Content(
-                 mediaType = MediaType.IMAGE_PNG_VALUE,
-                 schema = @Schema(type = "string", format = "binary", description = "WMS tile image")
-             )
-         }
+         content = { @Content(
+             mediaType = MediaType.APPLICATION_JSON_VALUE,
+             schema = @Schema(oneOf = {WmsLayerSample.class, ServiceSamplesEndpointTypes.WfsLayerSampleType.class})
+         )}
      )
      @GetMapping(
          value = "/drafts/{draftKey}/resources/{resourceKey}/{type}/samples",
-         produces = {MediaType.IMAGE_PNG_VALUE, MediaType.APPLICATION_JSON_VALUE}
+         produces = {MediaType.APPLICATION_JSON_VALUE}
      )
      void getSample(
          @Parameter(

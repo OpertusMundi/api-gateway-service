@@ -67,15 +67,15 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
             case WMS :
                 final List<WmsLayerSample> samples = this.client.getWmsSamples(service, Arrays.asList(this.bboxToGeometry(bbox)));
 
-                response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE);
-                response.getOutputStream().write(samples.get(0).getImage());
+                response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                response.getWriter().write(objectMapper.writeValueAsString(samples.get(0)));
                 break;
 
             case WFS :
                 final List<WfsLayerSample> wfsSamples = this.client.getWfsSamples(service, Arrays.asList(this.bboxToGeometry(bbox)));
 
                 response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                response.getWriter().write(objectMapper.writeValueAsString(wfsSamples.get(0).getData()));
+                response.getWriter().write(objectMapper.writeValueAsString(wfsSamples.get(0)));
                 break;
 
             default :
