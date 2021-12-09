@@ -245,7 +245,8 @@ public interface ProviderDraftAssetController {
             in = ParameterIn.QUERY,
             required = false,
             description = "`true` if the selected record must be also locked. If a lock already exists "
-                        + "and belongs to another user, an error is returned."
+                        + "and belongs to another user, an error is returned. If no lock is requested, but "
+                        + "an existing one is found, it is <b>not</b> released."
         )
         @RequestParam(name = "lock", required = false, defaultValue = "false") boolean lock
     );
