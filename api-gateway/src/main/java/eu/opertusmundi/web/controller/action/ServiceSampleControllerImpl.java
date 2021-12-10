@@ -25,6 +25,7 @@ import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.catalogue.client.WfsLayerSample;
 import eu.opertusmundi.common.model.catalogue.client.WmsLayerSample;
 import eu.opertusmundi.common.model.ingest.ResourceIngestionDataDto;
+import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.common.service.ogc.GeoServerUtils;
 import eu.opertusmundi.common.service.ogc.OgcServiceClientException;
@@ -45,10 +46,15 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
     public void wms(
         UUID draftKey, UUID resourceKey, String bbox, HttpServletRequest request, HttpServletResponse response
     ) throws IOException, OgcServiceClientException, URISyntaxException {
+        response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE);
+
         final byte[] result = this.getMap(draftKey, resourceKey, bbox);
 
-        response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE);
-        response.getOutputStream().write(result);
+        if (result == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        } else {
+            response.getOutputStream().write(result);
+        }
     }
 
     @Override
@@ -56,45 +62,77 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
         UUID draftKey, UUID resourceKey, EnumSpatialDataServiceType type, String bbox,
         HttpServletRequest request, HttpServletResponse response
     ) throws IOException, OgcServiceClientException, URISyntaxException {
-        final List<ResourceIngestionDataDto> services = providerAssetService.getServices(this.currentUserParentKey(), draftKey);
+        try {
+            final List<ResourceIngestionDataDto> services = providerAssetService.getServices(this.currentUserParentKey(), draftKey);
 
-        final ResourceIngestionDataDto service = services.stream()
-            .filter(s -> s.getKey().equals(resourceKey.toString()))
-            .findFirst()
-            .orElse(null);
-
-        switch (type) {
-            case WMS :
-                final List<WmsLayerSample> samples = this.client.getWmsSamples(service, Arrays.asList(this.bboxToGeometry(bbox)));
-
-                response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                response.getWriter().write(objectMapper.writeValueAsString(samples.get(0)));
-                break;
-
-            case WFS :
-                final List<WfsLayerSample> wfsSamples = this.client.getWfsSamples(service, Arrays.asList(this.bboxToGeometry(bbox)));
-
-                response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                response.getWriter().write(objectMapper.writeValueAsString(wfsSamples.get(0)));
-                break;
-
-            default :
+            if (services == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                break;
+                return;
+            }
+
+            final ResourceIngestionDataDto service = services.stream()
+                .filter(s -> s.getKey().equals(resourceKey.toString()))
+                .findFirst()
+                .orElse(null);
+
+            // Service endpoints must exist
+            if (service == null) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            switch (type) {
+                case WMS :
+                    final List<WmsLayerSample> samples = this.client.getWmsSamples(service, Arrays.asList(this.bboxToGeometry(bbox)));
+
+                    response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                    response.getWriter().write(objectMapper.writeValueAsString(samples.get(0)));
+                    break;
+
+                case WFS :
+                    final List<WfsLayerSample> wfsSamples = this.client.getWfsSamples(service, Arrays.asList(this.bboxToGeometry(bbox)));
+
+                    response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                    response.getWriter().write(objectMapper.writeValueAsString(wfsSamples.get(0)));
+                    break;
+
+                default :
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    break;
+            }
+        } catch (final AssetDraftException ex) {
+            // Either the draft is not found or the data ingestion has not been
+            // completed yet
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
     private byte[] getMap(UUID draftKey, UUID resourceKey, String bbox) throws URISyntaxException, OgcServiceClientException, MalformedURLException {
-        final List<ResourceIngestionDataDto> services    = providerAssetService.getServices(this.currentUserParentKey(), draftKey);
+        try {
+            final List<ResourceIngestionDataDto> services = providerAssetService.getServices(this.currentUserParentKey(), draftKey);
+            // Ingestion data must exist
+            if (services == null) {
+                return null;
+            }
 
-        final ResourceIngestionDataDto service = services.stream()
-            .filter(s -> s.getKey().equals(resourceKey.toString()))
-            .findFirst()
-            .orElse(null);
+            final ResourceIngestionDataDto service = services.stream()
+                .filter(s -> s.getKey().equals(resourceKey.toString()))
+                .findFirst()
+                .orElse(null);
 
-        final ResourceIngestionDataDto.ServiceEndpoint endpoint = service.getEndpointByServiceType(EnumSpatialDataServiceType.WMS);
+            // Service endpoints must exist
+            if (service == null) {
+                return null;
+            }
 
-        return client.getWmsMap(endpoint.getUri(), service.getTableName(), bbox, 256, 256);
+            final ResourceIngestionDataDto.ServiceEndpoint endpoint = service.getEndpointByServiceType(EnumSpatialDataServiceType.WMS);
+
+            return client.getWmsMap(endpoint.getUri(), service.getTableName(), bbox, 256, 256);
+        } catch (final AssetDraftException ex) {
+            // Either the draft is not found or the data ingestion has not been
+            // completed yet
+            return null;
+        }
     }
 
     private Geometry bboxToGeometry(String bbox) {
