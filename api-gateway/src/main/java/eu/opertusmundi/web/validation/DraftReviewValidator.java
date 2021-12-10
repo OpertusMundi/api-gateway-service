@@ -43,6 +43,7 @@ public class DraftReviewValidator implements Validator {
 
         if (draft.getStatus() != EnumProviderAssetDraftStatus.PENDING_PROVIDER_REVIEW) {
             e.reject(CatalogueServiceMessageCode.DRAFT_INVALID_STATUS.key(), "Status must be PENDING_PROVIDER_REVIEW");
+            return;
         }
 
         final ArrayNode metadataArray = (ArrayNode) draft.getCommand().getAutomatedMetadata();
