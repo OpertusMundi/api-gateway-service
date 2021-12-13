@@ -35,7 +35,7 @@ runtime_profile=$(hostname | md5sum | head -c10)
     jwt_secret=$(cat ${JWT_SECRET_FILE} | tr -d '\n')
     echo "opertusmundi.feign.jwt.secret = ${jwt_secret}"
 
-    if [ -n "${OIDC_AUTH_URL}" ]; then
+    if [[ -n "${OIDC_AUTH_URL}" ]]; then
         oidc_auth_url=$(echo ${OIDC_AUTH_URL} | _validate_http_url "OIDC_AUTH_URL")
         oidc_token_url=$(echo ${OIDC_TOKEN_URL} | _validate_http_url "OIDC_TOKEN_URL")
         oidc_userinfo_url=$(echo ${OIDC_USERINFO_URL} | _validate_http_url "OIDC_USERINFO_URL")
@@ -129,11 +129,24 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "opertus-mundi.wordpress.endpoint = ${wordpress_base_url}"
 
     sentinelhub_enabled=${SENTINELHUB_ENABLED:-false}
-    sentinelhub_client_id=${SENTINELHUB_CLIENT_ID}
-    sentinelhub_client_secret=$(test -n "${SENTINELHUB_CLIENT_ID}" && cat ${SENTINELHUB_CLIENT_SECRET_FILE} | tr -d '\n')
     echo "opertusmundi.sentinel-hub.enabled = ${sentinelhub_enabled}"
+    sentinelhub_client_id=
+    sentinelhub_client_secret=
+    if [[ ${sentinelhub_enabled} != "false" ]]; then
+        sentinelhub_client_id=${SENTINELHUB_CLIENT_ID}
+        sentinelhub_client_secret=$(cat ${SENTINELHUB_CLIENT_SECRET_FILE} | tr -d '\n')
+    fi
     echo "opertusmundi.sentinel-hub.client-id = ${sentinelhub_client_id}"
     echo "opertusmundi.sentinel-hub.client-secret = ${sentinelhub_client_secret}"
+
+    contract_signpdf_keystore=$(realpath ${CONTRACT_SIGNPDF_KEYSTORE})
+    test -f "${contract_signpdf_keystore}"
+    contract_signpdf_keystore_password=$(cat ${CONTRACT_SIGNPDF_KEYSTORE_PASSWORD_FILE} | tr -d '\n')
+    contract_signpdf_key_alias=${CONTRACT_SIGNPDF_KEY_ALIAS}
+    test -n "${contract_signpdf_key_alias}"
+    echo "opertusmundi.contract.signpdf.key-store = file://${contract_signpdf_keystore}"
+    echo "opertusmundi.contract.signpdf.key-store-password = ${contract_signpdf_keystore_password}"
+    echo "opertusmundi.contract.signpdf.key-alias = ${contract_signpdf_key_alias}"
 
 } > ./config/application-${runtime_profile}.properties
 

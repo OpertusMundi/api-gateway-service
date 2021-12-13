@@ -103,7 +103,11 @@ ENV PUBLIC_URL="" \
     WORDPRESS_BASE_URL="https://posts.opertusmundi.eu" \
     SENTINELHUB_ENABLED="false" \
     SENTINELHUB_CLIENT_ID="" \
-    SENTINELHUB_CLIENT_SECRET_FILE="/secrets/sentinelhub-client-secret"
+    SENTINELHUB_CLIENT_SECRET_FILE="/secrets/sentinelhub-client-secret" \
+    CONTRACT_SIGNPDF_KEYSTORE="/secrets/signatory-keystore" \
+    CONTRACT_SIGNPDF_KEYSTORE_PASSWORD_FILE="/secrets/signatory-keystore-password" \
+    CONTRACT_SIGNPDF_KEY_ALIAS="opertusmundi.eu"
+
 
 ENV GIT_URL="${git_url}" \
     GIT_COMMIT="${git_commit}" \
