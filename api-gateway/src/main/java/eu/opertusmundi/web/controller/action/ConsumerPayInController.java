@@ -220,9 +220,11 @@ public interface ConsumerPayInController {
         description = "Create a new card direct PayIn for the order with the given key. If the operation "
                     + "is successful, an instance of `ConsumerCardDirectPayInResponse` is returned with PayIn details; "
                     + "Otherwise an instance of `BaseResponse` is returned with one or more error messages. "
+                    + "<br/>"
                     + "Moreover, on successful execution, the server resets the user cart; Hence, the client "
                     + "must either reset the cart locally or invoke [Get Cart](#operation/cart-01). If 3-D Secure "
-                    + "validation is required or the operation fails, the cart is not updated. "
+                    + "validation is required or the operation fails, the cart is not updated."
+                    + "<br/>"
                     + "Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
@@ -243,7 +245,13 @@ public interface ConsumerPayInController {
             )
         @PathVariable UUID orderKey,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Card direct PayIn command",
+             description =
+                "Card direct PayIn command. "
+              + "<ul>"
+              + "<li> If both the `billing` and `shipping` properties are empty, the information from the consumer registration is sent to the issuer.</li>"
+              + "<li> If the `billing` is supplied but the `shipping` is empty, the `shipping` property is initialized with the fields supplied for `billing`.</li>"
+              + "<li> If the `shipping` is supplied but the `billing` is empty, the `billing` property is initialized with fields supplied for `shipping`.</li>"
+              + "</ul>",
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = CardDirectPayInCommandDto.class)
