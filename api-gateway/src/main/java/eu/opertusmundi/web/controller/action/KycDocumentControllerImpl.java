@@ -24,6 +24,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.EnumCustomerType;
 import eu.opertusmundi.common.model.kyc.CustomerVerificationException;
 import eu.opertusmundi.common.model.kyc.CustomerVerificationMessageCode;
+import eu.opertusmundi.common.model.kyc.EnumKycDocumentType;
 import eu.opertusmundi.common.model.kyc.KycDocumentCommand;
 import eu.opertusmundi.common.model.kyc.KycDocumentCommandDto;
 import eu.opertusmundi.common.model.kyc.KycDocumentDto;
@@ -113,10 +114,25 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
             if (file == null || file.getSize() == 0) {
                 return RestResponse.error(CustomerVerificationMessageCode.PAGE_FILE_MISSING, "A file is required");
             }
+
+            final KycDocumentCommand kycCommand = KycDocumentCommand.builder()
+                .customerKey(this.currentUserKey())
+                .customerType(command.getCustomerType())
+                .kycDocumentId(kycDocumentId)
+                .build();
+            final KycDocumentDto     document   = this.customerVerificationService.findOneKycDocument(kycCommand);
+
+            if (document == null) {
+                validationResult.reject("DocumentNotFound", kycDocumentId);
+                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
+            }
             if (file.getSize() > 7 * 1024 * 1024) {
                 validationResult.reject("FileTooLarge", file.getOriginalFilename());
             }
-            if (file.getSize() < 1024) {
+            if (document.getType() == EnumKycDocumentType.IDENTITY_PROOF && file.getSize() < 32 * 1024) {
+                validationResult.reject("FileTooSmall", file.getOriginalFilename());
+            }
+            if (document.getType() != EnumKycDocumentType.IDENTITY_PROOF && file.getSize() < 1024) {
                 validationResult.reject("FileTooSmall", file.getOriginalFilename());
             }
 
