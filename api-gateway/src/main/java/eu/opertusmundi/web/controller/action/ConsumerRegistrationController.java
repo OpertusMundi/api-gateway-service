@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
+import eu.opertusmundi.common.model.account.ConsumerCommandDto;
 import eu.opertusmundi.common.model.account.ConsumerIndividualCommandDto;
 import eu.opertusmundi.common.model.account.ConsumerProfessionalCommandDto;
-import eu.opertusmundi.common.model.account.CustomerCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -63,7 +63,7 @@ public interface ConsumerRegistrationController {
         )
         @Valid
         @RequestBody
-        CustomerCommandDto command,
+        ConsumerCommandDto command,
         @Parameter(
             hidden = true
         )
@@ -97,7 +97,7 @@ public interface ConsumerRegistrationController {
         )
         @Valid
         @RequestBody
-        CustomerCommandDto command,
+        ConsumerCommandDto command,
         @Parameter(
             hidden = true
         )

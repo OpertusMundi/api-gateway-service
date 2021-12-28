@@ -1,15 +1,20 @@
 package eu.opertusmundi.web.controller.action;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
@@ -80,7 +85,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
             .size(size == null ? 10 : size)
             .build();
 
-        final List<CardDto> result = this.paymentService.getRegisteredCards(command);
+        final List<CardDto> result = this.paymentService.getCardRegistrations(command);
 
         return RestResponse.result(result);
     }
@@ -119,7 +124,16 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
             .userKey(this.currentUserKey())
             .orderKey(orderKey)
             .cardId(command.getCardId())
+            .browserInfo(command.getBrowserInfo())
+            .billing(command.getBilling())
+            .shipping(command.getShipping())
+            .ipAddress(this.getRemoteIpAddress())
             .build();
+
+        // Update browser info with server-side data
+        //
+        // See: https://docs.mangopay.com/guide/3ds2-integration
+        payInCommand.getBrowserInfo().setAcceptHeader(this.getAcceptHeader());
 
         final PayInDto result = this.paymentService.createPayInCardDirectForOrder(payInCommand);
 
@@ -176,6 +190,14 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
         );
 
         return RestResponse.result(result);
+    }
+
+    private String getAcceptHeader() {
+        final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        final String result = Optional.ofNullable(request.getHeader(HttpHeaders.ACCEPT)).orElse("");
+
+        return result;
     }
 
 }

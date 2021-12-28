@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.account.EnumCustomerType;
 import eu.opertusmundi.common.model.kyc.UboCommandDto;
 import eu.opertusmundi.common.model.kyc.UboDeclarationDto;
 import eu.opertusmundi.common.model.kyc.UboDto;
@@ -34,7 +35,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The UBO declaration API"
 )
 @RequestMapping(path = "/action", produces = "application/json")
-@Secured({"ROLE_PROVIDER"})
+@Secured({"ROLE_CONSUMER", "ROLE_PROVIDER"})
 public interface UboDeclarationController {
 
     /**
@@ -42,6 +43,7 @@ public interface UboDeclarationController {
      *
      * @param pageIndex Page index
      * @param pageSize Page size
+     * @param customerType The customer type
      *
      * @return An instance of {@link UboDeclarationEndpointTypes#UboDeclarationListResponse} class
      */
@@ -49,7 +51,7 @@ public interface UboDeclarationController {
         operationId = "ubo-01",
         summary     = "Search Declarations",
         description = "Enumerate all UBO declarations for the authenticated provider. "
-                    + "Required role: `ROLE_PROVIDER`"
+                    + "Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -71,19 +73,26 @@ public interface UboDeclarationController {
             required = false,
             description = "Page size"
         )
-        @RequestParam(name = "size", defaultValue = "10", required = false) int pageSize
+        @RequestParam(name = "size", defaultValue = "10", required = false) int pageSize,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Customer type"
+        )
+        @RequestParam(name = "type", required = true) EnumCustomerType customerType
     );
 
     /**
      * Get UBO declaration
      *
      * @param uboDeclarationId The declaration unique identifier
+     * @param customerType The customer type
      * @return A {@link RestResponse} with a result of type {@link UboDeclarationDto}
      */
     @Operation(
         operationId = "ubo-02",
         summary     = "Get Declaration",
-        description = "Get a single UBO declaration by its unique identifier. Required role: `ROLE_PROVIDER`"
+        description = "Get a single UBO declaration by its unique identifier. Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -99,20 +108,26 @@ public interface UboDeclarationController {
             required    = true,
             description = "UBO declaration unique identifier"
         )
-        @PathVariable String uboDeclarationId
+        @PathVariable String uboDeclarationId,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Customer type"
+        )
+        @RequestParam(name = "type", required = true) EnumCustomerType customerType
     );
 
     /**
      * Create new UBO declaration
      *
-     * @param command The declaration to create
+     * @param customerType The customer type
      * @return
      */
     @Operation(
         operationId = "ubo-03",
         summary     = "Create Declaration",
         description = "Creates a draft UBO declaration with status `CREATED`. Only a single UBO declaration with status `CREATED`, "
-                    + "`INCOMPLETE` or `VALIDATION_ASKED` can exist. Required role: `ROLE_PROVIDER`"
+                    + "`INCOMPLETE` or `VALIDATION_ASKED` can exist. Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -120,7 +135,14 @@ public interface UboDeclarationController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = UboDeclarationEndpointTypes.UboDeclarationResponse.class))
     )
     @PostMapping(value = "/ubo-declarations")
-    RestResponse<UboDeclarationDto> createUboDeclaration();
+    RestResponse<UboDeclarationDto> createUboDeclaration(
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Customer type"
+        )
+        @RequestParam(name = "type", required = true) EnumCustomerType customerType
+    );
 
     /**
      * Add UBO
@@ -133,7 +155,7 @@ public interface UboDeclarationController {
         operationId = "ubo-04",
         summary     = "Add UBO",
         description = "Adds a new UBO to the draft UBO declaration. Only records with status `CREATED` or `INCOMPLETE` can be updated. "
-                    + "Required role: `ROLE_PROVIDER`"
+                    + "Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -175,7 +197,7 @@ public interface UboDeclarationController {
         operationId = "ubo-05",
         summary     = "Update UBO",
         description = "Updates an existing UBO of the draft UBO declaration. Only records with status `CREATED` "
-                    + "or `INCOMPLETE`can be updated. Required role: `ROLE_PROVIDER`"
+                    + "or `INCOMPLETE`can be updated. Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -216,13 +238,14 @@ public interface UboDeclarationController {
      *
      * @param uboDeclarationId The UBO declaration unique identifier
      * @param uboId The UBO unique identifier
+     * @param customerType The customer type
      * @return
      */
     @Operation(
         operationId = "ubo-06",
         summary     = "Remove UBO",
         description = "Removes a UBO from the draft UBO declaration. Only records with status `CREATED` "
-                    + "or `INCOMPLETE` can be updated. Required role: `ROLE_PROVIDER`"
+                    + "or `INCOMPLETE` can be updated. Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -243,20 +266,27 @@ public interface UboDeclarationController {
             required    = true,
             description = "UBO unique identifier"
         )
-        @PathVariable String uboId
+        @PathVariable String uboId,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Customer type"
+        )
+        @RequestParam(name = "type", required = true) EnumCustomerType customerType
     );
 
     /**
      * Submit UBO
      *
      * @param uboDeclarationId The UBO declaration unique identifier
+     * @param customerType The customer type
      * @return
      */
     @Operation(
         operationId = "ubo-07",
         summary     = "Submit Declaration",
         description = "Submit the draft UBO declaration for validation. The declaration status must be `CREATED` or `INCOMPLETE`. "
-                    + "Required role: `ROLE_PROVIDER`"
+                    + "Required role: `ROLE_CONSUMER`, `ROLE_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -270,7 +300,13 @@ public interface UboDeclarationController {
             required    = true,
             description = "UBO declaration unique identifier"
         )
-        @PathVariable String uboDeclarationId
+        @PathVariable String uboDeclarationId,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = true,
+            description = "Customer type"
+        )
+        @RequestParam(name = "type", required = true) EnumCustomerType customerType
     );
 
 }

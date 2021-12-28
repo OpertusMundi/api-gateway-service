@@ -12,7 +12,7 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
-import eu.opertusmundi.common.model.account.CustomerCommandDto;
+import eu.opertusmundi.common.model.account.ConsumerCommandDto;
 import eu.opertusmundi.common.service.ConsumerRegistrationService;
 import eu.opertusmundi.web.validation.ConsumerValidator;
 
@@ -28,14 +28,14 @@ public class ConsumerRegistrationControllerImpl extends BaseController implement
     private ConsumerValidator consumerValidator;
 
     @Override
-    public RestResponse<AccountProfileDto> updateRegistration(CustomerCommandDto command, BindingResult validationResult) {
+    public RestResponse<AccountProfileDto> updateRegistration(ConsumerCommandDto command, BindingResult validationResult) {
         this.ensureRegistered();
 
         return this.update(command, validationResult, true);
     }
 
     @Override
-    public RestResponse<AccountProfileDto> submitRegistration(CustomerCommandDto command, BindingResult validationResult) {
+    public RestResponse<AccountProfileDto> submitRegistration(ConsumerCommandDto command, BindingResult validationResult) {
         this.ensureRegistered();
 
         return this.update(command, validationResult, false);
@@ -60,7 +60,7 @@ public class ConsumerRegistrationControllerImpl extends BaseController implement
         }
     }
 
-    private RestResponse<AccountProfileDto> update(CustomerCommandDto command, BindingResult validationResult, boolean draft) {
+    private RestResponse<AccountProfileDto> update(ConsumerCommandDto command, BindingResult validationResult, boolean draft) {
         final Integer id = this.currentUserId();
 
         // Inject user id (id property is always ignored during serialization)

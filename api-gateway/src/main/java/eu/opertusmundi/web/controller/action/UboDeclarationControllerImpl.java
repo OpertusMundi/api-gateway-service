@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.account.EnumCustomerType;
 import eu.opertusmundi.common.model.kyc.CustomerVerificationException;
 import eu.opertusmundi.common.model.kyc.UboCommandDto;
 import eu.opertusmundi.common.model.kyc.UboDeclarationCommand;
@@ -26,12 +27,13 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
     private CustomerVerificationService customerVerificationService;
 
     @Override
-    public RestResponse<?> findAllDeclarations(int pageIndex, int pageSize) {
+    public RestResponse<?> findAllDeclarations(int pageIndex, int pageSize, EnumCustomerType customerType) {
         try {
             final UboQueryCommand command = UboQueryCommand.builder()
                 .pageIndex(pageIndex < 0 ? 0 : pageIndex)
                 .pageSize(pageSize < 1 ? 10 : pageSize)
-                .providerKey(this.currentUserKey())
+                .customerKey(this.currentUserKey())
+                .customerType(customerType)
                 .build();
 
             final PageResultDto<UboDeclarationDto> result  = this.customerVerificationService.findAllUboDeclarations(command);
@@ -47,10 +49,11 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
     }
 
     @Override
-    public RestResponse<UboDeclarationDto> findOneDeclaration(String uboDeclarationId) {
+    public RestResponse<UboDeclarationDto> findOneDeclaration(String uboDeclarationId, EnumCustomerType customerType) {
         try {
             final UboDeclarationCommand command = UboDeclarationCommand.builder()
-                .providerKey(this.currentUserKey())
+                .customerKey(this.currentUserKey())
+                .customerType(customerType)
                 .uboDeclarationId(uboDeclarationId)
                 .build();
 
@@ -71,9 +74,12 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
     }
 
     @Override
-    public RestResponse<UboDeclarationDto> createUboDeclaration() {
+    public RestResponse<UboDeclarationDto> createUboDeclaration(EnumCustomerType customerType) {
         try {
-            final UboDeclarationCommand command = UboDeclarationCommand.builder().providerKey(this.currentUserKey()).build();
+            final UboDeclarationCommand command = UboDeclarationCommand.builder()
+                .customerKey(this.currentUserKey())
+                .customerType(customerType)
+                .build();
 
             final UboDeclarationDto result = this.customerVerificationService.createUboDeclaration(command);
 
@@ -90,7 +96,7 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
     @Override
     public RestResponse<UboDto> addUbo(String uboDeclarationId, UboCommandDto command, BindingResult validationResult) {
         try {
-            command.setProviderKey(this.currentUserKey());
+            command.setCustomerKey(this.currentUserKey());
             command.setUboDeclarationId(uboDeclarationId);
 
             if (validationResult.hasErrors()) {
@@ -112,7 +118,7 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
     @Override
     public RestResponse<UboDto> updateUbo(String uboDeclarationId, String uboId, UboCommandDto command, BindingResult validationResult) {
         try {
-            command.setProviderKey(this.currentUserKey());
+            command.setCustomerKey(this.currentUserKey());
             command.setUboDeclarationId(uboDeclarationId);
             command.setUboId(uboId);
 
@@ -133,10 +139,11 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
     }
 
     @Override
-    public BaseResponse removeUbo(String uboDeclarationId, String uboId) {
+    public BaseResponse removeUbo(String uboDeclarationId, String uboId, EnumCustomerType customerType) {
         try {
             final UboCommandDto command = new UboCommandDto();
-            command.setProviderKey(this.currentUserKey());
+            command.setCustomerKey(this.currentUserKey());
+            command.setCustomerType(customerType);
             command.setUboDeclarationId(uboDeclarationId);
             command.setUboId(uboId);
 
@@ -153,9 +160,9 @@ public class UboDeclarationControllerImpl extends BaseController implements UboD
     }
 
     @Override
-    public RestResponse<UboDeclarationDto> submitUboDeclaration(String uboDeclarationId) {
+    public RestResponse<UboDeclarationDto> submitUboDeclaration(String uboDeclarationId, EnumCustomerType customerType) {
         try {
-            final UboDeclarationCommand command = UboDeclarationCommand.of(this.currentUserKey(), uboDeclarationId);
+            final UboDeclarationCommand command = UboDeclarationCommand.of(this.currentUserKey(), customerType, uboDeclarationId);
             final UboDeclarationDto     result  = this.customerVerificationService.submitUboDeclaration(command);
 
             return RestResponse.result(result);
