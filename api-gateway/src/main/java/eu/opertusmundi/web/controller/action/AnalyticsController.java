@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
-import eu.opertusmundi.common.model.analytics.BaseQuery;
+import eu.opertusmundi.common.model.analytics.CoverageQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
 import eu.opertusmundi.common.model.openapi.schema.AnalyticsEndpointTypes;
@@ -29,7 +30,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "Data analysis API"
 )
 @RequestMapping(path = "/action/analytics", produces = "application/json")
-@Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
 public interface AnalyticsController {
 
     /**
@@ -57,6 +57,7 @@ public interface AnalyticsController {
         )
     )
     @PostMapping(value = "/sales", consumes = { "application/json" })
+    @Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
     @Validated
     RestResponse<?> executeSalesQuery(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -101,6 +102,7 @@ public interface AnalyticsController {
         )
     )
     @PostMapping(value = "/assets", consumes = { "application/json" })
+    @Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
     @Validated
     RestResponse<?> executeAssetQuery(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -119,7 +121,7 @@ public interface AnalyticsController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Query asset coverage data
      *
@@ -130,7 +132,7 @@ public interface AnalyticsController {
     @Operation(
         operationId = "analytics-03",
         summary     = "Coverage",
-        description = "Execute a query on coverage data and return a single data series. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`",
+        description = "Execute a query on coverage data and return a single data series",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -151,19 +153,19 @@ public interface AnalyticsController {
             description = "Query to execute",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = BaseQuery.class)
+                schema = @Schema(implementation = CoverageQuery.class)
             ),
             required = true
         )
         @Valid
         @RequestBody
-        BaseQuery query,
+        CoverageQuery query,
         @Parameter(
             hidden = true
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Query asset price data
      *
@@ -173,8 +175,8 @@ public interface AnalyticsController {
      */
     @Operation(
         operationId = "analytics-04",
-        summary     = "Total Price",
-        description = "Execute a query on pricing data and return a single data series. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`",
+        summary     = "Asset Total Value",
+        description = "Execute a query on published asset pricing model data and return a single data series with asset total value",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -188,20 +190,20 @@ public interface AnalyticsController {
             )
         )
     )
-    @PostMapping(value = "/price", consumes = { "application/json" })
+    @PostMapping(value = "/asset-total-value", consumes = { "application/json" })
     @Validated
-    RestResponse<?> executePriceQuery(
+    RestResponse<?> executeTotalAssetValueQuery(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Query to execute",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = BaseQuery.class)
+                schema = @Schema(implementation = AssetTotalValueQuery.class)
             ),
             required = true
         )
         @Valid
         @RequestBody
-        BaseQuery query,
+        AssetTotalValueQuery query,
         @Parameter(
             hidden = true
         )

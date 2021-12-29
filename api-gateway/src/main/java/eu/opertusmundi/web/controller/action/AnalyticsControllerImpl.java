@@ -2,15 +2,14 @@ package eu.opertusmundi.web.controller.action;
 
 import java.util.ArrayList;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
-import eu.opertusmundi.common.model.analytics.BaseQuery;
+import eu.opertusmundi.common.model.analytics.CoverageQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
 import eu.opertusmundi.common.service.DataAnalysisService;
@@ -22,7 +21,7 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
     private DataAnalysisService analysisService;
 
     @Override
-    public RestResponse<?> executeSalesQuery(@Valid SalesQuery query, BindingResult validationResult) {
+    public RestResponse<?> executeSalesQuery(SalesQuery query, BindingResult validationResult) {
         // Override publisher key
         if (query.getPublishers() == null) {
             query.setPublishers(new ArrayList<>());
@@ -41,7 +40,7 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
     }
 
     @Override
-    public RestResponse<?> executeAssetQuery(@Valid AssetViewQuery query, BindingResult validationResult) {
+    public RestResponse<?> executeAssetQuery(AssetViewQuery query, BindingResult validationResult) {
         // Override publisher key
         if (query.getPublishers() == null) {
             query.setPublishers(new ArrayList<>());
@@ -58,17 +57,9 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
 
         return RestResponse.result(result);
     }
-    
-    @Override
-    public RestResponse<?> executeCoverageQuery(@Valid BaseQuery query, BindingResult validationResult) {
-        // Override publisher key
-        if (query.getPublishers() == null) {
-            query.setPublishers(new ArrayList<>());
-        }
-        query.getPublishers().clear();
-        // View parent account (vendor) analytics
-        query.getPublishers().add(this.currentUserParentKey());
 
+    @Override
+    public RestResponse<?> executeCoverageQuery(CoverageQuery query, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
@@ -77,22 +68,14 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
 
         return RestResponse.result(result);
     }
-    
-    @Override
-    public RestResponse<?> executePriceQuery(@Valid BaseQuery query, BindingResult validationResult) {
-        // Override publisher key
-        if (query.getPublishers() == null) {
-            query.setPublishers(new ArrayList<>());
-        }
-        query.getPublishers().clear();
-        // View parent account (vendor) analytics
-        query.getPublishers().add(this.currentUserParentKey());
 
+    @Override
+    public RestResponse<?> executeTotalAssetValueQuery(AssetTotalValueQuery query, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        final DataSeries<?> result = analysisService.executeTotalPrice(query);
+        final DataSeries<?> result = analysisService.executeTotalAssetValue(query);
 
         return RestResponse.result(result);
     }
