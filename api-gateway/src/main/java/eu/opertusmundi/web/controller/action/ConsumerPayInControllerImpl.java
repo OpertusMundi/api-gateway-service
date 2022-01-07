@@ -36,7 +36,7 @@ import eu.opertusmundi.common.model.payment.UserPaginationCommand;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerPayInDto;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.OrderFulfillmentService;
-import eu.opertusmundi.common.service.PaymentService;
+import eu.opertusmundi.common.service.mangopay.PaymentService;
 
 @RestController
 public class ConsumerPayInControllerImpl extends BaseController implements ConsumerPayInController {

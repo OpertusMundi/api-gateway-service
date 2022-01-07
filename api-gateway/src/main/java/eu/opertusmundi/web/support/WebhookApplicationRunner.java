@@ -7,7 +7,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import eu.opertusmundi.common.service.MangoPayWebhookHelper;
+import eu.opertusmundi.common.service.mangopay.MangoPayWebhookHelper;
 
 /**
  * {@link ApplicationRunner} for configuring MANGOPAY web hooks

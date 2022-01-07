@@ -30,7 +30,7 @@ import eu.opertusmundi.common.model.kyc.KycDocumentCommandDto;
 import eu.opertusmundi.common.model.kyc.KycDocumentDto;
 import eu.opertusmundi.common.model.kyc.KycDocumentPageCommandDto;
 import eu.opertusmundi.common.model.kyc.KycQueryCommand;
-import eu.opertusmundi.common.service.CustomerVerificationService;
+import eu.opertusmundi.common.service.mangopay.CustomerVerificationService;
 
 @RestController
 public class KycDocumentControllerImpl extends BaseController implements KycDocumentController {

@@ -17,8 +17,8 @@ import eu.opertusmundi.common.model.MessageCode;
 import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.payment.PaymentException;
 import eu.opertusmundi.common.model.payment.PaymentMessageCode;
-import eu.opertusmundi.common.service.MangoPayWebhookHandler;
-import eu.opertusmundi.common.service.PaymentService;
+import eu.opertusmundi.common.service.mangopay.MangoPayWebhookHandler;
+import eu.opertusmundi.common.service.mangopay.PaymentService;
 
 @Controller
 public class MangoPayWebhookControllerImpl implements MangoPayWebhookController {

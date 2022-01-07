@@ -26,8 +26,8 @@ import eu.opertusmundi.common.model.pricing.EffectivePricingModelDto;
 import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.CatalogueService;
-import eu.opertusmundi.common.service.PaymentService;
 import eu.opertusmundi.common.service.QuotationService;
+import eu.opertusmundi.common.service.mangopay.PaymentService;
 
 @RestController
 public class CartControllerImpl extends BaseController implements CartController {

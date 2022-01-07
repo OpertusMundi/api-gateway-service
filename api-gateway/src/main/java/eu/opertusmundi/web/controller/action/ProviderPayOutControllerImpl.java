@@ -11,7 +11,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.payment.EnumPayOutSortField;
 import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
 import eu.opertusmundi.common.model.payment.PayOutDto;
-import eu.opertusmundi.common.service.PaymentService;
+import eu.opertusmundi.common.service.mangopay.PaymentService;
 
 @RestController
 public class ProviderPayOutControllerImpl extends BaseController implements ProviderPayOutController {

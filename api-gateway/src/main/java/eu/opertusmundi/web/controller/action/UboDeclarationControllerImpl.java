@@ -16,7 +16,7 @@ import eu.opertusmundi.common.model.kyc.UboDeclarationCommand;
 import eu.opertusmundi.common.model.kyc.UboDeclarationDto;
 import eu.opertusmundi.common.model.kyc.UboDto;
 import eu.opertusmundi.common.model.kyc.UboQueryCommand;
-import eu.opertusmundi.common.service.CustomerVerificationService;
+import eu.opertusmundi.common.service.mangopay.CustomerVerificationService;
 
 @RestController
 public class UboDeclarationControllerImpl extends BaseController implements UboDeclarationController {
