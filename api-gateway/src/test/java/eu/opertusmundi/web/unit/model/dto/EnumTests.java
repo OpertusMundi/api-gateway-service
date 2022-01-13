@@ -8,14 +8,14 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.opertusmundi.common.model.EnumExternalDataProviderRole;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.EnumVendorRole;
+import eu.opertusmundi.common.model.pricing.EnumExternalDataProviderPricingModel;
+import eu.opertusmundi.common.model.pricing.EnumPricingModel;
 
-@JsonTest
 @ExtendWith(SpringExtension.class)
 public class EnumTests {
 
@@ -41,6 +41,18 @@ public class EnumTests {
             .collect(Collectors.toList());
 
         assertThat(roles).containsAll(externalRoles);
+    }
+
+    @Test
+    void enumPricingModelMustIncludeEnumExternalDataProviderPricingModelValues() throws Exception {
+        final List<String> models         = Arrays.stream(EnumPricingModel.values())
+            .map(EnumPricingModel::name)
+            .collect(Collectors.toList());
+        final List<String> externalModels = Arrays.stream(EnumExternalDataProviderPricingModel.values())
+            .map(EnumExternalDataProviderPricingModel::name)
+            .collect(Collectors.toList());
+
+        assertThat(models).containsAll(externalModels);
     }
 
 }
