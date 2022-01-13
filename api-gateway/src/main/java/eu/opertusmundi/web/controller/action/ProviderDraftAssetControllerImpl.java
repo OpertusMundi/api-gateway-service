@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
+import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
@@ -101,11 +104,13 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> createDraft(CatalogueItemCommandDto command, boolean lock,  BindingResult validationResult) {
-        try {
-            this.injectCatalogueItemCommandProperties(command);
-            command.setLocked(lock);
+    public RestResponse<AssetDraftDto> createDraft(boolean lock, CatalogueItemCommandDto command, BindingResult validationResult) {
+        // Inject command properties
+        this.injectCatalogueItemCommandProperties(command, lock);
+        // Authorize command
+        this.authorizeCommand(command);
 
+        try {
             this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE);
 
             if (validationResult.hasErrors()) {
@@ -125,7 +130,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> createDraftFromAsset(DraftFromAssetCommandDto command, boolean lock, BindingResult validationResult) {
+    public RestResponse<AssetDraftDto> createDraftFromAsset(
+        boolean lock, DraftFromAssetCommandDto command, BindingResult validationResult
+    ) {
         try {
             command.setPublisherKey(this.currentUserParentKey());
             command.setOwnerKey(this.currentUserKey());
@@ -149,7 +156,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public BaseResponse createApiDraft(DraftApiCommandDto command, boolean lock,  BindingResult validationResult) {
+    public BaseResponse createApiDraft(boolean lock, DraftApiCommandDto command, BindingResult validationResult) {
         try {
             command.setPublisherKey(this.currentUserParentKey());
             command.setOwnerKey(this.currentUserKey());
@@ -197,11 +204,15 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<AssetDraftDto> updateDraft(UUID draftKey, CatalogueItemCommandDto command, boolean lock, BindingResult validationResult) {
-        try {
-            this.injectCatalogueItemCommandProperties(draftKey, command);
-            command.setLocked(lock);
+    public RestResponse<AssetDraftDto> updateDraft(
+        UUID draftKey, boolean lock, CatalogueItemCommandDto command, BindingResult validationResult
+    ) {
+        // Inject command properties
+        this.injectCatalogueItemCommandProperties(draftKey, command, lock);
+        // Authorize command
+        this.authorizeCommand(command);
 
+        try {
             this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE, draftKey);
 
             if (validationResult.hasErrors()) {
@@ -222,9 +233,12 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Override
     public BaseResponse submitDraft(UUID draftKey, CatalogueItemCommandDto command, BindingResult validationResult) {
-        try {
-            this.injectCatalogueItemCommandProperties(draftKey, command);
+        // Inject command properties
+        this.injectCatalogueItemCommandProperties(draftKey, command, false);
+        // Authorize command
+        this.authorizeCommand(command);
 
+        try {
             this.draftValidator.validate(command, validationResult, EnumValidationMode.SUBMIT, draftKey);
 
             if (validationResult.hasErrors()) {
@@ -456,12 +470,29 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
-    private void injectCatalogueItemCommandProperties(CatalogueItemCommandDto command) {
-        this.injectCatalogueItemCommandProperties(null, command);
+    private void authorizeCommand(@Nullable CatalogueItemCommandDto command) {
+        if (command == null) {
+            return;
+        }
+        final EnumAssetType type = command.getType();
+
+        if (type == null) {
+            return;
+        }
+        final EnumRole requiredRole = type.getRequiredRole();
+
+        if (requiredRole != null && !this.hasRole(requiredRole)) {
+            throw new AccessDeniedException("Access Denied");
+        }
     }
 
-    private void injectCatalogueItemCommandProperties(UUID draftKey, CatalogueItemCommandDto command) {
+    private void injectCatalogueItemCommandProperties(CatalogueItemCommandDto command, boolean lock) {
+        this.injectCatalogueItemCommandProperties(null, command, lock);
+    }
+
+    private void injectCatalogueItemCommandProperties(UUID draftKey, CatalogueItemCommandDto command, boolean lock) {
         command.setDraftKey(draftKey);
+        command.setLocked(lock);
         command.setOwnerKey(this.currentUserKey());
         command.setPublisherKey(this.currentUserParentKey());
 
@@ -469,7 +500,6 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             // Always override the key with a value generated at the server
             m.setKey(UUID.randomUUID());
         });
-
     }
 
     @Override

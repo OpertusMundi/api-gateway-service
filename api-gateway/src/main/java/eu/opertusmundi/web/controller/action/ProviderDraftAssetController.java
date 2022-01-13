@@ -152,6 +152,13 @@ public interface ProviderDraftAssetController {
     @PostMapping(value = "/drafts", consumes = "application/json")
     @Validated
     RestResponse<AssetDraftDto> createDraft(
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "`true` if the new record must be also locked"
+        )
+        @RequestParam(name = "lock", required = false, defaultValue = "true")
+        boolean lock,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "New draft item.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueItemCommandDto.class)),
@@ -160,12 +167,6 @@ public interface ProviderDraftAssetController {
         @Valid
         @RequestBody
         CatalogueItemCommandDto command,
-        @Parameter(
-            in = ParameterIn.QUERY,
-            required = false,
-            description = "`true` if the new record must be also locked"
-        )
-        @RequestParam(name = "lock", required = false, defaultValue = "true") boolean lock,
         @Parameter(
             hidden = true
         )
@@ -193,6 +194,12 @@ public interface ProviderDraftAssetController {
     @PostMapping(value = "/drafts/asset", consumes = "application/json")
     @Validated
     RestResponse<AssetDraftDto> createDraftFromAsset(
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "`true` if the new record must also be locked"
+        )
+        @RequestParam(name = "lock", required = false, defaultValue = "true") boolean lock,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Draft create command",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = DraftFromAssetCommandDto.class)),
@@ -201,12 +208,6 @@ public interface ProviderDraftAssetController {
         @Valid
         @RequestBody
         DraftFromAssetCommandDto command,
-        @Parameter(
-            in = ParameterIn.QUERY,
-            required = false,
-            description = "`true` if the new record must also be locked"
-        )
-        @RequestParam(name = "lock", required = false, defaultValue = "true") boolean lock,
         @Parameter(
             hidden = true
         )
@@ -281,6 +282,13 @@ public interface ProviderDraftAssetController {
             description = "Item unique key"
         )
         @PathVariable UUID draftKey,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "`true` if the record must remain locked after a successful save operation. "
+                        + "If a lock already exists and belongs to another user, an error is returned."
+        )
+        @RequestParam(name = "lock", required = false, defaultValue = "false") boolean lock,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Updated item.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueItemCommandDto.class)),
@@ -289,13 +297,6 @@ public interface ProviderDraftAssetController {
         @Valid
         @RequestBody
         CatalogueItemCommandDto command,
-        @Parameter(
-            in = ParameterIn.QUERY,
-            required = false,
-            description = "`true` if the record must remain locked after a successful save operation. "
-                        + "If a lock already exists and belongs to another user, an error is returned."
-        )
-        @RequestParam(name = "lock", required = false, defaultValue = "false") boolean lock,
         @Parameter(
             hidden = true
         )
@@ -604,6 +605,13 @@ public interface ProviderDraftAssetController {
     @PostMapping(value = "/drafts/api")
     @Validated
     BaseResponse createApiDraft(
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "`true` if the new record must also be locked"
+        )
+        @RequestParam(name = "lock", required = false, defaultValue = "true")
+        boolean lock,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Draft creation command",
             content = @Content(
@@ -615,12 +623,6 @@ public interface ProviderDraftAssetController {
         @Valid
         @RequestBody
         DraftApiCommandDto command,
-        @Parameter(
-            in = ParameterIn.QUERY,
-            required = false,
-            description = "`true` if the new record must also be locked"
-        )
-        @RequestParam(name = "lock", required = false, defaultValue = "true") boolean lock,
         @Parameter(
             hidden = true
         )
