@@ -30,6 +30,7 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.EnumSortingOrder;
+import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceException;
@@ -40,15 +41,19 @@ import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
+import eu.opertusmundi.common.model.asset.UserFileResourceCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemMetadataCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
+import eu.opertusmundi.common.model.file.FilePathCommand;
+import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
+import eu.opertusmundi.common.service.UserFileManager;
 import eu.opertusmundi.web.validation.ApiDraftValidator;
 import eu.opertusmundi.web.validation.AssetFileResourceValidator;
 import eu.opertusmundi.web.validation.DraftFromAssetValidator;
@@ -63,6 +68,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Autowired
     private DraftValidator draftValidator;
+
+    @Autowired
+    private UserFileManager userFileManager;
 
     @Autowired
     private DraftFromAssetValidator draftFromAssetValidator;
@@ -301,6 +309,49 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         }
 
         return RestResponse.failure();
+    }
+
+    @Override
+    public RestResponse<?> addResourceFromFileSystem(
+        UUID draftKey, UserFileResourceCommandDto command, BindingResult validationResult
+    ) {
+        final Integer userId       = this.currentUserId();
+        final UUID    ownerKey     = this.currentUserKey();
+        final UUID    publisherKey = this.currentUserParentKey();
+
+        command.setDraftKey(draftKey);
+        command.setOwnerKey(ownerKey);
+        command.setPublisherKey(publisherKey);
+        command.setUserId(userId);
+
+        // Resolve file
+        final FilePathCommand fileCommand = FilePathCommand.builder()
+            .path(command.getPath())
+            .userId(command.getUserId())
+            .build();
+
+        try {
+            final Path path = this.userFileManager.resolveFilePath(fileCommand);
+
+            command.setSize(Files.size(path));
+            if (StringUtils.isBlank(command.getFileName())) {
+                command.setFileName(path.getFileName().toString());
+            }
+        } catch (final IOException | FileSystemException ex) {
+            validationResult.rejectValue("path", EnumValidatorError.FileNotFound.name());
+        }
+
+        this.assetResourceValidator.validate(command, validationResult);
+
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
+        }
+
+        this.providerAssetService.addFileResource(command);
+
+        final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey, false);
+
+        return RestResponse.result(draft);
     }
 
     @Override

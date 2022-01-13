@@ -34,6 +34,7 @@ import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceCommandDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
+import eu.opertusmundi.common.model.asset.UserFileResourceCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
@@ -416,7 +417,7 @@ public interface ProviderDraftAssetController {
      * @param validationResult
      */
     @Operation(
-        operationId = "draft-asset-08",
+        operationId = "draft-asset-08a",
         summary     = "Upload resource",
         description = "Uploads a resource file and links it to selected draft instance. On success, an updated draft is returned "
                     + "with the new resource registration. If the record is locked by another user, the operation will fail. "
@@ -444,6 +445,45 @@ public interface ProviderDraftAssetController {
         ))
         @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
         @Valid @RequestPart(name = "data", required = true) FileResourceCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+
+    /**
+     * Add a resource file from the user's file system
+     *
+     * @param draftKey Draft unique key
+     * @param command The selected file to add as a resource
+     * @param validationResult
+     */
+    @Operation(
+        operationId = "draft-asset-08b",
+        summary     = "Add resource",
+        description = "Uploads a file and links it to selected draft instance or adds a resource from an "
+                    + "existing file in the user's file system. On success, an updated draft is returned "
+                    + "with the new resource registration. If the record is locked by another user, the operation "
+                    + "will fail. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
+    )
+    @PostMapping(value = "/drafts/{draftKey}/resources", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Validated
+    RestResponse<?> addResourceFromFileSystem(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Valid @RequestBody UserFileResourceCommandDto command,
         @Parameter(
             hidden = true
         )

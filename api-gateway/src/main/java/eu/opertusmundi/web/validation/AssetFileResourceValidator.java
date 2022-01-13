@@ -11,6 +11,8 @@ import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
 import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
+import eu.opertusmundi.common.model.asset.ResourceCommandDto;
+import eu.opertusmundi.common.model.asset.UserFileResourceCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.repository.ProviderAssetDraftRepository;
@@ -26,15 +28,33 @@ public class AssetFileResourceValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return FileResourceCommandDto.class.isAssignableFrom(clazz);
+        return FileResourceCommandDto.class.isAssignableFrom(clazz) ||
+               UserFileResourceCommandDto.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void validate(Object o, Errors e) {
-        final FileResourceCommandDto c = (FileResourceCommandDto) o;
+        if (o instanceof FileResourceCommandDto) {
+            final FileResourceCommandDto c = (FileResourceCommandDto) o;
+            this.validate(c, e);
+        }
+        if (o instanceof UserFileResourceCommandDto) {
+            final UserFileResourceCommandDto c = (UserFileResourceCommandDto) o;
+            this.validate(c, e);
+        }
+    }
 
+    private void validate(FileResourceCommandDto c, Errors e) {
+        this.validateFormat(c, c.getFileName(), c.getFormat(), e);
+    }
+
+    private void validate(UserFileResourceCommandDto c, Errors e) {
+        this.validateFormat(c, c.getFileName(), c.getFormat(), e);
+    }
+
+    private void validateFormat(ResourceCommandDto command, String fileName, String format, Errors e) {
         final ProviderAssetDraftEntity draft = this.providerAssetDraftRepository.findOneByPublisherAndKey(
-            c.getPublisherKey(), c.getDraftKey()
+            command.getPublisherKey(), command.getDraftKey()
         ).orElse(null);
 
         if (draft.getType() == EnumAssetType.BUNDLE) {
@@ -42,19 +62,19 @@ public class AssetFileResourceValidator implements Validator {
             return;
         }
 
-        final String              extension = FilenameUtils.getExtension(c.getFileName());
-        final AssetFileTypeEntity format    = this.assetFileTypeRepository.findOneByCategoryAndFormat(draft.getType(), c.getFormat()).orElse(null);
+        final String              extension = FilenameUtils.getExtension(fileName);
+        final AssetFileTypeEntity fileType  = this.assetFileTypeRepository.findOneByCategoryAndFormat(draft.getType(), format).orElse(null);
 
-        if (format == null) {
+        if (fileType == null) {
             e.rejectValue("format", EnumValidatorError.OptionNotFound.name());
-        } else if (!format.isEnabled()) {
+        } else if (!fileType.isEnabled()) {
             e.rejectValue("format", EnumValidatorError.OptionNotEnabled.name());
-        } else if (draft != null && draft.isIngested() && format.getCategory() != EnumAssetType.VECTOR) {
+        } else if (draft != null && draft.isIngested() && fileType.getCategory() != EnumAssetType.VECTOR) {
             e.rejectValue("ingested", EnumValidatorError.OperationNotSupported.name());
         } else if (StringUtils.isBlank(extension)) {
             e.rejectValue("fileName", EnumValidatorError.FileExtensionNotSupported.name());
-        } else if (!format.getExtensions().contains(extension)) {
-            if (format.isBundleSupported() && extension.equals("zip")) {
+        } else if (!fileType.getExtensions().contains(extension)) {
+            if (fileType.isBundleSupported() && extension.equals("zip")) {
                 return;
             }
             e.rejectValue("fileName", EnumValidatorError.FileExtensionNotSupported.name());
