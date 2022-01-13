@@ -11,7 +11,6 @@ import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
-import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
@@ -33,23 +32,21 @@ public class ApiDraftValidator implements Validator {
 
     @Override
     public void validate(Object o, Errors e) {
+        if (e.hasErrors()) {
+            return;
+        }
+
         final DraftApiCommandDto c = (DraftApiCommandDto) o;
 
-        if (c.getServiceType() != null) {
-            final EnumSpatialDataServiceType serviceType = EnumSpatialDataServiceType.fromString(c.getServiceType());
-
-            if (serviceType != null) {
-                switch (serviceType) {
-                    case WMS :
-                    case WFS :
-                    case DATA_API :
-                        // No action
-                        break;
-                    default :
-                        e.rejectValue("serviceType", EnumValidatorError.OptionNotSupported.name());
-                        break;
-                }
-            }
+        switch (c.getServiceType()) {
+            case WMS :
+            case WFS :
+            case DATA_API :
+                // No action
+                break;
+            default :
+                e.rejectValue("serviceType", EnumValidatorError.OptionNotSupported.name());
+                break;
         }
 
         switch (c.getType()) {
@@ -63,8 +60,7 @@ public class ApiDraftValidator implements Validator {
     }
 
     private void validateAssetCommand(DraftApiCommandDto c, Errors e) {
-        // final DraftApiFromAssetCommandDto command = (DraftApiFromAssetCommandDto) c;
-
+        // No validation required
     }
 
     private void validateFileCommand(DraftApiCommandDto c, Errors e) {
