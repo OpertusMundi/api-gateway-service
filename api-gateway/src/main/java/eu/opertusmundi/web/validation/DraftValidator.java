@@ -41,6 +41,7 @@ import eu.opertusmundi.common.repository.DraftRepository;
 import eu.opertusmundi.common.repository.contract.ProviderTemplateContractRepository;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.CatalogueService;
+import eu.opertusmundi.common.service.integration.DataProviderManager;
 
 @Component
 public class DraftValidator implements Validator {
@@ -51,6 +52,9 @@ public class DraftValidator implements Validator {
         SUBMIT,
         ;
     }
+
+    @Autowired
+    private DataProviderManager dataProviderManager;
 
     @Autowired
     private ProviderTemplateContractRepository contractRepository;
@@ -75,7 +79,6 @@ public class DraftValidator implements Validator {
         return CatalogueItemCommandDto.class.isAssignableFrom(clazz);
     }
 
-
     @Override
     public void validate(Object o, Errors e) {
         throw new AssetDraftException(AssetMessageCode.VALIDATION, "Operation not supported");
@@ -94,11 +97,23 @@ public class DraftValidator implements Validator {
         this.validateResources(c, e, mode);
         this.validateAdditionalResources(c, e);
         this.validatePricingModels(c, e, mode);
+        this.validateDeliveryMethods(c, e, mode);
+        this.validateExtensions(c, e, mode);
 
+        // Only one draft may exist for a specific parent
+        if (draftKey == null && !StringUtils.isBlank(c.getParentId())) {
+            final ProviderAssetDraftEntity parent = draftRepository.findAllByParentId(c.getParentId()).stream()
+                .findFirst()
+                .orElse(null);
+
+            if (parent != null) {
+                e.rejectValue("parentId", EnumValidatorError.NotUnique.name());
+            }
+        }
+        // Cannot change parent id once set
         if (draftKey != null) {
             final ProviderAssetDraftEntity draft = draftRepository.findOneByKey(draftKey).orElse(null);
             if (draft != null && !StringUtils.isBlank(draft.getParentId()) && !StringUtils.equals(draft.getParentId(), c.getParentId())) {
-                // Cannot change parent id once set
                 e.rejectValue("parentId", EnumValidatorError.NotUpdatable.name());
             }
         }
@@ -139,9 +154,10 @@ public class DraftValidator implements Validator {
     }
 
     private void validateResources(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
-        final List<AssetResourceEntity> serverResources = this.assetResourceRepository.findAllResourcesByDraftKey(c.getDraftKey());
-        final List<String>              serverKeys      = serverResources.stream().map(r -> r.getKey()).collect(Collectors.toList());
-        final List<String>              fileKeys        = c.getResources().stream()
+        final boolean                   resourceRequired = c.getType().isResourceRequired();
+        final List<AssetResourceEntity> serverResources  = this.assetResourceRepository.findAllResourcesByDraftKey(c.getDraftKey());
+        final List<String>              serverKeys       = serverResources.stream().map(r -> r.getKey()).collect(Collectors.toList());
+        final List<String>              fileKeys         = c.getResources().stream()
             .filter(r -> r.getType() == EnumResourceType.FILE)
             .map(r -> r.getId())
             .collect(Collectors.toList());
@@ -151,7 +167,7 @@ public class DraftValidator implements Validator {
             .collect(Collectors.toList());
 
         // For submitted drafts, at least one resource must exist
-        if (mode == EnumValidationMode.SUBMIT && c.getResources().isEmpty()) {
+        if (mode == EnumValidationMode.SUBMIT && c.getResources().isEmpty() && resourceRequired) {
             e.rejectValue("resources", EnumValidatorError.NotEmpty.name());
         }
 
@@ -258,37 +274,77 @@ public class DraftValidator implements Validator {
     }
 
     private void validatePricingModels(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
-        // At least one pricing model is required to submit the draft
-        if (c.getPricingModels().size() == 0 && mode == EnumValidationMode.SUBMIT) {
-            e.rejectValue("pricingModels", EnumValidatorError.NotEmpty.name());
-        } else {
-            // Validate each pricing model
-            for (int i = 0; i < c.getPricingModels().size(); i++) {
-                try {
-                    c.getPricingModels().get(i).validate();
-                } catch (final QuotationException ex) {
-                    e.rejectValue(String.format("pricingModels[%d]", i), EnumValidatorError.NotValid.name());
-                }
-            }
-            // For open datasets, only a single pricing model of type FREE is
-            // allowed
-            if (c.isOpenDataset()) {
-                if (c.getPricingModels().size() != 1) {
-                    e.rejectValue("pricingModels", EnumValidatorError.Size.name());
-                } else if (c.getPricingModels().get(0).getType() != EnumPricingModel.FREE) {
-                    e.rejectValue("pricingModels[0]", EnumValidatorError.OptionNotSupported.name());
-                }
-            }
-            // If FREE pricing model is selected, delivery method must be DIGITAL_PLATFORM
-            final BasePricingModelCommandDto freeModel = c.getPricingModels().stream()
-                .filter(m -> m.getType() == EnumPricingModel.FREE)
-                .findFirst()
-                .orElse(null);
+        final List<BasePricingModelCommandDto> models               = c.getPricingModels();
+        final List<EnumPricingModel>           allowedModels        = c.getType().getAllowedPricingModels();
+        final boolean                          dynamicPricingModels = c.getType().isDynamicPricingModels();
 
-            if (freeModel != null && c.getDeliveryMethod() != EnumDeliveryMethod.DIGITAL_PLATFORM) {
-                e.rejectValue("deliveryMethod", EnumValidatorError.OperationNotSupported.name());
+        // Check if at least one pricing model is required to submit the draft
+        if (!dynamicPricingModels && models.isEmpty() && mode == EnumValidationMode.SUBMIT) {
+            e.rejectValue("pricingModels", EnumValidatorError.NotEmpty.name());
+            return;
+        }
+        if(dynamicPricingModels && !models.isEmpty()) {
+            e.rejectValue("pricingModels", EnumValidatorError.OptionNotSupported.name());
+            return;
+        }
+
+        // Check if the selected asset type supports all specified pricing
+        // models
+        if (!allowedModels.isEmpty()) {
+            for (int i = 0; i < models.size(); i++) {
+                if (!allowedModels.contains(models.get(i).getType())) {
+                    e.rejectValue(String.format("pricingModels[%d]", i), EnumValidatorError.OptionNotSupported.name());
+                }
             }
         }
+        // Validate each pricing model
+        for (int i = 0; i < models.size(); i++) {
+            try {
+                models.get(i).validate();
+            } catch (final QuotationException ex) {
+                e.rejectValue(String.format("pricingModels[%d]", i), ex.getCode().toString());
+            }
+        }
+        // For open datasets, only a single pricing model of type FREE is
+        // allowed
+        if (c.isOpenDataset()) {
+            if (models.size() != 1) {
+                e.rejectValue("pricingModels", EnumValidatorError.Size.name());
+            } else if (models.get(0).getType() != EnumPricingModel.FREE) {
+                e.rejectValue("pricingModels[0]", EnumValidatorError.OptionNotSupported.name());
+            }
+        }
+        // If FREE pricing model is selected, delivery method must be DIGITAL_PLATFORM
+        final BasePricingModelCommandDto freeModel = models.stream()
+            .filter(m -> m.getType() == EnumPricingModel.FREE)
+            .findFirst()
+            .orElse(null);
+
+        if (freeModel != null && c.getDeliveryMethod() != EnumDeliveryMethod.DIGITAL_PLATFORM) {
+            e.rejectValue("deliveryMethod", EnumValidatorError.OperationNotSupported.name());
+        }
+    }
+
+    private void validateDeliveryMethods(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
+        final EnumDeliveryMethod       method         = c.getDeliveryMethod();
+        final List<EnumDeliveryMethod> allowedMethods = c.getType().getAllowedDeliveryMethods();
+
+        if (method == null || allowedMethods.isEmpty()) {
+            return;
+        }
+
+        // Check if the selected asset type and delivery method are compatible
+        if (!allowedMethods.contains(method)) {
+            e.rejectValue("deliveryMethod", EnumValidatorError.OptionNotSupported.name());
+        }
+    }
+
+    private void validateExtensions(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
+        if (c.getExtensions() == null) {
+            return;
+        }
+
+        dataProviderManager.validateCatalogueItem(c, e);
     }
 
 }

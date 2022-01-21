@@ -1,6 +1,5 @@
 package eu.opertusmundi.web.controller.integration;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -37,15 +36,7 @@ public class SentinelHubControllerImpl extends BaseController implements Sentine
 
     @Override
     public RestResponse<?> getSubscriptionPlans() {
-        final SubscriptionPlanDto plan = SubscriptionPlanDto.builder()
-            .title("Free")
-            .features(Arrays.<String[]>asList(
-                new String[] {"Download analytical data with EO Browser", "Community support","Non-commercial use"}
-            ))
-            .license("Creative Commons Attribution-NonCommercial 4.0 International License")
-            .build();
-
-        final List<SubscriptionPlanDto> result = Arrays.asList(plan);
+        final List<SubscriptionPlanDto> result = this.sentinelHub.getSubscriptionPlans();
 
         return RestResponse.result(result);
     }
