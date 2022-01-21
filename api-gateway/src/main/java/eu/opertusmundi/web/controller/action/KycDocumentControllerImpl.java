@@ -233,7 +233,7 @@ public class KycDocumentControllerImpl extends BaseController implements KycDocu
         }
 
         // Global exception handler
-        final String message = String.format("Operation has failed. [operation=%, command=[%s]]", operation, commandText);
+        final String message = String.format("Operation has failed. [operation=%s, command=[%s]]", operation, commandText);
 
         logger.error(message, ex);
 
