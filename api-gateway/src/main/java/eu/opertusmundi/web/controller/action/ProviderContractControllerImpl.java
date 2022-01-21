@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +103,7 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
     }
 
     @Override
-    public RestResponse<?> createDraft(@Valid ProviderTemplateContractCommandDto command, BindingResult validationResult) {
+    public RestResponse<?> createDraft(ProviderTemplateContractCommandDto command, BindingResult validationResult) {
         try {
             command.setUserId(this.currentUserId());
 
@@ -123,7 +122,7 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
     }
 
     @Override
-    public RestResponse<?> updateDraft(UUID key, @Valid ProviderTemplateContractCommandDto command, BindingResult validationResult) {
+    public RestResponse<?> updateDraft(UUID key, ProviderTemplateContractCommandDto command, BindingResult validationResult) {
         try {
             command.setDraftKey(key);
             command.setUserId(this.currentUserId());
