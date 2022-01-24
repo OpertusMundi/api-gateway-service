@@ -49,7 +49,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
         }
 
         try {
-            command.setUserId(this.currentUserId());
+            command.setUserName(this.currentUserEmail());
 
             this.fileManager.createPath(command);
 
@@ -65,7 +65,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
 
         try {
             final FilePathCommand command = FilePathCommand.builder()
-                .userId(this.currentUserId())
+                .userName(this.currentUserEmail())
                 .path(relativePath)
                 .build();
 
@@ -99,7 +99,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
 
         try {
             final FilePathCommand command = FilePathCommand.builder()
-                .userId(this.currentUserId())
+                .userName(this.currentUserEmail())
                 .path(path)
                 .build();
 
@@ -124,7 +124,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
         }
 
         try (final InputStream input = new ByteArrayInputStream(file.getBytes())) {
-            command.setUserId(this.currentUserId());
+            command.setUserName(this.currentUserEmail());
             command.setSize(file.getSize());
 
             this.fileManager.uploadFile(input, command);
@@ -138,7 +138,7 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
     private RestResponse<?> browse() {
         try {
             final FilePathCommand command = FilePathCommand.builder()
-                .userId(this.currentUserId())
+                .userName(this.currentUserEmail())
                 .path("/")
                 .build();
 

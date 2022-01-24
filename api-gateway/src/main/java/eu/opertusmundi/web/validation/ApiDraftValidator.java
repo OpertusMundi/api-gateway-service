@@ -69,7 +69,7 @@ public class ApiDraftValidator implements Validator {
         // Resolve resource file
         final FilePathCommand fileCommand = FilePathCommand.builder()
             .path(command.getPath())
-            .userId(command.getUserId())
+            .userName(command.getUserName())
             .build();
 
         try {

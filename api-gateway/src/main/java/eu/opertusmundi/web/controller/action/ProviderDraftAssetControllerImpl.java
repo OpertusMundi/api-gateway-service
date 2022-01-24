@@ -168,7 +168,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         try {
             command.setPublisherKey(this.currentUserParentKey());
             command.setOwnerKey(this.currentUserKey());
-            command.setUserId(this.currentUserId());
+            command.setUserName(this.currentUserEmail());
             command.setLocked(lock);
 
             this.apiDraftValidator.validate(command, validationResult);
@@ -315,19 +315,19 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     public RestResponse<?> addResourceFromFileSystem(
         UUID draftKey, UserFileResourceCommandDto command, BindingResult validationResult
     ) {
-        final Integer userId       = this.currentUserId();
-        final UUID    ownerKey     = this.currentUserKey();
-        final UUID    publisherKey = this.currentUserParentKey();
+        final String userName     = this.currentUserEmail();
+        final UUID   ownerKey     = this.currentUserKey();
+        final UUID   publisherKey = this.currentUserParentKey();
 
         command.setDraftKey(draftKey);
         command.setOwnerKey(ownerKey);
         command.setPublisherKey(publisherKey);
-        command.setUserId(userId);
+        command.setUserName(userName);
 
         // Resolve file
         final FilePathCommand fileCommand = FilePathCommand.builder()
             .path(command.getPath())
-            .userId(command.getUserId())
+            .userName(command.getUserName())
             .build();
 
         try {
