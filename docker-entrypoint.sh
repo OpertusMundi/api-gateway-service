@@ -6,14 +6,14 @@ set -u -e -o pipefail
 function _validate_http_url()
 {
     local var_name=$1
-    local re="^\(https\|http\)://\([a-z][-a-z0-9]*\)\([.][a-z][-a-z0-9]*\)*\([:][1-9][0-9]\{1,4\}\)\?\(/\|$\)"
+    local re="^\(https\|http\)://\([a-z0-9][-a-z0-9]*\)\([.][a-z0-9][-a-z0-9]*\)*\([:][1-9][0-9]\{1,4\}\)\?\(/\|$\)"
     grep -e "${re}" || { echo "${var_name} does not seem like an http(s) URL" 1>&2 && false; }
 }
 
 function _validate_database_url()
 {
     local var_name=$1
-    local re="^jdbc:postgresql://\([a-z][-a-z0-9]*\)\([.][a-z][-a-z0-9]*\)*\([:][1-9][0-9]\{1,4\}\)\?/[a-z][-_a-zA-Z0-9]*$"
+    local re="^jdbc:postgresql://\([a-z0-9][-a-z0-9]*\)\([.][a-z0-9][-a-z0-9]*\)*\([:][1-9][0-9]\{1,4\}\)\?/[a-z][-_a-zA-Z0-9]*$"
     grep -e "${re}" || { echo "${var_name} does not seem like a PostgreSQL JDBC connection URL" 1>&2 && false; }
 }
 
