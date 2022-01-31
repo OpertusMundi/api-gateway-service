@@ -15,16 +15,12 @@ import eu.opertusmundi.common.model.analytics.CoverageQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
 import eu.opertusmundi.common.service.DataAnalysisService;
-import eu.opertusmundi.common.service.ElasticSearchService;
 
 @RestController
 public class AnalyticsControllerImpl extends BaseController implements AnalyticsController {
 
     @Autowired
     private DataAnalysisService analysisService;
-    
-    @Autowired
-    private ElasticSearchService elasticService;
 
     @Override
     public RestResponse<?> executeSalesQuery(SalesQuery query, BindingResult validationResult) {
@@ -85,24 +81,23 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
 
         return RestResponse.result(result);
     }
-    
+
     @Override
     public RestResponse<?> executeFindPopularAssetViewsAndSearches(AssetViewQuery query, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        final List<ImmutablePair<String, Integer>> result = elasticService.findPopularAssetViewsAndSearches(query);
+        final List<ImmutablePair<String, Integer>> result = this.analysisService.executePopularAssetViewsAndSearches(query);
 
         return RestResponse.result(result);
     }
-    
+
     @Override
     public RestResponse<?> executeFindPopularTerms() {
-        final List<ImmutablePair<String, Integer>> result = elasticService.findPopularTerms();
-        
+        final List<ImmutablePair<String, Integer>> result = this.analysisService.executePopularTerms();
+
         return RestResponse.result(result);
     }
-
 
 }
