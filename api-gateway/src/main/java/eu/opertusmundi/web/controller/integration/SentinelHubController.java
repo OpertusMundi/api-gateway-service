@@ -15,6 +15,7 @@ import eu.opertusmundi.common.model.openapi.schema.SentinelHubEndpointTypes;
 import eu.opertusmundi.common.model.openapi.schema.SentinelHubEndpointTypes.SentinelHubCatalogueResponse;
 import eu.opertusmundi.common.model.openapi.schema.SentinelHubEndpointTypes.SentinelHubSubscriptionResponse;
 import eu.opertusmundi.common.model.sinergise.client.ClientCatalogueQueryDto;
+import eu.opertusmundi.web.model.openapi.schema.CommonTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -92,5 +93,27 @@ public interface SentinelHubController {
     )
     @GetMapping(value = "/quotation/subscriptions")
     RestResponse<?> getSubscriptionPlans();
+
+    /**
+     * Check if the authenticated user has already an active subscription to
+     * Sentinel Hub service
+     *
+     * @return An instance of {@link CommonTypes.BooleanResponse} class
+     */
+    @Operation(
+        operationId = "integration-sentinel-hub-03",
+        summary     = "Check subscription",
+        description = "Check if the authenticated user has already an active subscription to Sentinel Hub service. Required role: `ROLE_USER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CommonTypes.BooleanResponse.class)
+        )
+    )
+    @GetMapping(value = "/subscriptions")
+    RestResponse<Boolean> isSubscribed();
 
 }

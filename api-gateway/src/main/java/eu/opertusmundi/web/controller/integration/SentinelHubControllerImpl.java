@@ -40,4 +40,11 @@ public class SentinelHubControllerImpl extends BaseController implements Sentine
 
         return RestResponse.result(result);
     }
+
+    @Override
+    public RestResponse<Boolean> isSubscribed() {
+        final boolean result = this.sentinelHub.contractExists(this.currentUserEmail());
+
+        return RestResponse.result(result);
+    }
 }
