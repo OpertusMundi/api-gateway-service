@@ -549,7 +549,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
         command.getPricingModels().stream().forEach(m-> {
             // Always override the key with a value generated at the server
-            m.setKey(UUID.randomUUID());
+            m.setKey(UUID.randomUUID().toString());
         });
     }
 
