@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
@@ -208,6 +209,79 @@ public interface AnalyticsController {
             hidden = true
         )
         BindingResult validationResult
+    );
+    
+    /**
+     * Query aggregated asset views data
+     *
+     * @param request The query to execute
+     *
+     * @return A {@link RestResponse} with a {@link List<ImmutablePair<String, Integer>>} result
+     */
+    @Operation(
+        operationId = "analytics-05",
+        summary     = "Most Popular Assets",
+        description = "Execute a query on aggregated asset views data and return the most popular views or searches",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(
+                implementation = AnalyticsEndpointTypes.ListOfImmutablePairs.class
+            )
+        )
+    )
+    @PostMapping(value = "/popular-assets", consumes = { "application/json" })
+    @Validated
+    RestResponse<?> executeFindPopularAssetViewsAndSearches(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Query to execute",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = AssetViewQuery.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        AssetViewQuery query,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+    
+    /**
+     * Query asset views data
+     *
+     * @param request The query to execute
+     *
+     * @return A {@link RestResponse} with a {@link List<ImmutablePair<String, Integer>>} result
+     */
+    @Operation(
+        operationId = "analytics-06",
+        summary     = "Most Popular Terms",
+        description = "Execute a query on asset views data and return the most popular terms",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(
+                implementation = AnalyticsEndpointTypes.ListOfImmutablePairs.class
+            )
+        )
+    )
+    @RequestMapping(value = "/popular-terms", method=RequestMethod.GET)
+    @Validated
+    RestResponse<?> executeFindPopularTerms(
     );
 
 }
