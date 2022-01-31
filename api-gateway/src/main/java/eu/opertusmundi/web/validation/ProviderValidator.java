@@ -7,26 +7,31 @@ import org.iban4j.IbanFormatException;
 import org.iban4j.IbanUtil;
 import org.iban4j.InvalidCheckDigitException;
 import org.iban4j.UnsupportedCountryException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.domain.CustomerEntity;
+import eu.opertusmundi.common.domain.CustomerProfessionalEntity;
 import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.account.BankAccountCommandDto;
 import eu.opertusmundi.common.model.account.ProviderProfessionalCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.CustomerRepository;
+import eu.opertusmundi.common.util.TextUtils;
 
 @Component
 public class ProviderValidator implements Validator {
 
-    @Autowired
-    AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
-    @Autowired
-    CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
+
+    public ProviderValidator(AccountRepository accountRepository, CustomerRepository customerRepository) {
+        this.accountRepository  = accountRepository;
+        this.customerRepository = customerRepository;
+    }
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -47,12 +52,19 @@ public class ProviderValidator implements Validator {
             e.rejectValue("email", EnumValidatorError.NotUnique.name());
         }
 
+        // Name cannot be updated
+        final AccountEntity              account  = accountRepository.findById(c.getUserId()).get();
+        final CustomerProfessionalEntity provider = account.getProvider();
+        if (provider != null && !provider.getName().equalsIgnoreCase(c.getName())) {
+            e.rejectValue("name", EnumValidatorError.NotUpdatable.name());
+        }
+
         // Name must be unique
-        final CustomerEntity customerWithSameName = this.customerRepository
-            .findProviderByNameAndAccountIdNot(c.getName(), c.getUserId())
+        final CustomerEntity customerWithSameNamespace = this.customerRepository
+            .findProviderByNamespaceAndAccountIdNot(TextUtils.slugify(c.getName()), c.getUserId())
             .orElse(null);
 
-        if (customerWithSameName != null) {
+        if (customerWithSameNamespace != null) {
             e.rejectValue("name", EnumValidatorError.NotUnique.name());
         }
 
