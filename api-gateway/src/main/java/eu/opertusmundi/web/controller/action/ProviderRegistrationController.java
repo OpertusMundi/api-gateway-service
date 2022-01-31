@@ -6,10 +6,12 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
@@ -156,4 +158,23 @@ public interface ProviderRegistrationController {
             hidden = true
         )
         BindingResult validationResult);
+
+    /**
+     * Check if company name already exists
+     *
+     * @param name
+     * @return
+     */
+    @Operation(
+        operationId = "provider-registration-05",
+        summary     = "Validate name",
+        description = "Check if a company name already exists. Required role: `ROLE_PROVIDER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @GetMapping(value = "/provider/name")
+    @Secured({ "ROLE_PROVIDER" })
+    RestResponse<Boolean> validateCompanyName(@RequestParam("name") String name);
+
 }

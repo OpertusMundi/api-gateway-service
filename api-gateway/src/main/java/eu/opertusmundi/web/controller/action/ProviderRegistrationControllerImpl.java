@@ -8,13 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.opertusmundi.common.domain.CustomerEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
 import eu.opertusmundi.common.model.account.ProviderProfessionalCommandDto;
 import eu.opertusmundi.common.model.account.ProviderProfileCommandDto;
+import eu.opertusmundi.common.repository.CustomerRepository;
 import eu.opertusmundi.common.service.ProviderRegistrationService;
+import eu.opertusmundi.common.util.TextUtils;
 import eu.opertusmundi.web.validation.ProviderValidator;
 
 @RestController
@@ -22,11 +25,22 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
 
     private static final Logger logger = LoggerFactory.getLogger(ProviderRegistrationControllerImpl.class);
 
-    @Autowired
-    private ProviderRegistrationService providerService;
+    private final ProviderRegistrationService providerService;
+
+    private final ProviderValidator providerValidator;
+
+    private final CustomerRepository customerRepository;
 
     @Autowired
-    private ProviderValidator providerValidator;
+    public ProviderRegistrationControllerImpl(
+        CustomerRepository customerRepository,
+        ProviderValidator providerValidator,
+        ProviderRegistrationService providerService
+    ) {
+        this.customerRepository = customerRepository;
+        this.providerValidator  = providerValidator;
+        this.providerService    = providerService;
+    }
 
     @Override
     public RestResponse<AccountProfileDto> updateRegistration(
@@ -89,6 +103,16 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
 
             return RestResponse.error(BasicMessageCode.InternalServerError, "An unknown error has occurred");
         }
+    }
+
+    @Override
+    public RestResponse<Boolean> validateCompanyName(String name) {
+        // Name must be unique
+        final CustomerEntity customerWithSameNamespace = this.customerRepository
+            .findProviderByNamespaceAndAccountIdNot(TextUtils.slugify(name), this.currentUserId())
+            .orElse(null);
+
+        return RestResponse.result(Boolean.valueOf(customerWithSameNamespace == null));
     }
 
     private RestResponse<AccountProfileDto> update(
