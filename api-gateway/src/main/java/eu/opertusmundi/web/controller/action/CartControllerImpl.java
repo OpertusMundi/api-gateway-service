@@ -23,6 +23,7 @@ import eu.opertusmundi.common.model.order.CartConstants;
 import eu.opertusmundi.common.model.order.CartDto;
 import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.model.pricing.EffectivePricingModelDto;
+import eu.opertusmundi.common.model.pricing.EmptyQuotationParametersDto;
 import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.CatalogueService;
@@ -64,7 +65,11 @@ public class CartControllerImpl extends BaseController implements CartController
         }
 
         final UUID cartKey = (UUID) session.getAttribute(CartConstants.CART_SESSION_KEY);
+        if (command.getParameters() == null) {
+            command.setParameters(new EmptyQuotationParametersDto());
+        }
         command.setCartKey(cartKey);
+        command.getParameters().setUserName(this.currentUserEmail());
 
         final CartDto cart = this.cartService.addItem(command);
 
@@ -105,6 +110,14 @@ public class CartControllerImpl extends BaseController implements CartController
         if (cart.getAccountId() == null && this.currentUserId() != null) {
             cart = this.cartService.setAccount(cart.getKey(), this.currentUserId());
         }
+
+        // Set user name to user parameters
+        cart.getItems().stream().forEach(i -> {
+            if (i.getQuotationParameters() == null) {
+                i.getPricingModel().setUserParameters(new EmptyQuotationParametersDto());
+            }
+            i.getQuotationParameters().setUserName(this.currentUserEmail());
+        });
 
         // Create order
         final OrderDto order = this.paymentService.createOrderFromCart(cart, this.getLocation());
