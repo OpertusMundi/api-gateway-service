@@ -81,9 +81,6 @@ import eu.opertusmundi.web.utils.ReturnValueCaptor;
 @Sql(scripts = {"classpath:sql/create-helpdesk-account.sql"})
 public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity {
 
-    @Value("${opertus-mundi.oauth.failure-uri:/error/401}")
-    private String failureUri;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -428,7 +425,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     void whenLoginFailure_thenRedirect() throws Exception {
         this.mockMvc.perform(formLogin("/login").user("user@opertusmundi.eu").password("invalid"))
             .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl(this.failureUri));
+            .andExpect(redirectedUrl("/signin?error=1"));
     }
 
     @Test
