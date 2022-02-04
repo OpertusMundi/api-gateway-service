@@ -49,8 +49,8 @@ import com.google.common.net.HttpHeaders;
 import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.Message.EnumLevel;
-import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
@@ -88,7 +88,13 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
 
         @Bean
         Path userDirectory() throws IOException {
-            return this.createDirectory("user");
+            final Path path = this.createDirectory("user");
+
+            // Create test user home directory (this directory is created on
+            // user registration)
+            this.createDirectory("user/user@opertusmundi.eu");
+
+            return path;
         }
 
         @Bean
@@ -483,7 +489,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
     @Test
     @Order(60)
     @Tag(value = "Controller")
-    @DisplayName(value = "When file system is missing, create file system and return 200")
+    @DisplayName(value = "When file system is missing, return error")
     @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
     void whenAuthenticatedUserBrowseMissingFileSystem_returnError() throws Exception {
         // Perform tear down operation manually
@@ -498,9 +504,14 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").isBoolean())
-            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.messages").isArray())
-            .andExpect(jsonPath("$.messages").isEmpty());
+            .andExpect(jsonPath("$.messages", hasSize(1)))
+            .andExpect(jsonPath("$.messages[0].code").value(FileSystemMessageCode.IO_ERROR.key()))
+            .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
+            .andExpect(jsonPath("$.exception").doesNotExist())
+            .andExpect(jsonPath("$.message").doesNotExist())
+            .andExpect(jsonPath("$.result").doesNotExist());
     }
 
     private MockMultipartHttpServletRequestBuilder createUploadRequest(boolean overwrite, File resource) throws IOException {
