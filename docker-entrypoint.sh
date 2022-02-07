@@ -17,6 +17,8 @@ function _validate_database_url()
     grep -e "${re}" || { echo "${var_name} does not seem like a PostgreSQL JDBC connection URL" 1>&2 && false; }
 }
 
+# Generate application properties
+
 runtime_profile=$(hostname | md5sum | head -c10)
 
 {
@@ -43,17 +45,30 @@ runtime_profile=$(hostname | md5sum | head -c10)
         oidc_scope=${OIDC_SCOPE:-openid}
         oidc_client_id=${OIDC_CLIENT_ID}
         oidc_client_secret=$(cat ${OIDC_CLIENT_SECRET_FILE} | tr -d '\n')
-        # See https://github.com/OpertusMundi/api-gateway-service/blob/26a5b59baa2bb03a38fc324e336f1a2689c662be/api-gateway/config-example/config/application.properties#L58
-        echo "opertus-mundi.authentication-providers = opertusmundi"
-        echo "opertus-mundi.client.clientId = ${oidc_client_id}"
-        echo "opertus-mundi.client.clientSecret = ${oidc_client_secret}"
-        echo "opertus-mundi.client.accessTokenUri = ${oidc_token_url}"
-        echo "opertus-mundi.client.userAuthorizationUri = ${oidc_auth_url}"
-        echo "opertus-mundi.client.useCurrentUri = false"
-        echo "opertus-mundi.client.preEstablishedRedirectUri ="
-        echo "opertus-mundi.client.scope = ${oidc_scope}"
-        echo "opertus-mundi.user-info-endpoint = ${oidc_userinfo_url}"
-        echo "opertus-mundi.jwks-uri = ${oidc_jwks_url}"
+        # https://github.com/OpertusMundi/api-gateway-service/blob/dea7d3d0bd008b2b1b072de8117010b252b2767f/api-gateway/config-example/config/application.properties#L64-L88
+        # Define the OAuth2 provider
+        echo "opertus-mundi.authentication-providers = forms,opertusmundi"
+        echo "spring.security.oauth2.client.provider.keycloak.authorization-uri = ${oidc_auth_url}"
+        echo "spring.security.oauth2.client.provider.keycloak.token-uri = ${oidc_token_url}"
+        echo "spring.security.oauth2.client.provider.keycloak.jwk-set-uri = ${oidc_jwks_url}"
+        echo "spring.security.oauth2.client.provider.keycloak.user-info-uri = ${oidc_userinfo_url}"
+        echo "spring.security.oauth2.client.provider.keycloak.user-name-attribute = email"
+        # Register OAuth2 client "opertusmundi" for the webapp
+        echo "spring.security.oauth2.client.registration.opertusmundi.provider = keycloak"
+        echo "spring.security.oauth2.client.registration.opertusmundi.authorization-grant-type = authorization_code"
+        echo "spring.security.oauth2.client.registration.opertusmundi.client-id = ${oidc_client_id}"
+        echo "spring.security.oauth2.client.registration.opertusmundi.client-secret = ${oidc_client_secret}"
+        echo "spring.security.oauth2.client.registration.opertusmundi.redirect-uri = {baseUrl}/login/oauth2/code/{registrationId}"
+        echo "spring.security.oauth2.client.registration.opertusmundi.scope = ${oidc_scope}"
+        # Register OAuth2 client "opertusmundi-development" for local development of frontend application
+        echo "spring.security.oauth2.client.registration.opertusmundi-development.provider = keycloak"
+        echo "spring.security.oauth2.client.registration.opertusmundi-development.authorization-grant-type = authorization_code"
+        echo "spring.security.oauth2.client.registration.opertusmundi-development.client-id = ${oidc_client_id}"
+        echo "spring.security.oauth2.client.registration.opertusmundi-development.client-secret = ${oidc_client_secret}"
+        echo "spring.security.oauth2.client.registration.opertusmundi-development.redirect-uri = http://localhost:4200/login/oauth2/code/{registrationId}"
+        echo "spring.security.oauth2.client.registration.opertusmundi-development.scope = ${oidc_scope}"
+    else
+        echo "opertus-mundi.authentication-providers = forms"
     fi
 
     bpm_rest_base_url=$(echo ${BPM_REST_BASE_URL} | _validate_http_url "BPM_REST_BASE_URL")
@@ -149,6 +164,8 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "opertusmundi.contract.signpdf.key-alias = ${contract_signpdf_key_alias}"
 
 } > ./config/application-${runtime_profile}.properties
+
+# Point to logging configuration
 
 logging_config="classpath:config/log4j2.xml"
 if [[ -f "./config/log4j2.xml" ]]; then
