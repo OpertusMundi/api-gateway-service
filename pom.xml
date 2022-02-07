@@ -29,7 +29,7 @@
 		<hibernate-spatial.version>5.4.21.Final</hibernate-spatial.version>
 		<org.locationtech.jts.version>1.17.1</org.locationtech.jts.version>
 		<org.locationtech.jts.spatial4j.version>0.7</org.locationtech.jts.spatial4j.version>
-		<postgresql.version>42.3.1</postgresql.version>
+		<postgresql.version>42.3.2</postgresql.version>
 		<spring-boot.version>2.3.4.RELEASE</spring-boot.version>
 
 		<java-commons.version>1.0.97</java-commons.version>

@@ -241,16 +241,8 @@
 
 		<!-- JDBC drivers -->
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.3.2</version>
-			<scope>runtime</scope>
 		</dependency>
 
 		<!-- log4j2 lifecycle hooks in web context -->
