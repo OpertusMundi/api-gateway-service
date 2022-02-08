@@ -98,6 +98,10 @@ steps:
       from_secret: jwt_secret
     BPM_REST_PASSWORD:
       from_secret: bpm_rest_password
+    OAUTH_GITHUB_CLIENT_ID:
+      from_secret: oauth_github_client_id
+    OAUTH_GITHUB_CLIENT_SECRET:
+      from_secret: oauth_github_client_secret
   commands:
   # Generate configuration for testing
   - cd api-gateway
@@ -107,6 +111,10 @@ steps:
     (  echo "spring.datasource.url=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}";
        echo "spring.datasource.username=$${DATABASE_USER}";
        echo "spring.datasource.password=$${DATABASE_PASSWORD}";
+       echo
+       echo "spring.security.oauth2.client.registration.opertusmundi.provider=github";
+       echo "spring.security.oauth2.client.registration.opertusmundi.client-id=$${OAUTH_GITHUB_CLIENT_ID}";
+       echo "spring.security.oauth2.client.registration.opertusmundi.client-secret=$${OAUTH_GITHUB_CLIENT_SECRET}";
        echo
        echo "opertus-mundi.bpm.worker.rest.base-url = http://bpm-server:8000/engine-rest";
        echo "opertus-mundi.bpm.worker.rest.username = $${BPM_REST_USERNAME}";
