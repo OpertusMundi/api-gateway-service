@@ -92,7 +92,7 @@ public interface ConsumerNotebookController {
      */
     @Operation(
         operationId = "consumer-notebooks-03",
-        summary     = "Start server",
+        summary     = "Server status",
         description = "Get server status. Required role: `ROLE_CONSUMER`, `ROLE_VENDOR_CONSUMER`"
     )
     @ApiResponse(
