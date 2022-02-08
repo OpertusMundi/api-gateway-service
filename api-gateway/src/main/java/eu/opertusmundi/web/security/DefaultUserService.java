@@ -50,11 +50,13 @@ import eu.opertusmundi.common.model.email.EmailAddressDto;
 import eu.opertusmundi.common.model.email.EnumMailType;
 import eu.opertusmundi.common.model.email.MailMessageCode;
 import eu.opertusmundi.common.model.email.MessageDto;
+import eu.opertusmundi.common.model.file.QuotaDto;
 import eu.opertusmundi.common.model.workflow.EnumProcessInstanceVariable;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
 import eu.opertusmundi.common.repository.HelpdeskAccountRepository;
 import eu.opertusmundi.common.service.ElasticSearchService;
+import eu.opertusmundi.common.service.UserFileManager;
 import eu.opertusmundi.common.service.messaging.MailMessageHelper;
 import eu.opertusmundi.common.service.messaging.MailModelBuilder;
 import eu.opertusmundi.common.util.BpmEngineUtils;
@@ -91,6 +93,9 @@ public class DefaultUserService implements UserService {
     private ActivationTokenRepository activationTokenRepository;
 
     @Autowired
+    private UserFileManager fileManager;
+
+    @Autowired
     private BpmEngineUtils bpmEngine;
 
     @Autowired
@@ -117,6 +122,10 @@ public class DefaultUserService implements UserService {
                 .map(HelpdeskAccountEntity::toMarketplaceAccountDto)
                 .orElse(null);
         }
+
+        // Get user file system quota
+        final QuotaDto quota = fileManager.getQuota(username);
+        account.getProfile().setQuota(quota);
 
         return Optional.ofNullable(account == null ? null : account);
     }
