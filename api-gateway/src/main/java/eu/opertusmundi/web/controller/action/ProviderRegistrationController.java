@@ -168,13 +168,13 @@ public interface ProviderRegistrationController {
     @Operation(
         operationId = "provider-registration-05",
         summary     = "Validate name",
-        description = "Check if a company name already exists. Required role: `ROLE_PROVIDER`",
+        description = "Check if a company name already exists. Required role: `ROLE_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
     )
     @GetMapping(value = "/provider/name")
-    @Secured({ "ROLE_PROVIDER" })
+    @Secured({ "ROLE_USER" })
     RestResponse<Boolean> validateCompanyName(@RequestParam("name") String name);
 
 }
