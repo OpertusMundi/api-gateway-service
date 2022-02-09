@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.openapi.schema.SentinelHubEndpointTypes;
 import eu.opertusmundi.common.model.openapi.schema.SentinelHubEndpointTypes.SentinelHubCatalogueResponse;
+import eu.opertusmundi.common.model.openapi.schema.SentinelHubEndpointTypes.SentinelHubOpenDataCollectionResponse;
 import eu.opertusmundi.common.model.openapi.schema.SentinelHubEndpointTypes.SentinelHubSubscriptionResponse;
 import eu.opertusmundi.common.model.sinergise.client.ClientCatalogueQueryDto;
 import eu.opertusmundi.web.model.openapi.schema.CommonTypes;
@@ -115,5 +116,27 @@ public interface SentinelHubController {
     )
     @GetMapping(value = "/subscriptions")
     RestResponse<Boolean> isSubscribed();
+
+    /**
+     * Get supported open data collections
+     *
+     * @return An instance of {@link SentinelHubOpenDataCollectionResponse} class
+     */
+    @Operation(
+        operationId = "integration-sentinel-hub-04",
+        summary     = "Open Data Collections",
+        description = "Get all supported open data collections. Required role: `ROLE_SENTINEL_HUB`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = SentinelHubEndpointTypes.SentinelHubOpenDataCollectionResponse.class)
+        )
+    )
+    @GetMapping(value = "/open-data/collections")
+    @Secured({ "ROLE_SENTINEL_HUB" })
+    RestResponse<?> getOpenDataCollections();
 
 }

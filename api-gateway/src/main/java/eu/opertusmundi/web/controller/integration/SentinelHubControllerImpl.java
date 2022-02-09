@@ -13,6 +13,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.sinergise.CatalogueResponseDto;
 import eu.opertusmundi.common.model.sinergise.SubscriptionPlanDto;
 import eu.opertusmundi.common.model.sinergise.client.ClientCatalogueQueryDto;
+import eu.opertusmundi.common.model.sinergise.client.SentinelHubOpenDataCollection;
 import eu.opertusmundi.common.service.integration.SentinelHubService;
 import eu.opertusmundi.web.controller.action.BaseController;
 
@@ -46,5 +47,12 @@ public class SentinelHubControllerImpl extends BaseController implements Sentine
         final boolean result = this.sentinelHub.contractExists(this.currentUserEmail());
 
         return RestResponse.result(result);
+    }
+
+    @Override
+    public RestResponse<?> getOpenDataCollections() {
+        final List<SentinelHubOpenDataCollection> collections = this.sentinelHub.getOpenDataCollections();
+
+        return RestResponse.result(collections);
     }
 }
