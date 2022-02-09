@@ -4,7 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +21,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -39,6 +43,8 @@ import eu.opertusmundi.web.security.CustomUserDetailsService;
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    private static final Logger oauth2Logger = LoggerFactory.getLogger("OAUTH");
 
     @Value("${springdoc.api-docs.path}")
     private String openApiSpec;
@@ -124,7 +130,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.oauth2Login()
             .userInfoEndpoint(userInfo -> userInfo.oidcUserService(this.oidcUserService()))
-            .failureUrl("/signin?error=2");
+            .failureHandler((HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) -> {
+                oauth2Logger.error("OAuth2 request failed", exception);
+
+                response.sendRedirect("/signin?error=2");
+            });
 
         http.addFilterAfter(new MappedDiagnosticContextFilter(), SwitchUserFilter.class);
     }
