@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import eu.opertusmundi.web.model.rating.client.ClientRatingCommandDto;
+import eu.opertusmundi.common.model.rating.client.ClientRatingCommandDto;
 
 @Component
 public class ProviderRatingValidator implements Validator {

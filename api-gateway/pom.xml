@@ -251,12 +251,6 @@
 			<artifactId>log4j-web</artifactId>
 		</dependency>
 
-		<!-- HTTP client -->
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-		</dependency>
-
 		<!-- Utilities -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>

@@ -3,7 +3,7 @@ package eu.opertusmundi.web.model.openapi.schema;
 import java.util.List;
 
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.web.model.rating.client.ClientRatingDto;
+import eu.opertusmundi.common.model.rating.client.ClientRatingDto;
 
 public class RatingEndpointTypes {
 

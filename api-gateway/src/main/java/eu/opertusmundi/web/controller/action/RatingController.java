@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.rating.client.ClientRatingCommandDto;
+import eu.opertusmundi.common.model.rating.client.ClientRatingDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.RatingEndpointTypes;
-import eu.opertusmundi.web.model.rating.client.ClientRatingCommandDto;
-import eu.opertusmundi.web.model.rating.client.ClientRatingDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
