@@ -21,7 +21,6 @@ import eu.opertusmundi.common.model.rating.server.ServerProviderRatingCommandDto
 import eu.opertusmundi.common.model.rating.server.ServerRatingDto;
 import eu.opertusmundi.web.validation.AssetRatingValidator;
 import eu.opertusmundi.web.validation.ProviderRatingValidator;
-import feign.FeignException;
 
 @RestController
 public class RatingControllerImpl extends BaseController implements RatingController {
@@ -36,23 +35,10 @@ public class RatingControllerImpl extends BaseController implements RatingContro
     private ProviderRatingValidator providerRatingValidator;
 
     @Override
-    public RestResponse<List<ClientRatingDto>> getAssetRatings(UUID id) {
-        ResponseEntity<RestResponse<List<ServerRatingDto>>> e;
+    public RestResponse<List<ClientRatingDto>> getAssetRatings(String id) {
+        final RestResponse<List<ServerRatingDto>> serviceResponse = this.ratingClient.getObject().getAssetRatings(id).getBody();
 
-        try {
-            e = this.ratingClient.getObject().getAssetRatings(id);
-        } catch (final FeignException fex) {
-            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
-
-            // TODO: Add logging ...
-
-            return RestResponse.error(code, "An error has occurred");
-        }
-
-        final RestResponse<List<ServerRatingDto>> serviceResponse = e.getBody();
-
-        if(!serviceResponse.getSuccess()) {
-            // TODO: Add logging ...
+        if (!serviceResponse.getSuccess()) {
             return RestResponse.failure();
         }
 
@@ -69,22 +55,9 @@ public class RatingControllerImpl extends BaseController implements RatingContro
 
     @Override
     public RestResponse<List<ClientRatingDto>> getProviderRatings(UUID id) {
-        ResponseEntity<RestResponse<List<ServerRatingDto>>> e;
+        final RestResponse<List<ServerRatingDto>> serviceResponse = this.ratingClient.getObject().getProviderRatings(id).getBody();
 
-        try {
-            e = this.ratingClient.getObject().getProviderRatings(id);
-        } catch (final FeignException fex) {
-            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
-
-            // TODO: Add logging ...
-
-            return RestResponse.error(code, "An error has occurred");
-        }
-
-        final RestResponse<List<ServerRatingDto>> serviceResponse = e.getBody();
-
-        if(!serviceResponse.getSuccess()) {
-            // TODO: Add logging ...
+        if (!serviceResponse.getSuccess()) {
             return RestResponse.failure();
         }
 
@@ -100,7 +73,7 @@ public class RatingControllerImpl extends BaseController implements RatingContro
     }
 
     @Override
-    public BaseResponse addAssetRating(UUID id, ClientRatingCommandDto command, BindingResult validationResult) {
+    public BaseResponse addAssetRating(String id, ClientRatingCommandDto command, BindingResult validationResult) {
         final ServerAssetRatingCommandDto c = new ServerAssetRatingCommandDto(command);
         c.setAccount(this.currentUserKey());
 
@@ -111,24 +84,14 @@ public class RatingControllerImpl extends BaseController implements RatingContro
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
+        final ResponseEntity<BaseResponse> response = this.ratingClient.getObject().addAssetRating(id, c);
 
-        try {
-            final ResponseEntity<BaseResponse> response = this.ratingClient.getObject().addAssetRating(id, c);
-
-            if (response.getBody().getSuccess()) {
-                return RestResponse.success();
-            }
-
-            // TODO: Map service errors to API gateway error codes ...
-
-            return RestResponse.error(BasicMessageCode.InternalServerError, "Record creation failed");
-        } catch (final FeignException fex) {
-            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
-
-            // TODO: Add logging ...
-
-            return RestResponse.error(code, "An error has occurred");
+        if (response.getBody().getSuccess()) {
+            return RestResponse.success();
         }
+
+        // TODO: Map service errors to API gateway error codes ...
+        return RestResponse.error(BasicMessageCode.InternalServerError, "Record creation failed");
     }
 
     @Override
@@ -143,23 +106,14 @@ public class RatingControllerImpl extends BaseController implements RatingContro
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        try {
-            final ResponseEntity<BaseResponse> response = this.ratingClient.getObject().addProviderRating(id, c);
+        final ResponseEntity<BaseResponse> response = this.ratingClient.getObject().addProviderRating(id, c);
 
-            if (response.getBody().getSuccess()) {
-                return RestResponse.success();
-            }
-
-            // TODO: Map service errors to API gateway error codes ...
-
-            return RestResponse.error(BasicMessageCode.InternalServerError, "Record creation failed");
-        } catch (final FeignException fex) {
-            final BasicMessageCode code = BasicMessageCode.fromStatusCode(fex.status());
-
-            // TODO: Add logging ...
-
-            return RestResponse.error(code, "An error has occurred");
+        if (response.getBody().getSuccess()) {
+            return RestResponse.success();
         }
+
+        // TODO: Map service errors to API gateway error codes ...
+        return RestResponse.error(BasicMessageCode.InternalServerError, "Record creation failed");
     }
 
 }

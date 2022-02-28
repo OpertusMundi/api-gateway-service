@@ -62,7 +62,7 @@ public interface RatingController {
             required    = true,
             description = "Asset unique id"
         )
-        @PathVariable(name = "id", required = true) UUID id
+        @PathVariable(name = "id", required = true) String id
     );
 
     /**
@@ -120,7 +120,7 @@ public interface RatingController {
             description = "Asset unique id"
         )
         @PathVariable(name = "id", required = true)
-        UUID id,
+        String id,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Rating command",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientRatingCommandDto.class)),
