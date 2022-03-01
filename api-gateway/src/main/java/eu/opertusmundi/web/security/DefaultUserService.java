@@ -1,9 +1,11 @@
 package eu.opertusmundi.web.security;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -52,6 +54,7 @@ import eu.opertusmundi.common.model.email.MailMessageCode;
 import eu.opertusmundi.common.model.email.MessageDto;
 import eu.opertusmundi.common.model.file.QuotaDto;
 import eu.opertusmundi.common.model.workflow.EnumProcessInstanceVariable;
+import eu.opertusmundi.common.repository.AccountRecentSearchRepository;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
 import eu.opertusmundi.common.repository.HelpdeskAccountRepository;
@@ -93,6 +96,9 @@ public class DefaultUserService implements UserService {
     private ActivationTokenRepository activationTokenRepository;
 
     @Autowired
+    private AccountRecentSearchRepository recentSearchRepository;
+
+    @Autowired
     private UserFileManager fileManager;
 
     @Autowired
@@ -126,6 +132,12 @@ public class DefaultUserService implements UserService {
         // Get user file system quota
         final QuotaDto quota = fileManager.getQuota(username);
         account.getProfile().setQuota(quota);
+
+        // Get user recent search keywords
+        final List<String> recentSearches = recentSearchRepository.findAllObjectsByAccount(account.getId()).stream()
+            .map(r -> r.getValue())
+            .collect(Collectors.toList());
+        account.getProfile().setRecentSearches(recentSearches);
 
         return Optional.ofNullable(account == null ? null : account);
     }

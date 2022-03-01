@@ -2,6 +2,7 @@ package eu.opertusmundi.web.model.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -96,8 +97,7 @@ public class User implements UserDetails, OidcUser {
 
     @Override
     public Map<String, Object> getAttributes() {
-        // TODO Auto-generated method stub
-        return null;
+        return new HashMap<>();
     }
 
     @Override
@@ -107,19 +107,16 @@ public class User implements UserDetails, OidcUser {
 
     @Override
     public Map<String, Object> getClaims() {
-        // TODO Auto-generated method stub
-        return null;
+        return new HashMap<>();
     }
 
     @Override
     public OidcUserInfo getUserInfo() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public OidcIdToken getIdToken() {
-        // TODO Auto-generated method stub
         return null;
     }
 
