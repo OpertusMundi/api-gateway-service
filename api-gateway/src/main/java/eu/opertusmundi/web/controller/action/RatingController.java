@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.rating.client.ClientRatingCommandDto;
+import eu.opertusmundi.common.model.rating.client.ClientAssetRatingCommandDto;
+import eu.opertusmundi.common.model.rating.client.ClientProviderRatingCommandDto;
 import eu.opertusmundi.common.model.rating.client.ClientRatingDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.RatingEndpointTypes;
@@ -123,10 +124,10 @@ public interface RatingController {
         String id,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Rating command",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientRatingCommandDto.class)),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientAssetRatingCommandDto.class)),
             required = true
         )
-        @Valid @RequestBody(required = true) ClientRatingCommandDto command,
+        @Valid @RequestBody(required = true) ClientAssetRatingCommandDto command,
         @Parameter(hidden = true) BindingResult validationResult
     );
 
@@ -161,10 +162,10 @@ public interface RatingController {
         UUID id,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Rating command",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientRatingCommandDto.class)),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientProviderRatingCommandDto.class)),
             required = true
         )
-        @Valid @RequestBody(required = true) ClientRatingCommandDto command,
+        @Valid @RequestBody(required = true) ClientProviderRatingCommandDto command,
         @Parameter(hidden = true) BindingResult validationResult
     );
 

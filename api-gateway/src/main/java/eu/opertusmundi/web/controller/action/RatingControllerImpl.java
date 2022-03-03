@@ -14,7 +14,8 @@ import eu.opertusmundi.common.feign.client.RatingServiceFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.rating.client.ClientRatingCommandDto;
+import eu.opertusmundi.common.model.rating.client.ClientAssetRatingCommandDto;
+import eu.opertusmundi.common.model.rating.client.ClientProviderRatingCommandDto;
 import eu.opertusmundi.common.model.rating.client.ClientRatingDto;
 import eu.opertusmundi.common.model.rating.server.ServerAssetRatingCommandDto;
 import eu.opertusmundi.common.model.rating.server.ServerProviderRatingCommandDto;
@@ -73,11 +74,13 @@ public class RatingControllerImpl extends BaseController implements RatingContro
     }
 
     @Override
-    public BaseResponse addAssetRating(String id, ClientRatingCommandDto command, BindingResult validationResult) {
+    public BaseResponse addAssetRating(String id, ClientAssetRatingCommandDto command, BindingResult validationResult) {
+        command.setAccount(this.currentUserKey());
+        command.setAsset(id);
+
         final ServerAssetRatingCommandDto c = new ServerAssetRatingCommandDto(command);
         c.setAccount(this.currentUserKey());
 
-        // TODO: Check if consumer owns the data asset
         this.assetRatingValidator.validate(command, validationResult);
 
         if (validationResult.hasErrors()) {
@@ -90,16 +93,17 @@ public class RatingControllerImpl extends BaseController implements RatingContro
             return RestResponse.success();
         }
 
-        // TODO: Map service errors to API gateway error codes ...
         return RestResponse.error(BasicMessageCode.InternalServerError, "Record creation failed");
     }
 
     @Override
-    public BaseResponse addProviderRating(UUID id, ClientRatingCommandDto command, BindingResult validationResult) {
+    public BaseResponse addProviderRating(UUID id, ClientProviderRatingCommandDto command, BindingResult validationResult) {
+        command.setAccount(this.currentUserKey());
+        command.setProvider(id);
+
         final ServerProviderRatingCommandDto c = new ServerProviderRatingCommandDto(command);
         c.setAccount(this.currentUserKey());
 
-        // TODO: Check if consumer has purchased a data asset/service from the provider
         this.providerRatingValidator.validate(command, validationResult);
 
         if (validationResult.hasErrors()) {
@@ -112,7 +116,6 @@ public class RatingControllerImpl extends BaseController implements RatingContro
             return RestResponse.success();
         }
 
-        // TODO: Map service errors to API gateway error codes ...
         return RestResponse.error(BasicMessageCode.InternalServerError, "Record creation failed");
     }
 
