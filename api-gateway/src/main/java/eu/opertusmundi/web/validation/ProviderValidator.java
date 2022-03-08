@@ -43,6 +43,9 @@ public class ProviderValidator implements Validator {
         final ProviderProfessionalCommandDto c           = (ProviderProfessionalCommandDto) o;
         final BankAccountCommandDto          bankAccount = c.getBankAccount();
 
+        final AccountEntity              account  = accountRepository.findById(c.getUserId()).get();
+        final CustomerProfessionalEntity provider = account.getProvider();
+
         // Email must be unique for all providers
         final CustomerEntity customerWithSameMail = this.customerRepository
             .findProviderByEmailAndAccountIdNot(c.getEmail(), c.getUserId())
@@ -53,8 +56,6 @@ public class ProviderValidator implements Validator {
         }
 
         // Name cannot be updated
-        final AccountEntity              account  = accountRepository.findById(c.getUserId()).get();
-        final CustomerProfessionalEntity provider = account.getProvider();
         if (provider != null && !provider.getName().equalsIgnoreCase(c.getName())) {
             e.rejectValue("name", EnumValidatorError.NotUpdatable.name());
         }
@@ -66,6 +67,20 @@ public class ProviderValidator implements Validator {
 
         if (customerWithSameNamespace != null) {
             e.rejectValue("name", EnumValidatorError.NotUnique.name());
+        }
+
+        // VAT (company number) cannot be updated
+        if (provider != null && !provider.getCompanyNumber().equalsIgnoreCase(c.getCompanyNumber())) {
+            e.rejectValue("companyNumber", EnumValidatorError.NotUpdatable.name());
+        }
+
+        // VAT must be unique
+        final CustomerEntity customerWithSameVat = this.customerRepository
+            .findProviderByCompanyNumberAndAccountIdNot(TextUtils.slugify(c.getCompanyNumber()), c.getUserId())
+            .orElse(null);
+
+        if (customerWithSameVat != null) {
+            e.rejectValue("companyNumber", EnumValidatorError.NotUnique.name());
         }
 
         // IBAN validation
