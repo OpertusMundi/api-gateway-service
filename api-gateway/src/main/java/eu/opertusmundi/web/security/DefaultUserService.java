@@ -54,6 +54,7 @@ import eu.opertusmundi.common.model.email.MailMessageCode;
 import eu.opertusmundi.common.model.email.MessageDto;
 import eu.opertusmundi.common.model.file.QuotaDto;
 import eu.opertusmundi.common.model.workflow.EnumProcessInstanceVariable;
+import eu.opertusmundi.common.model.workflow.EnumWorkflow;
 import eu.opertusmundi.common.repository.AccountRecentSearchRepository;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
@@ -74,11 +75,7 @@ public class DefaultUserService implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUserService.class);
 
-    private static final String WORKFLOW_ACCOUNT_REGISTRATION = "account-registration";
-
     private static final String MESSAGE_EMAIL_VERIFIED = "email-verified-message";
-
-    private static final String WORKFLOW_VENDOR_ACCOUNT_REGISTRATION = "vendor-account-registration";
 
     /**
      * Activation token duration in hours
@@ -200,7 +197,7 @@ public class DefaultUserService implements UserService {
                     .build();
 
                 instance = bpmEngine.startProcessDefinitionByKey(
-                    WORKFLOW_ACCOUNT_REGISTRATION, accountKey, variables
+                    EnumWorkflow.ACCOUNT_REGISTRATION, accountKey, variables
                 );
             }
 
@@ -261,7 +258,7 @@ public class DefaultUserService implements UserService {
                     .build();
 
                 instance = bpmEngine.startProcessDefinitionByKey(
-                    WORKFLOW_VENDOR_ACCOUNT_REGISTRATION, userKey.toString(), variables
+                    EnumWorkflow.VENDOR_ACCOUNT_REGISTRATION, userKey.toString(), variables
                 );
             }
 
