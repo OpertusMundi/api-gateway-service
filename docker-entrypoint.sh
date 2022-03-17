@@ -26,6 +26,13 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "opertus-mundi.base-url = ${public_url}"
 
     echo "opertus-mundi.security.csrf-enabled = ${SECURITY_CSRF_ENABLED:-true}"
+    
+    servlet_multipart_max_request_size=$(echo ${SERVLET_MULTIPART_MAX_REQUEST_SIZE} | tr '[:lower:]' '[:upper:]')
+    [[ ${servlet_multipart_max_request_size} =~ ^([1-9][0-9]*)MB$ ]]
+    servlet_multipart_max_request_size_megabytes=${servlet_multipart_max_request_size%MB}
+    [[ ${servlet_multipart_max_request_size_megabytes} -gt "8" ]] && [[ ${servlet_multipart_max_request_size_megabytes} -lt "100" ]]
+    echo "spring.servlet.multipart.max-file-size = ${servlet_multipart_max_request_size_megabytes}MB"
+    echo "spring.servlet.multipart.max-request-size = ${servlet_multipart_max_request_size_megabytes}MB"
 
     database_url=$(echo ${DATABASE_URL} | _validate_database_url "DATABASE_URL")
     database_username=${DATABASE_USERNAME}

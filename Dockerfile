@@ -62,6 +62,7 @@ RUN mkdir config logs \
     && chmod g=rwx config logs
 
 ENV PUBLIC_URL="" \
+    SERVLET_MULTIPART_MAX_REQUEST_SIZE="20MB" \
     SECURITY_CSRF_ENABLED="true" \
     DATABASE_URL="jdbc:postgresql://db:5432/opertusmundi" \
     DATABASE_USERNAME="spring" \
