@@ -42,6 +42,8 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
     public RestResponse<?> findOne(UUID orderKey) {
         final Optional<ConsumerOrderDto> r = this.orderRepository.findOrderObjectByKeyAndConsumer(this.currentUserKey(), orderKey);
         if (r.isPresent()) {
+
+
             return RestResponse.result(r.get());
         }
         return RestResponse.notFound();
