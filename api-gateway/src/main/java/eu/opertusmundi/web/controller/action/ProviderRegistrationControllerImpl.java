@@ -18,6 +18,7 @@ import eu.opertusmundi.common.model.account.ProviderProfileCommandDto;
 import eu.opertusmundi.common.repository.CustomerRepository;
 import eu.opertusmundi.common.service.ProviderRegistrationService;
 import eu.opertusmundi.common.util.TextUtils;
+import eu.opertusmundi.common.util.ViesVatClient;
 import eu.opertusmundi.web.validation.ProviderValidator;
 
 @RestController
@@ -31,15 +32,19 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
 
     private final CustomerRepository customerRepository;
 
+    private final ViesVatClient viesVatClient;
+
     @Autowired
     public ProviderRegistrationControllerImpl(
         CustomerRepository customerRepository,
         ProviderValidator providerValidator,
-        ProviderRegistrationService providerService
+        ProviderRegistrationService providerService,
+        ViesVatClient viesVatClient
     ) {
         this.customerRepository = customerRepository;
         this.providerValidator  = providerValidator;
         this.providerService    = providerService;
+        this.viesVatClient      = viesVatClient;
     }
 
     @Override
@@ -113,6 +118,25 @@ public class ProviderRegistrationControllerImpl extends BaseController implement
             .orElse(null);
 
         return RestResponse.result(Boolean.valueOf(customerWithSameNamespace == null));
+    }
+
+    @Override
+    public RestResponse<Boolean> validateVatNumber(String vat, boolean vies) {
+        final CustomerEntity customerWithSameCompanyNumber = this.customerRepository
+            .findProviderByCompanyNumberAndAccountIdNot(vat, this.currentUserId())
+            .orElse(null);
+
+        if (customerWithSameCompanyNumber != null) {
+            return RestResponse.result(Boolean.valueOf(false));
+        }
+
+        if (!vies) {
+            return RestResponse.result(Boolean.valueOf(true));
+        }
+
+        final boolean result = this.viesVatClient.checkVatNumber(vat);
+
+        return RestResponse.result(Boolean.valueOf(result));
     }
 
     private RestResponse<AccountProfileDto> update(

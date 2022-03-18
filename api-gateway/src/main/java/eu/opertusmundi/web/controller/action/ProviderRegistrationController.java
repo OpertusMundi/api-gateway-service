@@ -18,6 +18,7 @@ import eu.opertusmundi.common.model.account.AccountProfileDto;
 import eu.opertusmundi.common.model.account.ProviderProfessionalCommandDto;
 import eu.opertusmundi.common.model.account.ProviderProfileCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -177,4 +178,29 @@ public interface ProviderRegistrationController {
     @Secured({ "ROLE_USER" })
     RestResponse<Boolean> validateCompanyName(@RequestParam("name") String name);
 
+    /**
+     * Check if a vat number already exists
+     *
+     * If `vies` is set to `true`, the vat number is also validated using the
+     * VIES VAT RPC API.
+     *
+     * @see https://www.programmableweb.com/api/vies-vat-rpc-api
+     *
+     * @param vat
+     * @param views
+     * @return
+     */
+    @Operation(
+        operationId = "provider-registration-06",
+        summary     = "Validate VAT",
+        description = "Check if a company number (VAT) already exists. If `vies` parameter is set to `true`, the vat number "
+                    + "is also validated using the VIES VAT RPC API. Required role: `ROLE_USER`",
+        externalDocs = @ExternalDocumentation(url = "https://www.programmableweb.com/api/vies-vat-rpc-api"),
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @GetMapping(value = "/provider/company-number")
+    @Secured({"ROLE_USER"})
+    RestResponse<Boolean> validateVatNumber(@RequestParam String vat, @RequestParam(required = false) boolean vies);
 }

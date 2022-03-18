@@ -1,5 +1,6 @@
 package eu.opertusmundi.web.config;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.cache.annotation.EnableCaching;
@@ -23,6 +24,11 @@ public class CacheConfiguration {
 
         final CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.setCaffeine(caffeine);
+        cacheManager.setCacheNames(Arrays.asList(
+            "company-number",
+            "draft-services",
+            "sentinel-hub-subscription-plans"
+        ));
         return cacheManager;
     }
 
