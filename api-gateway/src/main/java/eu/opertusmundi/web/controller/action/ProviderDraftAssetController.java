@@ -40,8 +40,6 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemMetadataCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
-import eu.opertusmundi.common.model.catalogue.client.DraftApiFromAssetCommandDto;
-import eu.opertusmundi.common.model.catalogue.client.DraftApiFromFileCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
@@ -656,7 +654,7 @@ public interface ProviderDraftAssetController {
             description = "Draft creation command",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(oneOf = {DraftApiFromAssetCommandDto.class, DraftApiFromFileCommandDto.class})
+                schema = @Schema(implementation = DraftApiCommandDto.class)
             ),
             required = true
         )

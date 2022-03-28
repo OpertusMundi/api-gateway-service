@@ -20,9 +20,7 @@ import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.favorite.EnumFavoriteSortField;
 import eu.opertusmundi.common.model.favorite.EnumFavoriteType;
-import eu.opertusmundi.common.model.favorite.FavoriteAssetCommandDto;
 import eu.opertusmundi.common.model.favorite.FavoriteCommandDto;
-import eu.opertusmundi.common.model.favorite.FavoriteProviderCommandDto;
 import eu.opertusmundi.common.model.openapi.schema.FavoriteEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -131,7 +129,7 @@ public interface ConsumerFavoriteController {
             description = "Favorite add command",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(oneOf = {FavoriteAssetCommandDto.class, FavoriteProviderCommandDto.class})
+                schema = @Schema(implementation = FavoriteCommandDto.class)
             ),
             required = true
         )

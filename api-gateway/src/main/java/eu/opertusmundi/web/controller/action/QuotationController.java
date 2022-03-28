@@ -48,7 +48,7 @@ public interface QuotationController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", 
+            mediaType = "application/json",
             schema = @Schema(oneOf = {BaseResponse.class, QuotationEndpoints.QuotationResponse.class})
         )
     )
@@ -71,5 +71,5 @@ public interface QuotationController {
         )
         BindingResult validationResult
     );
-    
+
 }

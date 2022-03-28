@@ -45,20 +45,16 @@ public interface ProviderPayInController {
     @Operation(
         operationId = "provider-payin-01",
         summary     = "Get PayInItem",
-        description = "Get PayInItem details. If the operation is successful, an instance of either `ProviderOrderPayInItemResponse` "
-                    + "or `ProviderSubscriptionBillingPayInItemResponse` is returned with PayIn item details; Otherwise an instance "
-                    + "of `BaseResponse` is returned with one or more error messages. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`"
+        description = "Get PayInItem details. If the operation is successful, an instance of `ProviderPayInItemResponse` "
+                    + "is returned with PayIn item details; Otherwise an instance of `BaseResponse` is returned with one "
+                    + "or more error messages. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`"
     )
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(oneOf = {
-                BaseResponse.class,
-                PaymentEndPoints.ProviderOrderPayInItemResponse.class,
-                PaymentEndPoints.ProviderSubscriptionBillingPayInItemResponse.class
-            })
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ProviderPayInItemResponse.class})
         )
     )
     @GetMapping(value = "/payins/{payInKey}/{index}")

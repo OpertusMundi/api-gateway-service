@@ -17,9 +17,7 @@ import eu.opertusmundi.common.model.payment.consumer.ConsumerPayInDto;
 import eu.opertusmundi.common.model.payment.helpdesk.HelpdeskBankwirePayInDto;
 import eu.opertusmundi.common.model.payment.helpdesk.HelpdeskCardDirectPayInDto;
 import eu.opertusmundi.common.model.payment.helpdesk.HelpdeskFreePayInDto;
-import eu.opertusmundi.common.model.payment.provider.ProviderOrderPayInItemDto;
 import eu.opertusmundi.common.model.payment.provider.ProviderPayInItemDto;
-import eu.opertusmundi.common.model.payment.provider.ProviderSubscriptionBillingPayInItemDto;
 
 public class PaymentEndPoints {
 
@@ -63,15 +61,11 @@ public class PaymentEndPoints {
 
     }
 
-    public static class ProviderOrderPayInItemResponse extends RestResponse<ProviderOrderPayInItemDto> {
-
-    }
-
-    public static class ProviderSubscriptionBillingPayInItemResponse extends RestResponse<ProviderSubscriptionBillingPayInItemDto> {
-
-    }
-
     public static class ConsumerPayInCollectionResponse extends RestResponse<PageResultDto<ConsumerPayInDto>> {
+
+    }
+
+    public static class ProviderPayInItemResponse extends RestResponse<ProviderPayInItemDto> {
 
     }
 

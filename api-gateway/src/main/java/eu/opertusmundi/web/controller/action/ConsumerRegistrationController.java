@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
 import eu.opertusmundi.common.model.account.ConsumerCommandDto;
-import eu.opertusmundi.common.model.account.ConsumerIndividualCommandDto;
-import eu.opertusmundi.common.model.account.ConsumerProfessionalCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -57,7 +55,7 @@ public interface ConsumerRegistrationController {
             description = "Consumer registration command",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(oneOf = {ConsumerIndividualCommandDto.class, ConsumerProfessionalCommandDto.class})
+                schema = @Schema(implementation = ConsumerCommandDto.class)
             ),
             required = true
         )
@@ -91,7 +89,7 @@ public interface ConsumerRegistrationController {
             description = "Consumer registration command",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(oneOf = {ConsumerIndividualCommandDto.class, ConsumerProfessionalCommandDto.class})
+                schema = @Schema(implementation = ConsumerCommandDto.class)
             ),
             required = true
         )
