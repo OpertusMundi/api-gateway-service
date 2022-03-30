@@ -160,6 +160,7 @@ public class CartControllerImpl extends BaseController implements CartController
                         .orElse(null);
 
                     cartItem.setAsset(catalogueItem);
+                    cartItem.getQuotationParameters().setUserName(this.currentUserEmail());
 
                     final EffectivePricingModelDto pricingModel = quotationService.createQuotation(
                         catalogueItem, cartItem.getPricingModelKey(), cartItem.getQuotationParameters(), false
