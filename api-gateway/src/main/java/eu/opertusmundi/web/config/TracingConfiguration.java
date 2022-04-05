@@ -2,13 +2,12 @@ package eu.opertusmundi.web.config;
 
 import java.util.regex.Pattern;
 
+import org.springframework.cloud.sleuth.SamplerFunction;
+import org.springframework.cloud.sleuth.http.HttpRequest;
 import org.springframework.cloud.sleuth.instrument.web.HttpServerSampler;
 import org.springframework.cloud.sleuth.instrument.web.SkipPatternProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import brave.http.HttpRequest;
-import brave.sampler.SamplerFunction;
 
 @Configuration
 public class TracingConfiguration {

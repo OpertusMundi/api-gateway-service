@@ -138,7 +138,7 @@ public class WmsClientITCase {
         assertThat(resource).isNotNull();
         assertThat(resource.getAttribution()).isEqualTo(expected.getAttribution());
         assertThat(resource.getBbox().equalsNorm(expected.getBbox())).isTrue();
-        assertThat(resource.getCrs()).isEqualTo(expected.getCrs());
+        assertThat(resource.getCrs()).containsAll(expected.getCrs());
         assertThat(resource.getMaxScale()).isEqualTo(expected.getMaxScale());
         assertThat(resource.getMinScale()).isEqualTo(expected.getMinScale());
         assertThat(resource.getOutputFormats()).isEqualTo(expected.getOutputFormats());

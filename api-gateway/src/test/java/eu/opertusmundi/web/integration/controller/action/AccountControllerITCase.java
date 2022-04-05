@@ -507,9 +507,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
             .andExpect(jsonPath("$.messages[0].description").value(
                 this.messageSource.getMessage(BasicMessageCode.Forbidden.key(), null, Locale.getDefault()))
-            )
-            .andExpect(jsonPath("$.exception").doesNotExist())
-            .andExpect(jsonPath("$.message").doesNotExist());
+            );
     }
 
     @Test

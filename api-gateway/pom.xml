@@ -19,12 +19,10 @@
 	<properties>
 		<frontend.skip>false</frontend.skip>
 		<frontend-maven-plugin.version>1.11.3</frontend-maven-plugin.version>
-		<spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+		<spring-cloud.version>2021.0.1</spring-cloud.version>
 		<org.camunda.bpm.version>7.13.0</org.camunda.bpm.version>
-		<org.iban4j.version>3.2.1</org.iban4j.version>
-		<org.jadira.usertype.core.version>6.0.1.GA</org.jadira.usertype.core.version>
-		<org.joda.joda-money.version>1.0.1</org.joda.joda-money.version>
-		<springdoc.version>1.5.4</springdoc.version>
+		<org.iban4j.version>3.2.3-RELEASE</org.iban4j.version>
+		<springdoc.version>1.6.6</springdoc.version>
 		<git-commit-id.skip>false</git-commit-id.skip>
 	</properties>
 
@@ -140,57 +138,57 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-client</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.session</groupId>
 			<artifactId>spring-session-jdbc</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
 			<artifactId>thymeleaf-extras-springsecurity5</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-properties-migrator</artifactId>
@@ -277,7 +275,7 @@
 		<dependency>
     		<groupId>org.apache.tika</groupId>
     		<artifactId>tika-core</artifactId>
-    		<version>1.25</version>
+    		<version>2.3.0</version>
 		</dependency>
 
 		<!-- Camunda dependencies (no engine is configured, instead we use DTO definitions -->
@@ -307,13 +305,6 @@
 			<version>${org.locationtech.jts.spatial4j.version}</version>
 		</dependency>
 
-		<!-- Money types -->
-		<dependency>
-			<groupId>org.joda</groupId>
-			<artifactId>joda-money</artifactId>
-			<version>${org.joda.joda-money.version}</version>
-		</dependency>
-
 		<!-- Serialization -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -328,12 +319,6 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.jadira.usertype</groupId>
-			<artifactId>usertype.core</artifactId>
-			<version>${org.jadira.usertype.core.version}</version>
 		</dependency>
 
 		<!-- Spring Cloud -->
@@ -358,12 +343,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-
-		<!-- Tracing -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-zipkin</artifactId>
 		</dependency>
 
 		<!-- Open API documentation -->
@@ -547,7 +526,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.6</version>
+				<version>0.8.7</version>
 				<executions>
 					<execution>
 						<id>default-prepare-agent</id>

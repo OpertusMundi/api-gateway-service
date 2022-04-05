@@ -33,11 +33,11 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.Message.EnumLevel;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.account.AccountProfileDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
+import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTestWithSecurity;
 import eu.opertusmundi.web.utils.AccountCommandFactory;
@@ -113,9 +113,7 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
             .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
             .andExpect(jsonPath("$.messages[0].description").value(
                 this.messageSource.getMessage(BasicMessageCode.Forbidden.key(), null, Locale.getDefault()))
-            )
-            .andExpect(jsonPath("$.exception").doesNotExist())
-            .andExpect(jsonPath("$.message").doesNotExist());
+            );
     }
 
     @Test

@@ -3,8 +3,7 @@ package eu.opertusmundi.web.security;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
-
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;

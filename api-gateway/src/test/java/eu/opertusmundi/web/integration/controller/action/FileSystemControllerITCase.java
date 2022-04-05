@@ -166,9 +166,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
             .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
             .andExpect(jsonPath("$.messages[0].description").value(
                 this.messageSource.getMessage(BasicMessageCode.Forbidden.key(), null, Locale.getDefault()))
-            )
-            .andExpect(jsonPath("$.exception").doesNotExist())
-            .andExpect(jsonPath("$.message").doesNotExist());
+            );
     }
 
     @Test
@@ -432,9 +430,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
             .andExpect(jsonPath("$.messages", hasSize(1)))
             .andExpect(jsonPath("$.messages[0].code").value(FileSystemMessageCode.PATH_NOT_FOUND.key()))
             .andExpect(jsonPath("$.messages[0].level").value(EnumLevel.ERROR.name()))
-            .andExpect(jsonPath("$.exception").doesNotExist())
-            .andExpect(jsonPath("$.message").doesNotExist())
-            .andExpect(jsonPath("$.result").doesNotExist());
+            .andExpect(jsonPath("$.exception").doesNotExist());
     }
 
     @Test

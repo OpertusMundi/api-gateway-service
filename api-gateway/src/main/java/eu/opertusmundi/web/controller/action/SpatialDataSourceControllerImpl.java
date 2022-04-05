@@ -246,7 +246,7 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
                 level
             };
 
-            final String output = jdbcTemplate.queryForObject(dataQuery, args, String.class);
+            final String output = jdbcTemplate.queryForObject(dataQuery, String.class, args);
 
             response.addHeader(CONTENT_TYPE_HEADER, "application/json; charset=UTF-8");
             response.setCharacterEncoding("UTF-8");

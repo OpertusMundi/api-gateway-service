@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
@@ -70,21 +69,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         entryPoint.setDefaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/"));
 
         return entryPoint;
-    }
-
-    @Override
-    public void configure(WebSecurity security) throws Exception {
-        security.ignoring()
-            .antMatchers(
-                // Client SPA application assets
-                "/assets/**",
-                // Swagger UI
-                "/swagger-ui/**",
-                // ReDoc Open API documentation viewer
-                "/docs",
-                // Open API specification
-                this.openApiSpec,
-                this.openApiSpec + "/**");
     }
 
     @Override
