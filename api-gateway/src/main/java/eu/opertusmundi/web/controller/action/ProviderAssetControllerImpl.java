@@ -110,6 +110,56 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
+    
+    @Override
+    public ResponseEntity<StreamingResponseBody> getContractFile(
+        String pid, HttpServletResponse response
+    ) throws IOException {
+        final Path path = this.providerAssetService.resolveAssetUploadedContractPath(pid);
+        final File file = path.toFile();
+
+        String contentType = Files.probeContentType(path);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
+        response.setHeader("Content-Type", contentType);
+        response.setHeader("Content-Length", Long.toString(file.length()));
+
+        final StreamingResponseBody stream = out -> {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                IOUtils.copyLarge(inputStream, out);
+            }
+        };
+
+        return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
+    }
+    
+    @Override
+    public ResponseEntity<StreamingResponseBody> getContractAnnexFile(
+        String pid, String annexKey, HttpServletResponse response
+    ) throws IOException {
+        final Path path = this.providerAssetService.resolveAssetContractAnnex(pid, annexKey);
+        final File file = path.toFile();
+
+        String contentType = Files.probeContentType(path);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
+        response.setHeader("Content-Type", contentType);
+        response.setHeader("Content-Length", Long.toString(file.length()));
+
+        final StreamingResponseBody stream = out -> {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                IOUtils.copyLarge(inputStream, out);
+            }
+        };
+
+        return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
+    }
 
     @Override
     public ResponseEntity<StreamingResponseBody> getMetadataProperty(

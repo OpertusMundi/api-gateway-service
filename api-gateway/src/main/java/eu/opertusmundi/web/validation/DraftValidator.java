@@ -30,6 +30,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumDeliveryMethod;
+import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
 import eu.opertusmundi.common.model.pricing.EnumPricingModel;
 import eu.opertusmundi.common.model.pricing.QuotationException;
@@ -40,6 +41,7 @@ import eu.opertusmundi.common.repository.DraftRepository;
 import eu.opertusmundi.common.repository.contract.ProviderTemplateContractRepository;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.CatalogueService;
+import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.common.service.integration.DataProviderManager;
 
 @Component
@@ -72,6 +74,9 @@ public class DraftValidator implements Validator {
 
     @Autowired
     private CatalogueService catalogueService;
+    
+    @Autowired
+    private ProviderAssetService providerAssetService;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -119,14 +124,27 @@ public class DraftValidator implements Validator {
     }
 
     private void validateContract(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
-        final ProviderTemplateContractEntity contract = contractRepository
-            .findOneByKey(c.getPublisherKey(), c.getContractTemplateKey())
-            .orElse(null);
+    	switch(c.getContractTemplateType()) {
+    	case UPLOADED_CONTRACT:
+    		try{
+    			providerAssetService.resolveDraftUploadedContractPath(c.getOwnerKey(), c.getPublisherKey(), c.getDraftKey());
+    		}
+    		catch(FileSystemException exc){
+    			// Uploaded contract must exist to submit a draft
+    			if (mode == EnumValidationMode.SUBMIT) {
+    				e.rejectValue("uploadedContract", EnumValidatorError.FileNotFound.name());
+    			}
+    		}
+    	case MASTER_CONTRACT:
+            final ProviderTemplateContractEntity contract = contractRepository
+                .findOneByKey(c.getPublisherKey(), c.getContractTemplateKey())
+                .orElse(null);
 
-        // Provider contract must exist and be active to submit a draft
-        if (contract == null && mode == EnumValidationMode.SUBMIT) {
-            e.rejectValue("contractTemplateKey", EnumValidatorError.OptionNotFound.name());
-        }
+            // Provider contract must exist and be active to submit a draft
+            if (contract == null && mode == EnumValidationMode.SUBMIT) {
+                e.rejectValue("contractTemplateKey", EnumValidatorError.OptionNotFound.name());
+            }
+    	}
     }
 
     private void validateType(CatalogueItemCommandDto c, Errors e) {

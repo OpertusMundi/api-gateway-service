@@ -3,13 +3,20 @@ package eu.opertusmundi.web.controller.action;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
@@ -17,6 +24,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
 import eu.opertusmundi.common.model.order.OrderConfirmCommandDto;
+import eu.opertusmundi.common.model.order.OrderFillOutAndUploadContractCommand;
 import eu.opertusmundi.common.model.order.OrderShippingCommandDto;
 import eu.opertusmundi.common.model.order.ProviderOrderDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -212,6 +220,44 @@ public interface ProviderOrderController {
             required = true
         )
         @RequestBody OrderShippingCommandDto command
+    );
+    
+    /**
+     * Fill out contract with the consumer's info and it
+     *
+     * @param orderKey The order unique key
+     * @param command The fill out and upload command
+     * @return
+     */
+    @Operation(
+        operationId = "provider-order-05",
+        summary     = "Fill out and upload contract",
+        description = "Fill out the contract with the consumer's informations and upload it"
+                    + "The order status must be `PENDING_PROVIDER_CONTRACT_FILLING_OUT`. "
+                    + "Required role: `ROLE_PROVIDER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ProviderOrderResponse.class})
+        )
+    )
+    @PostMapping(value = "/orders/{orderKey}/uploadFilledOutContract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Secured({"ROLE_PROVIDER"})
+    BaseResponse fillOutAndUploadContractForOrder(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable UUID orderKey,
+        @Parameter(schema = @Schema(
+            name = "file", type = "string", format = "binary", description = "Uploaded file"
+        ))
+        @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
+        @Valid @RequestPart(name = "data", required = true) OrderFillOutAndUploadContractCommand command
     );
 
 }

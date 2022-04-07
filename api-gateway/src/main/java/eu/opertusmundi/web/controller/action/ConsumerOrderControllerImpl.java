@@ -22,6 +22,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.ConsumerOrderDto;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
+import eu.opertusmundi.common.model.order.OrderAcceptContractCommand;
 import eu.opertusmundi.common.model.order.OrderDeliveryCommand;
 import eu.opertusmundi.common.model.order.OrderException;
 import eu.opertusmundi.common.repository.OrderRepository;
@@ -82,6 +83,26 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
                 .build();
 
             this.orderFulfillmentService.receiveOrderByConsumer(command);
+
+            return this.findOne(orderKey);
+        } catch (final OrderException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+            logger.error("Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+    
+    @Override
+    public BaseResponse acceptContractForOrder(UUID orderKey) {
+        try {
+            final OrderAcceptContractCommand command = OrderAcceptContractCommand.builder()
+                .orderKey(orderKey)
+                .consumerKey(this.currentUserKey())
+                .build();
+
+            this.orderFulfillmentService.acceptContract(command);
 
             return this.findOne(orderKey);
         } catch (final OrderException ex) {

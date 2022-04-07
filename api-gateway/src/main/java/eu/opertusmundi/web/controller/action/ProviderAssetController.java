@@ -241,6 +241,72 @@ public interface ProviderAssetController {
         HttpServletResponse response
     ) throws IOException;
 
+    
+    /**
+     * Download a contract  file
+     *
+     * @param pid Asset persistent identifier (PID)
+     *
+     * @return The requested file
+     */
+    @Operation(
+        operationId = "assets-05",
+        summary     = "Download contract file",
+        description = "Downloads a provider uploaded contract file"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
+    )
+    @GetMapping(value = "/assets/{pid}/contract", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    ResponseEntity<StreamingResponseBody> getContractFile(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Asset pid"
+        )
+        @PathVariable String pid,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
+    
+    /**
+     * Download a contract annex file
+     *
+     * @param pid Asset persistent identifier (PID)
+     * @param annexKey Contract annex unique key
+     *
+     * @return The requested file
+     */
+    @Operation(
+        operationId = "assets-06",
+        summary     = "Download contract annex",
+        description = "Downloads a contract annex file"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
+    )
+    @GetMapping(value = "/assets/{pid}/contract-annex/{annexKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    ResponseEntity<StreamingResponseBody> getContractAnnexFile(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Asset pid"
+        )
+        @PathVariable String pid,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Contract annex unique key"
+        )
+        @PathVariable String annexKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
+
     /**
      * Delete catalogue item
      *
@@ -248,7 +314,7 @@ public interface ProviderAssetController {
      * @return
      */
     @Operation(
-        operationId = "assets-05",
+        operationId = "assets-07",
         summary     = "Delete asset",
         description = "Delete asset from catalogue. Required role: `ROLE_PROVIDER`"
     )

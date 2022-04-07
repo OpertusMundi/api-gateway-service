@@ -1,11 +1,14 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +17,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
 import eu.opertusmundi.common.model.order.OrderConfirmCommandDto;
 import eu.opertusmundi.common.model.order.OrderException;
+import eu.opertusmundi.common.model.order.OrderFillOutAndUploadContractCommand;
 import eu.opertusmundi.common.model.order.OrderShippingCommandDto;
 import eu.opertusmundi.common.model.order.ProviderOrderDto;
 import eu.opertusmundi.common.repository.OrderRepository;
@@ -108,6 +114,28 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
             logger.error("Operation has failed", ex);
+        }
+
+        return RestResponse.failure();
+    }
+
+    @Override
+    public BaseResponse fillOutAndUploadContractForOrder(UUID orderKey, MultipartFile contract, OrderFillOutAndUploadContractCommand command) {
+        try {
+            command.setSize(contract.getSize());
+            command.setOrderKey(orderKey);
+
+            if (StringUtils.isBlank(command.getFileName())) {
+                command.setFileName(contract.getOriginalFilename());
+            }
+            final InputStream inputStream = new ByteArrayInputStream(contract.getBytes());
+            this.orderFulfillmentService.fillOutAndUploadContract(command, inputStream);
+            
+            return this.findOne(orderKey);
+        }  catch (final ServiceException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        } catch (final Exception ex) {
+        	logger.error(String.format("Failed to upload file. [orderKey=%s]", orderKey), ex);
         }
 
         return RestResponse.failure();

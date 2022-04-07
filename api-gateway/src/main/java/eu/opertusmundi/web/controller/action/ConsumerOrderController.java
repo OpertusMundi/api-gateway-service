@@ -162,5 +162,37 @@ public interface ConsumerOrderController {
         )
         @PathVariable UUID orderKey
     );
+    
+    /**
+     * Accept contract
+     *
+     * @param orderKey The order unique key
+     * @param command The accept contract command
+     * @return
+     */
+    @Operation(
+        operationId = "consumer-order-04",
+        summary     = "Accept the provider's custom contract",
+        description = "Accept the provider's custom contract with the consumer's information. "
+                    + "The order status must be `PENDING_CONSUMER_CONTRACT_ACCEPTANCE`. "
+                    + "Required role: `ROLE_CONSUMER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ConsumerOrderResponse.class})
+        )
+    )
+    @PutMapping(value = "/orders/{orderKey}/acceptContract")
+    BaseResponse acceptContractForOrder(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable UUID orderKey
+    );
 
 }

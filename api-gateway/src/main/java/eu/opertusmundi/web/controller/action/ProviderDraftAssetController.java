@@ -28,6 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.asset.AssetContractAnnexCommandDto;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceCommandDto;
@@ -43,6 +44,7 @@ import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
+import eu.opertusmundi.common.model.contract.provider.ProviderUploadedContractCommand;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -536,6 +538,103 @@ public interface ProviderDraftAssetController {
     );
 
     /**
+     * Uploads an additional contract file
+     *
+     * @param draftKey Draft unique key
+     * @param file An instance of {@link MultipartFile} with the uploaded file
+     * @param command Metadata for the uploaded file
+     * @param validationResult
+     * @return
+     */
+    @Operation(
+        operationId = "draft-asset-10",
+        summary     = "Upload additional contract",
+        description = "Uploads an additional contract file and links it to selected draft instance. On success, an updated draft is returned "
+                    + "with the new resource registration. If the record is locked by another user, the operation will fail. ",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class)
+        )
+    )
+    @PostMapping(value = "/drafts/{draftKey}/uploaded-contract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Validated
+    RestResponse<?> uploadContract(
+        @Parameter(
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(
+                in = ParameterIn.QUERY,
+                required = false,
+                description = "`true` if the record must remain locked after a successful save operation. "
+                            + "If a lock already exists and belongs to another user, an error is returned."
+            )
+            @RequestParam(name = "lock", required = false, defaultValue = "false") boolean lock,
+        @Parameter(schema = @Schema(
+            name = "file", type = "string", format = "binary", description = "Uploaded contract"
+        ))
+        @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
+        @Valid
+        @RequestPart(name = "command", required = true) ProviderUploadedContractCommand command
+    );
+    
+
+    /**
+     * Uploads an contract annex file for the asset
+     *
+     * @param draftKey Draft unique key
+     * @param file An instance of {@link MultipartFile} with the uploaded file
+     * @param command Metadata for the uploaded file
+     * @param validationResult
+     * @return
+     */
+    @Operation(
+        operationId = "draft-asset-11",
+        summary     = "Upload additional resource",
+        description = "Uploads an additional resource file and links it to selected draft instance. On success, an updated draft is returned "
+                    + "with the new resource registration. If the record is locked by another user, the operation will fail. "
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class)
+        )
+    )
+    @PostMapping(value = "/drafts/{draftKey}/contract-annex", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Validated
+    RestResponse<?> uploadContractAnnex(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(schema = @Schema(
+            name = "file", type = "string", format = "binary", description = "Uploaded file"
+        ))
+        @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
+        @Valid @RequestPart(name = "data", required = true) AssetContractAnnexCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+    
+    /**
      * Download an additional resource file
      *
      * @param draftKey Draft unique key
@@ -544,7 +643,7 @@ public interface ProviderDraftAssetController {
      * @return The requested file
      */
     @Operation(
-        operationId = "draft-asset-10",
+        operationId = "draft-asset-12",
         summary     = "Download additional resource",
         description = "Downloads an additional resource file. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
         security    = {
@@ -573,6 +672,78 @@ public interface ProviderDraftAssetController {
         @Parameter(hidden = true)
         HttpServletResponse response
     ) throws IOException;
+    
+    
+    /**
+     * Download an uploaded contract file
+     *
+     * @param draftKey Draft unique key
+     *
+     * @return The requested file
+     */
+    @Operation(
+        operationId = "draft-asset-13",
+        summary     = "Download additional resource",
+        description = "Downloads an additional resource file. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
+    )
+    @GetMapping(value = "/drafts/{draftKey}/uploaded-contract", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    ResponseEntity<StreamingResponseBody> getUploadedContract(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
+    
+    /**
+     * Download an contract annex file
+     *
+     * @param draftKey Draft unique key
+     * @param resourceKey Resource unique key
+     *
+     * @return The requested file
+     */
+    @Operation(
+        operationId = "draft-asset-14",
+        summary     = "Download additional resource",
+        description = "Downloads an additional resource file. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
+    )
+    @GetMapping(value = "/drafts/{draftKey}/contract-annex/{annexKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    ResponseEntity<StreamingResponseBody> getContractAnnex(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Annex unique key"
+        )
+        @PathVariable String annexKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
 
     /**
      * Get metadata property value
@@ -584,7 +755,7 @@ public interface ProviderDraftAssetController {
      * @return The requested property value
      */
     @Operation(
-        operationId = "draft-asset-11",
+        operationId = "draft-asset-15",
         summary     = "Get metadata property",
         description = "Gets metadata property value for the specified resource file. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
         security    = {
@@ -630,7 +801,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "assets-12",
+        operationId = "assets-16",
         summary     = "Create API draft",
         description = "Create a new API draft from an existing published asset or a file in user's file system. "
                     + "By default, a lock is acquired for the new record. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
@@ -675,7 +846,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "draft-asset-13",
+        operationId = "draft-asset-17",
         summary     = "Update metadata",
         description = "Update the metadata properties of an existing draft item that "
                     + "has been accepted by the Helpdesk application. The draft status "
@@ -721,7 +892,7 @@ public interface ProviderDraftAssetController {
      * @return
      */
     @Operation(
-        operationId = "draft-asset-15",
+        operationId = "draft-asset-18",
         summary     = "Release lock",
         description = "Release the record lock if the authenticated user already owns it. "
                     + "If the record is not locked, the request is ignored. If a lock exists "
