@@ -43,7 +43,7 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
-import eu.opertusmundi.common.model.contract.ContractDto;
+import eu.opertusmundi.common.model.contract.TemplateContractDto;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.common.repository.contract.ProviderTemplateContractHistoryRepository;
 import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
@@ -125,7 +125,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
     @BeforeEach
     public void setUp() {
         // Object properties must match the values in classpath:/responses/catalogue-service/item.json
-        final ContractDto c = new ContractDto();
+        final TemplateContractDto c = new TemplateContractDto();
         c.setId(1);
         c.setKey(UUID.randomUUID());
         c.setTitle("Title");

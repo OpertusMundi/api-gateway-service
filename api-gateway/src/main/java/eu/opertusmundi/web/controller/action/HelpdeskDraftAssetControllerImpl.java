@@ -23,13 +23,15 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import eu.opertusmundi.common.domain.ProviderTemplateContractHistoryEntity;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.ProviderDto;
+import eu.opertusmundi.common.model.asset.AssetContractAnnexDto;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
-import eu.opertusmundi.common.model.contract.ContractDto;
+import eu.opertusmundi.common.model.contract.CustomContractDto;
+import eu.opertusmundi.common.model.contract.TemplateContractDto;
 import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
 import eu.opertusmundi.common.model.pricing.EffectivePricingModelDto;
 import eu.opertusmundi.common.repository.ProviderRepository;
@@ -73,13 +75,15 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
             item.setPublisher(publisher);
 
             // Inject contract details
-            final ContractDto contract = this.contractRepository.findByKey(
-                draft.getPublisher().getKey(),
-                draft.getCommand().getContractTemplateKey()
-            ).map(ProviderTemplateContractHistoryEntity::toSimpleDto).orElse(null);
-            item.setContractTemplateId(contract.getId());
-            item.setContractTemplateVersion(contract.getVersion());
-            item.setContract(contract);
+            switch (draft.getCommand().getContractTemplateType()) {
+                case MASTER_CONTRACT :
+                    this.setProviderContract(item, draft);
+                    break;
+
+                case UPLOADED_CONTRACT :
+                    this.setCustomContract(item, draft);
+                    break;
+            }
 
             // Update metadata property URLs
             this.providerAssetService.updateMetadataPropertyLinks(
@@ -175,6 +179,22 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
         final List<EffectivePricingModelDto> quotations = quotationService.createQuotation(item);
 
         item.setEffectivePricingModels(quotations);
+    }
+
+    private void setProviderContract(CatalogueItemDetailsDto item, AssetDraftDto draft) {
+        final TemplateContractDto contract = this.contractRepository.findByKey(
+            draft.getPublisher().getKey(),
+            draft.getCommand().getContractTemplateKey()
+        ).map(ProviderTemplateContractHistoryEntity::toSimpleDto).orElse(null);
+        item.setContractTemplateId(contract.getId());
+        item.setContractTemplateVersion(contract.getVersion());
+        item.setContract(contract);
+    }
+    private void setCustomContract(CatalogueItemDetailsDto item, AssetDraftDto draft) {
+        final List<AssetContractAnnexDto> annexes  = draft.getCommand().getContractAnnexes();
+        final CustomContractDto           contract = new CustomContractDto(annexes);
+
+        item.setContract(contract);
     }
 
 }

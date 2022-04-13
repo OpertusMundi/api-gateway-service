@@ -13,12 +13,14 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AssetAdditionalResourceEntity;
+import eu.opertusmundi.common.domain.AssetContractAnnexEntity;
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.AssetResourceEntity;
 import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
 import eu.opertusmundi.common.domain.ProviderTemplateContractEntity;
 import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.asset.AssetAdditionalResourceDto;
+import eu.opertusmundi.common.model.asset.AssetContractAnnexDto;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetMessageCode;
 import eu.opertusmundi.common.model.asset.BundleAssetResourceDto;
@@ -35,6 +37,7 @@ import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
 import eu.opertusmundi.common.model.pricing.EnumPricingModel;
 import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.repository.AssetAdditionalResourceRepository;
+import eu.opertusmundi.common.repository.AssetContractAnnexRepository;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.repository.AssetResourceRepository;
 import eu.opertusmundi.common.repository.DraftRepository;
@@ -70,11 +73,14 @@ public class DraftValidator implements Validator {
     private AssetAdditionalResourceRepository assetAdditionalResourceRepository;
 
     @Autowired
+    private AssetContractAnnexRepository assetContractAnnexRepository;
+
+    @Autowired
     private DraftRepository draftRepository;
 
     @Autowired
     private CatalogueService catalogueService;
-    
+
     @Autowired
     private ProviderAssetService providerAssetService;
 
@@ -124,27 +130,54 @@ public class DraftValidator implements Validator {
     }
 
     private void validateContract(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
-    	switch(c.getContractTemplateType()) {
-    	case UPLOADED_CONTRACT:
-    		try{
-    			providerAssetService.resolveDraftUploadedContractPath(c.getOwnerKey(), c.getPublisherKey(), c.getDraftKey());
-    		}
-    		catch(FileSystemException exc){
-    			// Uploaded contract must exist to submit a draft
-    			if (mode == EnumValidationMode.SUBMIT) {
-    				e.rejectValue("uploadedContract", EnumValidatorError.FileNotFound.name());
-    			}
-    		}
-    	case MASTER_CONTRACT:
-            final ProviderTemplateContractEntity contract = contractRepository
-                .findOneByKey(c.getPublisherKey(), c.getContractTemplateKey())
-                .orElse(null);
+        switch (c.getContractTemplateType()) {
+            case UPLOADED_CONTRACT :
+                try {
+                    if (c.getDraftKey() != null) {
+                        providerAssetService.resolveDraftCustomContractPath(c.getOwnerKey(), c.getPublisherKey(), c.getDraftKey());
+                    }
+                } catch (final FileSystemException ex) {
+                    // Uploaded contract must exist to submit a draft
+                    if (mode == EnumValidationMode.SUBMIT) {
+                        e.rejectValue("contractTemplateType", EnumValidatorError.FileNotFound.name());
+                    }
+                }
 
-            // Provider contract must exist and be active to submit a draft
-            if (contract == null && mode == EnumValidationMode.SUBMIT) {
-                e.rejectValue("contractTemplateKey", EnumValidatorError.OptionNotFound.name());
+                // Validate contract annexes
+                this.validateContractAnnexes(c, e);
+                break;
+
+            case MASTER_CONTRACT :
+                final ProviderTemplateContractEntity contract = contractRepository
+                    .findOneByKey(c.getPublisherKey(), c.getContractTemplateKey())
+                    .orElse(null);
+
+                // Provider contract must exist and be active to submit a draft
+                if (contract == null && mode == EnumValidationMode.SUBMIT) {
+                    e.rejectValue("contractTemplateKey", EnumValidatorError.OptionNotFound.name());
+                }
+
+                // Check for contract annexes
+                if (c.getContractAnnexes().size() != 0) {
+                    e.rejectValue("contractAnnexes", EnumValidatorError.OperationNotSupported.name());
+                }
+                break;
+        }
+    }
+
+    private void validateContractAnnexes(CatalogueItemCommandDto c, Errors e) {
+        final List<AssetContractAnnexEntity> annexes = this.assetContractAnnexRepository
+            .findAllAnnexesByDraftKey(c.getDraftKey());
+
+        final List<String> keys = annexes.stream().map(r -> r.getKey()).collect(Collectors.toList());
+
+        // All contract annex keys must exist
+        for (int i = 0; i < c.getContractAnnexes().size(); i++) {
+            final AssetContractAnnexDto r = c.getContractAnnexes().get(i);
+            if (!keys.contains(r.getId())) {
+                e.rejectValue(String.format("contractAnnexes[%d]", i), EnumValidatorError.ResourceNotFound.name());
             }
-    	}
+        }
     }
 
     private void validateType(CatalogueItemCommandDto c, Errors e) {

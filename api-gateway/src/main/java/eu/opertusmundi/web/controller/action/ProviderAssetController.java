@@ -241,7 +241,6 @@ public interface ProviderAssetController {
         HttpServletResponse response
     ) throws IOException;
 
-    
     /**
      * Download a contract  file
      *
@@ -270,7 +269,7 @@ public interface ProviderAssetController {
         @Parameter(hidden = true)
         HttpServletResponse response
     ) throws IOException;
-    
+
     /**
      * Download a contract annex file
      *
@@ -289,7 +288,7 @@ public interface ProviderAssetController {
         description = "Successful Request",
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
     )
-    @GetMapping(value = "/assets/{pid}/contract-annex/{annexKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "/assets/{pid}/contract/annexes/{annexKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     ResponseEntity<StreamingResponseBody> getContractAnnexFile(
         @Parameter(
             in          = ParameterIn.PATH,

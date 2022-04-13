@@ -49,7 +49,7 @@ import eu.opertusmundi.common.model.catalogue.client.DraftApiCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.DraftFromAssetCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
-import eu.opertusmundi.common.model.contract.provider.ProviderUploadedContractCommand;
+import eu.opertusmundi.common.model.contract.provider.ProviderUploadContractCommand;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
@@ -217,7 +217,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     public RestResponse<AssetDraftDto> updateDraft(
         UUID draftKey, boolean lock, CatalogueItemCommandDto command, BindingResult validationResult
     ) {
-        // Inject command properties 
+        // Inject command properties
         this.injectCatalogueItemCommandProperties(draftKey, command, lock);
         // Authorize command
         this.authorizeCommand(command);
@@ -461,22 +461,22 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
-    
+
     @Override
-    public RestResponse<?> uploadContract(
-        UUID draftKey, boolean lock, MultipartFile resource, ProviderUploadedContractCommand command
-    ) {
+    public RestResponse<?> uploadContract(UUID draftKey, boolean lock, MultipartFile resource) {
         final UUID ownerKey     = this.currentUserKey();
         final UUID publisherKey = this.currentUserParentKey();
 
         if (resource == null || resource.getSize() == 0) {
             return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
         }
-        
-        command.setDraftKey(draftKey);
-        command.setOwnerKey(ownerKey);
-        //command.setLocked(lock);
-        command.setPublisherKey(publisherKey);
+
+        final ProviderUploadContractCommand command = ProviderUploadContractCommand.builder()
+            .draftKey(draftKey)
+            .ownerKey(ownerKey)
+            .locked(lock)
+            .publisherKey(publisherKey)
+            .build();
 
         try (final InputStream input = new ByteArrayInputStream(resource.getBytes())) {
             command.setSize(resource.getSize());
@@ -484,7 +484,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 command.setFileName(resource.getOriginalFilename());
             }
 
-            this.providerAssetService.addUploadedContract(command, input);
+            this.providerAssetService.addContract(command, input);
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
@@ -492,12 +492,12 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
             return RestResponse.error(BasicMessageCode.InternalServerError, ex.getMessage());
         }
-        
+
         final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey, false);
-        
+
         return RestResponse.result(draft);
     }
-    
+
     @Override
     public RestResponse<?> uploadContractAnnex(
         UUID draftKey, MultipartFile resource, AssetContractAnnexCommandDto command, BindingResult validationResult
@@ -535,15 +535,15 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
         return RestResponse.result(draft);
     }
-    
+
     @Override
-    public ResponseEntity<StreamingResponseBody> getUploadedContract(
+    public ResponseEntity<StreamingResponseBody> getContract(
         UUID draftKey, HttpServletResponse response
     ) throws IOException {
         final UUID ownerKey     = this.currentUserKey();
         final UUID publisherKey = this.currentUserParentKey();
 
-        final Path path = this.providerAssetService.resolveDraftUploadedContractPath(ownerKey, publisherKey, draftKey);
+        final Path path = this.providerAssetService.resolveDraftCustomContractPath(ownerKey, publisherKey, draftKey);
         final File file = path.toFile();
 
         String contentType = Files.probeContentType(path);
@@ -563,7 +563,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
-    
+
     @Override
     public ResponseEntity<StreamingResponseBody> getContractAnnex(
         UUID draftKey, String annexKey, HttpServletResponse response

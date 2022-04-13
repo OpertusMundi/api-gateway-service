@@ -110,12 +110,12 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
-    
+
     @Override
     public ResponseEntity<StreamingResponseBody> getContractFile(
         String pid, HttpServletResponse response
     ) throws IOException {
-        final Path path = this.providerAssetService.resolveAssetUploadedContractPath(pid);
+        final Path path = this.providerAssetService.resolveAssetCustomContractPath(pid);
         final File file = path.toFile();
 
         String contentType = Files.probeContentType(path);
@@ -135,7 +135,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
-    
+
     @Override
     public ResponseEntity<StreamingResponseBody> getContractAnnexFile(
         String pid, String annexKey, HttpServletResponse response

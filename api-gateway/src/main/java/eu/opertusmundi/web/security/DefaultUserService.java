@@ -125,6 +125,10 @@ public class DefaultUserService implements UserService {
                 .orElse(null);
         }
 
+        if (account == null) {
+            return Optional.ofNullable(null);
+        }
+
         // Get user file system quota
         final QuotaDto quota = fileManager.getQuota(username);
         account.getProfile().setQuota(quota);
