@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
@@ -20,42 +19,39 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import eu.opertusmundi.common.domain.ProviderTemplateContractHistoryEntity;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.ProviderDto;
-import eu.opertusmundi.common.model.asset.AssetContractAnnexDto;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
-import eu.opertusmundi.common.model.contract.CustomContractDto;
-import eu.opertusmundi.common.model.contract.TemplateContractDto;
-import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
-import eu.opertusmundi.common.model.pricing.EffectivePricingModelDto;
 import eu.opertusmundi.common.repository.ProviderRepository;
-import eu.opertusmundi.common.repository.contract.ProviderTemplateContractHistoryRepository;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
-import eu.opertusmundi.common.service.QuotationService;
+import eu.opertusmundi.common.util.CatalogueItemUtils;
 
 @RestController
 public class HelpdeskDraftAssetControllerImpl extends BaseController implements HelpdeskDraftAssetController {
 
     private static final Logger logger = LoggerFactory.getLogger(HelpdeskDraftAssetControllerImpl.class);
 
-    @Autowired
-    private ProviderRepository providerRepository;
+    private final ProviderRepository providerRepository;
+
+    private final ProviderAssetService providerAssetService;
+
+    private final CatalogueItemUtils catalogueItemUtils;
 
     @Autowired
-    private ProviderTemplateContractHistoryRepository contractRepository;
-
-    @Autowired
-    private ProviderAssetService providerAssetService;
-
-    @Autowired
-    private QuotationService quotationService;
+    public HelpdeskDraftAssetControllerImpl(
+        ProviderRepository providerRepository,
+        ProviderAssetService providerAssetService,
+        CatalogueItemUtils catalogueItemUtils
+    ) {
+        this.providerRepository   = providerRepository;
+        this.providerAssetService = providerAssetService;
+        this.catalogueItemUtils   = catalogueItemUtils;
+    }
 
     @Override
     public RestResponse<CatalogueItemDetailsDto> findOneDraft(UUID draftKey) {
@@ -75,15 +71,7 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
             item.setPublisher(publisher);
 
             // Inject contract details
-            switch (draft.getCommand().getContractTemplateType()) {
-                case MASTER_CONTRACT :
-                    this.setProviderContract(item, draft);
-                    break;
-
-                case UPLOADED_CONTRACT :
-                    this.setCustomContract(item, draft);
-                    break;
-            }
+            this.catalogueItemUtils.setContract(item, draft);
 
             // Update metadata property URLs
             this.providerAssetService.updateMetadataPropertyLinks(
@@ -91,7 +79,7 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
             );
 
             // Compute effective pricing models
-            this.refreshPricingModels(item);
+            catalogueItemUtils.refreshPricingModels(item);
 
             return RestResponse.result(item);
         } catch (final AssetDraftException ex) {
@@ -162,39 +150,6 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
         };
 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
-    }
-
-    /**
-     * Compute pricing models effective values for a catalogue item
-     *
-     * @param item
-     */
-    private void refreshPricingModels(CatalogueItemDto item) {
-        final List<BasePricingModelCommandDto> models = item.getPricingModels();
-
-        if (models.isEmpty()) {
-            return;
-        }
-
-        final List<EffectivePricingModelDto> quotations = quotationService.createQuotation(item);
-
-        item.setEffectivePricingModels(quotations);
-    }
-
-    private void setProviderContract(CatalogueItemDetailsDto item, AssetDraftDto draft) {
-        final TemplateContractDto contract = this.contractRepository.findByKey(
-            draft.getPublisher().getKey(),
-            draft.getCommand().getContractTemplateKey()
-        ).map(ProviderTemplateContractHistoryEntity::toSimpleDto).orElse(null);
-        item.setContractTemplateId(contract.getId());
-        item.setContractTemplateVersion(contract.getVersion());
-        item.setContract(contract);
-    }
-    private void setCustomContract(CatalogueItemDetailsDto item, AssetDraftDto draft) {
-        final List<AssetContractAnnexDto> annexes  = draft.getCommand().getContractAnnexes();
-        final CustomContractDto           contract = new CustomContractDto(annexes);
-
-        item.setContract(contract);
     }
 
 }

@@ -1,6 +1,5 @@
 package eu.opertusmundi.web.support;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -19,8 +18,11 @@ public class WebhookApplicationRunner implements ApplicationRunner {
     @Value("${opertus-mundi.base-url}")
     private String baseUrl;
 
-    @Autowired
-    private MangoPayWebhookHelper webhookHelper;
+    private final MangoPayWebhookHelper webhookHelper;
+
+    public WebhookApplicationRunner(MangoPayWebhookHelper webhookHelper) {
+        this.webhookHelper = webhookHelper;
+    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
