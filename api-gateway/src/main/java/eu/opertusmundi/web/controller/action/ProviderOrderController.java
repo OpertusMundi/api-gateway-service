@@ -221,7 +221,7 @@ public interface ProviderOrderController {
         )
         @RequestBody OrderShippingCommandDto command
     );
-    
+
     /**
      * Fill out contract with the consumer's info and it
      *
@@ -232,7 +232,7 @@ public interface ProviderOrderController {
     @Operation(
         operationId = "provider-order-05",
         summary     = "Fill out and upload contract",
-        description = "Fill out the contract with the consumer's informations and upload it"
+        description = "Fill out the contract with the consumer's information and upload it"
                     + "The order status must be `PENDING_PROVIDER_CONTRACT_FILLING_OUT`. "
                     + "Required role: `ROLE_PROVIDER`"
     )
