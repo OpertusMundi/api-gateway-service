@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,10 +16,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
@@ -34,6 +38,7 @@ import eu.opertusmundi.common.model.EnumValidatorError;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceException;
+import eu.opertusmundi.common.model.ValidationMessage;
 import eu.opertusmundi.common.model.asset.AssetContractAnnexCommandDto;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
@@ -67,6 +72,10 @@ import eu.opertusmundi.web.validation.DraftValidator.EnumValidationMode;
 public class ProviderDraftAssetControllerImpl extends BaseController implements ProviderDraftAssetController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProviderDraftAssetControllerImpl.class);
+
+    private final List<String> allowedMimeTypes = Arrays.asList(new String[]{
+        MediaType.APPLICATION_PDF_VALUE,
+    });
 
     @Autowired
     private DraftValidator draftValidator;
@@ -463,28 +472,38 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public RestResponse<?> uploadContract(UUID draftKey, boolean lock, MultipartFile resource) {
+    public RestResponse<?> uploadContract(UUID draftKey, boolean lock, MultipartFile file) {
         final UUID ownerKey     = this.currentUserKey();
         final UUID publisherKey = this.currentUserParentKey();
 
-        if (resource == null || resource.getSize() == 0) {
+        if (file == null || file.getSize() == 0) {
             return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
         }
 
-        final ProviderUploadContractCommand command = ProviderUploadContractCommand.builder()
-            .draftKey(draftKey)
-            .ownerKey(ownerKey)
-            .locked(lock)
-            .publisherKey(publisherKey)
-            .build();
+        try (final InputStream input = new ByteArrayInputStream(file.getBytes())) {
+            final byte[] data     = IOUtils.toByteArray(input);
+            final String mimeType = this.detectMimeType(data);
 
-        try (final InputStream input = new ByteArrayInputStream(resource.getBytes())) {
-            command.setSize(resource.getSize());
-            if (StringUtils.isBlank(command.getFileName())) {
-                command.setFileName(resource.getOriginalFilename());
+            if (mimeType == null) {
+                final ValidationMessage message = new ValidationMessage(
+                    BasicMessageCode.Validation, "file", "FileTypeNotSupported", null, null
+                );
+                return RestResponse.error(message);
             }
 
-            this.providerAssetService.addContract(command, input);
+            final ProviderUploadContractCommand command = ProviderUploadContractCommand.builder()
+                .draftKey(draftKey)
+                .ownerKey(ownerKey)
+                .locked(lock)
+                .publisherKey(publisherKey)
+                .build();
+
+            command.setSize(file.getSize());
+            if (StringUtils.isBlank(command.getFileName())) {
+                command.setFileName(file.getOriginalFilename());
+            }
+
+            this.providerAssetService.addContract(command, data);
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
@@ -500,12 +519,12 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Override
     public RestResponse<?> uploadContractAnnex(
-        UUID draftKey, MultipartFile resource, AssetContractAnnexCommandDto command, BindingResult validationResult
+        UUID draftKey, MultipartFile file, AssetContractAnnexCommandDto command, BindingResult validationResult
     ) {
         final UUID ownerKey     = this.currentUserKey();
         final UUID publisherKey = this.currentUserParentKey();
 
-        if (resource == null || resource.getSize() == 0) {
+        if (file == null || file.getSize() == 0) {
             return RestResponse.error(FileSystemMessageCode.FILE_IS_MISSING, "A file is required");
         }
 
@@ -513,16 +532,26 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        try (final InputStream input = new ByteArrayInputStream(resource.getBytes())) {
+        try (final InputStream input = new ByteArrayInputStream(file.getBytes())) {
+            final byte[] data     = IOUtils.toByteArray(input);
+            final String mimeType = this.detectMimeType(data);
+
+            if (mimeType == null) {
+                final ValidationMessage message = new ValidationMessage(
+                    BasicMessageCode.Validation, "file", "FileTypeNotSupported", null, null
+                );
+                return RestResponse.error(message);
+            }
+
             command.setDraftKey(draftKey);
             command.setOwnerKey(ownerKey);
             command.setPublisherKey(publisherKey);
-            command.setSize(resource.getSize());
+            command.setSize(file.getSize());
             if (StringUtils.isBlank(command.getFileName())) {
-                command.setFileName(resource.getOriginalFilename());
+                command.setFileName(file.getOriginalFilename());
             }
 
-            this.providerAssetService.addContractAnnex(command, input);
+            this.providerAssetService.addContractAnnex(command, data);
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
@@ -653,6 +682,17 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         return RestResponse.failure();
     }
 
+    @Override
+    public BaseResponse releaseLock(UUID draftKey) {
+        try {
+            this.providerAssetService.releaseLock(this.currentUserKey(), draftKey);
+        } catch (final AssetDraftException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        }
+
+        return RestResponse.success();
+    }
+
     private void authorizeCommand(@Nullable CatalogueItemCommandDto command) {
         if (command == null) {
             return;
@@ -685,15 +725,15 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         });
     }
 
-    @Override
-    public BaseResponse releaseLock(UUID draftKey) {
-        try {
-            this.providerAssetService.releaseLock(this.currentUserKey(), draftKey);
-        } catch (final AssetDraftException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
+    private String detectMimeType(byte[] data) {
+        final Tika tika = new Tika();
+        final String mimeType  = tika.detect(data);
+
+        if(!allowedMimeTypes.contains(mimeType)) {
+            return null;
         }
 
-        return RestResponse.success();
+        return mimeType;
     }
 
 }
