@@ -28,9 +28,9 @@ import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
 import eu.opertusmundi.common.model.order.OrderConfirmCommandDto;
 import eu.opertusmundi.common.model.order.OrderException;
-import eu.opertusmundi.common.model.order.OrderFillOutAndUploadContractCommand;
 import eu.opertusmundi.common.model.order.OrderShippingCommandDto;
 import eu.opertusmundi.common.model.order.ProviderOrderDto;
+import eu.opertusmundi.common.model.order.UploadOrderContractCommand;
 import eu.opertusmundi.common.repository.OrderRepository;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.OrderFulfillmentService;
@@ -86,9 +86,9 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
             command.setPublisherKey(this.currentUserKey());
 
             if (command.isRejected()) {
-                this.orderFulfillmentService.rejectOrder(command);
+                this.orderFulfillmentService.rejectOrderByProvider(command);
             } else {
-                this.orderFulfillmentService.acceptOrder(command);
+                this.orderFulfillmentService.acceptOrderByProvider(command);
             }
 
             return this.findOne(orderKey);
@@ -120,7 +120,7 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
     }
 
     @Override
-    public BaseResponse fillOutAndUploadContractForOrder(UUID orderKey, MultipartFile contract, OrderFillOutAndUploadContractCommand command) {
+    public BaseResponse uploadOrderContract(UUID orderKey, MultipartFile contract, UploadOrderContractCommand command) {
         try {
             command.setSize(contract.getSize());
             command.setOrderKey(orderKey);
@@ -129,8 +129,8 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
                 command.setFileName(contract.getOriginalFilename());
             }
             final InputStream inputStream = new ByteArrayInputStream(contract.getBytes());
-            this.orderFulfillmentService.fillOutAndUploadContract(command, inputStream);
-            
+            this.orderFulfillmentService.uploadContractByProvider(command, inputStream);
+
             return this.findOne(orderKey);
         }  catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());

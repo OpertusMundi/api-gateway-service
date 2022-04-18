@@ -19,10 +19,10 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.order.AcceptOrderContractCommand;
 import eu.opertusmundi.common.model.order.ConsumerOrderDto;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
-import eu.opertusmundi.common.model.order.OrderAcceptContractCommand;
 import eu.opertusmundi.common.model.order.OrderDeliveryCommand;
 import eu.opertusmundi.common.model.order.OrderException;
 import eu.opertusmundi.common.repository.OrderRepository;
@@ -75,7 +75,7 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
     }
 
     @Override
-    public BaseResponse deliverOrder(UUID orderKey) {
+    public BaseResponse confirmDelivery(UUID orderKey) {
         try {
             final OrderDeliveryCommand command = OrderDeliveryCommand.builder()
                 .orderKey(orderKey)
@@ -93,16 +93,16 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
 
         return RestResponse.failure();
     }
-    
+
     @Override
-    public BaseResponse acceptContractForOrder(UUID orderKey) {
+    public BaseResponse acceptContract(UUID orderKey) {
         try {
-            final OrderAcceptContractCommand command = OrderAcceptContractCommand.builder()
+            final AcceptOrderContractCommand command = AcceptOrderContractCommand.builder()
                 .orderKey(orderKey)
                 .consumerKey(this.currentUserKey())
                 .build();
 
-            this.orderFulfillmentService.acceptContract(command);
+            this.orderFulfillmentService.acceptContractByConsumer(command);
 
             return this.findOne(orderKey);
         } catch (final OrderException ex) {

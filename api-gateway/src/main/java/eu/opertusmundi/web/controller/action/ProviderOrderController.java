@@ -24,9 +24,9 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.order.EnumOrderSortField;
 import eu.opertusmundi.common.model.order.EnumOrderStatus;
 import eu.opertusmundi.common.model.order.OrderConfirmCommandDto;
-import eu.opertusmundi.common.model.order.OrderFillOutAndUploadContractCommand;
 import eu.opertusmundi.common.model.order.OrderShippingCommandDto;
 import eu.opertusmundi.common.model.order.ProviderOrderDto;
+import eu.opertusmundi.common.model.order.UploadOrderContractCommand;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
 import io.swagger.v3.oas.annotations.Operation;
@@ -166,7 +166,7 @@ public interface ProviderOrderController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ProviderOrderResponse.class})
         )
     )
-    @PutMapping(value = "/orders/{orderKey}")
+    @PutMapping(value = "/orders/{orderKey}/confirmation")
     @Secured({"ROLE_PROVIDER"})
     BaseResponse confirmOrder(
         @Parameter(
@@ -231,7 +231,7 @@ public interface ProviderOrderController {
      */
     @Operation(
         operationId = "provider-order-05",
-        summary     = "Fill out and upload contract",
+        summary     = "Upload order contract",
         description = "Fill out the contract with the consumer's information and upload it"
                     + "The order status must be `PENDING_PROVIDER_CONTRACT_FILLING_OUT`. "
                     + "Required role: `ROLE_PROVIDER`"
@@ -244,9 +244,9 @@ public interface ProviderOrderController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ProviderOrderResponse.class})
         )
     )
-    @PostMapping(value = "/orders/{orderKey}/uploadFilledOutContract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/orders/{orderKey}/contract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Secured({"ROLE_PROVIDER"})
-    BaseResponse fillOutAndUploadContractForOrder(
+    BaseResponse uploadOrderContract(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -257,7 +257,7 @@ public interface ProviderOrderController {
             name = "file", type = "string", format = "binary", description = "Uploaded file"
         ))
         @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
-        @Valid @RequestPart(name = "data", required = true) OrderFillOutAndUploadContractCommand command
+        @Valid @RequestPart(name = "data", required = true) UploadOrderContractCommand command
     );
 
 }

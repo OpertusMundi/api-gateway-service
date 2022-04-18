@@ -153,4 +153,75 @@ public interface HelpdeskDraftAssetController {
         HttpServletResponse response
     ) throws IOException;
 
+    /**
+     * Download custom contract file
+     *
+     * @param draftKey Draft unique key
+     *
+     * @return The requested file
+     */
+    @Operation(
+        operationId = "helpdesk-draft-asset-04",
+        summary     = "Download contract",
+        description = "Downloads custom provider contract. Required role: `ROLE_HELPDESK`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
+    )
+    @GetMapping(value = "/helpdesk-drafts/{draftKey}/contract", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    ResponseEntity<StreamingResponseBody> getContract(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
+
+    /**
+     * Download an contract annex file
+     *
+     * @param draftKey Draft unique key
+     * @param resourceKey Annex resource unique key
+     *
+     * @return The requested file
+     */
+    @Operation(
+        operationId = "helpdesk-draft-asset-05",
+        summary     = "Download contract annex",
+        description = "Downloads an annex file for a provider custom contract. Required role: `ROLE_HELPDESK`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
+    )
+    @GetMapping(value = "/helpdesk-drafts/{draftKey}/contract/annexes/{annexKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    ResponseEntity<StreamingResponseBody> getContractAnnex(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Annex unique key"
+        )
+        @PathVariable String annexKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
+
 }

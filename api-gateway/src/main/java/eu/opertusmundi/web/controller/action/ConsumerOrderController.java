@@ -132,7 +132,7 @@ public interface ConsumerOrderController {
     );
 
     /**
-     * Ship order
+     * Confirm order delivery
      *
      * @param orderKey The order unique key
      * @param command The delivery command
@@ -153,8 +153,8 @@ public interface ConsumerOrderController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ConsumerOrderResponse.class})
         )
     )
-    @PutMapping(value = "/orders/{orderKey}/delivery")
-    BaseResponse deliverOrder(
+    @PutMapping(value = "/orders/{orderKey}/confirm-delivery")
+    BaseResponse confirmDelivery(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -162,7 +162,7 @@ public interface ConsumerOrderController {
         )
         @PathVariable UUID orderKey
     );
-    
+
     /**
      * Accept contract
      *
@@ -172,7 +172,7 @@ public interface ConsumerOrderController {
      */
     @Operation(
         operationId = "consumer-order-04",
-        summary     = "Accept the provider's custom contract",
+        summary     = "Accept custom contract",
         description = "Accept the provider's custom contract with the consumer's information. "
                     + "The order status must be `PENDING_CONSUMER_CONTRACT_ACCEPTANCE`. "
                     + "Required role: `ROLE_CONSUMER`"
@@ -185,8 +185,8 @@ public interface ConsumerOrderController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ConsumerOrderResponse.class})
         )
     )
-    @PutMapping(value = "/orders/{orderKey}/acceptContract")
-    BaseResponse acceptContractForOrder(
+    @PutMapping(value = "/orders/{orderKey}/accept-contract")
+    BaseResponse acceptContract(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,

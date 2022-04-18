@@ -152,4 +152,62 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<StreamingResponseBody> getContract(
+        UUID draftKey, HttpServletResponse response
+    ) throws IOException {
+        final AssetDraftDto    draft        = this.providerAssetService.findOneDraft(draftKey);
+        final UUID             publisherKey = draft.getPublisher().getKey();
+        // We set publisher key to the owner key value. Helpdesk account can
+        // review any draft
+        final Path path = this.providerAssetService.resolveDraftCustomContractPath(publisherKey, publisherKey, draftKey);
+        final File file = path.toFile();
+
+        String contentType = Files.probeContentType(path);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
+        response.setHeader("Content-Type", contentType);
+        response.setHeader("Content-Length", Long.toString(file.length()));
+
+        final StreamingResponseBody stream = out -> {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                IOUtils.copyLarge(inputStream, out);
+            }
+        };
+
+        return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<StreamingResponseBody> getContractAnnex(
+        UUID draftKey, String annexKey, HttpServletResponse response
+    ) throws IOException {
+        final AssetDraftDto    draft        = this.providerAssetService.findOneDraft(draftKey);
+        final UUID             publisherKey = draft.getPublisher().getKey();
+        // We set publisher key to the owner key value. Helpdesk account can
+        // review any draft
+        final Path path = this.providerAssetService.resolveDraftContractAnnex(publisherKey, publisherKey, draftKey, annexKey);
+        final File file = path.toFile();
+
+        String contentType = Files.probeContentType(path);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
+        response.setHeader("Content-Type", contentType);
+        response.setHeader("Content-Length", Long.toString(file.length()));
+
+        final StreamingResponseBody stream = out -> {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                IOUtils.copyLarge(inputStream, out);
+            }
+        };
+
+        return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
+    }
+
 }
