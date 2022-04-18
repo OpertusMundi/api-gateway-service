@@ -21,6 +21,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.order.CartAddCommandDto;
 import eu.opertusmundi.common.model.order.CartConstants;
 import eu.opertusmundi.common.model.order.CartDto;
+import eu.opertusmundi.common.model.order.EnumOrderStatus;
 import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.model.pricing.EffectivePricingModelDto;
 import eu.opertusmundi.common.model.pricing.EmptyQuotationParametersDto;
@@ -121,6 +122,14 @@ public class CartControllerImpl extends BaseController implements CartController
 
         // Create order
         final OrderDto order = this.paymentService.createOrderFromCart(cart, this.getLocation());
+
+        // Empty user's cart if either order vetting is required or a
+        // custom contract must be signed
+        if (order.getStatus() == EnumOrderStatus.PENDING_PROVIDER_APPROVAL ||
+            order.getStatus() == EnumOrderStatus.PENDING_PROVIDER_CONTRACT_UPLOAD
+        ) {
+            this.cartService.clear(cartKey);
+        }
 
         return RestResponse.result(order);
     }
