@@ -1,14 +1,21 @@
 package eu.opertusmundi.web.controller.action;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +23,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
@@ -120,14 +130,26 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
     }
 
     @Override
-    public BaseResponse uploadOrderContract(UUID orderKey, MultipartFile contract, UploadOrderContractCommand command) {
-        try {
-            command.setSize(contract.getSize());
-            command.setOrderKey(orderKey);
+    public BaseResponse uploadOrderContract(UUID orderKey, MultipartFile contract) {
+        return this.uploadOrderContract(orderKey, contract, false);
+    }
 
-            if (StringUtils.isBlank(command.getFileName())) {
-                command.setFileName(contract.getOriginalFilename());
-            }
+    @Override
+    public BaseResponse uploadOrderContractAndSubmit(UUID orderKey, MultipartFile contract) {
+        return this.uploadOrderContract(orderKey, contract, true);
+    }
+
+    private BaseResponse uploadOrderContract(UUID orderKey, MultipartFile contract, boolean lastUpdate) {
+        try {
+            final UploadOrderContractCommand command = UploadOrderContractCommand.builder()
+                .providerKey(this.currentUserParentKey())
+                .orderKey(orderKey)
+                .itemIndex(1)
+                .size(contract.getSize())
+                .fileName(contract.getOriginalFilename())
+                .lastUpdate(lastUpdate)
+                .build();
+
             final InputStream inputStream = new ByteArrayInputStream(contract.getBytes());
             this.orderFulfillmentService.uploadContractByProvider(command, inputStream);
 
@@ -135,10 +157,40 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
         }  catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
-        	logger.error(String.format("Failed to upload file. [orderKey=%s]", orderKey), ex);
+            logger.error(String.format("Failed to upload file. [orderKey=%s]", orderKey), ex);
         }
 
         return RestResponse.failure();
+    }
+
+    @Override
+    public ResponseEntity<StreamingResponseBody> downloadContract(
+        UUID orderKey, HttpServletResponse response
+    ) throws IOException {
+        final UUID providerKey = this.currentUserParentKey();
+        final Path path        = this.orderFulfillmentService.resolveOrderContractPath(providerKey, orderKey);
+
+        if (path == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        final File file        = path.toFile();
+        String     contentType = Files.probeContentType(path);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
+        response.setHeader("Content-Type", contentType);
+        response.setHeader("Content-Length", Long.toString(file.length()));
+
+        final StreamingResponseBody stream = out -> {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                IOUtils.copyLarge(inputStream, out);
+            }
+        };
+
+        return new ResponseEntity<>(stream, HttpStatus.OK);
     }
 
 }

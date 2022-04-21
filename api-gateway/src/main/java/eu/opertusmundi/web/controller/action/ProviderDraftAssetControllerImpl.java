@@ -503,7 +503,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 command.setFileName(file.getOriginalFilename());
             }
 
-            this.providerAssetService.addContract(command, data);
+            this.providerAssetService.uploadContract(command, data);
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
@@ -551,7 +551,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 command.setFileName(file.getOriginalFilename());
             }
 
-            this.providerAssetService.addContractAnnex(command, data);
+            this.providerAssetService.uploadContractAnnex(command, data);
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
@@ -566,13 +566,13 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public ResponseEntity<StreamingResponseBody> getContract(
+    public ResponseEntity<StreamingResponseBody> downloadContract(
         UUID draftKey, HttpServletResponse response
     ) throws IOException {
         final UUID ownerKey     = this.currentUserKey();
         final UUID publisherKey = this.currentUserParentKey();
 
-        final Path path = this.providerAssetService.resolveDraftCustomContractPath(ownerKey, publisherKey, draftKey);
+        final Path path = this.providerAssetService.resolveDraftContractPath(ownerKey, publisherKey, draftKey);
         final File file = path.toFile();
 
         String contentType = Files.probeContentType(path);
@@ -594,13 +594,13 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public ResponseEntity<StreamingResponseBody> getContractAnnex(
+    public ResponseEntity<StreamingResponseBody> downloadContractAnnex(
         UUID draftKey, String annexKey, HttpServletResponse response
     ) throws IOException {
         final UUID ownerKey     = this.currentUserKey();
         final UUID publisherKey = this.currentUserParentKey();
 
-        final Path path = this.providerAssetService.resolveDraftContractAnnex(ownerKey, publisherKey, draftKey, annexKey);
+        final Path path = this.providerAssetService.resolveDraftContractAnnexPath(ownerKey, publisherKey, draftKey, annexKey);
         final File file = path.toFile();
 
         String contentType = Files.probeContentType(path);

@@ -1,12 +1,14 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.validation.Valid;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
@@ -26,7 +29,6 @@ import eu.opertusmundi.common.model.order.EnumOrderStatus;
 import eu.opertusmundi.common.model.order.OrderConfirmCommandDto;
 import eu.opertusmundi.common.model.order.OrderShippingCommandDto;
 import eu.opertusmundi.common.model.order.ProviderOrderDto;
-import eu.opertusmundi.common.model.order.UploadOrderContractCommand;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
 import io.swagger.v3.oas.annotations.Operation;
@@ -223,7 +225,7 @@ public interface ProviderOrderController {
     );
 
     /**
-     * Fill out contract with the consumer's info and it
+     * Upload order custom contract
      *
      * @param orderKey The order unique key
      * @param command The fill out and upload command
@@ -232,8 +234,44 @@ public interface ProviderOrderController {
     @Operation(
         operationId = "provider-order-05",
         summary     = "Upload order contract",
-        description = "Fill out the contract with the consumer's information and upload it"
-                    + "The order status must be `PENDING_PROVIDER_CONTRACT_FILLING_OUT`. "
+        description = "Uploads order custom provider contract with the consumer's information. The order status is not updated. "
+                    + "The order status must be `PENDING_PROVIDER_CONTRACT_UPLOAD`. Required role: `ROLE_PROVIDER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ProviderOrderResponse.class})
+        )
+    )
+    @PutMapping(value = "/orders/{orderKey}/contract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Secured({"ROLE_PROVIDER"})
+    BaseResponse uploadOrderContract(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable UUID orderKey,
+        @Parameter(schema = @Schema(
+            name = "file", type = "string", format = "binary", description = "Uploaded file"
+        ))
+        @NotNull @RequestPart(name = "file", required = true) MultipartFile file
+    );
+
+    /**
+     * Upload order custom contract
+     *
+     * @param orderKey The order unique key
+     * @param command The fill out and upload command
+     * @return
+     */
+    @Operation(
+        operationId = "provider-order-06",
+        summary     = "Upload order contract",
+        description = "Uploads order custom provider contract with the consumer's information. The order status is updated. "
+                    + "The contract cannot be updated after this call. The order status must be `PENDING_PROVIDER_CONTRACT_UPLOAD`. "
                     + "Required role: `ROLE_PROVIDER`"
     )
     @ApiResponse(
@@ -246,7 +284,7 @@ public interface ProviderOrderController {
     )
     @PostMapping(value = "/orders/{orderKey}/contract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Secured({"ROLE_PROVIDER"})
-    BaseResponse uploadOrderContract(
+    BaseResponse uploadOrderContractAndSubmit(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -256,8 +294,36 @@ public interface ProviderOrderController {
         @Parameter(schema = @Schema(
             name = "file", type = "string", format = "binary", description = "Uploaded file"
         ))
-        @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
-        @Valid @RequestPart(name = "data", required = true) UploadOrderContractCommand command
+        @NotNull @RequestPart(name = "file", required = true) MultipartFile file
     );
+
+    /**
+     * Download a contract  file
+     *
+     * @param pid Asset persistent identifier (PID)
+     *
+     * @return The requested file
+     */
+    @Operation(
+        operationId = "assets-07",
+        summary     = "Download contract file",
+        description = "Downloads custom provider contract for the specified order"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
+    )
+    @GetMapping(value = "/orders/{orderKey}/contract", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    ResponseEntity<StreamingResponseBody> downloadContract(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable UUID orderKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
 
 }

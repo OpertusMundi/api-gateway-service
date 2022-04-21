@@ -153,14 +153,14 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public ResponseEntity<StreamingResponseBody> getContract(
+    public ResponseEntity<StreamingResponseBody> downloadContract(
         UUID draftKey, HttpServletResponse response
     ) throws IOException {
         final AssetDraftDto    draft        = this.providerAssetService.findOneDraft(draftKey);
         final UUID             publisherKey = draft.getPublisher().getKey();
         // We set publisher key to the owner key value. Helpdesk account can
         // review any draft
-        final Path path = this.providerAssetService.resolveDraftCustomContractPath(publisherKey, publisherKey, draftKey);
+        final Path path = this.providerAssetService.resolveDraftContractPath(publisherKey, publisherKey, draftKey);
         final File file = path.toFile();
 
         String contentType = Files.probeContentType(path);
@@ -182,14 +182,14 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public ResponseEntity<StreamingResponseBody> getContractAnnex(
+    public ResponseEntity<StreamingResponseBody> downloadContractAnnex(
         UUID draftKey, String annexKey, HttpServletResponse response
     ) throws IOException {
         final AssetDraftDto    draft        = this.providerAssetService.findOneDraft(draftKey);
         final UUID             publisherKey = draft.getPublisher().getKey();
         // We set publisher key to the owner key value. Helpdesk account can
         // review any draft
-        final Path path = this.providerAssetService.resolveDraftContractAnnex(publisherKey, publisherKey, draftKey, annexKey);
+        final Path path = this.providerAssetService.resolveDraftContractAnnexPath(publisherKey, publisherKey, draftKey, annexKey);
         final File file = path.toFile();
 
         String contentType = Files.probeContentType(path);

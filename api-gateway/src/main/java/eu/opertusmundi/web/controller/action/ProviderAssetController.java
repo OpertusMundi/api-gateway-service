@@ -259,7 +259,7 @@ public interface ProviderAssetController {
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
     )
     @GetMapping(value = "/assets/{pid}/contract", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    ResponseEntity<StreamingResponseBody> getContractFile(
+    ResponseEntity<StreamingResponseBody> downloadContract(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -289,7 +289,7 @@ public interface ProviderAssetController {
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
     )
     @GetMapping(value = "/assets/{pid}/contract/annexes/{annexKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    ResponseEntity<StreamingResponseBody> getContractAnnexFile(
+    ResponseEntity<StreamingResponseBody> downloadContractAnnex(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,

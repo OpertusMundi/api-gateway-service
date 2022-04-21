@@ -174,7 +174,7 @@ public interface HelpdeskDraftAssetController {
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
     )
     @GetMapping(value = "/helpdesk-drafts/{draftKey}/contract", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    ResponseEntity<StreamingResponseBody> getContract(
+    ResponseEntity<StreamingResponseBody> downloadContract(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -207,7 +207,7 @@ public interface HelpdeskDraftAssetController {
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
     )
     @GetMapping(value = "/helpdesk-drafts/{draftKey}/contract/annexes/{annexKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    ResponseEntity<StreamingResponseBody> getContractAnnex(
+    ResponseEntity<StreamingResponseBody> downloadContractAnnex(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,

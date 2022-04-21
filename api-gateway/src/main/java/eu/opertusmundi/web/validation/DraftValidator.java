@@ -134,7 +134,7 @@ public class DraftValidator implements Validator {
             case UPLOADED_CONTRACT :
                 try {
                     if (c.getDraftKey() != null) {
-                        providerAssetService.resolveDraftCustomContractPath(c.getOwnerKey(), c.getPublisherKey(), c.getDraftKey());
+                        providerAssetService.resolveDraftContractPath(c.getOwnerKey(), c.getPublisherKey(), c.getDraftKey());
                     }
                 } catch (final FileSystemException ex) {
                     // Uploaded contract must exist to submit a draft
@@ -378,6 +378,10 @@ public class DraftValidator implements Validator {
     private void validateDeliveryMethods(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
         final EnumDeliveryMethod       method         = c.getDeliveryMethod();
         final List<EnumDeliveryMethod> allowedMethods = c.getType().getAllowedDeliveryMethods();
+
+        if (method == null && mode == EnumValidationMode.SUBMIT) {
+            e.rejectValue("deliveryMethod", EnumValidatorError.NotNull.name());
+        }
 
         if (method == null || allowedMethods.isEmpty()) {
             return;

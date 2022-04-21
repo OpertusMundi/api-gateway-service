@@ -112,10 +112,10 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
     }
 
     @Override
-    public ResponseEntity<StreamingResponseBody> getContractFile(
+    public ResponseEntity<StreamingResponseBody> downloadContract(
         String pid, HttpServletResponse response
     ) throws IOException {
-        final Path path = this.providerAssetService.resolveAssetCustomContractPath(pid);
+        final Path path = this.providerAssetService.resolveAssetContractPath(pid);
         final File file = path.toFile();
 
         String contentType = Files.probeContentType(path);
@@ -137,10 +137,10 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
     }
 
     @Override
-    public ResponseEntity<StreamingResponseBody> getContractAnnexFile(
+    public ResponseEntity<StreamingResponseBody> downloadContractAnnex(
         String pid, String annexKey, HttpServletResponse response
     ) throws IOException {
-        final Path path = this.providerAssetService.resolveAssetContractAnnex(pid, annexKey);
+        final Path path = this.providerAssetService.resolveAssetContractAnnexPath(pid, annexKey);
         final File file = path.toFile();
 
         String contentType = Files.probeContentType(path);

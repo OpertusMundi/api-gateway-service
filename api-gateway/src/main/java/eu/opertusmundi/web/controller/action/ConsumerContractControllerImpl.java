@@ -16,10 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import eu.opertusmundi.common.model.catalogue.client.EnumContractType;
 import eu.opertusmundi.common.model.contract.consumer.ConsumerContractCommand;
+import eu.opertusmundi.common.model.order.ConsumerOrderDto;
 import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.repository.OrderRepository;
 import eu.opertusmundi.common.service.contract.ConsumerContractService;
@@ -29,7 +30,7 @@ import eu.opertusmundi.common.service.contract.ContractFileManager;
 public class ConsumerContractControllerImpl extends BaseController implements ConsumerContractController {
 
     @Autowired
-    private ContractFileManager fileManager;
+    private ContractFileManager contractFileManager;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -41,7 +42,11 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
     public ResponseEntity<StreamingResponseBody> print(
         UUID orderKey, Integer itemIndex, HttpServletResponse response
     ) {
-        final OrderDto order = this.ensureOwner(orderKey);
+        final ConsumerOrderDto order = this.ensureOwner(orderKey);
+
+        if (order.getItems().get(itemIndex - 1).getContractType() != EnumContractType.MASTER_CONTRACT) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
 
         // Path will be resolved by the contract service
         final ConsumerContractCommand command = this.createCommand(orderKey, itemIndex);
@@ -73,16 +78,32 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
     public ResponseEntity<StreamingResponseBody> download(
         UUID orderKey, Integer itemIndex, boolean signed, HttpServletResponse response
     ) {
-        final OrderDto order = this.ensureOwner(orderKey);
+        final ConsumerOrderDto order = this.ensureOwner(orderKey);
+        final EnumContractType type  = order.getItems().get(itemIndex - 1).getContractType();
 
-        final Path path = this.fileManager.resolvePath(this.currentUserId(), orderKey, itemIndex, signed);
-        final File file = path.toFile();
+        Path path;
+        File file;
+        switch (type) {
+            case MASTER_CONTRACT :
+                path = this.contractFileManager.resolveMasterContractPath(this.currentUserId(), orderKey, itemIndex, signed);
+                file = path.toFile();
 
-        if (!file.exists()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found");
+                if (file.exists()) {
+                    return this.createResponse(response, file, this.getFilename(order));
+                }
+                break;
+
+            case UPLOADED_CONTRACT:
+                path = this.contractFileManager.resolveUploadedContractPath(this.currentUserId(), orderKey, itemIndex, signed);
+                file = path.toFile();
+
+                if (file.exists()) {
+                    return this.createResponse(response, file, this.getFilename(order));
+                }
+                break;
         }
 
-        return this.createResponse(response, file, this.getFilename(order));
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
     private ResponseEntity<StreamingResponseBody> createResponse(
@@ -101,8 +122,8 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
         return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
 
-    private OrderDto ensureOwner(UUID orderKey) {
-        final OrderDto order = this.orderRepository.findObjectByKeyAndConsumerKey(this.currentUserKey(), orderKey).orElse(null);
+    private ConsumerOrderDto ensureOwner(UUID orderKey) {
+        final ConsumerOrderDto order = this.orderRepository.findObjectByKeyAndConsumerKey(this.currentUserKey(), orderKey).orElse(null);
 
         if (order == null) {
             throw new AccessDeniedException("Access denied");
