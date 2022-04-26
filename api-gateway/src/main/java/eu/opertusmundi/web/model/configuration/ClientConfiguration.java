@@ -1,7 +1,11 @@
 package eu.opertusmundi.web.model.configuration;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.asset.AssetFileTypeDto;
@@ -11,6 +15,7 @@ import eu.opertusmundi.common.model.spatial.CountryEuropeDto;
 import eu.opertusmundi.common.model.spatial.LanguageDto;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +23,16 @@ import lombok.Setter;
  * Application configuration settings
  */
 public class ClientConfiguration {
+
+    @Schema(description = "Marketplace announcement data")
+    @Getter
+    @Setter
+    @JsonInclude(Include.NON_NULL)
+    private Announcement announcement;
+
+    @Schema(description = "Asset related configuration settings")
+    @Getter
+    private final AssetConfiguration asset = new AssetConfiguration();
 
     @ArraySchema(
         arraySchema = @Schema(
@@ -58,11 +73,6 @@ public class ClientConfiguration {
     )
     @Getter
     private final List<LanguageDto> europeLanguages = new ArrayList<LanguageDto>();
-
-    @Schema(description = "Asset related configuration settings")
-    @Getter
-    private final AssetConfiguration asset = new AssetConfiguration();
-
 
     @Schema(description = "WordPress configuration settings")
     @Getter
@@ -130,6 +140,18 @@ public class ClientConfiguration {
 
         @Schema(description = "Build timestamp")
         private String buildTimestamp;
+
+    }
+
+    @AllArgsConstructor(staticName = "of")
+    @Getter
+    public static class Announcement {
+
+        @Schema(description = "Announcement HTML content")
+        private final String content;
+
+        @Schema(description = "Date of last update")
+        private final ZonedDateTime modifiedOn;
 
     }
 

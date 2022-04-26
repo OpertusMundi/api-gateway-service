@@ -1,11 +1,14 @@
 package eu.opertusmundi.web.controller.action;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import eu.opertusmundi.common.domain.AssetDomainRestrictionEntity;
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
@@ -13,15 +16,20 @@ import eu.opertusmundi.common.domain.CountryEntity;
 import eu.opertusmundi.common.domain.CountryEuropeEntity;
 import eu.opertusmundi.common.domain.LanguageEuropeEntity;
 import eu.opertusmundi.common.model.EnumAuthProvider;
+import eu.opertusmundi.common.model.EnumRole;
+import eu.opertusmundi.common.model.EnumService;
+import eu.opertusmundi.common.model.EnumSetting;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.SettingDto;
 import eu.opertusmundi.common.repository.AssetDomainRestrictionRepository;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
 import eu.opertusmundi.common.repository.CountryRepository;
+import eu.opertusmundi.common.repository.SettingRepository;
 import eu.opertusmundi.web.model.configuration.ClientConfiguration;
 
 @RestController
 @RequestMapping(path = "/action", produces = "application/json")
-public class ConfigurationControllerImpl implements ConfigurationController {
+public class ConfigurationControllerImpl extends BaseController implements ConfigurationController {
 
     @Value("${opertus-mundi.authentication-providers:forms}")
     private String authProviders;
@@ -49,6 +57,9 @@ public class ConfigurationControllerImpl implements ConfigurationController {
 
     @Autowired
     private AssetDomainRestrictionRepository domainRestrictionRepository;
+
+    @Autowired
+    private SettingRepository settingRepository;
 
     @Override
     public RestResponse<ClientConfiguration> getConfiguration(String locale) {
@@ -91,7 +102,29 @@ public class ConfigurationControllerImpl implements ConfigurationController {
         config.getBuildInfo().setCommitId(commitId);
         config.getBuildInfo().setCommitIdDescription(commitIdDescription);
 
+        setAnnouncement(config);
+
         return config;
+    }
+
+    private void setAnnouncement(ClientConfiguration config) {
+        final List<SettingDto> settings = settingRepository.findAllByServiceAsObjects(EnumService.API_GATEWAY);
+        final SettingDto       content  = settings.stream()
+            .filter(s -> s.getKey().equals(EnumSetting.MARKETPLACE_BANNER_TEXT.getKey()))
+            .findFirst()
+            .orElse(null);
+        final SettingDto       enabled  = settings.stream()
+            .filter(s -> s.getKey().equals(EnumSetting.MARKETPLACE_BANNER_ENABLED.getKey()))
+            .findFirst()
+            .orElse(null);
+
+        if (content == null || enabled == null || StringUtils.isBlank(content.getValue())) {
+            return;
+        }
+
+        if (enabled.asBoolean() || this.hasRole(EnumRole.ROLE_HELPDESK)) {
+            config.setAnnouncement(ClientConfiguration.Announcement.of(content.getValue(), content.getUpdatedOn()));
+        }
     }
 
 }
