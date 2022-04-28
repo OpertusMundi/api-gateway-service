@@ -31,6 +31,7 @@ import eu.opertusmundi.common.model.asset.ResourceDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
+import eu.opertusmundi.common.model.catalogue.client.EnumContractType;
 import eu.opertusmundi.common.model.catalogue.client.EnumDeliveryMethod;
 import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
@@ -162,6 +163,20 @@ public class DraftValidator implements Validator {
                     e.rejectValue("contractAnnexes", EnumValidatorError.OperationNotSupported.name());
                 }
                 break;
+
+            case OPEN_DATASET :
+                if (!c.isOpenDataset()) {
+                    e.rejectValue("openDataset", EnumValidatorError.NotValid.name());
+                }
+                if (c.getContractTemplateKey() != null) {
+                    e.rejectValue("contractTemplateKey", EnumValidatorError.OptionNotSupported.name());
+                }
+                break;
+        }
+
+        // For open datasets, contract type must be OPEN_DATASET
+        if (c.isOpenDataset() && c.getContractTemplateType() != EnumContractType.OPEN_DATASET) {
+            e.rejectValue("contractTemplateType", EnumValidatorError.NotValid.name());
         }
     }
 

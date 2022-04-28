@@ -485,9 +485,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             final String mimeType = this.detectMimeType(data);
 
             if (mimeType == null) {
-                final ValidationMessage message = new ValidationMessage(
-                    BasicMessageCode.Validation, "file", "FileTypeNotSupported", null, null
-                );
+                final ValidationMessage message = new ValidationMessage("file", "FileTypeNotSupported", null, null);
                 return RestResponse.error(message);
             }
 
@@ -537,9 +535,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             final String mimeType = this.detectMimeType(data);
 
             if (mimeType == null) {
-                final ValidationMessage message = new ValidationMessage(
-                    BasicMessageCode.Validation, "file", "FileTypeNotSupported", null, null
-                );
+                final ValidationMessage message = new ValidationMessage("file", "FileTypeNotSupported", null, null);
                 return RestResponse.error(message);
             }
 
@@ -705,6 +701,10 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         final EnumRole requiredRole = type.getRequiredRole();
 
         if (requiredRole != null && !this.hasRole(requiredRole)) {
+            throw new AccessDeniedException("Access Denied");
+        }
+
+        if (command.isOpenDataset() && !this.hasAnyRole(EnumRole.ROLE_PROVIDER_OPEN_DATASET)) {
             throw new AccessDeniedException("Access Denied");
         }
     }

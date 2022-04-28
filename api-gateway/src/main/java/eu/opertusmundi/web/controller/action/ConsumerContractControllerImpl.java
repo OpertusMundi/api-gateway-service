@@ -101,6 +101,10 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
                     return this.createResponse(response, file, this.getFilename(order));
                 }
                 break;
+
+            case OPEN_DATASET :
+                // No contract exists
+                break;
         }
 
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
