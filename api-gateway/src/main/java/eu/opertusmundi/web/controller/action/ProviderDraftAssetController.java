@@ -184,7 +184,8 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "draft-asset-02b",
         summary     = "Create draft from asset",
-        description = "Create a new draft item from an existing asset. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
+        description = "Creates a new draft from an existing asset. If a draft already exists for the specified PID, "
+                    + "the existing draft is returned. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
