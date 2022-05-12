@@ -1,7 +1,10 @@
 package eu.opertusmundi.web.config;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +38,7 @@ import org.springframework.security.web.authentication.switchuser.SwitchUserFilt
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.web.logging.filter.MappedDiagnosticContextFilter;
 import eu.opertusmundi.web.security.CustomUserDetailsService;
 
@@ -50,6 +54,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Value("${opertus-mundi.security.csrf-enabled:true}")
     private boolean csrfEnabled;
+
+    @Value("${opertus-mundi.authentication-providers:forms}")
+    private String authProviders;
 
     private static final String ACTION_REG_EX = "/action/.*";
 
@@ -98,27 +105,39 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.exceptionHandling().authenticationEntryPoint(this.authenticationEntryPoint());
 
-        http.formLogin()
-            .loginPage("/login")
-            .failureUrl("/signin?error=1")
-            .defaultSuccessUrl("/logged-in", true)
-            .usernameParameter("username")
-            .passwordParameter("password");
+        final List<EnumAuthProvider> providers = Arrays.stream(this.authProviders.split(","))
+            .map(String::trim)
+            .map(EnumAuthProvider::fromString)
+            .filter(s -> s != null)
+            .collect(Collectors.toList());
 
-        http.logout()
-            .logoutUrl("/logout")
-            .logoutSuccessUrl("/logged-out")
-            .invalidateHttpSession(true)
-            .clearAuthentication(true)
-            .permitAll();
+        // Enable forms authentication
+        if (providers.contains(EnumAuthProvider.Forms)) {
+            http.formLogin()
+                .loginPage("/login")
+                .failureUrl("/signin?error=1")
+                .defaultSuccessUrl("/logged-in", true)
+                .usernameParameter("username")
+                .passwordParameter("password");
 
-        http.oauth2Login()
-            .userInfoEndpoint(userInfo -> userInfo.oidcUserService(this.oidcUserService()))
-            .failureHandler((HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) -> {
-                oauth2Logger.error("OAuth2 request failed", exception);
+            http.logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/logged-out")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .permitAll();
+        }
 
-                response.sendRedirect("/signin?error=2");
-            });
+        // Enable OAuth2
+        if (providers.contains(EnumAuthProvider.OpertusMundi)) {
+            http.oauth2Login()
+                .userInfoEndpoint(userInfo -> userInfo.oidcUserService(this.oidcUserService()))
+                .failureHandler((HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) -> {
+                    oauth2Logger.error("OAuth2 request failed", exception);
+
+                    response.sendRedirect("/signin?error=2");
+                });
+        }
 
         http.addFilterAfter(new MappedDiagnosticContextFilter(), SwitchUserFilter.class);
     }
