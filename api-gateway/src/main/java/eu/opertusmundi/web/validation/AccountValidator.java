@@ -1,10 +1,11 @@
 package eu.opertusmundi.web.validation;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
@@ -39,8 +40,9 @@ public class AccountValidator implements Validator {
     private void validate(PlatformAccountCommandDto command, Errors e) {
         validateEmail(command.getEmail(), e);
 
-        if (!StringUtils.isBlank(command.getPassword()) && !command.getPassword().equals(command.getVerifyPassword())) {
-            e.rejectValue("password", EnumValidatorError.NotEqual.name());
+        // Password should not be set by the user
+        if (!StringUtils.isBlank(command.getPassword())) {
+            e.rejectValue("password", EnumValidatorError.OptionNotSupported.name());
         }
     }
 
