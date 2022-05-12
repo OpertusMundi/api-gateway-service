@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.PasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -75,6 +78,18 @@ public class DefaultUserService implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(DefaultUserService.class);
 
     private static final String MESSAGE_EMAIL_VERIFIED = "email-verified-message";
+
+    private static final int MIN_PASSWORD_LENGTH = 12;
+
+    private static final CharacterRule[] PASSWORD_POLICY = new CharacterRule[] {
+        new CharacterRule(EnglishCharacterData.Alphabetical),
+        new CharacterRule(EnglishCharacterData.LowerCase),
+        new CharacterRule(EnglishCharacterData.UpperCase),
+        new CharacterRule(EnglishCharacterData.Special),
+        new CharacterRule(EnglishCharacterData.Digit),
+    };
+
+    private static final PasswordGenerator PASSWORD_GENERATOR = new PasswordGenerator();
 
     /**
      * Activation token duration in hours
@@ -153,9 +168,12 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional
     public ServiceResponse<CreateAccountResult> createPlatformAccount(PlatformAccountCommandDto command) {
-        command.getProfile().setImage(imageUtils.resizeImage(
-            command.getProfile().getImage(), command.getProfile().getImageMimeType()
-        ));
+        final String password = this.generatePassword();
+
+        // Set auto-generated password
+        command.setPassword(password);
+        // Resize user uploaded image
+        command.getProfile().setImage(imageUtils.resizeImage(command.getProfile().getImage(), command.getProfile().getImageMimeType()));
 
         final CreateAccountResult result = this.createPlatformAccountRecord(command);
 
@@ -214,6 +232,11 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional
     public ServiceResponse<AccountDto> createVendorAccount(VendorAccountCommandDto command) {
+        final String password = this.generatePassword();
+
+        // Set auto-generated password
+        command.setPassword(password);
+        // Resize user uploaded image
         command.getProfile().setImage(imageUtils.resizeImage(command.getProfile().getImage(), command.getProfile().getImageMimeType()));
 
         final AccountDto account = this.accountRepository.create(command);
@@ -707,6 +730,16 @@ public class DefaultUserService implements UserService {
                 fex
             );
         }
+    }
+
+    private String generatePassword() {
+        return this.generatePassword(MIN_PASSWORD_LENGTH);
+    }
+
+    private String generatePassword(int length) {
+        final String password = PASSWORD_GENERATOR.generatePassword(length, PASSWORD_POLICY);
+
+        return password;
     }
 
 }
