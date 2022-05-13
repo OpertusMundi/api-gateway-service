@@ -85,14 +85,6 @@ public class HomeController {
         return "redirect:/account/verify-email/failure";
     }
 
-    /**
-     * Request handler for joining a vendor organization
-     */
-    @GetMapping("/vendor-account/join")
-    public String joinOrganization(@RequestParam(name = "token", required = true) UUID token) {
-        return "index";
-    }
-
     @GetMapping("/account/registration/success")
     public String verifyTokenSuccess() {
         return "index";

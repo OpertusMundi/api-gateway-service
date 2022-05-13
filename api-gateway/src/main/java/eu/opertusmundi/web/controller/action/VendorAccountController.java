@@ -25,7 +25,7 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.EnumAccountSortField;
-import eu.opertusmundi.common.model.account.JoinVendorCommandDto;
+import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.VendorAccountCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.AccountEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -190,13 +190,44 @@ public interface VendorAccountController {
     );
 
     /**
-     * Invite vendor account to join provider organization
+     * Delete an existing vendor account
+     *
+     * Only accounts with activation status
+     * {@link EnumActivationStatus#UNDEFINED} can be deleted
      *
      * @param key
      * @return
      */
     @Operation(
         operationId = "vendor-account-04",
+        summary     = "Delete",
+        description = "Deletes an existing vendor account. Only accounts with activation status `UNDEFINED` can be deleted. "
+                    + "Required role: `ROLE_PROVIDER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description  = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
+    )
+    @DeleteMapping(value = "/action/vendor-accounts/{key}")
+    @Secured({"ROLE_PROVIDER"})
+    BaseResponse delete(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Account unique key"
+        )
+        @PathVariable UUID key
+    );
+
+    /**
+     * Invite vendor account to join provider organization
+     *
+     * @param key
+     * @return
+     */
+    @Operation(
+        operationId = "vendor-account-05",
         summary     = "Invite",
         description = "Invites a user to activate her vendor account. "
                     + "An email is sent with a new activation token. Required role: `ROLE_PROVIDER`"
@@ -221,12 +252,10 @@ public interface VendorAccountController {
      * Join organization
      *
      * @param token
-     * @param command
-     * @param validationResult
      * @return
      */
     @Operation(
-        operationId = "vendor-account-05",
+        operationId = "vendor-account-06",
         summary     = "Join",
         description = "Accepts vendor invitation to join an organization"
     )
@@ -243,22 +272,7 @@ public interface VendorAccountController {
             required    = true,
             description = "Activation token"
         )
-        @PathVariable UUID token,
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Join organization command",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = JoinVendorCommandDto.class)
-            ),
-            required = true
-        )
-        @Valid
-        @RequestBody
-        JoinVendorCommandDto command,
-        @Parameter(
-            hidden = true
-        )
-        BindingResult validationResult
+        @PathVariable UUID token
     );
 
     /**
@@ -268,7 +282,7 @@ public interface VendorAccountController {
      * @return
      */
     @Operation(
-        operationId = "vendor-account-06",
+        operationId = "vendor-account-07",
         summary     = "Enable",
         description = "Enable vendor account. A vendor can enable only accounts with activation status `COMPLETED`. "
                     + "If the account activation status is `UNDEFINED` an error is returned. If the status is either "
@@ -297,7 +311,7 @@ public interface VendorAccountController {
      * @return
      */
     @Operation(
-        operationId = "vendor-account-07",
+        operationId = "vendor-account-08",
         summary     = "Disable",
         description = "Disable vendor account. If the account activation status is either `PENDING` or `PROCESSING`, "
                     + "the action is ignored. Required role: `ROLE_PROVIDER`"

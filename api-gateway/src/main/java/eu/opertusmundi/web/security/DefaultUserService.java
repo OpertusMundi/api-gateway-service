@@ -46,7 +46,6 @@ import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.account.ActivationTokenDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.EnumActivationTokenType;
-import eu.opertusmundi.common.model.account.JoinVendorCommandDto;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.account.VendorAccountCommandDto;
 import eu.opertusmundi.common.model.analytics.ProfileRecord;
@@ -264,6 +263,12 @@ public class DefaultUserService implements UserService {
         return ServiceResponse.result(account);
     }
 
+    @Override
+    @Transactional
+    public void deleteVendorAccount(UUID parentKey, UUID key) {
+        throw new ServiceException(BasicMessageCode.NotImplemented, "Operation not implemented");
+    }
+
     private ActivationTokenDto startVendorAccountInvitationWorkflow(Integer userId, UUID userKey, String email) {
         try {
             // Create activation token for account email
@@ -397,9 +402,9 @@ public class DefaultUserService implements UserService {
 
     @Override
     @Transactional
-    public ServiceResponse<Void> joinOrganization(JoinVendorCommandDto command) {
+    public ServiceResponse<Void> joinOrganization(UUID token) {
         // Validate token
-        final ActivationTokenEntity tokenEntity = this.activationTokenRepository.findOneByKey(command.getToken()).orElse(null);
+        final ActivationTokenEntity tokenEntity = this.activationTokenRepository.findOneByKey(token).orElse(null);
 
         if (tokenEntity == null) {
             return ServiceResponse.error(BasicMessageCode.TokenNotFound, "Token was not found");
@@ -425,7 +430,6 @@ public class DefaultUserService implements UserService {
 
         // Update database
         this.activationTokenRepository.redeem(tokenEntity);
-        this.changePassword(command);
 
         if (accountEntity.getActivationStatus() == EnumActivationStatus.PENDING) {
             // Activate account only once
@@ -443,7 +447,7 @@ public class DefaultUserService implements UserService {
         this.accountRepository.saveAndFlush(accountEntity);
 
         if (sendMessage) {
-            this.sendTokenToProcessInstance(accountEntity.getKey(), command.getToken());
+            this.sendTokenToProcessInstance(accountEntity.getKey(), token);
         }
 
         return ServiceResponse.success();
@@ -657,12 +661,6 @@ public class DefaultUserService implements UserService {
     @Transactional
     public void changePassword(PasswordChangeCommandDto command) {
         this.changePassword(command.getUserName(), command.getCurrentPassword(), command.getNewPassword());
-    }
-
-    @Override
-    @Transactional
-    public void changePassword(JoinVendorCommandDto command) {
-        this.changePassword(command.getEmail(), null, command.getPassword());
     }
 
     private void changePassword(String email, @Nullable String currentPassword, String newPassword) {

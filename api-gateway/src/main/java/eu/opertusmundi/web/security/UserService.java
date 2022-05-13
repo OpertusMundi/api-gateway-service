@@ -8,13 +8,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
+import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.ServiceResponse;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.account.ActivationTokenDto;
+import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.EnumActivationTokenType;
-import eu.opertusmundi.common.model.account.JoinVendorCommandDto;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.account.VendorAccountCommandDto;
 import eu.opertusmundi.web.model.security.CreateAccountResult;
@@ -66,6 +67,17 @@ public interface UserService {
     ServiceResponse<AccountDto> updateVendorAccount(VendorAccountCommandDto command);
 
     /**
+     * Delete an existing vendor account.
+     *
+     * Only accounts with activation status {@link EnumActivationStatus#UNDEFINED} can be deleted
+     *
+     * @param parentKey
+     * @param key
+     * @throws ServiceException
+     */
+    void deleteVendorAccount(UUID parentKey, UUID key) throws ServiceException;
+
+    /**
      * Create activation token
      *
      * @param command Token creation command
@@ -98,10 +110,10 @@ public interface UserService {
     /**
      * Join vendor organization
      *
-     * @param command
+     * @param token
      * @return
      */
-    ServiceResponse<Void> joinOrganization(JoinVendorCommandDto command);
+    ServiceResponse<Void> joinOrganization(UUID token);
 
     /**
      * Enable vendor account
@@ -161,12 +173,5 @@ public interface UserService {
      * @param command
      */
     void changePassword(PasswordChangeCommandDto command);
-
-    /**
-     * Set the password password of a vendor account
-     *
-     * @param command
-     */
-    void changePassword(JoinVendorCommandDto command);
 
 }
