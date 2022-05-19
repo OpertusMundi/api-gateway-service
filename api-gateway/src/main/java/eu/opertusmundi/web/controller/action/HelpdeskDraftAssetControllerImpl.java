@@ -109,7 +109,9 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
 
         response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
         response.setHeader("Content-Type", contentType);
-        response.setHeader("Content-Length", Long.toString(file.length()));
+        if (file.length() < 1024 * 1024) {
+            response.setHeader("Content-Length", Long.toString(file.length()));
+        }
 
         final StreamingResponseBody stream = out -> {
             try (InputStream inputStream = new FileInputStream(file)) {
@@ -141,7 +143,9 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
 
         response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
         response.setHeader("Content-Type", contentType);
-        response.setHeader("Content-Length", Long.toString(file.length()));
+        if (file.length() < 1024 * 1024) {
+            response.setHeader("Content-Length", Long.toString(file.length()));
+        }
 
         final StreamingResponseBody stream = out -> {
             try (InputStream inputStream = new FileInputStream(file)) {
@@ -170,7 +174,9 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
 
         response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
         response.setHeader("Content-Type", contentType);
-        response.setHeader("Content-Length", Long.toString(file.length()));
+        if (file.length() < 1024 * 1024) {
+            response.setHeader("Content-Length", Long.toString(file.length()));
+        }
 
         final StreamingResponseBody stream = out -> {
             try (InputStream inputStream = new FileInputStream(file)) {
@@ -199,7 +205,9 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
 
         response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
         response.setHeader("Content-Type", contentType);
-        response.setHeader("Content-Length", Long.toString(file.length()));
+        if (file.length() < 1024 * 1024) {
+            response.setHeader("Content-Length", Long.toString(file.length()));
+        }
 
         final StreamingResponseBody stream = out -> {
             try (InputStream inputStream = new FileInputStream(file)) {
