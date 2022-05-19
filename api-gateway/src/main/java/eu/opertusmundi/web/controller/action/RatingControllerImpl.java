@@ -2,24 +2,17 @@ package eu.opertusmundi.web.controller.action;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.opertusmundi.common.feign.client.RatingServiceFeignClient;
 import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.rating.client.ClientAssetRatingCommandDto;
-import eu.opertusmundi.common.model.rating.client.ClientProviderRatingCommandDto;
-import eu.opertusmundi.common.model.rating.client.ClientRatingDto;
-import eu.opertusmundi.common.model.rating.server.ServerAssetRatingCommandDto;
-import eu.opertusmundi.common.model.rating.server.ServerProviderRatingCommandDto;
-import eu.opertusmundi.common.model.rating.server.ServerRatingDto;
+import eu.opertusmundi.common.model.rating.AssetRatingCommandDto;
+import eu.opertusmundi.common.model.rating.ProviderRatingCommandDto;
+import eu.opertusmundi.common.model.rating.RatingDto;
+import eu.opertusmundi.common.service.RatingService;
 import eu.opertusmundi.web.validation.AssetRatingValidator;
 import eu.opertusmundi.web.validation.ProviderRatingValidator;
 
@@ -27,7 +20,7 @@ import eu.opertusmundi.web.validation.ProviderRatingValidator;
 public class RatingControllerImpl extends BaseController implements RatingController {
 
     @Autowired
-    private ObjectProvider<RatingServiceFeignClient> ratingClient;
+    private RatingService ratingService;
 
     @Autowired
     private AssetRatingValidator assetRatingValidator;
@@ -36,50 +29,23 @@ public class RatingControllerImpl extends BaseController implements RatingContro
     private ProviderRatingValidator providerRatingValidator;
 
     @Override
-    public RestResponse<List<ClientRatingDto>> getAssetRatings(String id) {
-        final RestResponse<List<ServerRatingDto>> serviceResponse = this.ratingClient.getObject().getAssetRatings(id).getBody();
-
-        if (!serviceResponse.getSuccess()) {
-            return RestResponse.failure();
-        }
-
-        final List<ClientRatingDto> result = serviceResponse.getResult().stream()
-            .map(r -> {
-                final ClientRatingDto dto = new ClientRatingDto(r);
-
-                return dto;
-            })
-            .collect(Collectors.toList());
+    public RestResponse<List<RatingDto>> getAssetRatings(String id) {
+        final List<RatingDto> result = this.ratingService.getAssetRatings(id);
 
         return RestResponse.result(result);
     }
 
     @Override
-    public RestResponse<List<ClientRatingDto>> getProviderRatings(UUID id) {
-        final RestResponse<List<ServerRatingDto>> serviceResponse = this.ratingClient.getObject().getProviderRatings(id).getBody();
-
-        if (!serviceResponse.getSuccess()) {
-            return RestResponse.failure();
-        }
-
-        final List<ClientRatingDto> result = serviceResponse.getResult().stream()
-            .map(r -> {
-                final ClientRatingDto dto = new ClientRatingDto(r);
-
-                return dto;
-            })
-            .collect(Collectors.toList());
+    public RestResponse<List<RatingDto>> getProviderRatings(UUID id) {
+        final List<RatingDto> result = this.ratingService.getProviderRatings(id);
 
         return RestResponse.result(result);
     }
 
     @Override
-    public BaseResponse addAssetRating(String id, ClientAssetRatingCommandDto command, BindingResult validationResult) {
+    public BaseResponse addAssetRating(String id, AssetRatingCommandDto command, BindingResult validationResult) {
         command.setAccount(this.currentUserKey());
         command.setAsset(id);
-
-        final ServerAssetRatingCommandDto c = new ServerAssetRatingCommandDto(command);
-        c.setAccount(this.currentUserKey());
 
         this.assetRatingValidator.validate(command, validationResult);
 
@@ -87,22 +53,15 @@ public class RatingControllerImpl extends BaseController implements RatingContro
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        final ResponseEntity<BaseResponse> response = this.ratingClient.getObject().addAssetRating(id, c);
+        this.ratingService.addAssetRating(command);
 
-        if (response.getBody().getSuccess()) {
-            return RestResponse.success();
-        }
-
-        return RestResponse.error(BasicMessageCode.InternalServerError, "Record creation failed");
+        return RestResponse.success();
     }
 
     @Override
-    public BaseResponse addProviderRating(UUID id, ClientProviderRatingCommandDto command, BindingResult validationResult) {
+    public BaseResponse addProviderRating(UUID id, ProviderRatingCommandDto command, BindingResult validationResult) {
         command.setAccount(this.currentUserKey());
         command.setProvider(id);
-
-        final ServerProviderRatingCommandDto c = new ServerProviderRatingCommandDto(command);
-        c.setAccount(this.currentUserKey());
 
         this.providerRatingValidator.validate(command, validationResult);
 
@@ -110,13 +69,9 @@ public class RatingControllerImpl extends BaseController implements RatingContro
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
 
-        final ResponseEntity<BaseResponse> response = this.ratingClient.getObject().addProviderRating(id, c);
+        this.ratingService.addProviderRating(command);
 
-        if (response.getBody().getSuccess()) {
-            return RestResponse.success();
-        }
-
-        return RestResponse.error(BasicMessageCode.InternalServerError, "Record creation failed");
+        return RestResponse.success();
     }
 
 }

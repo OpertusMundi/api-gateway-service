@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -182,7 +183,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.success").isBoolean())
             .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.messages").isArray())
-            .andExpect(jsonPath("$.messages", hasSize(5)))
+            .andExpect(jsonPath("$.messages", hasSize(3)))
             .andExpect(jsonPath(
                 "$.messages[?(@.code == '" + code + "' && @.description == 'NotEmpty' && @.field == 'profile.firstName')]"
             ).exists())
@@ -190,13 +191,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
                 "$.messages[?(@.code == '" + code + "' && @.description == 'NotEmpty' && @.field == 'profile.lastName')]"
             ).exists())
             .andExpect(jsonPath(
-                "$.messages[?(@.code == '" + code + "' && @.description == 'NotEmpty' && @.field == 'verifyPassword')]"
-            ).exists())
-            .andExpect(jsonPath(
                 "$.messages[?(@.code == '" + code + "' && @.description == 'NotEmpty' && @.field == 'email')]"
-            ).exists())
-            .andExpect(jsonPath(
-                "$.messages[?(@.code == '" + code + "' && @.description == 'NotEmpty' && @.field == 'password')]"
             ).exists())
             .andExpect(jsonPath("$.result").doesNotExist());
 
@@ -223,7 +218,6 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         final PlatformAccountCommandDto command = new PlatformAccountCommandDto();
         command.setEmail(email);
         command.setPassword("password");
-        command.setVerifyPassword("password");
         command.setProfile(profileCommand);
 
         // Capture return value (arguments will be captured in verify)
@@ -284,7 +278,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Test
     @Tag(value = "Controller")
     @Order(12)
-    @DisplayName(value = "When register account with existing email and invalid password, return errors")
+    @DisplayName(value = "When register account with existing email, return errors")
     void whenRegisterAccountWithExistingEmailAndInvalidPassword_returnErrors() throws Exception {
         final String code = BasicMessageCode.Validation.key();
 
@@ -299,8 +293,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
 
         final PlatformAccountCommandDto command = new PlatformAccountCommandDto();
         command.setEmail(email);
-        command.setPassword("password1");
-        command.setVerifyPassword("password2");
+        command.setPassword("");
         command.setProfile(profileCommand);
 
         // Send request
@@ -312,12 +305,9 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             .andExpect(jsonPath("$.success").isBoolean())
             .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.messages").isArray())
-            .andExpect(jsonPath("$.messages", hasSize(2)))
+            .andExpect(jsonPath("$.messages", hasSize(1)))
             .andExpect(jsonPath(
                 "$.messages[?(@.code == '" + code + "' && @.description == 'NotUnique' && @.field == 'email')]"
-            ).exists())
-            .andExpect(jsonPath(
-                "$.messages[?(@.code == '" + code + "' && @.description == 'NotEqual' && @.field == 'password')]"
             ).exists())
             .andExpect(jsonPath("$.result").doesNotExist());
 
@@ -432,6 +422,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Order(51)
     @Tag(value = "Controller")
     @DisplayName(value = "When login success, redirect")
+    @Disabled(value = "Requires IDP integration")
     void whenLoginSuccess_thenRedirect() throws Exception {
         this.mockMvc.perform(formLogin("/login").user("user@opertusmundi.eu").password("password"))
             .andExpect(status().is3xxRedirection())
@@ -515,7 +506,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @DisplayName(value = "When changing password for authenticated user with invalid credentials, return error")
     @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
     @Order(61)
-    void whenAuthetnicatedUserChangePasswordWithInvalidCurrentPassword_returnError() throws Exception {
+    void whenAuthenticatedUserChangePasswordWithInvalidCurrentPassword_returnError() throws Exception {
         // Create command
         final PasswordChangeCommandDto command = new PasswordChangeCommandDto();
         command.setCurrentPassword("wrong-password");
@@ -543,7 +534,8 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @DisplayName(value = "When changing password for authenticated user with valid credentials, return 200")
     @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
     @Order(62)
-    void whenAuthetnicatedUserChangePasswordWithValidCurrentPassword_return200() throws Exception {
+    @Disabled(value = "Requires IDP integration")
+    void whenAuthenticatedUserChangePasswordWithValidCurrentPassword_return200() throws Exception {
         // Create command
         final String                   email    = "user@opertusmundi.eu";
         final String                   password = "new-password";

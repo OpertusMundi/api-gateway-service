@@ -69,28 +69,20 @@ public class HomeController {
     }
 
     /**
-     * Request handler for verifying tokens
+     * Request handler for verifying an email address using a token
      */
     @GetMapping("/token/verify")
-    public String verifyToken(@RequestParam(name = "token", required = true) UUID token) {
+    public String verifyToken(@RequestParam UUID token) {
         try {
             final ServiceResponse<Void> response = userService.redeemToken(token);
 
             if (response.getMessages().isEmpty()) {
-                return "redirect:/account/registration/success";
+                return "redirect:/account/verify-email/success";
             }
         } catch (final Exception ex) {
-            logger.error("Token verification has failed [token={}, message={}]", token, ex.getMessage());
+            logger.error("Email address verification has failed [token={}, message={}]", token, ex.getMessage());
         }
-        return "redirect:/account/registration/failure";
-    }
-
-    /**
-     * Request handler for joining a vendor organization
-     */
-    @GetMapping("/vendor-account/join")
-    public String joinOrganization(@RequestParam(name = "token", required = true) UUID token) {
-        return "index";
+        return "redirect:/account/verify-email/failure";
     }
 
     @GetMapping("/account/registration/success")

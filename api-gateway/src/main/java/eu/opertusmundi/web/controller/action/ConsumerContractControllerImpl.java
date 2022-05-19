@@ -115,7 +115,9 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
     ) {
         response.setHeader("Content-Disposition", String.format("attachment; filename=%s", downloadFilename));
         response.setHeader("Content-Type", MediaType.APPLICATION_PDF_VALUE);
-        response.setHeader("Content-Length", Long.toString(file.length()));
+        if (file.length() < 1024 * 1024) {
+            response.setHeader("Content-Length", Long.toString(file.length()));
+        }
 
         final StreamingResponseBody stream = out -> {
             try (InputStream inputStream = new FileInputStream(file)) {

@@ -19,12 +19,10 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceResponse;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.EnumAccountSortField;
-import eu.opertusmundi.common.model.account.JoinVendorCommandDto;
 import eu.opertusmundi.common.model.account.VendorAccountCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.web.security.UserService;
 import eu.opertusmundi.web.validation.AccountValidator;
-import eu.opertusmundi.web.validation.JoinVendorCommandValidator;
 
 @RestController
 public class VendorAccountControllerImpl extends BaseController implements VendorAccountController {
@@ -37,9 +35,6 @@ public class VendorAccountControllerImpl extends BaseController implements Vendo
 
     @Autowired
     private AccountValidator accountValidator;
-
-    @Autowired
-    private JoinVendorCommandValidator joinVendorCommandValidator;
 
     @Override
     public RestResponse<PageResultDto<AccountDto>> find(
@@ -90,6 +85,15 @@ public class VendorAccountControllerImpl extends BaseController implements Vendo
     }
 
     @Override
+    public BaseResponse delete(UUID key) {
+        final UUID parentKey = this.currentUserKey();
+
+        this.userService.deleteVendorAccount(parentKey, key);
+
+        return BaseResponse.empty();
+    }
+
+    @Override
     public BaseResponse invite(UUID key) {
         final ServiceResponse<AccountDto> response = this.userService.invite(this.currentUserKey(), key);
 
@@ -101,16 +105,8 @@ public class VendorAccountControllerImpl extends BaseController implements Vendo
     }
 
     @Override
-    public BaseResponse acceptInvite(UUID token, JoinVendorCommandDto command, BindingResult validationResult) {
-        command.setToken(token);
-
-        this.joinVendorCommandValidator.validate(command, validationResult);
-
-        if (validationResult.hasErrors()) {
-            return RestResponse.invalid(validationResult.getFieldErrors());
-        }
-
-        final ServiceResponse<Void> response = this.userService.joinOrganization(command);
+    public BaseResponse acceptInvite(UUID token) {
+        final ServiceResponse<Void> response = this.userService.joinOrganization(token);
 
         if (response.getResult() == null) {
             return RestResponse.error(response.getMessages());

@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.rating.client.ClientAssetRatingCommandDto;
-import eu.opertusmundi.common.model.rating.client.ClientProviderRatingCommandDto;
-import eu.opertusmundi.common.model.rating.client.ClientRatingDto;
+import eu.opertusmundi.common.model.rating.AssetRatingCommandDto;
+import eu.opertusmundi.common.model.rating.RatingDto;
+import eu.opertusmundi.common.model.rating.ProviderRatingCommandDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.RatingEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,7 +57,7 @@ public interface RatingController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = RatingEndpointTypes.AssetResponse.class))
     )
     @GetMapping(value = "/asset/{id}")
-    RestResponse<List<ClientRatingDto>> getAssetRatings(
+    RestResponse<List<RatingDto>> getAssetRatings(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -84,7 +84,7 @@ public interface RatingController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = RatingEndpointTypes.ProviderResponse.class))
     )
     @GetMapping(value = "/provider/{id}")
-    RestResponse<List<ClientRatingDto>> getProviderRatings(
+    RestResponse<List<RatingDto>> getProviderRatings(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -124,10 +124,10 @@ public interface RatingController {
         String id,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Rating command",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientAssetRatingCommandDto.class)),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AssetRatingCommandDto.class)),
             required = true
         )
-        @Valid @RequestBody(required = true) ClientAssetRatingCommandDto command,
+        @Valid @RequestBody(required = true) AssetRatingCommandDto command,
         @Parameter(hidden = true) BindingResult validationResult
     );
 
@@ -162,10 +162,10 @@ public interface RatingController {
         UUID id,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Rating command",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientProviderRatingCommandDto.class)),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProviderRatingCommandDto.class)),
             required = true
         )
-        @Valid @RequestBody(required = true) ClientProviderRatingCommandDto command,
+        @Valid @RequestBody(required = true) ProviderRatingCommandDto command,
         @Parameter(hidden = true) BindingResult validationResult
     );
 

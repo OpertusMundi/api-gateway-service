@@ -182,7 +182,9 @@ public class ProviderOrderControllerImpl extends BaseController implements Provi
 
         response.setHeader("Content-Disposition", String.format("attachment; filename=%s", file.getName()));
         response.setHeader("Content-Type", contentType);
-        response.setHeader("Content-Length", Long.toString(file.length()));
+        if (file.length() < 1024 * 1024) {
+            response.setHeader("Content-Length", Long.toString(file.length()));
+        }
 
         final StreamingResponseBody stream = out -> {
             try (InputStream inputStream = new FileInputStream(file)) {

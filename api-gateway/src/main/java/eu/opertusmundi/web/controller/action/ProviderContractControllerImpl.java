@@ -216,7 +216,9 @@ public class ProviderContractControllerImpl extends BaseController implements Pr
 
             response.setHeader("Content-Disposition", String.format("attachment; filename=%s.pdf", template.getTitle()));
             response.setHeader("Content-Type", MediaType.APPLICATION_PDF_VALUE);
-            response.setHeader("Content-Length", Long.toString(result.length));
+            if (result.length < 1024 * 1024) {
+                response.setHeader("Content-Length", Long.toString(result.length));
+            }
 
             final StreamingResponseBody stream = out -> {
                     IOUtils.write(result, out);

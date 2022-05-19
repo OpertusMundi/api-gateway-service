@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.account.AccountDto;
+import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.web.model.security.User;
 
 @Service
@@ -19,7 +20,7 @@ public class DefaultUserDetailsService implements CustomUserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         final AccountDto account = this.userService.findOneByUserName(username).orElse(null);
 
-        if (account == null) {
+        if (account == null || account.getActivationStatus() != EnumActivationStatus.COMPLETED) {
             throw new UsernameNotFoundException(username);
         }
 
@@ -30,7 +31,7 @@ public class DefaultUserDetailsService implements CustomUserDetailsService {
     public UserDetails loadUserByUsername(String username, EnumAuthProvider provider) throws UsernameNotFoundException {
         final AccountDto account = this.userService.findOneByUserName(username, provider).orElse(null);
 
-        if (account == null) {
+        if (account == null || account.getActivationStatus() != EnumActivationStatus.COMPLETED) {
             throw new UsernameNotFoundException(username);
         }
 

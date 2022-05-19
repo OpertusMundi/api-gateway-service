@@ -3,6 +3,7 @@ package eu.opertusmundi.web.config;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,7 @@ public class CacheConfiguration {
 
     @Primary
     @Bean
-    public CaffeineCacheManager defaultCacheManager() {
+    public CacheManager defaultCacheManager() {
         final Caffeine<Object, Object> caffeine = Caffeine.newBuilder()
             .recordStats()
             .expireAfterWrite(1L, TimeUnit.HOURS);
@@ -25,6 +26,7 @@ public class CacheConfiguration {
         final CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.setCaffeine(caffeine);
         cacheManager.setCacheNames(Arrays.asList(
+            "asset-statistics",
             "company-number",
             "draft-services",
             "sentinel-hub-subscription-plans"
