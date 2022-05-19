@@ -78,6 +78,7 @@ ENV PUBLIC_URL="" \
     BPM_REST_BASE_URL="http://bpm-server:8000/engine-rest" \
     BPM_REST_USERNAME="" \
     BPM_REST_PASSWORD_FILE="/secrets/bpm-rest-password" \
+    MANGOPAY_WEBHOOK_CREATE_ON_STARTUP="false" \
     MANGOPAY_BASE_URL="https://api.mangopay.com" \
     MANGOPAY_CLIENT_ID="" \
     MANGOPAY_CLIENT_PASSWORD_FILE="/secrets/mangopay-client-password" \

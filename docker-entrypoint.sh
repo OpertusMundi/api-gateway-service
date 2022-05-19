@@ -87,6 +87,7 @@ runtime_profile=$(hostname | md5sum | head -c10)
     mangopay_base_url=$(echo ${MANGOPAY_BASE_URL} | _validate_http_url "MANGOPAY_BASE_URL")
     mangopay_client_id=${MANGOPAY_CLIENT_ID}
     mangopay_client_password=$(cat ${MANGOPAY_CLIENT_PASSWORD_FILE} | tr -d '\n')
+    echo "opertusmundi.payments.mangopay.web-hook.create-on-startup = ${MANGOPAY_WEBHOOK_CREATE_ON_STARTUP:-false}"
     echo "opertusmundi.payments.mangopay.base-url = ${mangopay_base_url}"
     echo "opertusmundi.payments.mangopay.client-id = ${mangopay_client_id}"
     echo "opertusmundi.payments.mangopay.client-password = ${mangopay_client_password}"
