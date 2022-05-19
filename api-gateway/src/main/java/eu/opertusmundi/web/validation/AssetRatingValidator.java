@@ -6,7 +6,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.model.EnumValidatorError;
-import eu.opertusmundi.common.model.rating.client.ClientAssetRatingCommandDto;
+import eu.opertusmundi.common.model.rating.AssetRatingCommandDto;
 import eu.opertusmundi.common.repository.AccountAssetRepository;
 import eu.opertusmundi.common.repository.AccountSubscriptionRepository;
 
@@ -25,12 +25,12 @@ public class AssetRatingValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return ClientAssetRatingCommandDto.class.isAssignableFrom(clazz);
+        return AssetRatingCommandDto.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void validate(Object o, Errors e) {
-        final ClientAssetRatingCommandDto c = (ClientAssetRatingCommandDto) o;
+        final AssetRatingCommandDto c = (AssetRatingCommandDto) o;
 
         final boolean ownedAsset        = this.assetRepository.checkOwnershipByAsset(c.getAccount(), c.getAsset());
         final boolean ownedSubscription = this.subscriptionRepository.subscriptionExists(c.getAccount(), c.getAsset(), false);
