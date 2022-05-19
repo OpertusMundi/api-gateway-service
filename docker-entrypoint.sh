@@ -110,14 +110,6 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "opertusmundi.feign.message-service.url = ${messenger_base_url}"
     echo "opertusmundi.feign.message-service.jwt.subject = api-gateway"
 
-    rating_base_url=$(test -z "${RATING_BASE_URL:-}" && echo -n || \
-        { echo ${RATING_BASE_URL} | _validate_http_url "RATING_BASE_URL"; })
-    rating_username=${RATING_USERNAME}
-    rating_password=$({ test -f "${RATING_PASSWORD_FILE}" && cat ${RATING_PASSWORD_FILE}; } | tr -d '\n' || echo -n)
-    echo "opertusmundi.feign.rating-service.url = ${rating_base_url}"
-    echo "opertusmundi.feign.rating-service.basic-auth.username = ${rating_username}"
-    echo "opertusmundi.feign.rating-service.basic-auth.password = ${rating_password}"
-
     profile_base_url=$(echo ${PROFILE_BASE_URL} | _validate_http_url "PROFILE_BASE_URL")
     echo "opertusmundi.feign.data-profiler.url = ${profile_base_url}"
 
