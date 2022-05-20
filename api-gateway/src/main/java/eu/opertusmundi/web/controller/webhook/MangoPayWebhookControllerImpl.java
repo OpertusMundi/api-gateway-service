@@ -64,6 +64,9 @@ public class MangoPayWebhookControllerImpl implements MangoPayWebhookController 
     @Override
     public String secureModeRedirectHandler(UUID payInKey, String transactionId) {
         // TODO: Reset cart if PayIn is successful
+        // TODO: Redirect based on success/failure
+        // TODO: Fix race condition in payment workflow (payment status update
+        // may be delayed to worker polling interval)
 
         this.paymentService.sendPayInStatusUpdateMessage(payInKey, transactionId);
 

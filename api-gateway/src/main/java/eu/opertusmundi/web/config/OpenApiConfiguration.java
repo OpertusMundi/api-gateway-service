@@ -96,7 +96,8 @@ public class OpenApiConfiguration {
                 EndpointTags.Account,
                 EndpointTags.VendorAccount,
                 EndpointTags.Profile,
-                EndpointTags.FileSystem
+                EndpointTags.FileSystem,
+                EndpointTags.AccountClient
             )),
             new TagGroup("KYC", Arrays.asList(
                 EndpointTags.KycDocument,
