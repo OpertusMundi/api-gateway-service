@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestImportCommandDto;
@@ -51,8 +50,8 @@ public interface CatalogueController {
      */
     @Operation(
         operationId = "catalogue-01",
-        summary     = "Search assets",
-        description = "Search catalogue published items based on one or more criteria. Supports data paging and sorting."
+        summary     = "Find",
+        description = "Search catalogue published items based on one or more criteria using Elasticsearch."
     )
     @ApiResponse(
         responseCode = "200",
@@ -65,20 +64,20 @@ public interface CatalogueController {
     @GetMapping(value = "/catalogue")
     RestResponse<?> findAll(
         @ParameterObject()
-        CatalogueAssetQuery query
+        ElasticAssetQuery query
     );
 
     /**
-     * Search catalogue published items using Elasticsearch
+     * Search catalogue published items
      *
      * @param request The search criteria
      * @return An instance of {@link CatalogueClientCollectionResponse} class
      */
     @Operation(
         operationId = "catalogue-02",
-        summary     = "Search assets using elastic",
+        summary     = "Find Autocomplete",
         description = "Search catalogue published items based on one or more criteria using Elasticsearch. "
-                    + "Supports data paging and sorting."
+                    + "Search keywords are not added to the user's recent search history"
     )
     @ApiResponse(
         responseCode = "200",
@@ -88,8 +87,8 @@ public interface CatalogueController {
             schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
         )
     )
-    @GetMapping(value = "/catalogue/advanced")
-    RestResponse<?> findAllAdvanced(
+    @GetMapping(value = "/catalogue/autocomplete")
+    RestResponse<?> findAllAutocomplete(
         @ParameterObject()
         ElasticAssetQuery query
     );

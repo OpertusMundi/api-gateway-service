@@ -10,7 +10,6 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.catalogue.CatalogueResult;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestImportCommandDto;
@@ -31,9 +30,19 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     private ProviderAssetService providerAssetService;
 
     @Override
-    public RestResponse<?> findAll(CatalogueAssetQuery request) {
+    public RestResponse<?> findAll(ElasticAssetQuery request) {
+        return this.findAllImpl(request);
+    }
+
+    @Override
+    public RestResponse<?> findAllAutocomplete(ElasticAssetQuery request) {
+        request.setAutocomplete(true);
+        return this.findAllImpl(request);
+    }
+
+    private RestResponse<?> findAllImpl(ElasticAssetQuery request) {
         try {
-            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAll(this.createContext(), request);
+            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllElastic(this.createContext(), request);
 
             return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
         } catch (final CatalogueServiceException ex) {
@@ -45,17 +54,6 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     public RestResponse<?> findAllRelated(String id) {
         try {
             final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllRelated(this.createContext(), id);
-
-            return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
-        } catch (final CatalogueServiceException ex) {
-            return RestResponse.failure();
-        }
-    }
-
-    @Override
-    public RestResponse<?> findAllAdvanced(ElasticAssetQuery request) {
-        try {
-          final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllAdvanced(this.createContext(), request);
 
             return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
         } catch (final CatalogueServiceException ex) {
