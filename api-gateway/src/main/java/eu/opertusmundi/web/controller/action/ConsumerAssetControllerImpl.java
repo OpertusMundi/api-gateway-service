@@ -1,20 +1,39 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
+import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import eu.opertusmundi.common.model.BaseResponse;
+import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.account.AccountAssetDto;
 import eu.opertusmundi.common.model.account.AccountSubscriptionDto;
 import eu.opertusmundi.common.model.asset.EnumConsumerAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumConsumerSubSortField;
+import eu.opertusmundi.common.model.asset.FileResourceDto;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
+import eu.opertusmundi.common.model.file.CopyToDriveCommandDto;
+import eu.opertusmundi.common.model.file.CopyToDriveResultDto;
 import eu.opertusmundi.common.service.ConsumerAssetService;
 
 @RestController
@@ -58,7 +77,7 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
     }
 
     @Override
-    public RestResponse<?> findSubscription(UUID orderKey) {
+    public RestResponse<?> findOneSubscription(UUID orderKey) {
         try {
             final UUID userKey = this.currentUserKey();
 
@@ -70,6 +89,66 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
             return RestResponse.result(result);
         } catch (final CatalogueServiceException ex) {
             return RestResponse.failure();
+        }
+    }
+
+    @Override
+    public ResponseEntity<StreamingResponseBody> downloadResource(
+        String pid, String resourceKey, HttpServletResponse response
+    ) throws IOException {
+        try {
+            final UUID userKey = this.currentUserKey();
+
+            final FileResourceDto resource = this.consumerAssetService.resolveResourcePath(userKey, pid, resourceKey);
+            final Path            path     = resource.getPath();
+            final File            file     = path.toFile();
+            final String          fileName = resource.getFileName();
+
+            String contentType = Files.probeContentType(resource.getPath());
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
+            response.setHeader("Content-Disposition", String.format("attachment; filename=%s", fileName));
+            response.setHeader("Content-Type", contentType);
+            if (file.length() < 1024 * 1024) {
+                response.setHeader("Content-Length", Long.toString(file.length()));
+            }
+
+            final StreamingResponseBody stream = out -> {
+                try (InputStream inputStream = new FileInputStream(file)) {
+                    IOUtils.copyLarge(inputStream, out);
+                }
+            };
+
+            return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
+        } catch (final ServiceException ex) {
+            final HttpStatus httpStatus = ex.getCode() instanceof BasicMessageCode
+                ? ((BasicMessageCode) ex.getCode()).getHttpStatus()
+                : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            return new ResponseEntity<>(null, httpStatus);
+        }
+    }
+
+    @Override
+    public BaseResponse copyToDrive(
+        String pid, String resourceKey, CopyToDriveCommandDto command, BindingResult validationResult
+    ) throws IOException {
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
+        }
+
+        try {
+            command.setUserKey(this.currentUserKey());
+            command.setPid(pid);
+            command.setResourceKey(resourceKey);
+
+            final CopyToDriveResultDto result  = this.consumerAssetService.copyToDrive(command);
+
+            return RestResponse.result(result);
+        } catch (final ServiceException ex) {
+            return RestResponse.failure(ex);
         }
     }
 

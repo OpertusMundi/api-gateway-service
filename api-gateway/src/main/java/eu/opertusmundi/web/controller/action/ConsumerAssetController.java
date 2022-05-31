@@ -1,19 +1,31 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.IOException;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.EnumConsumerAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumConsumerSubSortField;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
+import eu.opertusmundi.common.model.file.CopyToDriveCommandDto;
 import eu.opertusmundi.common.model.openapi.schema.ConsumerEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,13 +34,14 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
     name        = EndpointTags.ConsumerAssets,
     description = "API for browsing consumer owned assets and subscriptions"
 )
-@RequestMapping(path = "/action", produces = "application/json")
+@RequestMapping(path = "/action", produces = MediaType.APPLICATION_JSON_VALUE)
 public interface ConsumerAssetController {
 
     /**
@@ -50,7 +63,8 @@ public interface ConsumerAssetController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = ConsumerEndpointTypes.AssetCollectionResponse.class)
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ConsumerEndpointTypes.AssetCollectionResponse.class)
         )
     )
     @GetMapping(value = "/consumer/assets")
@@ -107,7 +121,8 @@ public interface ConsumerAssetController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = ConsumerEndpointTypes.SubscriptionCollectionResponse.class)
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ConsumerEndpointTypes.SubscriptionCollectionResponse.class)
         )
     )
     @GetMapping(value = "/consumer/subscriptions")
@@ -160,16 +175,110 @@ public interface ConsumerAssetController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = ConsumerEndpointTypes.SubscriptionResponse.class)
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ConsumerEndpointTypes.SubscriptionResponse.class)
         )
     )
     @GetMapping(value = "/consumer/subscriptions/{key}")
     @Secured({"ROLE_CONSUMER"})
-    RestResponse<?> findSubscription(
+    RestResponse<?> findOneSubscription(
         @Parameter(
             in = ParameterIn.PATH,
             description = "Subscription key (equal to the linked order key)"
         )
         @PathVariable(name = "key") UUID orderKey
     );
+
+    /**
+     * Download a resource file from a purchased asset
+     *
+     * @param pid
+     * @param resourceKey
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @Operation(
+        operationId = "consumer-assets-04",
+        summary     = "Download resource",
+        description = "Downloads a resource of an asset, purchased by the authenticated user. Required role: `ROLE_CONSUMER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
+    )
+    @GetMapping(value = "/consumer/assets/{pid}/resource/{resourceKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @Secured({"ROLE_CONSUMER"})
+    ResponseEntity<StreamingResponseBody> downloadResource(
+        @Parameter(
+            in = ParameterIn.PATH,
+            description = "Asset unique identifier"
+        )
+        @PathVariable(name = "pid") String pid,
+        @Parameter(
+            in = ParameterIn.PATH,
+            description = "Resource unique identifier"
+        )
+        @PathVariable(name = "resourceKey") String resourceKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    ) throws IOException;
+
+
+    /**
+     * Copy a resource file of an asset to user Topio drive
+     *
+     * @param pid
+     * @param resourceKey
+     * @param command
+     * @param validationResult
+     * @return
+     * @throws IOException
+     */
+    @Operation(
+        operationId = "consumer-assets-05",
+        summary     = "Copy resource",
+        description = "Copies a resource file of a purchased asset to the user's Topio drive. Required role: `ROLE_CONSUMER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ConsumerEndpointTypes.CopyToDriveResponse.class)
+        )
+    )
+    @PostMapping(value = "/consumer/assets/{pid}/resource/{resourceKey}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured({"ROLE_CONSUMER"})
+    BaseResponse copyToDrive(
+        @Parameter(
+            in = ParameterIn.PATH,
+            description = "Asset unique identifier"
+        )
+        @PathVariable(name = "pid") String pid,
+        @Parameter(
+            in = ParameterIn.PATH,
+            description = "Resource unique identifier"
+        )
+        @PathVariable(name = "resourceKey") String resourceKey,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Copy resource command",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = CopyToDriveCommandDto.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        CopyToDriveCommandDto command,
+        @Parameter(hidden = true)
+        BindingResult validationResult
+    ) throws IOException;
 }
