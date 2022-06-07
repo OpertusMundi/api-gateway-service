@@ -242,7 +242,9 @@ public interface ConsumerAssetController {
     @Operation(
         operationId = "consumer-assets-05",
         summary     = "Copy resource",
-        description = "Copies a resource file of a purchased asset to the user's Topio drive. Required role: `ROLE_CONSUMER`",
+        description = "Copies a resource file of a purchased asset to the user's Topio drive. If the file size is "
+                    + "greater than `10MB`, the copy operation is asynchronous and a temporary file is created. "
+                    + "The temporary file has the suffix `.copying`. Required role: `ROLE_CONSUMER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
