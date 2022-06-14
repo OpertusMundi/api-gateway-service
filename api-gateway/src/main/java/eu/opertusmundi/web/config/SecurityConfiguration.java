@@ -119,14 +119,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/logged-in", true)
                 .usernameParameter("username")
                 .passwordParameter("password");
-
-            http.logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/logged-out")
-                .invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .permitAll();
         }
+
+        http.logout()
+            .logoutUrl("/logout")
+            .logoutSuccessUrl("/logged-out")
+            .invalidateHttpSession(true)
+            .clearAuthentication(true)
+            .permitAll();
 
         // Enable OAuth2
         if (providers.contains(EnumAuthProvider.OpertusMundi)) {
