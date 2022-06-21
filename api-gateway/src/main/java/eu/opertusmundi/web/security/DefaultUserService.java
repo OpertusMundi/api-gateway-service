@@ -176,7 +176,7 @@ public class DefaultUserService implements UserService {
 
         final CreateAccountResult result = this.createPlatformAccountRecord(command);
 
-        this.startPlatformAccountRegistrationWorkflow(result);
+        this.startPlatformAccountRegistrationWorkflow(command, result);
 
         return ServiceResponse.result(result);
     }
@@ -200,7 +200,7 @@ public class DefaultUserService implements UserService {
         return CreateAccountResult.of(account, tokenResponse.getResult());
     }
 
-    private void startPlatformAccountRegistrationWorkflow(CreateAccountResult result) {
+    private void startPlatformAccountRegistrationWorkflow(PlatformAccountCommandDto command, CreateAccountResult result) {
         final Integer accountId       = result.getAccount().getId();
         final String  accountKey      = result.getAccount().getKey().toString();
         final String  activationToken = result.getToken().getToken().toString();
@@ -211,9 +211,10 @@ public class DefaultUserService implements UserService {
             if (instance == null) {
                 final Map<String, VariableValueDto> variables = BpmInstanceVariablesBuilder.builder()
                     .variableAsString(EnumProcessInstanceVariable.START_USER_KEY.getValue(), accountKey)
-                    .variableAsString("userKey", accountKey)
                     .variableAsString("activationToken", activationToken)
                     .variableAsString("tokenType", result.getToken().getType().toString())
+                    .variableAsString("userKey", accountKey)
+                    .variableAsBoolean("registerConsumer", command.isConsumerRegistrationRequired())
                     .build();
 
                 instance = bpmEngine.startProcessDefinitionByKey(
