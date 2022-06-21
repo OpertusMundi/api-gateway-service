@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.analytics.AssetCountQuery;
 import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
 import eu.opertusmundi.common.model.analytics.CoverageQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
+import eu.opertusmundi.common.model.analytics.VendorCountQuery;
 import eu.opertusmundi.common.model.openapi.schema.AnalyticsEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -212,6 +214,50 @@ public interface AnalyticsController {
     );
     
     /**
+     * Query asset count data
+     *
+     * @param request The query to execute
+     *
+     * @return A {@link RestResponse} with a {@link DataSeries} result
+     */
+    @Operation(
+        operationId = "analytics-05",
+        summary     = "Asset Count",
+        description = "Execute a query on published assets data and return a single data series with assets count",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(
+                implementation = AnalyticsEndpointTypes.BigDecimalDataSeries.class
+            )
+        )
+    )
+    @PostMapping(value = "/asset-count", consumes = { "application/json" })
+    @Validated
+    RestResponse<?> executeAssetCountQuery(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Query to execute",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = AssetCountQuery.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        AssetCountQuery query,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+    
+    /**
      * Query aggregated asset views data
      *
      * @param request The query to execute
@@ -219,7 +265,7 @@ public interface AnalyticsController {
      * @return A {@link RestResponse} with a {@link List<ImmutablePair<String, Integer>>} result
      */
     @Operation(
-        operationId = "analytics-05",
+        operationId = "analytics-06",
         summary     = "Most Popular Assets",
         description = "Execute a query on aggregated asset views data and return the most popular views or searches",
         security    = {
@@ -263,7 +309,7 @@ public interface AnalyticsController {
      * @return A {@link RestResponse} with a {@link List<ImmutablePair<String, Integer>>} result
      */
     @Operation(
-        operationId = "analytics-06",
+        operationId = "analytics-07",
         summary     = "Most Popular Terms",
         description = "Execute a query on asset views data and return the most popular terms",
         security    = {
@@ -282,6 +328,50 @@ public interface AnalyticsController {
     @RequestMapping(value = "/popular-terms", method=RequestMethod.GET)
     @Validated
     RestResponse<?> executeFindPopularTerms(
+    );
+    
+    /**
+     * Query account data
+     *
+     * @param request The query to execute
+     *
+     * @return A {@link RestResponse} with a {@link DataSeries} result
+     */
+    @Operation(
+        operationId = "analytics-08",
+        summary     = "Vendor Count",
+        description = "Execute a query on accounts and return a single data series with count of vendors",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(
+                implementation = AnalyticsEndpointTypes.BigDecimalDataSeries.class
+            )
+        )
+    )
+    @PostMapping(value = "/vendor-count", consumes = { "application/json" })
+    @Validated
+    RestResponse<?> executeVendorCountQuery(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Query to execute",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = VendorCountQuery.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        VendorCountQuery query,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
     );
 
 }

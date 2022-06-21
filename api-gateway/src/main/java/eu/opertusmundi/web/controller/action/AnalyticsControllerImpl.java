@@ -9,11 +9,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.analytics.AssetCountQuery;
 import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
 import eu.opertusmundi.common.model.analytics.CoverageQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
+import eu.opertusmundi.common.model.analytics.VendorCountQuery;
 import eu.opertusmundi.common.service.DataAnalysisService;
 
 @RestController
@@ -81,6 +83,17 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
 
         return RestResponse.result(result);
     }
+    
+    @Override
+    public RestResponse<?> executeAssetCountQuery(AssetCountQuery query, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
+        final DataSeries<?> result = analysisService.executeAssetCount(query);
+
+        return RestResponse.result(result);
+    }
 
     @Override
     public RestResponse<?> executeFindPopularAssetViewsAndSearches(AssetViewQuery query, BindingResult validationResult) {
@@ -96,6 +109,17 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
     @Override
     public RestResponse<?> executeFindPopularTerms() {
         final List<ImmutablePair<String, Integer>> result = this.analysisService.executePopularTerms();
+
+        return RestResponse.result(result);
+    }
+    
+    @Override
+    public RestResponse<?> executeVendorCountQuery(VendorCountQuery query, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
+        final DataSeries<?> result = analysisService.executeVendorCount(query);
 
         return RestResponse.result(result);
     }
