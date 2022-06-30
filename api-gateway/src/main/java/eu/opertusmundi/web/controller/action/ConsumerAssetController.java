@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -184,9 +185,34 @@ public interface ConsumerAssetController {
     RestResponse<?> findOneSubscription(
         @Parameter(
             in = ParameterIn.PATH,
-            description = "Subscription key (equal to the linked order key)"
+            description = "Subscription key"
         )
-        @PathVariable(name = "key") UUID orderKey
+        @PathVariable(name = "key") UUID key
+    );
+
+    /**
+     * Cancel an active subscription
+     *
+     * @param key
+     * @return
+     */
+    @Operation(
+        operationId = "consumer-assets-04",
+        summary     = "Cancel subscription",
+        description = "Cancel an active subscription registered to the user's account. Required role: `ROLE_CONSUMER`"
+    )
+    @ApiResponse(
+        responseCode = "204",
+        description = "successful operation"
+    )
+    @DeleteMapping(value = "/consumer/subscriptions/{key}")
+    @Secured({"ROLE_CONSUMER"})
+    ResponseEntity<Void> cancelSubscription(
+        @Parameter(
+            in = ParameterIn.PATH,
+            description = "Subscription key"
+        )
+        @PathVariable(name = "key") UUID key
     );
 
     /**
@@ -199,7 +225,7 @@ public interface ConsumerAssetController {
      * @throws IOException
      */
     @Operation(
-        operationId = "consumer-assets-04",
+        operationId = "consumer-assets-05",
         summary     = "Download resource",
         description = "Downloads a resource of an asset, purchased by the authenticated user. Required role: `ROLE_CONSUMER`",
         security    = {
@@ -240,7 +266,7 @@ public interface ConsumerAssetController {
      * @throws IOException
      */
     @Operation(
-        operationId = "consumer-assets-05",
+        operationId = "consumer-assets-06",
         summary     = "Copy resource",
         description = "Copies a resource file of a purchased asset to the user's Topio drive. If the file size is "
                     + "greater than `10MB`, the copy operation is asynchronous and a temporary file is created. "

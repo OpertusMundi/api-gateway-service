@@ -77,11 +77,11 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
     }
 
     @Override
-    public RestResponse<?> findOneSubscription(UUID orderKey) {
+    public RestResponse<?> findOneSubscription(UUID key) {
         try {
             final UUID userKey = this.currentUserKey();
 
-            final AccountSubscriptionDto result = this.consumerAssetService.findSubscription(userKey, orderKey);
+            final AccountSubscriptionDto result = this.consumerAssetService.findSubscription(userKey, key);
 
             if (result == null) {
                 return RestResponse.notFound();
@@ -90,6 +90,15 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
         } catch (final CatalogueServiceException ex) {
             return RestResponse.failure();
         }
+    }
+
+    @Override
+    public ResponseEntity<Void> cancelSubscription(UUID key) {
+        final UUID userKey = this.currentUserKey();
+
+        this.consumerAssetService.cancelSubscription(userKey, key);
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
     @Override
@@ -151,5 +160,4 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
             return RestResponse.failure(ex);
         }
     }
-
 }
