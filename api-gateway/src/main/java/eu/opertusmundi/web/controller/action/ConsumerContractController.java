@@ -13,13 +13,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -79,51 +77,6 @@ public interface ConsumerContractController {
     ) throws IOException;
 
     /**
-     * Sign contract
-     *
-     * @param orderKey
-     * @param itemIndex
-     * @param response
-     * @return
-     * @throws IOException
-     */
-    @Operation(
-        operationId = "consumer-contract-02",
-        summary     = "Sign Contract",
-        description = "Signs the contract for the specified order item. Currently only one contract "
-                    + "exists since orders may have only a single item. The contract must already exists "
-                    + ",i.e. `print` action must be invoked first. Required role: `ROLE_ADMIN`",
-        security    = {
-            @SecurityRequirement(name = "cookie")
-        }
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Successful Request",
-        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested contract file"))
-    )
-    @Hidden
-    @PutMapping(value = "/order/{key}", params = {"index"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @Validated
-    @Secured({"ROLE_ADMIN"})
-    ResponseEntity<StreamingResponseBody> sign(
-        @Parameter(
-            in          = ParameterIn.PATH,
-            required    = true,
-            description = "Order unique key"
-        )
-        @PathVariable(name = "key", required = true) UUID orderKey,
-        @Parameter(
-            in          = ParameterIn.QUERY,
-            required    = true,
-            description = "Order item index. Index is 1-based."
-        )
-        @RequestParam(name = "index") @Min(1) Integer itemIndex,
-        @Parameter(hidden = true)
-        HttpServletResponse response
-    ) throws IOException;
-
-    /**
      * Download contract
      *
      * @param orderKey
@@ -133,7 +86,7 @@ public interface ConsumerContractController {
      * @return
      */
     @Operation(
-        operationId = "consumer-contract-01",
+        operationId = "consumer-contract-02",
         summary     = "Download Contract",
         description = "Downloads the contract for the specified order item. Currently only one contract "
                     + "exists since orders may have only a single item. Required role: `ROLE_CONSUMER`",

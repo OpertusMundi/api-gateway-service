@@ -2,7 +2,6 @@ package eu.opertusmundi.web.controller.action;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -52,22 +51,6 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
         final ConsumerContractCommand command = this.createCommand(orderKey, itemIndex);
 
         this.contractService.print(command);
-
-        final File contractFile = command.getPath().toFile();
-
-        return this.createResponse(response, contractFile, this.getFilename(order));
-    }
-
-    @Override
-    public ResponseEntity<StreamingResponseBody> sign(
-        UUID orderKey, Integer itemIndex, HttpServletResponse response
-    ) throws IOException {
-        final OrderDto order = this.ensureOwner(orderKey);
-
-        // Paths will be resolved by the contract service
-        final ConsumerContractCommand command = this.createCommand(orderKey, itemIndex);
-
-        this.contractService.sign(command);
 
         final File contractFile = command.getPath().toFile();
 
