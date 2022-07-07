@@ -34,6 +34,7 @@ public class EndpointTags {
     public final static String Samples              = "Samples";
     public final static String SpatialData          = "Spatial Data Source";
     public final static String UboDeclaration       = "UBO";
+    public final static String UserServices         = "Private OGC services";
     public final static String VendorAccount        = "Vendor Account";
 
     public final static String SentinelHub = "Sentinel Hub";

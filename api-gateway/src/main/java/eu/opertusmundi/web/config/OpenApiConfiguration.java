@@ -124,6 +124,9 @@ public class OpenApiConfiguration {
             new TagGroup("Helpdesk", Arrays.asList(
                 EndpointTags.DraftReview
             )),
+            new TagGroup("User Services", Arrays.asList(
+                EndpointTags.UserServices
+            )),
             new TagGroup("Assets", Arrays.asList(
                 EndpointTags.Draft,
                 EndpointTags.Samples
