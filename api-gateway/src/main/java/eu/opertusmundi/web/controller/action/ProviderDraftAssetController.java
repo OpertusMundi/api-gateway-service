@@ -31,7 +31,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.asset.AssetContractAnnexCommandDto;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
-import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceCommandDto;
+import eu.opertusmundi.common.model.asset.AssetAdditionalResourceCommandDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
@@ -530,7 +530,7 @@ public interface ProviderDraftAssetController {
             name = "file", type = "string", format = "binary", description = "Uploaded file"
         ))
         @NotNull @RequestPart(name = "file", required = true) MultipartFile file,
-        @Valid @RequestPart(name = "data", required = true) AssetFileAdditionalResourceCommandDto command,
+        @Valid @RequestPart(name = "data", required = true) AssetAdditionalResourceCommandDto command,
         @Parameter(
             hidden = true
         )
