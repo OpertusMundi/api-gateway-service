@@ -1,19 +1,28 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.RequestContext;
@@ -139,6 +148,30 @@ public abstract class BaseController {
         final AccountDto account  = this.authenticationFacade.getCurrentAccount();
 
         return RequestContext.of(ip, account, location, ignoreLogging);
+    }
+
+    protected ResponseEntity<StreamingResponseBody> createDownloadResponsePdf(
+            HttpServletResponse response, File file, String downloadFilename
+    ) {
+        return this.createDownloadResponse(response, file, downloadFilename, MediaType.APPLICATION_PDF);
+    }
+
+    protected ResponseEntity<StreamingResponseBody> createDownloadResponse(
+        HttpServletResponse response, File file, String downloadFilename, MediaType mediaType
+    ) {
+        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", downloadFilename));
+        response.setHeader("Content-Type", mediaType.toString());
+        if (file.length() < 1024 * 1024) {
+            response.setHeader("Content-Length", Long.toString(file.length()));
+        }
+
+        final StreamingResponseBody stream = out -> {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                IOUtils.copyLarge(inputStream, out);
+            }
+        };
+
+        return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
 
 }

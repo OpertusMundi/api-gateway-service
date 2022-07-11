@@ -1,17 +1,13 @@
 package eu.opertusmundi.web.controller.action;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,7 +50,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
 
         final File contractFile = command.getPath().toFile();
 
-        return this.createResponse(response, contractFile, this.getFilename(order));
+        return this.createDownloadResponsePdf(response, contractFile, this.getFilename(order));
     }
 
     @Override
@@ -72,7 +68,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
                 file = path.toFile();
 
                 if (file.exists()) {
-                    return this.createResponse(response, file, this.getFilename(order));
+                    return this.createDownloadResponsePdf(response, file, this.getFilename(order));
                 }
                 break;
 
@@ -81,7 +77,7 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
                 file = path.toFile();
 
                 if (file.exists()) {
-                    return this.createResponse(response, file, this.getFilename(order));
+                    return this.createDownloadResponsePdf(response, file, this.getFilename(order));
                 }
                 break;
 
@@ -91,24 +87,6 @@ public class ConsumerContractControllerImpl extends BaseController implements Co
         }
 
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-    }
-
-    private ResponseEntity<StreamingResponseBody> createResponse(
-        HttpServletResponse response, File file, String downloadFilename
-    ) {
-        response.setHeader("Content-Disposition", String.format("attachment; filename=%s", downloadFilename));
-        response.setHeader("Content-Type", MediaType.APPLICATION_PDF_VALUE);
-        if (file.length() < 1024 * 1024) {
-            response.setHeader("Content-Length", Long.toString(file.length()));
-        }
-
-        final StreamingResponseBody stream = out -> {
-            try (InputStream inputStream = new FileInputStream(file)) {
-                IOUtils.copyLarge(inputStream, out);
-            }
-        };
-
-        return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
     }
 
     private ConsumerOrderDto ensureOwner(UUID orderKey) {
