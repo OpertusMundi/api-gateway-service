@@ -137,7 +137,8 @@ runtime_profile=$(hostname | md5sum | head -c10)
     geoserver_base_url=$(echo ${GEOSERVER_BASE_URL%/} | _validate_http_url "GEOSERVER_BASE_URL")
     echo "opertusmundi.geoserver.endpoint = ${geoserver_base_url}"
 
-    echo "opertusmundi.googleanalytics.tracker-id = ${GOOGLEANALYTICS_TRACKER_ID:-}"
+    echo "opertusmundi.google-analytics.key-file-location = ${GOOGLE_SERVICE_ACCOUNT_KEY_FILE:-}"
+    echo "opertusmundi.google-analytics.view-id = ${GOOGLEANALYTICS_VIEW_ID:-}"
 
     wordpress_base_url=$(echo ${WORDPRESS_BASE_URL} | _validate_http_url "WORDPRESS_BASE_URL")
     echo "opertus-mundi.wordpress.endpoint = ${wordpress_base_url}"

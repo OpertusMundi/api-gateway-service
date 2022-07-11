@@ -77,11 +77,11 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
     }
 
     @Override
-    public RestResponse<?> findOneSubscription(UUID orderKey) {
+    public RestResponse<?> findOneSubscription(UUID key) {
         try {
             final UUID userKey = this.currentUserKey();
 
-            final AccountSubscriptionDto result = this.consumerAssetService.findSubscription(userKey, orderKey);
+            final AccountSubscriptionDto result = this.consumerAssetService.findSubscription(userKey, key);
 
             if (result == null) {
                 return RestResponse.notFound();
@@ -93,6 +93,15 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
     }
 
     @Override
+    public ResponseEntity<Void> cancelSubscription(UUID key) {
+        final UUID userKey = this.currentUserKey();
+
+        this.consumerAssetService.cancelSubscription(userKey, key);
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    @Override
     public ResponseEntity<StreamingResponseBody> downloadResource(
         String pid, String resourceKey, HttpServletResponse response
     ) throws IOException {
@@ -100,11 +109,11 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
             final UUID userKey = this.currentUserKey();
 
             final FileResourceDto resource = this.consumerAssetService.resolveResourcePath(userKey, pid, resourceKey);
-            final Path            path     = resource.getPath();
+            final Path            path     = resource.getRelativePath();
             final File            file     = path.toFile();
             final String          fileName = resource.getFileName();
 
-            String contentType = Files.probeContentType(resource.getPath());
+            String contentType = Files.probeContentType(path);
             if (contentType == null) {
                 contentType = "application/octet-stream";
             }
@@ -151,5 +160,4 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
             return RestResponse.failure(ex);
         }
     }
-
 }

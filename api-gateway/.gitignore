@@ -25,6 +25,7 @@ maven-build.xml
 /src/main/resources/public/docs
 
 /src/main/resources/config/*.properties
+/src/main/resources/config/*.json
 /src/main/resources/config/*.xml
 /src/main/resources/config/*.yml
 

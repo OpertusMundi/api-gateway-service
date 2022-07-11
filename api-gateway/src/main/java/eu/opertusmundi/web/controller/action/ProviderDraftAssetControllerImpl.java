@@ -39,10 +39,10 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.ValidationMessage;
+import eu.opertusmundi.common.model.asset.AssetAdditionalResourceCommandDto;
 import eu.opertusmundi.common.model.asset.AssetContractAnnexCommandDto;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
-import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceCommandDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
@@ -358,7 +358,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
         }
 
-        this.providerAssetService.addFileResource(command);
+        this.providerAssetService.addFileResourceFromFileSystem(command);
 
         final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey, false);
 
@@ -391,7 +391,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         }
 
         try (final InputStream input = new ByteArrayInputStream(resource.getBytes())) {
-            this.providerAssetService.addFileResource(command, input);
+            this.providerAssetService.addFileResourceFromUpload(command, input);
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
@@ -407,7 +407,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
     @Override
     public RestResponse<?> uploadAdditionalResource(
-        UUID draftKey, MultipartFile resource, AssetFileAdditionalResourceCommandDto command, BindingResult validationResult
+        UUID draftKey, MultipartFile resource, AssetAdditionalResourceCommandDto command, BindingResult validationResult
     ) {
         final UUID ownerKey     = this.currentUserKey();
         final UUID publisherKey = this.currentUserParentKey();
@@ -503,7 +503,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 command.setFileName(file.getOriginalFilename());
             }
 
-            this.providerAssetService.uploadContract(command, data);
+            this.providerAssetService.setContract(command, data);
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
@@ -549,7 +549,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
                 command.setFileName(file.getOriginalFilename());
             }
 
-            this.providerAssetService.uploadContractAnnex(command, data);
+            this.providerAssetService.addContractAnnex(command, data);
         } catch (final ServiceException ex) {
             return RestResponse.error(ex.getCode(), ex.getMessage());
         } catch (final Exception ex) {
