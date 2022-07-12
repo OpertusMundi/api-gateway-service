@@ -58,7 +58,7 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
 
     @Override
     public RestResponse<?> findOne(UUID orderKey) {
-        final Optional<ConsumerOrderDto> r = this.orderRepository.findOrderObjectByKeyAndConsumer(this.currentUserKey(), orderKey);
+        final Optional<ConsumerOrderDto> r = this.orderRepository.findObjectByKeyAndConsumerAndStatusNotCreated(this.currentUserKey(), orderKey);
         if (r.isPresent()) {
             return RestResponse.result(r.get());
         }
@@ -131,7 +131,7 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
 
     @Override
     public ResponseEntity<StreamingResponseBody> downloadInvoice(UUID orderKey, HttpServletResponse response) {
-        final ConsumerOrderDto order = this.orderRepository.findOrderObjectByKeyAndConsumer(this.currentUserKey(), orderKey).orElse(null);
+        final ConsumerOrderDto order = this.orderRepository.findObjectByKeyAndConsumerAndStatusNotCreated(this.currentUserKey(), orderKey).orElse(null);
 
         if (order != null) {
             // Order reference number is equal to the PayIn reference number
