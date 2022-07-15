@@ -15,7 +15,7 @@ import eu.opertusmundi.common.model.asset.ResourceCommandDto;
 import eu.opertusmundi.common.model.asset.UserFileResourceCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.repository.AssetFileTypeRepository;
-import eu.opertusmundi.common.repository.ProviderAssetDraftRepository;
+import eu.opertusmundi.common.repository.DraftRepository;
 
 @Component
 public class AssetFileResourceValidator implements Validator {
@@ -24,7 +24,7 @@ public class AssetFileResourceValidator implements Validator {
     private AssetFileTypeRepository assetFileTypeRepository;
 
     @Autowired
-    private ProviderAssetDraftRepository providerAssetDraftRepository;
+    private DraftRepository draftRepository;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -53,7 +53,7 @@ public class AssetFileResourceValidator implements Validator {
     }
 
     private void validateFormat(ResourceCommandDto command, String fileName, String format, Errors e) {
-        final ProviderAssetDraftEntity draft = this.providerAssetDraftRepository.findOneByPublisherAndKey(
+        final ProviderAssetDraftEntity draft = this.draftRepository.findOneByPublisherAndKey(
             command.getPublisherKey(), command.getDraftKey()
         ).orElse(null);
 
