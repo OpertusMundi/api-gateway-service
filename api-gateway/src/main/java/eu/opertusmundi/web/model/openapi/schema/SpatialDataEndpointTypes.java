@@ -36,4 +36,9 @@ public class SpatialDataEndpointTypes {
 
     }
 
+    @Schema(description = "Encoding collection response")
+    public static class EncodingCollectionResponse extends RestResponse<List<String>> {
+
+    }
+
 }

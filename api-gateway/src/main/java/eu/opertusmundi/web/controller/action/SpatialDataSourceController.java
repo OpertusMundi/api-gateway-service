@@ -34,7 +34,7 @@ public interface SpatialDataSourceController {
      * @return An instance of {@link SpatialDataEndpointTypes#EpsgCollectionResponse} class
      */
     @Operation(
-        operationId = "spatial-nuts-06",
+        operationId = "spatial-epsg-01",
         summary     = "Get EPSG codes",
         description = "Gets all EPSG codes supported by the platform"
     )
@@ -63,6 +63,34 @@ public interface SpatialDataSourceController {
         @RequestParam(name = "code", required = false) String code
     );
 
+    /**
+     * Get all encodings supported by the platform
+     *
+     * @param code
+     * @return An instance of {@link SpatialDataEndpointTypes.EncodingCollectionResponse} class
+     */
+    @Operation(
+        operationId = "spatial-encoding-01",
+        summary     = "Get encodings",
+        description = "Gets all encodings supported by the platform"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(implementation = SpatialDataEndpointTypes.EncodingCollectionResponse.class)
+        )
+    )
+    @GetMapping(value = "/encoding")
+    RestResponse<?> findAllEncoding(
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Partial encoding code",
+            example = "UTF-"
+        )
+        @RequestParam(name = "code", required = false) String code
+    );
 
     /**
      * Get a list of regions
