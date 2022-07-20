@@ -1,10 +1,14 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +17,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
@@ -27,24 +34,32 @@ import eu.opertusmundi.common.model.order.OrderDeliveryCommand;
 import eu.opertusmundi.common.model.order.OrderException;
 import eu.opertusmundi.common.repository.OrderRepository;
 import eu.opertusmundi.common.service.OrderFulfillmentService;
+import eu.opertusmundi.common.service.invoice.InvoiceFileManager;
 
 @RestController
 public class ConsumerOrderControllerImpl extends BaseController implements ConsumerOrderController {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsumerOrderControllerImpl.class);
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final InvoiceFileManager      invoiceFileManager;
+    private final OrderRepository         orderRepository;
+    private final OrderFulfillmentService orderFulfillmentService;
 
     @Autowired
-    private OrderFulfillmentService orderFulfillmentService;
+    public ConsumerOrderControllerImpl(
+        InvoiceFileManager invoiceFileManager,
+        OrderRepository orderRepository,
+        OrderFulfillmentService orderFulfillmentService
+    ) {
+        this.invoiceFileManager      = invoiceFileManager;
+        this.orderRepository         = orderRepository;
+        this.orderFulfillmentService = orderFulfillmentService;
+    }
 
     @Override
     public RestResponse<?> findOne(UUID orderKey) {
-        final Optional<ConsumerOrderDto> r = this.orderRepository.findOrderObjectByKeyAndConsumer(this.currentUserKey(), orderKey);
+        final Optional<ConsumerOrderDto> r = this.orderRepository.findObjectByKeyAndConsumerAndStatusNotCreated(this.currentUserKey(), orderKey);
         if (r.isPresent()) {
-
-
             return RestResponse.result(r.get());
         }
         return RestResponse.notFound();
@@ -112,6 +127,22 @@ public class ConsumerOrderControllerImpl extends BaseController implements Consu
         }
 
         return RestResponse.failure();
+    }
+
+    @Override
+    public ResponseEntity<StreamingResponseBody> downloadInvoice(UUID orderKey, HttpServletResponse response) {
+        final ConsumerOrderDto order = this.orderRepository.findObjectByKeyAndConsumerAndStatusNotCreated(this.currentUserKey(), orderKey).orElse(null);
+
+        if (order != null) {
+            // Order reference number is equal to the PayIn reference number
+            final Path path = this.invoiceFileManager.resolvePath(this.currentUserId(), order.getReferenceNumber());
+            final File file = path.toFile();
+
+            if (file.exists()) {
+                return this.createDownloadResponsePdf(response, file, order.getReferenceNumber() + ".pdf");
+            }
+        }
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
 }

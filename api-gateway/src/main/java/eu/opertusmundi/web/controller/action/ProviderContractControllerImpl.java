@@ -1,258 +1,129 @@
 package eu.opertusmundi.web.controller.action;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.nio.file.Path;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import eu.opertusmundi.common.model.ApplicationException;
-import eu.opertusmundi.common.model.EnumSortingOrder;
-import eu.opertusmundi.common.model.PageResultDto;
-import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.contract.EnumContractStatus;
-import eu.opertusmundi.common.model.contract.helpdesk.EnumMasterContractSortField;
-import eu.opertusmundi.common.model.contract.helpdesk.MasterContractDto;
-import eu.opertusmundi.common.model.contract.helpdesk.MasterContractQueryDto;
-import eu.opertusmundi.common.model.contract.provider.EnumProviderContractSortField;
-import eu.opertusmundi.common.model.contract.provider.ProviderContractCommand;
-import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractCommandDto;
-import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractDto;
-import eu.opertusmundi.common.model.contract.provider.ProviderTemplateContractQuery;
-import eu.opertusmundi.common.model.file.FileSystemException;
-import eu.opertusmundi.common.service.contract.MasterTemplateContractService;
-import eu.opertusmundi.common.service.contract.ProviderTemplateContractService;
-import eu.opertusmundi.web.validation.ProviderTemplateContractValidator;
+import eu.opertusmundi.common.model.catalogue.client.EnumContractType;
+import eu.opertusmundi.common.model.contract.consumer.ConsumerContractCommand;
+import eu.opertusmundi.common.model.order.OrderDto;
+import eu.opertusmundi.common.model.order.ProviderOrderDto;
+import eu.opertusmundi.common.model.order.ProviderOrderItemDto;
+import eu.opertusmundi.common.repository.OrderRepository;
+import eu.opertusmundi.common.service.contract.ConsumerContractService;
+import eu.opertusmundi.common.service.contract.ContractFileManager;
 
 @RestController
 public class ProviderContractControllerImpl extends BaseController implements ProviderContractController {
 
     @Autowired
-    private ProviderTemplateContractValidator contractValidator;
+    private ContractFileManager contractFileManager;
 
     @Autowired
-    private MasterTemplateContractService   masterContractService;
+    private OrderRepository orderRepository;
 
     @Autowired
-    private ProviderTemplateContractService templateContractService;
+    private ConsumerContractService contractService;
 
     @Override
-    public RestResponse<?> findAllMasterContracts(
-        int page,
-        int size,
-        String title,
-        EnumMasterContractSortField orderBy,
-        EnumSortingOrder order
+    public ResponseEntity<StreamingResponseBody> downloadContract(
+        UUID orderKey, Integer itemIndex, HttpServletResponse response
     ) {
-        final MasterContractQueryDto query = MasterContractQueryDto.builder()
-            .page(page)
-            .size(size)
-            .title(title)
-            .status(new HashSet<>(Arrays.asList(EnumContractStatus.ACTIVE)))
-            .order(order)
-            .orderBy(orderBy)
-            .build();
+        final ProviderOrderDto     order  = this.ensureOwner(orderKey);
+        final ProviderOrderItemDto item   = order.getItems().get(itemIndex - 1);
+        final EnumContractType     type   = item.getContractType();
+        final boolean              signed         = item.getContractSignedOn() != null;
+        final Integer              consumerUserId = order.getConsumer().getId();
 
-        final PageResultDto<MasterContractDto> result = masterContractService.findAll(query);
+        Path contractPath = null;
 
-        result.getItems().stream().forEach(MasterContractDto::removeHelpdeskData);
+        switch (type) {
+            case MASTER_CONTRACT :
+                contractPath = this.resolveMasterContract(consumerUserId, orderKey, itemIndex, signed);
+                break;
 
-        return RestResponse.result(result);
-    }
+            case UPLOADED_CONTRACT :
+                contractPath = this.resolveUploadedContract(consumerUserId, orderKey, itemIndex, signed);
+                break;
 
-    @Override
-    public RestResponse<?> findOneMasterContract(UUID key) {
-        final MasterContractDto result = masterContractService.findOneByKey(key).orElse(null);
-
-        result.removeHelpdeskData();
-
-        return RestResponse.result(result);
-    }
-
-    @Override
-    public RestResponse<?> findAllDrafts(int page, int size, EnumProviderContractSortField orderBy, EnumSortingOrder order) {
-        final PageResultDto<ProviderTemplateContractDto> result = templateContractService.findAllDrafts(
-            this.currentUserKey(), page, size, orderBy, order
-        );
-
-        result.getItems().stream().forEach(ProviderTemplateContractDto::removeHelpdeskData);
-
-        return RestResponse.result(result);
-    }
-
-    @Override
-    public RestResponse<?> findOneDraft(UUID key) {
-        final ProviderTemplateContractDto result = templateContractService.findOneDraft(this.currentUserKey(), key);
-
-        if (result == null) {
-            return RestResponse.notFound();
+            case OPEN_DATASET :
+                // Not supported
+                break;
+        }
+        if (contractPath == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
-        result.removeHelpdeskData();
-
-        return RestResponse.result(result);
+        return this.createDownloadResponsePdf(response, contractPath.toFile(), this.getFilename(order));
     }
 
-    @Override
-    public RestResponse<?> createDraft(ProviderTemplateContractCommandDto command, BindingResult validationResult) {
-        try {
-            command.setUserId(this.currentUserId());
+    /**
+     * Get the path of the contract of type `MASTER_CONTRACT` for a specific
+     * order item
+     *
+     * @param consumerUserId
+     * @param orderKey
+     * @param itemIndex
+     * @param signed
+     * @return
+     */
+    private Path resolveMasterContract(Integer consumerUserId, UUID orderKey, Integer itemIndex, boolean signed) {
+        Path result = null;
 
-            this.contractValidator.validate(command, validationResult);
-
-            if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
-            }
-
-            final ProviderTemplateContractDto result = this.templateContractService.updateDraft(command);
-
-            return RestResponse.result(result);
-        } catch (final ApplicationException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
-        }
-    }
-
-    @Override
-    public RestResponse<?> updateDraft(UUID key, ProviderTemplateContractCommandDto command, BindingResult validationResult) {
-        try {
-            command.setDraftKey(key);
-            command.setUserId(this.currentUserId());
-
-            this.contractValidator.validate(command, validationResult);
-
-            if (validationResult.hasErrors()) {
-                return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
-            }
-
-            final ProviderTemplateContractDto result = this.templateContractService.updateDraft(command);
-
-            return RestResponse.result(result);
-        } catch (final ApplicationException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
-        }
-    }
-
-    @Override
-    public RestResponse<ProviderTemplateContractDto> deleteDraft(UUID key) {
-        try {
-            final ProviderTemplateContractDto result = templateContractService.deleteDraft(this.currentUserId(), key);
-
-            return RestResponse.result(result);
-        } catch (final ApplicationException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
-        }
-    }
-
-    @Override
-    public RestResponse<?> publishDraft(UUID key) {
-        try {
-            final ProviderTemplateContractDto result = this.templateContractService.publishDraft(this.currentUserId(), key);
-
-            return RestResponse.result(result);
-        } catch (final ApplicationException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
-        }
-    }
-
-    @Override
-    public RestResponse<?> findAllTemplates(int page, int size, EnumProviderContractSortField orderBy, EnumSortingOrder order) {
-        // Get all publisher (vendor) templates
-        final ProviderTemplateContractQuery query = ProviderTemplateContractQuery.builder()
-            .page(page)
-            .size(size)
-            .order(order)
-            .orderBy(orderBy)
-            .providerKey(this.currentUserParentKey())
-            .build();
-
-        final PageResultDto<ProviderTemplateContractDto> result = templateContractService.findAll(query);
-
-        return RestResponse.result(result);
-    }
-
-    @Override
-    public RestResponse<?> findOneTemplate(UUID key) {
-        final ProviderTemplateContractDto result = this.templateContractService.findOneByKey(
-            this.currentUserParentId(), key
-        ).orElse(null);
-
-        if (result == null) {
-            return RestResponse.notFound();
-        }
-
-        return RestResponse.result(result);
-    }
-
-    @Override
-    public ResponseEntity<StreamingResponseBody> print(
-        UUID templateKey, HttpServletResponse response
-    ) {
-        try {
-            // Check if template exists
-            final ProviderTemplateContractDto template = this.templateContractService.findOneByKey(
-                this.currentUserParentId(), templateKey
-            ).orElse(null);
-
-            if (template == null) {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-            }
-
-            // Print template
-            final ProviderContractCommand command = ProviderContractCommand.builder()
-                .providerKey(this.currentUserParentKey())
-                .contractKey(templateKey)
+        if (signed) {
+            // Resolve the path of the signed contract
+            result = this.contractFileManager.resolveMasterContractPath(consumerUserId, orderKey, itemIndex, true);
+        } else {
+            // Print contract draft
+            final ConsumerContractCommand command = ConsumerContractCommand.builder()
+                .userId(consumerUserId)
+                .orderKey(orderKey)
+                .itemIndex(itemIndex)
                 .build();
 
-            final byte[] result = this.templateContractService.print(command);
+            this.contractService.print(command);
 
-            response.setHeader("Content-Disposition", String.format("attachment; filename=%s.pdf", template.getTitle()));
-            response.setHeader("Content-Type", MediaType.APPLICATION_PDF_VALUE);
-            if (result.length < 1024 * 1024) {
-                response.setHeader("Content-Length", Long.toString(result.length));
-            }
-
-            final StreamingResponseBody stream = out -> {
-                    IOUtils.write(result, out);
-            };
-
-            return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
-        } catch (final FileSystemException ex) {
-            throw ex;
+            result = command.getPath();
         }
+        return result;
     }
 
-    @Override
-    public RestResponse<?> deactivate(UUID key) {
-        try {
-            final ProviderTemplateContractDto result = this.templateContractService.deactivate(this.currentUserId(), key);
+    /**
+     * Get the path of the contract of type `UPLOADED_CONTRACT` for a specific
+     * order item
+     *
+     * @param consumerUserId
+     * @param orderKey
+     * @param itemIndex
+     * @param signed
+     * @return
+     */
+    private Path resolveUploadedContract(Integer consumerUserId, UUID orderKey, Integer itemIndex, boolean signed) {
+        final Path result = this.contractFileManager.resolveUploadedContractPath(consumerUserId, orderKey, itemIndex, signed);
 
-            return RestResponse.result(result);
-        } catch (final ApplicationException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
-        }
+        return result.toFile().exists() ? result : null;
     }
 
-    @Override
-    public RestResponse<?> createDraftFromTemplate(UUID key) {
-        try {
-            final ProviderTemplateContractDto result = this.templateContractService.createFromMasterContract(
-                this.currentUserId(), this.currentUserKey(), key
-            );
+    private ProviderOrderDto ensureOwner(UUID orderKey) {
+        final ProviderOrderDto order = this.orderRepository.findObjectByProviderAndKey(this.currentUserParentKey(), orderKey).orElse(null);
 
-            return RestResponse.result(result);
-        } catch (final ApplicationException ex) {
-            return RestResponse.error(ex.getCode(), ex.getMessage());
+        if (order == null) {
+            throw new AccessDeniedException("Access denied");
         }
+
+        return order;
     }
 
+    private String getFilename(OrderDto order) {
+        return order.getReferenceNumber() + ".pdf";
+    }
 
 }

@@ -201,9 +201,10 @@ public class DefaultUserService implements UserService {
     }
 
     private void startPlatformAccountRegistrationWorkflow(PlatformAccountCommandDto command, CreateAccountResult result) {
-        final Integer accountId       = result.getAccount().getId();
-        final String  accountKey      = result.getAccount().getKey().toString();
-        final String  activationToken = result.getToken().getToken().toString();
+        final AccountDto account         = result.getAccount();
+        final Integer    accountId       = account.getId();
+        final String     accountKey      = account.getKey().toString();
+        final String     activationToken = result.getToken().getToken().toString();
 
         try {
             ProcessInstanceDto instance = this.bpmEngine.findInstance(accountKey);
@@ -213,7 +214,9 @@ public class DefaultUserService implements UserService {
                     .variableAsString(EnumProcessInstanceVariable.START_USER_KEY.getValue(), accountKey)
                     .variableAsString("activationToken", activationToken)
                     .variableAsString("tokenType", result.getToken().getType().toString())
+                    .variableAsString("userId", accountId.toString())
                     .variableAsString("userKey", accountKey)
+                    .variableAsString("userName", account.getEmail())
                     .variableAsBoolean("registerConsumer", command.isConsumerRegistrationRequired())
                     .build();
 
@@ -270,36 +273,40 @@ public class DefaultUserService implements UserService {
         throw new ServiceException(BasicMessageCode.NotImplemented, "Operation not implemented");
     }
 
-    private ActivationTokenDto startVendorAccountInvitationWorkflow(Integer userId, UUID userKey, String email) {
+    private ActivationTokenDto startVendorAccountInvitationWorkflow(AccountEntity account) {
+        Assert.notNull(account, "Expected a non-null account");
+
         try {
             // Create activation token for account email
-            final ActivationTokenCommandDto tokenCommand = ActivationTokenCommandDto.of(email);
+            final ActivationTokenCommandDto tokenCommand = ActivationTokenCommandDto.of(account.getEmail());
 
             // Do not send token by mail. The workflow will send the token by
             // mail
             final ServiceResponse<ActivationTokenDto> tokenResponse = this.createToken(EnumActivationTokenType.VENDOR_ACCOUNT, tokenCommand, false);
 
-            ProcessInstanceDto instance = this.bpmEngine.findInstance(userKey);
+            ProcessInstanceDto instance = this.bpmEngine.findInstance(account.getKey());
 
             if (instance == null) {
                 final Map<String, VariableValueDto> variables = BpmInstanceVariablesBuilder.builder()
-                    .variableAsString(EnumProcessInstanceVariable.START_USER_KEY.getValue(), userKey.toString())
-                    .variableAsString("userKey", userKey.toString())
+                    .variableAsString(EnumProcessInstanceVariable.START_USER_KEY.getValue(), account.getKey().toString())
+                    .variableAsString("userId", account.getId().toString())
+                    .variableAsString("userKey", account.getKey().toString())
+                    .variableAsString("userName", account.getEmail().toString())
                     .variableAsString("activationToken", tokenResponse.getResult().getToken().toString())
                     .variableAsString("tokenType", tokenResponse.getResult().getType().toString())
                     .build();
 
                 instance = bpmEngine.startProcessDefinitionByKey(
-                    EnumWorkflow.VENDOR_ACCOUNT_REGISTRATION, userKey.toString(), variables
+                    EnumWorkflow.VENDOR_ACCOUNT_REGISTRATION, account.getKey().toString(), variables
                 );
             }
 
-            this.accountRepository.setRegistrationWorkflowInstance(userId, instance.getDefinitionId(), instance.getId());
+            this.accountRepository.setRegistrationWorkflowInstance(account.getId(), instance.getDefinitionId(), instance.getId());
 
             return tokenResponse.getResult();
         } catch (final Exception ex) {
             // Allow workflow instance initialization to fail
-            logger.warn(String.format("Failed to start vendor account invitation workflow instance [accountKey=%s]", userKey), ex);
+            logger.warn(String.format("Failed to start vendor account invitation workflow instance [accountKey=%s]", account.getKey()), ex);
         }
 
         return null;
@@ -387,7 +394,7 @@ public class DefaultUserService implements UserService {
         // If a registration workflow instance does not exist, create one;
         // Otherwise, send a new token by email
         if (StringUtils.isBlank(account.getProcessInstance())) {
-            this.startVendorAccountInvitationWorkflow(account.getId(), account.getKey(), account.getEmail());
+            this.startVendorAccountInvitationWorkflow(account);
         } else {
             // Create activation token
             this.activationTokenRepository.create(

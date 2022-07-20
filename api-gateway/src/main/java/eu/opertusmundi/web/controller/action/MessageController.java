@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.message.EnumMessageStatus;
 import eu.opertusmundi.common.model.message.EnumNotificationSortField;
 import eu.opertusmundi.common.model.message.client.ClientMessageCollectionResponse;
 import eu.opertusmundi.common.model.message.client.ClientMessageCommandDto;
@@ -92,9 +93,9 @@ public interface MessageController {
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = false,
-            description = "Filter read messages"
+            description = "Filter messages by status"
         )
-        @RequestParam(name = "read", required = false) Boolean read
+        @RequestParam(name = "status", required = false, defaultValue = "ALL") EnumMessageStatus status
     );
 
     /**
@@ -280,7 +281,7 @@ public interface MessageController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
-        operationId = "message-05",
+        operationId = "message-05a",
         summary     = "Read message",
         description = "Marks a message as read. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
         tags        = { EndpointTags.Message }
@@ -288,7 +289,7 @@ public interface MessageController {
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageResponseDto.class))
     )
     @PutMapping(value = "/messages/{messageKey}")
     @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
@@ -299,6 +300,35 @@ public interface MessageController {
             description = "Message unique key"
         )
         @PathVariable(name = "messageKey", required = true) UUID messageKey
+    );
+
+    /**
+     * Mark all messages of a thread as read
+     *
+     * @param threadKey The thread key
+     *
+     * @return An instance of {@link ClientMessageThreadResponse}
+     */
+    @Operation(
+        operationId = "message-05b",
+        summary     = "Read thread",
+        description = "Marks all messages of a thread as read. Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
+        tags        = { EndpointTags.Message }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ClientMessageThreadResponse.class))
+    )
+    @PutMapping(value = "/messages/thread/{threadKey}")
+    @Secured({"ROLE_USER", "ROLE_VENDOR_USER"})
+    BaseResponse readThread(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Thread unique key"
+        )
+        @PathVariable(name = "threadKey") UUID threadKey
     );
 
     /**

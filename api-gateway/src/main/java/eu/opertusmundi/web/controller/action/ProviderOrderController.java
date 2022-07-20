@@ -1,14 +1,11 @@
 package eu.opertusmundi.web.controller.action;
 
-import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
@@ -296,34 +292,5 @@ public interface ProviderOrderController {
         ))
         @NotNull @RequestPart(name = "file", required = true) MultipartFile file
     );
-
-    /**
-     * Download a contract  file
-     *
-     * @param pid Asset persistent identifier (PID)
-     *
-     * @return The requested file
-     */
-    @Operation(
-        operationId = "assets-07",
-        summary     = "Download contract file",
-        description = "Downloads custom provider contract for the specified order"
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Successful Request",
-        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
-    )
-    @GetMapping(value = "/orders/{orderKey}/contract", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    ResponseEntity<StreamingResponseBody> downloadContract(
-        @Parameter(
-            in          = ParameterIn.PATH,
-            required    = true,
-            description = "Order unique key"
-        )
-        @PathVariable UUID orderKey,
-        @Parameter(hidden = true)
-        HttpServletResponse response
-    ) throws IOException;
 
 }

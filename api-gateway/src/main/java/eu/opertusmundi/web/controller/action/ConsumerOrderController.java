@@ -3,12 +3,18 @@ package eu.opertusmundi.web.controller.action;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
@@ -23,6 +29,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
@@ -70,7 +77,7 @@ public interface ConsumerOrderController {
     );
 
     /**
-     * Search consumer Order records
+     * Search consumer order records
      *
      * @param pageIndex
      * @param pageSize
@@ -193,6 +200,43 @@ public interface ConsumerOrderController {
             description = "Order unique key"
         )
         @PathVariable UUID orderKey
+    );
+
+    /**
+     * Download invoice
+     *
+     * @param orderKey
+     * @param response
+     * @return
+     */
+    @Operation(
+        operationId = "consumer-order-05",
+        summary     = "Download Invoice",
+        description = "Downloads the invoice for the specified order. Required role: `ROLE_CONSUMER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful Request",
+        content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested invoice file"))
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "Invoice not found"
+    )
+    @GetMapping(value = "/orders/{key}/invoice", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @Validated
+    ResponseEntity<StreamingResponseBody> downloadInvoice(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Order unique key"
+        )
+        @PathVariable(name = "key", required = true) UUID orderKey,
+        @Parameter(hidden = true)
+        HttpServletResponse response
     );
 
 }

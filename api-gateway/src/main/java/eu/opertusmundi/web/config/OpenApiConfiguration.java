@@ -118,6 +118,7 @@ public class OpenApiConfiguration {
                 EndpointTags.PayInProvider,
                 EndpointTags.PayOutProvider,
                 EndpointTags.ContractProvider,
+                EndpointTags.ContractProviderTemplates,
                 EndpointTags.ProviderAssets,
                 EndpointTags.Analytics
             )),
