@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.opertusmundi.common.domain.EncodingEntity;
 import eu.opertusmundi.common.domain.EpsgEntity;
 import eu.opertusmundi.common.domain.NutsRegionEntity;
 import eu.opertusmundi.common.model.RestResponse;
@@ -30,6 +31,7 @@ import eu.opertusmundi.common.model.spatial.EpsgDto;
 import eu.opertusmundi.common.model.spatial.FeatureCollectionDto;
 import eu.opertusmundi.common.model.spatial.NutsRegionFeatureDto;
 import eu.opertusmundi.common.model.spatial.NutsRegionPropertiesDto;
+import eu.opertusmundi.common.repository.EncodingRepository;
 import eu.opertusmundi.common.repository.EpsgRepository;
 import eu.opertusmundi.common.repository.NutsRegionRepository;
 
@@ -68,6 +70,9 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
     private EpsgRepository epsgRepository;
 
     @Autowired
+    private EncodingRepository encodingRepository;
+
+    @Autowired
     private NutsRegionRepository nutsRegionRepository;
 
     @Override
@@ -86,29 +91,17 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
 
     @Override
     public RestResponse<?> findAllEpsg(String name, String code) {
-        if (StringUtils.isBlank(name)) {
-            name = null;
-        } else {
-            if (!name.startsWith("%")) {
-                name = "%" + name;
-            }
-            if (!name.endsWith("%")) {
-                name += "%";
-            }
-        }
-        if (StringUtils.isBlank(code)) {
-            code = null;
-        } else {
-            if (!code.startsWith("%")) {
-                code = "%" + code;
-            }
-            if (!code.endsWith("%")) {
-                code += "%";
-            }
-        }
-
-        final List<EpsgDto> result = this.epsgRepository.findAllActive(name, code).stream()
+        final List<EpsgDto> result = this.epsgRepository.findAllActive(toLikeClause(name), toLikeClause(code)).stream()
             .map(EpsgEntity::toDto)
+            .collect(Collectors.toList());
+
+        return RestResponse.result(result);
+    }
+
+    @Override
+    public RestResponse<?> findAllEncoding(String code) {
+        final List<String> result = this.encodingRepository.findAllActive(toLikeClause(code)).stream()
+            .map(EncodingEntity::getCode)
             .collect(Collectors.toList());
 
         return RestResponse.result(result);
@@ -279,4 +272,18 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
         }
     }
 
+    private String toLikeClause(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        } else {
+            String result = value;
+            if (!result.startsWith("%")) {
+                result = "%" + result;
+            }
+            if (!result.endsWith("%")) {
+                result += "%";
+            }
+            return result;
+        }
+    }
 }
