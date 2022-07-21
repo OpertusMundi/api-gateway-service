@@ -14,12 +14,13 @@ import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.message.EnumMessageStatus;
+import eu.opertusmundi.common.model.message.EnumMessageView;
 import eu.opertusmundi.common.model.message.EnumNotificationSortField;
 import eu.opertusmundi.common.model.message.client.ClientContactDto;
 import eu.opertusmundi.common.model.message.client.ClientMessageCollectionResponse;
 import eu.opertusmundi.common.model.message.client.ClientMessageCommandDto;
 import eu.opertusmundi.common.model.message.client.ClientMessageDto;
+import eu.opertusmundi.common.model.message.client.ClientMessageThreadDto;
 import eu.opertusmundi.common.model.message.client.ClientMessageThreadResponse;
 import eu.opertusmundi.common.model.message.client.ClientNotificationDto;
 import eu.opertusmundi.common.repository.AccountRepository;
@@ -35,9 +36,9 @@ public class MessageControllerImpl extends BaseController implements MessageCont
     private MessageService messageService;
 
     @Override
-    public RestResponse<?> findMessages(Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus status) {
+    public RestResponse<?> findMessages(Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageView view) {
         final PageResultDto<ClientMessageDto> messages = this.messageService.findMessages(
-            this.currentUserKey(), pageIndex, pageSize, dateFrom, dateTo, status, null
+            this.currentUserKey(), pageIndex, pageSize, dateFrom, dateTo, view, null
         );
         final List<ClientContactDto>          contacts = this.messageService.findContacts(messages.getItems());
         final ClientMessageCollectionResponse result   = new ClientMessageCollectionResponse(messages, contacts);
@@ -95,20 +96,23 @@ public class MessageControllerImpl extends BaseController implements MessageCont
 
     @Override
     public BaseResponse readThread(UUID threadKey) {
-        final List<ClientMessageDto>      messages = this.messageService.readThread(this.currentUserKey(), threadKey);
-        final List<ClientContactDto>      contacts = this.messageService.findContacts(messages);
-        final ClientMessageThreadResponse result   = new ClientMessageThreadResponse(messages, contacts);
+        final ClientMessageThreadDto      thread   = this.messageService.readThread(this.currentUserKey(), threadKey);
+        final List<ClientContactDto>      contacts = this.messageService.findContacts(thread.getMessages());
+        final ClientMessageThreadResponse result   = new ClientMessageThreadResponse(thread, contacts);
 
         return result;
     }
 
     @Override
     public RestResponse<?> getMessageThread(UUID threadKey) {
-        final List<ClientMessageDto>      messages = this.messageService.getMessageThread(this.currentUserKey(), threadKey);
-        final List<ClientContactDto>      contacts = this.messageService.findContacts(messages);
-        final ClientMessageThreadResponse result   = new ClientMessageThreadResponse(messages, contacts);
+        final ClientMessageThreadDto thread = this.messageService.getMessageThread(this.currentUserKey(), threadKey);
+        if (thread != null) {
+            final List<ClientContactDto>      contacts = this.messageService.findContacts(thread.getMessages());
+            final ClientMessageThreadResponse result   = new ClientMessageThreadResponse(thread, contacts);
+            return result;
+        }
 
-        return result;
+        return RestResponse.notFound();
     }
 
     @Override

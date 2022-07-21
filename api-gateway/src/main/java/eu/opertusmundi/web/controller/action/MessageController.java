@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.message.EnumMessageStatus;
+import eu.opertusmundi.common.model.message.EnumMessageView;
 import eu.opertusmundi.common.model.message.EnumNotificationSortField;
 import eu.opertusmundi.common.model.message.client.ClientMessageCollectionResponse;
 import eu.opertusmundi.common.model.message.client.ClientMessageCommandDto;
@@ -95,7 +95,7 @@ public interface MessageController {
             required    = false,
             description = "Filter messages by status"
         )
-        @RequestParam(name = "status", required = false, defaultValue = "ALL") EnumMessageStatus status
+        @RequestParam(name = "view", required = false, defaultValue = "ALL") EnumMessageView view
     );
 
     /**
