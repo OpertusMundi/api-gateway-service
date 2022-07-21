@@ -1,5 +1,6 @@
 package eu.opertusmundi.web.controller.action;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,16 +21,16 @@ import eu.opertusmundi.common.model.analytics.SalesQuery;
 import eu.opertusmundi.common.model.analytics.SubscribersQuery;
 import eu.opertusmundi.common.model.analytics.VendorCountQuery;
 import eu.opertusmundi.common.service.DataAnalysisService;
-import eu.opertusmundi.common.service.analytics.DefaultGoogleAnalyticsService;
+import eu.opertusmundi.common.service.analytics.GoogleAnalyticsService;
 
 @RestController
 public class AnalyticsControllerImpl extends BaseController implements AnalyticsController {
 
     @Autowired
     private DataAnalysisService analysisService;
-    
-    @Autowired
-    private DefaultGoogleAnalyticsService googleAnalyticsService;
+
+    @Autowired(required = false)
+    private GoogleAnalyticsService googleAnalyticsService;
 
     @Override
     public RestResponse<?> executeSalesQuery(SalesQuery query, BindingResult validationResult) {
@@ -90,7 +91,7 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
 
         return RestResponse.result(result);
     }
-    
+
     @Override
     public RestResponse<?> executeAssetCountQuery(AssetCountQuery query, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
@@ -119,7 +120,7 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
 
         return RestResponse.result(result);
     }
-    
+
     @Override
     public RestResponse<?> executeVendorCountQuery(VendorCountQuery query, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
@@ -130,7 +131,7 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
 
         return RestResponse.result(result);
     }
-    
+
     @Override
     public RestResponse<?> executeSubscribersQuery(SubscribersQuery query, BindingResult validationResult) {
         // Override publisher key
@@ -149,18 +150,18 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
 
         return RestResponse.result(result);
     }
-    
+
     @Override
     public RestResponse<?> executeGoogleAnalytics(GoogleAnalyticsQuery query, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
-        
-        final DataSeries<?> result = googleAnalyticsService.execute(query);
-        
+
+        final DataSeries<?> result = googleAnalyticsService == null ? new DataSeries<BigDecimal>() : googleAnalyticsService.execute(query);
+
         return RestResponse.result(result);
     }
-    
+
     @Override
     public RestResponse<?> executeEarningsPerAssetType(AssetTypeEarningsQuery query, BindingResult validationResult) {
         // Override publisher key
