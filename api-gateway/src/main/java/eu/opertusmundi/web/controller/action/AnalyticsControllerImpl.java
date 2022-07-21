@@ -11,18 +11,25 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.analytics.AssetCountQuery;
 import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
+import eu.opertusmundi.common.model.analytics.AssetTypeEarningsQuery;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
 import eu.opertusmundi.common.model.analytics.CoverageQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
+import eu.opertusmundi.common.model.analytics.GoogleAnalyticsQuery;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
+import eu.opertusmundi.common.model.analytics.SubscribersQuery;
 import eu.opertusmundi.common.model.analytics.VendorCountQuery;
 import eu.opertusmundi.common.service.DataAnalysisService;
+import eu.opertusmundi.common.service.analytics.DefaultGoogleAnalyticsService;
 
 @RestController
 public class AnalyticsControllerImpl extends BaseController implements AnalyticsController {
 
     @Autowired
     private DataAnalysisService analysisService;
+    
+    @Autowired
+    private DefaultGoogleAnalyticsService googleAnalyticsService;
 
     @Override
     public RestResponse<?> executeSalesQuery(SalesQuery query, BindingResult validationResult) {
@@ -120,6 +127,55 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
         }
 
         final DataSeries<?> result = analysisService.executeVendorCount(query);
+
+        return RestResponse.result(result);
+    }
+    
+    @Override
+    public RestResponse<?> executeSubscribersQuery(SubscribersQuery query, BindingResult validationResult) {
+        // Override publisher key
+        if (query.getPublishers() == null) {
+            query.setPublishers(new ArrayList<>());
+        }
+        query.getPublishers().clear();
+        // View parent account (vendor) analytics
+        query.getPublishers().add(this.currentUserParentKey());
+
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
+        final DataSeries<?> result = analysisService.execute(query);
+
+        return RestResponse.result(result);
+    }
+    
+    @Override
+    public RestResponse<?> executeGoogleAnalytics(GoogleAnalyticsQuery query, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+        
+        final DataSeries<?> result = googleAnalyticsService.execute(query);
+        
+        return RestResponse.result(result);
+    }
+    
+    @Override
+    public RestResponse<?> executeEarningsPerAssetType(AssetTypeEarningsQuery query, BindingResult validationResult) {
+        // Override publisher key
+        if (query.getPublishers() == null) {
+            query.setPublishers(new ArrayList<>());
+        }
+        query.getPublishers().clear();
+        // View parent account (vendor) analytics
+        query.getPublishers().add(this.currentUserParentKey());
+
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
+        final DataSeries<?> result = analysisService.execute(query);
 
         return RestResponse.result(result);
     }

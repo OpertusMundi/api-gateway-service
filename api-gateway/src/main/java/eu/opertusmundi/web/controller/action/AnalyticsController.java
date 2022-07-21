@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.analytics.AssetCountQuery;
 import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
+import eu.opertusmundi.common.model.analytics.AssetTypeEarningsQuery;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
 import eu.opertusmundi.common.model.analytics.CoverageQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
+import eu.opertusmundi.common.model.analytics.GoogleAnalyticsQuery;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
+import eu.opertusmundi.common.model.analytics.SubscribersQuery;
 import eu.opertusmundi.common.model.analytics.VendorCountQuery;
 import eu.opertusmundi.common.model.openapi.schema.AnalyticsEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -368,6 +371,141 @@ public interface AnalyticsController {
         @Valid
         @RequestBody
         VendorCountQuery query,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+    
+    /**
+     * Query subscribers data
+     *
+     * @param request The query to execute
+     *
+     * @return A {@link RestResponse} with a {@link DataSeries} result
+     */
+    @Operation(
+        operationId = "analytics-09",
+        summary     = "Subscribers",
+        description = "Execute a query on subscribers data and return a single data series. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(
+                implementation = AnalyticsEndpointTypes.BigDecimalDataSeries.class
+            )
+        )
+    )
+    @PostMapping(value = "/subscribers", consumes = { "application/json" })
+//    @Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
+    @Validated
+    RestResponse<?> executeSubscribersQuery(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Query to execute",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = SubscribersQuery.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        SubscribersQuery query,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+    
+    /**
+     * Query Google Analytics data
+     *
+     * @param request The query to execute
+     *
+     * @return A {@link RestResponse} with a {@link DataSeries} result
+     */
+    @Operation(
+        operationId = "analytics-10",
+        summary     = "Google Analytics",
+        description = "Execute a query on google analytics data and return a single data series. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(
+                implementation = AnalyticsEndpointTypes.BigDecimalDataSeries.class
+            )
+        )
+    )
+    @PostMapping(value = "/google-analytics", consumes = { "application/json" })
+//    @Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
+    @Validated
+    RestResponse<?> executeGoogleAnalytics(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Query to execute",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = GoogleAnalyticsQuery.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        GoogleAnalyticsQuery query,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+    
+    /**
+     * Query earnings per asset type
+     *
+     * @param request The query to execute
+     *
+     * @return A {@link RestResponse} with a {@link DataSeries} result
+     */
+    @Operation(
+        operationId = "analytics-11",
+        summary     = "Earnings per Asset type",
+        description = "Execute a query on sales data and return a single data series per asset type. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_ANALYTICS`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json", schema = @Schema(
+                implementation = AnalyticsEndpointTypes.BigDecimalDataSeries.class
+            )
+        )
+    )
+    @PostMapping(value = "/earnings-asset-type", consumes = { "application/json" })
+//    @Secured({ "ROLE_PROVIDER", "ROLE_VENDOR_ANALYTICS" })
+    @Validated
+    RestResponse<?> executeEarningsPerAssetType(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Query to execute",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = AssetTypeEarningsQuery.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        AssetTypeEarningsQuery query,
         @Parameter(
             hidden = true
         )
