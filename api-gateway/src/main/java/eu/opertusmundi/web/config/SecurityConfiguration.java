@@ -163,11 +163,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         return (userRequest) -> {
             final String                    clientName  = userRequest.getClientRegistration().getClientName();
-            final EnumAuthProvider          provider    = EnumAuthProvider.valueOf(clientName);
+            final EnumAuthProvider          provider    = EnumAuthProvider.fromString(clientName);
             final OidcUser                  oidcUser    = delegate.loadUser(userRequest);
             final String                    email       = (String) oidcUser.getAttributes().get("email");
             final ExternalIdpAccountCommand command     = this.createCommand(provider, oidcUser.getAttributes());
-            final UserDetails               userDetails = userDetailsService.loadUserByUsername(email, provider, command);
+            final UserDetails               userDetails = provider == EnumAuthProvider.OpertusMundi
+                ? userDetailsService.loadUserByUsername(email)
+                : userDetailsService.loadUserByUsername(email, provider, command);
 
             return (OidcUser) userDetails;
         };
@@ -178,7 +180,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         return (userRequest) -> {
             final String                    clientName  = userRequest.getClientRegistration().getClientName();
-            final EnumAuthProvider          provider    = EnumAuthProvider.valueOf(clientName);
+            final EnumAuthProvider          provider    = EnumAuthProvider.fromString(clientName);
             final OAuth2User                oauthUser   = delegate.loadUser(userRequest);
             final String                    email       = (String) oauthUser.getAttributes().get("email");
             final ExternalIdpAccountCommand command     = this.createCommand(provider, oauthUser.getAttributes());
@@ -194,6 +196,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 return this.createCommandFromGoogleAttributes(attributes);
             case GitHub :
                 return this.createCommandFromGitHubAttributes(attributes);
+            case OpertusMundi :
+                return null;
             default :
                 throw new OAuth2ProviderNotSupportedException(String.format("Provider is not supported [provider=%s]", provider));
         }
