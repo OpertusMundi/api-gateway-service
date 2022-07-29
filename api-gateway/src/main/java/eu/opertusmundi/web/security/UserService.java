@@ -16,6 +16,7 @@ import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.account.ActivationTokenDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.EnumActivationTokenType;
+import eu.opertusmundi.common.model.account.ExternalIdpAccountCommand;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.account.VendorAccountCommandDto;
 import eu.opertusmundi.web.model.security.CreateAccountResult;
@@ -57,6 +58,14 @@ public interface UserService {
      * @return
      */
     ServiceResponse<AccountDto> createVendorAccount(VendorAccountCommandDto command);
+
+    /**
+     * Create new account from an external IdP
+     *
+     * @param command Account creation command
+     * @return
+     */
+    ServiceResponse<AccountDto> createExternalIdpAccount(ExternalIdpAccountCommand command);
 
     /**
      * Update existing vendor account

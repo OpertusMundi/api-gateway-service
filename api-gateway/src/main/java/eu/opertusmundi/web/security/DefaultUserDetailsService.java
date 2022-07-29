@@ -4,20 +4,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
+import eu.opertusmundi.common.model.ServiceResponse;
 import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
+import eu.opertusmundi.common.model.account.ExternalIdpAccountCommand;
+import eu.opertusmundi.web.model.OAuth2AccountCreationException;
 import eu.opertusmundi.web.model.security.User;
 
 @Service
 public class DefaultUserDetailsService implements CustomUserDetailsService {
 
     @Autowired
-    private UserService   userService;
+    private UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Assert.hasText(username, "Expected a non-empty user name");
         final AccountDto account = this.userService.findOneByUserName(username).orElse(null);
 
         if (account == null || account.getActivationStatus() != EnumActivationStatus.COMPLETED) {
@@ -28,15 +33,26 @@ public class DefaultUserDetailsService implements CustomUserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username, EnumAuthProvider provider) throws UsernameNotFoundException {
-        final AccountDto account = this.userService.findOneByUserName(username, provider).orElse(null);
+    public UserDetails loadUserByUsername(
+        String username, EnumAuthProvider provider, ExternalIdpAccountCommand command
+    ) throws UsernameNotFoundException, OAuth2AccountCreationException {
+        Assert.hasText(username, "Expected a non-empty user name");
+        Assert.notNull(provider, "Expected a non-null provider");
+        AccountDto account = this.userService.findOneByUserName(username, provider).orElse(null);
 
-        if (account == null || account.getActivationStatus() != EnumActivationStatus.COMPLETED) {
-            throw new UsernameNotFoundException(username);
+        if (account == null) {
+            if (command == null) {
+                throw new UsernameNotFoundException(username);
+            }
+            // Create new external IdP account and start an instance of the
+            // account activation workflow
+            final ServiceResponse<AccountDto> response = userService.createExternalIdpAccount(command);
+            if (!response.getMessages().isEmpty()) {
+                throw new OAuth2AccountCreationException(response.getMessages().get(0).getDescription());
+            }
+            account = response.getResult();
         }
 
         return new User(account, account.getPassword());
     }
-
 }
-

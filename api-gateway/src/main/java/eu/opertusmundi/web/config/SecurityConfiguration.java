@@ -3,6 +3,7 @@ package eu.opertusmundi.web.config;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -28,8 +29,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -39,7 +43,10 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
+import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
+import eu.opertusmundi.common.model.account.ExternalIdpAccountCommand;
 import eu.opertusmundi.web.logging.filter.MappedDiagnosticContextFilter;
+import eu.opertusmundi.web.model.OAuth2ProviderNotSupportedException;
 import eu.opertusmundi.web.security.CustomUserDetailsService;
 
 @Configuration
@@ -131,7 +138,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Enable OAuth2
         if (providers.contains(EnumAuthProvider.OpertusMundi)) {
             http.oauth2Login()
-                .userInfoEndpoint(userInfo -> userInfo.oidcUserService(this.oidcUserService()))
+                .userInfoEndpoint(userInfo -> userInfo
+                    .oidcUserService(this.oidcUserService())
+                    .userService(this.oauthUserService())
+                )
                 .failureHandler((HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) -> {
                     oauth2Logger.error("OAuth2 request failed", exception);
 
@@ -152,13 +162,75 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         final OidcUserService delegate = new OidcUserService();
 
         return (userRequest) -> {
-            // Delegate to the default implementation for loading a user
-            final OidcUser oidcUser = delegate.loadUser(userRequest);
-            final String email = (String) oidcUser.getAttributes().get("email");
-            final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            final String                    clientName  = userRequest.getClientRegistration().getClientName();
+            final EnumAuthProvider          provider    = EnumAuthProvider.valueOf(clientName);
+            final OidcUser                  oidcUser    = delegate.loadUser(userRequest);
+            final String                    email       = (String) oidcUser.getAttributes().get("email");
+            final ExternalIdpAccountCommand command     = this.createCommand(provider, oidcUser.getAttributes());
+            final UserDetails               userDetails = userDetailsService.loadUserByUsername(email, provider, command);
 
             return (OidcUser) userDetails;
         };
     }
 
+    private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauthUserService() {
+        final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+
+        return (userRequest) -> {
+            final String                    clientName  = userRequest.getClientRegistration().getClientName();
+            final EnumAuthProvider          provider    = EnumAuthProvider.valueOf(clientName);
+            final OAuth2User                oauthUser   = delegate.loadUser(userRequest);
+            final String                    email       = (String) oauthUser.getAttributes().get("email");
+            final ExternalIdpAccountCommand command     = this.createCommand(provider, oauthUser.getAttributes());
+            final UserDetails               userDetails = userDetailsService.loadUserByUsername(email, provider, command);
+
+            return (OAuth2User) userDetails;
+        };
+    }
+
+    private ExternalIdpAccountCommand createCommand(EnumAuthProvider provider, Map<String, Object> attributes) {
+        switch (provider) {
+            case Google :
+                return this.createCommandFromGoogleAttributes(attributes);
+            case GitHub :
+                return this.createCommandFromGitHubAttributes(attributes);
+            default :
+                throw new OAuth2ProviderNotSupportedException(String.format("Provider is not supported [provider=%s]", provider));
+        }
+    }
+
+    private ExternalIdpAccountCommand createCommandFromGoogleAttributes(Map<String, Object> attributes) {
+        final String                   email     = (String) attributes.get("email");
+        final String                   firstName = (String) attributes.get("given_name");
+        final String                   lastName  = (String) attributes.get("family_name");
+        final AccountProfileCommandDto profile = AccountProfileCommandDto.builder()
+            .firstName(firstName)
+            .lastName(lastName)
+            .build();
+
+        final ExternalIdpAccountCommand command = ExternalIdpAccountCommand.builder()
+            .idpName(EnumAuthProvider.Google)
+            .email(email)
+            .profile(profile)
+            .build();
+
+        return command;
+    }
+
+    private ExternalIdpAccountCommand createCommandFromGitHubAttributes(Map<String, Object> attributes) {
+        final String                   email   = (String) attributes.get("email");
+        final String                   name    = (String) attributes.get("name");
+        final AccountProfileCommandDto profile = AccountProfileCommandDto.builder()
+            .firstName(name)
+            .lastName("")
+            .build();
+
+        final ExternalIdpAccountCommand command = ExternalIdpAccountCommand.builder()
+            .idpName(EnumAuthProvider.GitHub)
+            .email(email)
+            .profile(profile)
+            .build();
+
+        return command;
+    }
 }

@@ -46,6 +46,7 @@ import eu.opertusmundi.common.model.account.ActivationTokenCommandDto;
 import eu.opertusmundi.common.model.account.ActivationTokenDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.EnumActivationTokenType;
+import eu.opertusmundi.common.model.account.ExternalIdpAccountCommand;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.account.VendorAccountCommandDto;
 import eu.opertusmundi.common.model.analytics.ProfileRecord;
@@ -225,10 +226,69 @@ public class DefaultUserService implements UserService {
                 );
             }
 
-            this.accountRepository.setRegistrationWorkflowInstance(accountId, instance.getDefinitionId(), instance.getId());
+            this.accountRepository.setRegistrationWorkflowInstance(accountId, instance.getDefinitionId(), instance.getId(), EnumActivationStatus.PENDING);
         } catch (final Exception ex) {
-            // Allow workflow instance initialization to fail
             logger.warn(String.format("Failed to start account registration workflow instance [accountKey=%s]", accountKey), ex);
+            throw ex;
+        }
+    }
+
+    @Override
+    @Transactional
+    public ServiceResponse<AccountDto> createExternalIdpAccount(ExternalIdpAccountCommand command) {
+        final String password = this.generatePassword();
+
+        // Set auto-generated password
+        command.setPassword(password);
+        // Resize user uploaded image
+        command.getProfile().setImage(imageUtils.resizeImage(command.getProfile().getImage(), command.getProfile().getImageMimeType()));
+
+        final AccountDto account = this.createExternalIdpAccountRecord(command);
+
+        this.startExternalIdpAccountRegistrationWorkflow(command, account);
+
+        return ServiceResponse.result(account);
+    }
+
+    private AccountDto createExternalIdpAccountRecord(ExternalIdpAccountCommand command) {
+        // Create account
+        final AccountDto account = this.accountRepository.create(command);
+
+        // Update account profile
+        if (elasticSearchService != null) {
+            elasticSearchService.addProfile(ProfileRecord.from(account));
+        }
+
+        return account;
+    }
+
+    private void startExternalIdpAccountRegistrationWorkflow(ExternalIdpAccountCommand command, AccountDto account) {
+        final Integer    accountId       = account.getId();
+        final String     accountKey      = account.getKey().toString();
+
+        try {
+            ProcessInstanceDto instance = this.bpmEngine.findInstance(accountKey);
+
+            if (instance == null) {
+                final Map<String, VariableValueDto> variables = BpmInstanceVariablesBuilder.builder()
+                    .variableAsString(EnumProcessInstanceVariable.START_USER_KEY.getValue(), accountKey)
+                    .variableAsString("activationToken", "")
+                    .variableAsString("idpName", account.getIdpName().toString())
+                    .variableAsString("userId", accountId.toString())
+                    .variableAsString("userKey", accountKey)
+                    .variableAsString("userName", account.getEmail())
+                    .variableAsBoolean("registerConsumer", false)
+                    .build();
+
+                instance = bpmEngine.startProcessDefinitionByKey(
+                    EnumWorkflow.ACCOUNT_REGISTRATION, accountKey, variables
+                );
+            }
+
+            this.accountRepository.setRegistrationWorkflowInstance(accountId, instance.getDefinitionId(), instance.getId(), EnumActivationStatus.PROCESSING);
+        } catch (final Exception ex) {
+            logger.warn(String.format("Failed to start account registration workflow instance [accountKey=%s]", accountKey), ex);
+            throw ex;
         }
     }
 
@@ -301,7 +361,7 @@ public class DefaultUserService implements UserService {
                 );
             }
 
-            this.accountRepository.setRegistrationWorkflowInstance(account.getId(), instance.getDefinitionId(), instance.getId());
+            this.accountRepository.setRegistrationWorkflowInstance(account.getId(), instance.getDefinitionId(), instance.getId(), EnumActivationStatus.PENDING);
 
             return tokenResponse.getResult();
         } catch (final Exception ex) {
