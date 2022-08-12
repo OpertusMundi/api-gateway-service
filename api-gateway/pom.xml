@@ -20,7 +20,7 @@
 		<frontend.skip>false</frontend.skip>
 		<frontend-maven-plugin.version>1.11.3</frontend-maven-plugin.version>
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
-		<org.camunda.bpm.version>7.13.0</org.camunda.bpm.version>
+		<org.camunda.bpm.version>7.17.0</org.camunda.bpm.version>
 		<org.iban4j.version>3.2.3-RELEASE</org.iban4j.version>
 		<springdoc.version>1.6.6</springdoc.version>
 		<git-commit-id.skip>false</git-commit-id.skip>
