@@ -2,7 +2,8 @@
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>opertus-mundi-api-gateway</artifactId>
@@ -19,10 +20,12 @@
 	<properties>
 		<frontend.skip>false</frontend.skip>
 		<frontend-maven-plugin.version>1.11.3</frontend-maven-plugin.version>
-		<spring-cloud.version>2021.0.1</spring-cloud.version>
+		<spring-cloud.version>2021.0.3</spring-cloud.version>
+		<org.locationtech.jts.version>1.18.2</org.locationtech.jts.version>
+		<org.locationtech.jts.spatial4j.version>0.8</org.locationtech.jts.spatial4j.version>
 		<org.camunda.bpm.version>7.17.0</org.camunda.bpm.version>
 		<org.iban4j.version>3.2.3-RELEASE</org.iban4j.version>
-		<springdoc.version>1.6.6</springdoc.version>
+		<springdoc.version>1.6.10</springdoc.version>
 		<git-commit-id.skip>false</git-commit-id.skip>
 	</properties>
 
@@ -222,9 +225,9 @@
 		</dependency>
 
 		<dependency>
-		    <groupId>org.reactivestreams</groupId>
-		    <artifactId>reactive-streams</artifactId>
-		    <scope>test</scope>
+			<groupId>org.reactivestreams</groupId>
+			<artifactId>reactive-streams</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- If packaging to WAR, mark dependency on embedded server as provided -->
@@ -273,9 +276,9 @@
 		</dependency>
 
 		<dependency>
-    		<groupId>org.apache.tika</groupId>
-    		<artifactId>tika-core</artifactId>
-    		<version>2.3.0</version>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>2.3.0</version>
 		</dependency>
 
 		<!-- Camunda dependencies (no engine is configured, instead we use DTO definitions -->
@@ -329,7 +332,7 @@
 		</dependency>
 
 		<!-- Caching -->
-			<dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
@@ -512,21 +515,21 @@
 			</plugin>
 
 			<!-- Configure integration tests -->
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <includes>
-                        <include>eu.opertusmundi.web.integration.**</include>
-                    </includes>
-                </configuration>
-            </plugin>
+			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>eu.opertusmundi.web.integration.**</include>
+					</includes>
+				</configuration>
+			</plugin>
 
 			<!-- Create test coverage reports -->
 			<!--
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.7</version>
+				<version>0.8.8</version>
 				<executions>
 					<execution>
 						<id>default-prepare-agent</id>
@@ -616,8 +619,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-				</configuration>
+				<configuration></configuration>
 			</plugin>
 		</plugins>
 	</reporting>

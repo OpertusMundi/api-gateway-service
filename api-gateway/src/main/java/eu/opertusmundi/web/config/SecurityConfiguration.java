@@ -19,11 +19,11 @@ import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointR
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -52,7 +53,7 @@ import eu.opertusmundi.web.security.CustomUserDetailsService;
 @Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @EnableWebSecurity
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
     private static final Logger oauth2Logger = LoggerFactory.getLogger("OAUTH");
 
@@ -85,8 +86,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return entryPoint;
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        final AuthenticationManagerBuilder authManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
+        authManagerBuilder.eraseCredentials(true);
+        final AuthenticationManager authenticationManager = authManagerBuilder.build();
+
+        http.authenticationManager(authenticationManager);
+
         // Configure request authentication
         http.authorizeRequests()
             // Restrict access to actuator endpoints (you may further restrict details via configuration)
@@ -150,12 +158,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
 
         http.addFilterAfter(new MappedDiagnosticContextFilter(), SwitchUserFilter.class);
-    }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder builder) throws Exception {
-        builder.userDetailsService(this.userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
-        builder.eraseCredentials(true);
+        return http.build();
     }
 
     private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
