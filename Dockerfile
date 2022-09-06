@@ -18,9 +18,9 @@ RUN jq -f ./filter-deps-for-prod.jq package.json | sponge package.json
 RUN npm install && npm run build
 
 
-#FROM maven:3.6.3-openjdk-8 as maven-build
+#FROM maven:3.8.6-eclipse-temurin-17-alpine as maven-build
 # see https://github.com/OpertusMundi/java-commons/blob/master/Dockerfile
-FROM opertusmundi/java-commons-builder:1.0 as maven-build
+FROM opertusmundi/java-commons-builder:1.1 as maven-build
 
 WORKDIR /app
 
@@ -39,7 +39,7 @@ COPY --from=npm-build /app/dist /app/api-gateway/src/main/frontend/dist/
 RUN mvn -B compile -DenableJavaBuildProfile -DenableDockerBuildProfile
 
 
-FROM openjdk:8-jre-alpine
+FROM eclipse-temurin:17-jre-alpine 
 
 ARG git_url=
 ARG git_commit=
