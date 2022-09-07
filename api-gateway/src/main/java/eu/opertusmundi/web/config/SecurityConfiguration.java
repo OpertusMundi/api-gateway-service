@@ -195,6 +195,9 @@ public class SecurityConfiguration {
     }
 
     private ExternalIdpAccountCommand createCommand(EnumAuthProvider provider, Map<String, Object> attributes) {
+        if (provider == null) {
+            return null;
+        }
         switch (provider) {
             case Google :
                 return this.createCommandFromGoogleAttributes(attributes);
