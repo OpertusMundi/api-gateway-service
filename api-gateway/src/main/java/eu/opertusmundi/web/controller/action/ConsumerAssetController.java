@@ -227,7 +227,7 @@ public interface ConsumerAssetController {
     @Operation(
         operationId = "consumer-assets-05",
         summary     = "Download resource",
-        description = "Downloads a resource of an asset, purchased by the authenticated user. Required role: `ROLE_CONSUMER`",
+        description = "Downloads a resource of an asset purchased by the authenticated user or a resource of an Open Dataset.",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
