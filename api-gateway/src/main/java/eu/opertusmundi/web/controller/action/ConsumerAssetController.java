@@ -238,7 +238,6 @@ public interface ConsumerAssetController {
         content = @Content(schema = @Schema(type = "string", format = "binary", description = "The requested file"))
     )
     @GetMapping(value = "/consumer/assets/{pid}/resource/{resourceKey}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @Secured({"ROLE_CONSUMER"})
     ResponseEntity<StreamingResponseBody> downloadResource(
         @Parameter(
             in = ParameterIn.PATH,
