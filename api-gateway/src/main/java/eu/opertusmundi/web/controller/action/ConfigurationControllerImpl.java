@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
-import eu.opertusmundi.common.config.SentinelHubConfiguration;
 import eu.opertusmundi.common.domain.AssetDomainRestrictionEntity;
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.CountryEntity;
@@ -62,9 +61,6 @@ public class ConfigurationControllerImpl extends BaseController implements Confi
     @Autowired
     private SettingRepository settingRepository;
 
-    @Autowired(required = false)
-    private SentinelHubConfiguration sentinelHubConfig;
-
     @Override
     public RestResponse<ClientConfiguration> getConfiguration(String locale) {
         return RestResponse.result(this.createConfiguration());
@@ -107,13 +103,6 @@ public class ConfigurationControllerImpl extends BaseController implements Confi
         config.getBuildInfo().setCommitIdDescription(commitIdDescription);
 
         setAnnouncement(config);
-
-        if (this.sentinelHubConfig != null) {
-            config.setSentinelHub(ClientConfiguration.SentinelHubConfiguration.builder()
-                .instanceId(this.sentinelHubConfig.getInstanceId())
-                .build()
-            );
-        }
 
         return config;
     }

@@ -16,7 +16,6 @@ import eu.opertusmundi.common.model.spatial.LanguageDto;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -79,12 +78,6 @@ public class ClientConfiguration {
     @Getter
     private final List<LanguageDto> europeLanguages = new ArrayList<LanguageDto>();
 
-    @Schema(description = "Sentinel Hub configuration settings")
-    @Getter
-    @Setter
-    @JsonInclude(Include.NON_NULL)
-    private SentinelHubConfiguration sentinelHub;
-
     @Schema(description = "WordPress configuration settings")
     @Getter
     private final WordPressConfiguration wordPress = new WordPressConfiguration();
@@ -121,15 +114,6 @@ public class ClientConfiguration {
         @Getter
         private final List<String> domains = new ArrayList<>();
 
-    }
-
-    @AllArgsConstructor
-    @Builder
-    @Getter
-    public static class SentinelHubConfiguration {
-
-        @Schema(description = "Sentinel Hub instance id")
-        private final String instanceId;
     }
 
     public static class WordPressConfiguration {

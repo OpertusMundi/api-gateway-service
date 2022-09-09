@@ -33,7 +33,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "Sentinel Hub"
 )
 @RequestMapping(path = "/action/integration/sentinel-hub", produces = MediaType.APPLICATION_JSON_VALUE)
-@Secured({ "ROLE_USER" })
 public interface SentinelHubController {
 
     /**
@@ -56,6 +55,7 @@ public interface SentinelHubController {
         )
     )
     @PostMapping(value = "/catalogue/search")
+    @Secured({ "ROLE_USER" })
     RestResponse<?> search(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Query to execute",
@@ -93,6 +93,7 @@ public interface SentinelHubController {
         )
     )
     @GetMapping(value = "/quotation/subscriptions")
+    @Secured({ "ROLE_USER" })
     RestResponse<?> getSubscriptionPlans();
 
     /**
@@ -115,6 +116,7 @@ public interface SentinelHubController {
         )
     )
     @GetMapping(value = "/subscriptions")
+    @Secured({ "ROLE_USER" })
     RestResponse<Boolean> isSubscribed();
 
     /**
@@ -125,7 +127,7 @@ public interface SentinelHubController {
     @Operation(
         operationId = "integration-sentinel-hub-04",
         summary     = "Open Data Collections",
-        description = "Get all supported open data collections. Required role: `ROLE_SENTINEL_HUB`"
+        description = "Get all supported open data collections"
     )
     @ApiResponse(
         responseCode = "200",
@@ -136,7 +138,6 @@ public interface SentinelHubController {
         )
     )
     @GetMapping(value = "/open-data/collections")
-    @Secured({ "ROLE_SENTINEL_HUB" })
     RestResponse<?> getOpenDataCollections();
 
 }
