@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -u -e -o pipefail
 
 [[ "${DEBUG:-false}" != "false" || "${XTRACE:-false}" != "false" ]] && set -x
@@ -162,6 +162,13 @@ runtime_profile=$(hostname | md5sum | head -c10)
     echo "opertusmundi.contract.signpdf.key-store = file://${contract_signpdf_keystore}"
     echo "opertusmundi.contract.signpdf.key-store-password = ${contract_signpdf_keystore_password}"
     echo "opertusmundi.contract.signpdf.key-alias = ${contract_signpdf_key_alias}"
+
+    # Form an array with geo-data shard identifiers
+    IFS=',' read -ra shards <<<"${GEODATA_SHARDS:-1}"
+    num_of_shards=${#shards[@]}
+    for ((i=0; i < ${num_of_shards}; i++)); do
+        echo "opertusmundi.geodata.shards[${i}] = ${shards[${i}]}"
+    done
 
 } > ./config/application-${runtime_profile}.properties
 
