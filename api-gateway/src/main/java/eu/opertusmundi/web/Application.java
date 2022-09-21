@@ -13,6 +13,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
         eu.opertusmundi.common.service._Marker.class,
         eu.opertusmundi.common.support._Marker.class,
         eu.opertusmundi.common.util._Marker.class,
+        eu.opertusmundi.common.validation._Marker.class,
         eu.opertusmundi.web.config._Marker.class,
         eu.opertusmundi.web.controller._Marker.class,
         eu.opertusmundi.web.repository._Marker.class,
