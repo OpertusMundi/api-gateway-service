@@ -1,6 +1,7 @@
 package eu.opertusmundi.web.validation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -158,7 +159,7 @@ public class DraftValidator implements Validator {
                     e.rejectValue("contractTemplateKey", EnumValidatorError.OptionNotFound.name());
                 }
 
-                // Check for contract annexes
+                // Contract annexes are supported only for uploaded contracts
                 if (c.getContractAnnexes().size() != 0) {
                     e.rejectValue("contractAnnexes", EnumValidatorError.OperationNotSupported.name());
                 }
@@ -348,7 +349,7 @@ public class DraftValidator implements Validator {
             e.rejectValue("pricingModels", EnumValidatorError.NotEmpty.name());
             return;
         }
-        if(dynamicPricingModels && !models.isEmpty()) {
+        if (dynamicPricingModels && !models.isEmpty()) {
             e.rejectValue("pricingModels", EnumValidatorError.OptionNotSupported.name());
             return;
         }
@@ -391,14 +392,14 @@ public class DraftValidator implements Validator {
     }
 
     private void validateDeliveryMethods(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
-        final EnumDeliveryMethod       method         = c.getDeliveryMethod();
+        final EnumDeliveryMethod       method         = Optional.ofNullable(c.getDeliveryMethod()).orElse(EnumDeliveryMethod.NONE);
         final List<EnumDeliveryMethod> allowedMethods = c.getType().getAllowedDeliveryMethods();
 
-        if (method == null && mode == EnumValidationMode.SUBMIT) {
+        if (method == EnumDeliveryMethod.NONE && mode == EnumValidationMode.SUBMIT) {
             e.rejectValue("deliveryMethod", EnumValidatorError.NotNull.name());
         }
 
-        if (method == null || allowedMethods.isEmpty()) {
+        if (method == EnumDeliveryMethod.NONE || allowedMethods.isEmpty()) {
             return;
         }
 
