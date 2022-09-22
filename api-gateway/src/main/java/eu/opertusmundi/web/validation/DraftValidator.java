@@ -214,8 +214,6 @@ public class DraftValidator implements Validator {
             e.rejectValue("format", EnumValidatorError.OptionNotFound.name());
         } else if (!format.isEnabled()) {
             e.rejectValue("format", EnumValidatorError.OptionNotEnabled.name());
-        } else if (c.isIngested() && format.getCategory() != EnumAssetType.VECTOR) {
-            e.rejectValue("ingested", EnumValidatorError.OperationNotSupported.name());
         }
     }
 
@@ -309,8 +307,6 @@ public class DraftValidator implements Validator {
                 e.rejectValue(String.format("resources[%d].format", i), EnumValidatorError.OptionNotFound.name());
             } else if (!format.isEnabled()) {
                 e.rejectValue(String.format("resources[%d].format", i), EnumValidatorError.OptionNotEnabled.name());
-            } else if (c.isIngested() && format.getCategory() != EnumAssetType.VECTOR) {
-                e.rejectValue(String.format("resources[%d].ingested", i), EnumValidatorError.OperationNotSupported.name());
             } else if (!format.getExtensions().contains(extension)) {
                 if (format.isBundleSupported() && extension.equals("zip")) {
                     continue;

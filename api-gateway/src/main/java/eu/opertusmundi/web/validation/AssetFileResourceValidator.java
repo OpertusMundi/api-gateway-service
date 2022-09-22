@@ -69,8 +69,6 @@ public class AssetFileResourceValidator implements Validator {
             e.rejectValue("format", EnumValidatorError.OptionNotFound.name());
         } else if (!fileType.isEnabled()) {
             e.rejectValue("format", EnumValidatorError.OptionNotEnabled.name());
-        } else if (draft != null && draft.isIngested() && fileType.getCategory() != EnumAssetType.VECTOR) {
-            e.rejectValue("ingested", EnumValidatorError.OperationNotSupported.name());
         } else if (StringUtils.isBlank(extension)) {
             e.rejectValue("fileName", EnumValidatorError.FileExtensionNotSupported.name());
         } else if (!fileType.getExtensions().contains(extension)) {
