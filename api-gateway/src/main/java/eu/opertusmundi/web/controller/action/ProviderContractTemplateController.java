@@ -499,7 +499,7 @@ public interface ProviderContractTemplateController {
      * @return
      */
     @Operation(
-            operationId = "provider-contract-template-07",
+            operationId = "provider-contract-template-13",
             summary     = "Create draft from template",
             description = "Create a new draft from an existing contract template. The selected"
                         + "template must exist and have a status in [`ACTIVE`, `INACTIVE`]. Required role: `ROLE_PROVIDER`"
@@ -523,4 +523,25 @@ public interface ProviderContractTemplateController {
         @PathVariable UUID key
     );
 
+    /**
+     * Accept provider default contract template
+     *
+     * @return An instance of {@link ContractEndpointTypes#ProviderContractTemplate} class
+     */
+    @Operation(
+        operationId = "provider-contract-template-14",
+        summary     = "Accept default contract",
+        description = "Mark provider default contract template as accepted. Required role: `ROLE_PROVIDER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ContractEndpointTypes.ProviderContractTemplate.class)
+        )
+    )
+    @PutMapping(value = "/default-contract")
+    @Secured({"ROLE_PROVIDER"})
+    RestResponse<?> acceptDefaultContract();
 }

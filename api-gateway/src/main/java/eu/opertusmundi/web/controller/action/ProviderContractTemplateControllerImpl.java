@@ -155,7 +155,7 @@ public class ProviderContractTemplateControllerImpl extends BaseController imple
     @Override
     public RestResponse<?> publishDraft(UUID key) {
         try {
-            final ProviderTemplateContractDto result = this.templateContractService.publishDraft(this.currentUserId(), key);
+            final ProviderTemplateContractDto result = this.templateContractService.publishDraft(this.currentUserKey(), key);
 
             return RestResponse.result(result);
         } catch (final ApplicationException ex) {
@@ -233,7 +233,7 @@ public class ProviderContractTemplateControllerImpl extends BaseController imple
     @Override
     public RestResponse<?> deactivate(UUID key) {
         try {
-            final ProviderTemplateContractDto result = this.templateContractService.deactivate(this.currentUserId(), key);
+            final ProviderTemplateContractDto result = this.templateContractService.deactivate(this.currentUserKey(), key);
 
             return RestResponse.result(result);
         } catch (final ApplicationException ex) {
@@ -244,9 +244,7 @@ public class ProviderContractTemplateControllerImpl extends BaseController imple
     @Override
     public RestResponse<?> createDraftFromTemplate(UUID key) {
         try {
-            final ProviderTemplateContractDto result = this.templateContractService.createFromMasterContract(
-                this.currentUserId(), this.currentUserKey(), key
-            );
+            final ProviderTemplateContractDto result = this.templateContractService.createFromMasterContract(this.currentUserKey(), key);
 
             return RestResponse.result(result);
         } catch (final ApplicationException ex) {
@@ -254,5 +252,14 @@ public class ProviderContractTemplateControllerImpl extends BaseController imple
         }
     }
 
+    @Override
+    public RestResponse<?> acceptDefaultContract() {
+        try {
+            final ProviderTemplateContractDto result = this.templateContractService.acceptDefaultContract(this.currentUserKey());
 
+            return RestResponse.result(result);
+        } catch (final ApplicationException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        }
+    }
 }
