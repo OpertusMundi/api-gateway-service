@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -171,7 +172,7 @@ public class SecurityConfiguration {
             final OidcUser                  oidcUser    = delegate.loadUser(userRequest);
             final String                    email       = (String) oidcUser.getAttributes().get("email");
             final ExternalIdpAccountCommand command     = this.createCommand(provider, oidcUser.getAttributes());
-            final UserDetails               userDetails = provider == EnumAuthProvider.OpertusMundi
+            final UserDetails               userDetails = provider == null || provider == EnumAuthProvider.OpertusMundi
                 ? userDetailsService.loadUserByUsername(email)
                 : userDetailsService.loadUserByUsername(email, provider, command);
 
@@ -183,8 +184,13 @@ public class SecurityConfiguration {
         final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
 
         return (userRequest) -> {
-            final String                    clientName  = userRequest.getClientRegistration().getClientName();
-            final EnumAuthProvider          provider    = EnumAuthProvider.fromString(clientName);
+            final String           clientName = userRequest.getClientRegistration().getClientName();
+            final EnumAuthProvider provider   = EnumAuthProvider.fromString(clientName);
+
+            if (provider == null) {
+                throw new OAuth2AuthenticationException("Provider is not supported");
+            }
+
             final OAuth2User                oauthUser   = delegate.loadUser(userRequest);
             final String                    email       = (String) oauthUser.getAttributes().get("email");
             final ExternalIdpAccountCommand command     = this.createCommand(provider, oauthUser.getAttributes());
