@@ -34,6 +34,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.catalogue.client.EnumContractType;
 import eu.opertusmundi.common.model.catalogue.client.EnumDeliveryMethod;
+import eu.opertusmundi.common.model.contract.ContractMessageCode;
 import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
 import eu.opertusmundi.common.model.pricing.EnumPricingModel;
@@ -157,6 +158,15 @@ public class DraftValidator implements Validator {
                 // Provider contract must exist and be active to submit a draft
                 if (contract == null && mode == EnumValidationMode.SUBMIT) {
                     e.rejectValue("contractTemplateKey", EnumValidatorError.OptionNotFound.name());
+                }
+                // If the provider's default contract is selected, it must be
+                // also accepted by the provider
+                if (contract != null &&
+                    contract.isDefaultContract() &&
+                    !contract.isDefaultContractAccepted() &&
+                    mode == EnumValidationMode.SUBMIT
+                ) {
+                    e.rejectValue("contractTemplateKey", ContractMessageCode.DEFAULT_PROVIDER_CONTRACT_NOT_ACCEPTED.key());
                 }
 
                 // Contract annexes are supported only for uploaded contracts
