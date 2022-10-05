@@ -29,12 +29,16 @@ import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.common.service.ogc.GeoServerUtils;
 import eu.opertusmundi.common.service.ogc.OgcServiceClientException;
+import eu.opertusmundi.common.service.ogc.UserGeodataConfigurationResolver;
 
 @RestController
 public class ServiceSampleControllerImpl extends BaseController implements ServiceSampleController {
 
     @Autowired
     private ProviderAssetService providerAssetService;
+
+    @Autowired
+    private UserGeodataConfigurationResolver userGeodataConfigurationResolver;
 
     @Autowired
     private GeoServerUtils client;
@@ -81,16 +85,21 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
                 return;
             }
 
+            // Resolve GeoServer URL and user workspace
+            final var userGeodataConfig = userGeodataConfigurationResolver.resolveFromUserKey(currentUserParentKey());
+
             switch (type) {
                 case WMS :
-                    final List<WmsLayerSample> samples = this.client.getWmsSamples(service, Arrays.asList(this.bboxToGeometry(bbox)));
+                    final List<WmsLayerSample> samples = this.client.getWmsSamples(userGeodataConfig.getUrl(), service, Arrays.asList(this.bboxToGeometry(bbox)));
 
                     response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
                     response.getWriter().write(objectMapper.writeValueAsString(samples.get(0)));
                     break;
 
                 case WFS :
-                    final List<WfsLayerSample> wfsSamples = this.client.getWfsSamples(service, Arrays.asList(this.bboxToGeometry(bbox)));
+                    final List<WfsLayerSample> wfsSamples = this.client.getWfsSamples(
+                        userGeodataConfig.getUrl(), userGeodataConfig.getWorkspace(), service, Arrays.asList(this.bboxToGeometry(bbox))
+                    );
 
                     response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
                     response.getWriter().write(objectMapper.writeValueAsString(wfsSamples.get(0)));
@@ -109,7 +118,7 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
 
     private byte[] getMap(UUID draftKey, UUID resourceKey, String bbox) throws URISyntaxException, OgcServiceClientException, MalformedURLException {
         try {
-            final List<ResourceIngestionDataDto> services = providerAssetService.getServices(this.currentUserParentKey(), draftKey);
+            final List<ResourceIngestionDataDto> services = providerAssetService.getServices(currentUserParentKey(), draftKey);
             // Ingestion data must exist
             if (services == null) {
                 return null;
@@ -125,9 +134,12 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
                 return null;
             }
 
+            // Resolve GeoServer URL and user workspace
+            final var userGeodataConfig = userGeodataConfigurationResolver.resolveFromUserKey(currentUserParentKey());
+
             final ResourceIngestionDataDto.ServiceEndpoint endpoint = service.getEndpointByServiceType(EnumSpatialDataServiceType.WMS);
 
-            return client.getWmsMap(endpoint.getUri(), service.getTableName(), bbox, 256, 256);
+            return client.getWmsMap(userGeodataConfig.getUrl(), endpoint.getUri(), service.getTableName(), bbox, 256, 256);
         } catch (final AssetDraftException ex) {
             // Either the draft is not found or the data ingestion has not been
             // completed yet
