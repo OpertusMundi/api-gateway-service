@@ -111,8 +111,7 @@ ENV PUBLIC_URL="" \
     SENTINELHUB_CLIENT_SECRET_FILE="/secrets/sentinelhub-client-secret" \
     CONTRACT_SIGNPDF_KEYSTORE="/secrets/signatory-keystore" \
     CONTRACT_SIGNPDF_KEYSTORE_PASSWORD_FILE="/secrets/signatory-keystore-password" \
-    CONTRACT_SIGNPDF_KEY_ALIAS="opertusmundi.eu" \
-    GEODATA_SHARDS="1"
+    CONTRACT_SIGNPDF_KEY_ALIAS="opertusmundi.eu"
 
 
 ENV GIT_URL="${git_url}" \
