@@ -43,6 +43,8 @@ runtime_profile=$(hostname | md5sum | head -c10)
     jwt_secret=$(cat ${JWT_SECRET_FILE} | tr -d '\n')
     echo "opertusmundi.feign.jwt.secret = ${jwt_secret}"
 
+    authentication_providers=( "forms" )
+
     if [[ -n "${OIDC_AUTH_URL}" ]]; then
         oidc_auth_url=$(echo ${OIDC_AUTH_URL} | _validate_http_url "OIDC_AUTH_URL")
         oidc_token_url=$(echo ${OIDC_TOKEN_URL} | _validate_http_url "OIDC_TOKEN_URL")
@@ -51,9 +53,9 @@ runtime_profile=$(hostname | md5sum | head -c10)
         oidc_scope=${OIDC_SCOPE:-openid}
         oidc_client_id=${OIDC_CLIENT_ID}
         oidc_client_secret=$(cat ${OIDC_CLIENT_SECRET_FILE} | tr -d '\n')
+        authentication_providers+=( "opertusmundi" )
         # https://github.com/OpertusMundi/api-gateway-service/blob/dea7d3d0bd008b2b1b072de8117010b252b2767f/api-gateway/config-example/config/application.properties#L64-L88
         # Define the OAuth2 provider
-        echo "opertus-mundi.authentication-providers = forms,opertusmundi"
         echo "spring.security.oauth2.client.provider.keycloak.authorization-uri = ${oidc_auth_url}"
         echo "spring.security.oauth2.client.provider.keycloak.token-uri = ${oidc_token_url}"
         echo "spring.security.oauth2.client.provider.keycloak.jwk-set-uri = ${oidc_jwks_url}"
@@ -73,9 +75,30 @@ runtime_profile=$(hostname | md5sum | head -c10)
         echo "spring.security.oauth2.client.registration.opertusmundi-development.client-secret = ${oidc_client_secret}"
         echo "spring.security.oauth2.client.registration.opertusmundi-development.redirect-uri = http://localhost:4200/login/oauth2/code/{registrationId}"
         echo "spring.security.oauth2.client.registration.opertusmundi-development.scope = ${oidc_scope}"
-    else
-        echo "opertus-mundi.authentication-providers = forms"
     fi
+   
+    if [[ -n "${GOOGLE_OIDC_CLIENT_ID}" ]]; then
+        authentication_providers+=( "google" )
+        google_oidc_client_id=${GOOGLE_OIDC_CLIENT_ID}
+        google_oidc_client_secret=$(cat ${GOOGLE_OIDC_CLIENT_SECRET_FILE} | tr -d '\n')
+        # Register OAuth2 client "google" for the webapp
+        echo "spring.security.oauth2.client.registration.google.client-id = ${google_oidc_client_id}"
+        echo "spring.security.oauth2.client.registration.google.client-secret = ${google_oidc_client_secret}"
+        echo "spring.security.oauth2.client.registration.google.redirect-uri = {baseUrl}/login/oauth2/code/{registrationId}"
+    fi
+
+    if [[ -n "${GITHUB_OIDC_CLIENT_ID}" ]]; then
+        authentication_providers+=( "github" )
+        github_oidc_client_id=${GITHUB_OIDC_CLIENT_ID}
+        github_oidc_client_secret=$(cat ${GITHUB_OIDC_CLIENT_SECRET_FILE} | tr -d '\n')
+        # Register OAuth2 client "github" for the webapp
+        echo "spring.security.oauth2.client.registration.github.client-id = ${github_oidc_client_id}"
+        echo "spring.security.oauth2.client.registration.github.client-secret = ${github_oidc_client_secret}"
+        echo "spring.security.oauth2.client.registration.github.redirect-uri = {baseUrl}/login/oauth2/code/{registrationId}"
+    fi
+
+    authentication_providers_as_string=$(IFS=','; echo "${authentication_providers[*]}")
+    echo "opertus-mundi.authentication-providers = ${authentication_providers_as_string}"
 
     bpm_rest_base_url=$(echo ${BPM_REST_BASE_URL} | _validate_http_url "BPM_REST_BASE_URL")
     bpm_rest_username=${BPM_REST_USERNAME}
