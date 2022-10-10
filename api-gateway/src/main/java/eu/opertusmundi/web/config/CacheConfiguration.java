@@ -29,6 +29,7 @@ public class CacheConfiguration {
             "asset-statistics",
             "company-number",
             "draft-services",
+            "geodata-configuration",
             "sentinel-hub-subscription-plans"
         ));
         return cacheManager;
