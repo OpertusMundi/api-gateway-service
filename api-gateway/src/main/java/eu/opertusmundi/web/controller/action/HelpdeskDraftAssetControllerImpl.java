@@ -26,7 +26,7 @@ import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.server.CatalogueFeature;
-import eu.opertusmundi.common.repository.ProviderRepository;
+import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
 import eu.opertusmundi.common.util.CatalogueItemUtils;
@@ -36,7 +36,7 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
 
     private static final Logger logger = LoggerFactory.getLogger(HelpdeskDraftAssetControllerImpl.class);
 
-    private final ProviderRepository providerRepository;
+    private final AccountRepository accountRepository;
 
     private final ProviderAssetService providerAssetService;
 
@@ -44,11 +44,11 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
 
     @Autowired
     public HelpdeskDraftAssetControllerImpl(
-        ProviderRepository providerRepository,
+        AccountRepository accountRepository,
         ProviderAssetService providerAssetService,
         CatalogueItemUtils catalogueItemUtils
     ) {
-        this.providerRepository   = providerRepository;
+        this.accountRepository    = accountRepository;
         this.providerAssetService = providerAssetService;
         this.catalogueItemUtils   = catalogueItemUtils;
     }
@@ -66,7 +66,7 @@ public class HelpdeskDraftAssetControllerImpl extends BaseController implements 
             final CatalogueItemDetailsDto item    = new CatalogueItemDetailsDto(feature);
 
             // Inject publisher details
-            final ProviderDto publisher = this.providerRepository.findOneByKey(draft.getPublisher().getKey()).getProvider().toProviderDto(true);
+            final ProviderDto publisher = this.accountRepository.findOneByKey(draft.getPublisher().getKey()).get().getProvider().toProviderDto(true);
             item.setPublisherId(publisher.getKey());
             item.setPublisher(publisher);
 
