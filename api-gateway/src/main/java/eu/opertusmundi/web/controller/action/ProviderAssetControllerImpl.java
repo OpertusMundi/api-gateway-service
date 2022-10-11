@@ -23,12 +23,12 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.asset.EnumProviderAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderSubSortField;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.catalogue.CatalogueResult;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceMessageCode;
+import eu.opertusmundi.common.model.catalogue.EnumCatalogueSortField;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueAssetQuery;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
@@ -51,7 +51,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
     @Override
     public RestResponse<?> findAllAssets(
-        String query, EnumAssetType type, int pageIndex, int pageSize, EnumProviderAssetSortField orderBy, EnumSortingOrder order
+        String query, EnumAssetType type, int pageIndex, int pageSize, EnumCatalogueSortField orderBy, EnumSortingOrder order
     ) {
         try {
             final UUID                 publisherKey = this.currentUserKey();
@@ -59,6 +59,8 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
                 .page(pageIndex)
                 .size(pageSize)
                 .publisherKey(publisherKey.toString())
+                .order(order)
+                .orderBy(orderBy)
                 .query(query)
                 .build();
 

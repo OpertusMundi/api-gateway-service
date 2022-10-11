@@ -17,8 +17,8 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.asset.EnumProviderAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderSubSortField;
+import eu.opertusmundi.common.model.catalogue.EnumCatalogueSortField;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -94,7 +94,7 @@ public interface ProviderAssetController {
             required = false,
             description = "Order by property"
         )
-        @RequestParam(name = "orderBy", defaultValue = "TITLE") EnumProviderAssetSortField orderBy,
+        @RequestParam(name = "orderBy", defaultValue = "TITLE") EnumCatalogueSortField orderBy,
         @Parameter(
             in = ParameterIn.QUERY,
             required = false,
