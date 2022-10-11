@@ -28,7 +28,7 @@
 		<!-- Dependency versions -->
 		<spring-boot.version>2.7.3</spring-boot.version>
 
-		<java-commons.version>1.0.97</java-commons.version>
+		<java-commons.version>1.1.0</java-commons.version>
 
 		<!-- Plugin versions -->
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
