@@ -49,8 +49,11 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.opertusmundi.common.config.GeodataConfiguration;
+import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.common.repository.AccountRepository;
@@ -116,6 +119,9 @@ public class FileSystemControllerTomcatITCase {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    private GeodataConfiguration geodataConfiguration;
+
+    @Autowired
     private AccountRepository accountRepository;
 
     private RestTemplate restTemplate;
@@ -129,8 +135,13 @@ public class FileSystemControllerTomcatITCase {
 
         // Create default account with authority ROLE_USER
         final PlatformAccountCommandDto command = AccountCommandFactory.user().build();
-
         this.accountRepository.create(command);
+
+        final AccountEntity account = this.accountRepository.findOneByEmail(command.getEmail()).get();
+        account.setActivationStatus(EnumActivationStatus.COMPLETED);
+        account.setActive(true);
+        account.getProfile().setGeodataShard(geodataConfiguration.getShards().get(0).getId());
+        this.accountRepository.saveAndFlush(account);
     }
 
     @BeforeEach

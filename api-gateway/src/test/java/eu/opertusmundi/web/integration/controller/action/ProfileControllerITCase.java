@@ -24,11 +24,14 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import eu.opertusmundi.common.config.GeodataConfiguration;
+import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.Message.EnumLevel;
@@ -43,6 +46,7 @@ import eu.opertusmundi.web.integration.support.AbstractIntegrationTestWithSecuri
 import eu.opertusmundi.web.utils.AccountCommandFactory;
 
 @SpringBootTest
+@ActiveProfiles("testing")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
 
@@ -51,6 +55,9 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
 
     @Autowired
     private MessageSource messageSource;
+
+    @Autowired
+    private GeodataConfiguration geodataConfiguration;
 
     @Autowired
     private AccountRepository accountRepository;
@@ -64,8 +71,13 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
 
         // Create default account with authority ROLE_USER
         final PlatformAccountCommandDto command = AccountCommandFactory.user().build();
-
         this.accountRepository.create(command);
+
+        final AccountEntity account = this.accountRepository.findOneByEmail(command.getEmail()).get();
+        account.setActivationStatus(EnumActivationStatus.COMPLETED);
+        account.setActive(true);
+        account.getProfile().setGeodataShard(geodataConfiguration.getShards().get(0).getId());
+        this.accountRepository.saveAndFlush(account);
     }
 
     @Test
@@ -144,7 +156,7 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
         assertThat(account).isNotNull();
         assertThat(account.getEmail()).isEqualTo("user@opertusmundi.eu");
         assertThat(account.getUsername()).isEqualTo("user@opertusmundi.eu");
-        assertThat(account.getActivationStatus()).isEqualTo(EnumActivationStatus.PENDING);
+        assertThat(account.getActivationStatus()).isEqualTo(EnumActivationStatus.COMPLETED);
         assertThat(account.getActivatedAt()).isNull();
         assertThat(account.getEmailVerifiedAt()).isNull();
         assertThat(account.isEmailVerified()).isFalse();

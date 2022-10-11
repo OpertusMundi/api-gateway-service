@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -155,6 +156,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
     @Test
     @Tag(value = "Controller")
     @DisplayName(value = "When searching with any valid query, returns data")
+    @Disabled(value = "Requires Elasticsearch integration")
     void whenSearchWithValidQuery_returnData() throws Exception {
         final MvcResult mvcResult = this.mockMvc.perform(get("/action/catalogue?page=0&size=10&query=test"))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -183,6 +185,7 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
     @Test
     @Tag(value = "Controller")
     @DisplayName(value = "When query selects no items, returns empty result")
+    @Disabled(value = "Requires Elasticsearch integration")
     void whenQueryThatSelectsNoItems_returnError() throws Exception {
         final MvcResult mvcResult = this.mockMvc.perform(get("/action/catalogue?page=0&size=10&query=nothing"))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
