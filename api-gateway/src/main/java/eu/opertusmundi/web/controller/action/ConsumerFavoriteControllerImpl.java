@@ -13,6 +13,7 @@ import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.catalogue.CatalogueServiceException;
+import eu.opertusmundi.common.model.favorite.EnumAssetFavoriteAction;
 import eu.opertusmundi.common.model.favorite.EnumFavoriteSortField;
 import eu.opertusmundi.common.model.favorite.EnumFavoriteType;
 import eu.opertusmundi.common.model.favorite.FavoriteCommandDto;
@@ -27,11 +28,11 @@ public class ConsumerFavoriteControllerImpl extends BaseController implements Co
 
     @Override
     public RestResponse<?> findAll(
-        EnumFavoriteType type, int pageIndex, int pageSize, EnumFavoriteSortField orderBy, EnumSortingOrder order
+        EnumFavoriteType type, EnumAssetFavoriteAction action, int pageIndex, int pageSize, EnumFavoriteSortField orderBy, EnumSortingOrder order
     ) {
         try {
             final PageResultDto<FavoriteDto> result = this.favoriteService.findAll(
-                this.currentUserId(), type, pageIndex, pageSize, orderBy, order
+                this.currentUserId(), type, action, pageIndex, pageSize, orderBy, order
             );
 
             return RestResponse.result(result);

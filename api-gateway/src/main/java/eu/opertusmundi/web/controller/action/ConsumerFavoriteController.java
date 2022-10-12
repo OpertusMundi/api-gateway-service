@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.favorite.EnumAssetFavoriteAction;
 import eu.opertusmundi.common.model.favorite.EnumFavoriteSortField;
 import eu.opertusmundi.common.model.favorite.EnumFavoriteType;
 import eu.opertusmundi.common.model.favorite.FavoriteCommandDto;
@@ -73,6 +74,12 @@ public interface ConsumerFavoriteController {
             description = "Favorite type"
         )
         @RequestParam(name = "type", required = false) EnumFavoriteType type,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "User action that created an asset favorite record. When set, only asset favorites are returned and `type` parameter is ignored"
+        )
+        @RequestParam(name = "action", required = false) EnumAssetFavoriteAction action,
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,
