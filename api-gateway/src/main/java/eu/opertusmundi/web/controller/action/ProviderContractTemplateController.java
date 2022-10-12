@@ -541,7 +541,14 @@ public interface ProviderContractTemplateController {
             schema = @Schema(implementation = ContractEndpointTypes.ProviderContractTemplate.class)
         )
     )
-    @PutMapping(value = "/default-contract")
+    @PutMapping(value = "/default-contract/{key}")
     @Secured({"ROLE_PROVIDER"})
-    RestResponse<?> acceptDefaultContract();
+    RestResponse<?> acceptDefaultContract(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Contract unique key"
+        )
+        @PathVariable UUID key
+    );
 }

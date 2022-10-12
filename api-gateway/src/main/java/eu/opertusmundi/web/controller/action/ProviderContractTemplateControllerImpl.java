@@ -253,9 +253,9 @@ public class ProviderContractTemplateControllerImpl extends BaseController imple
     }
 
     @Override
-    public RestResponse<?> acceptDefaultContract() {
+    public RestResponse<?> acceptDefaultContract(UUID key) {
         try {
-            final ProviderTemplateContractDto result = this.templateContractService.acceptDefaultContract(this.currentUserKey());
+            final ProviderTemplateContractDto result = this.templateContractService.acceptDefaultContract(this.currentUserKey(), key);
 
             return RestResponse.result(result);
         } catch (final ApplicationException ex) {
