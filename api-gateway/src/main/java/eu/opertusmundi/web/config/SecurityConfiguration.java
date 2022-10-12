@@ -48,6 +48,7 @@ import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.account.ExternalIdpAccountCommand;
 import eu.opertusmundi.web.logging.filter.MappedDiagnosticContextFilter;
+import eu.opertusmundi.web.model.OAuth2AccountExistsException;
 import eu.opertusmundi.web.model.OAuth2ProviderNotSupportedException;
 import eu.opertusmundi.web.security.CustomUserDetailsService;
 
@@ -153,8 +154,11 @@ public class SecurityConfiguration {
                 )
                 .failureHandler((HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) -> {
                     oauth2Logger.error("OAuth2 request failed", exception);
-
-                    response.sendRedirect("/signin?error=2");
+                    if (exception instanceof final OAuth2AccountExistsException e) {
+                        response.sendRedirect("/signin?error=3");
+                    } else {
+                        response.sendRedirect("/signin?error=2");
+                    }
                 });
         }
 

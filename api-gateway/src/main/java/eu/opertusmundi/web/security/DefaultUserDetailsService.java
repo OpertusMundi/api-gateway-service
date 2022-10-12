@@ -12,6 +12,7 @@ import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.ExternalIdpAccountCommand;
 import eu.opertusmundi.web.model.OAuth2AccountCreationException;
+import eu.opertusmundi.web.model.OAuth2AccountExistsException;
 import eu.opertusmundi.web.model.security.User;
 
 @Service
@@ -38,11 +39,17 @@ public class DefaultUserDetailsService implements CustomUserDetailsService {
     ) throws UsernameNotFoundException, OAuth2AccountCreationException {
         Assert.hasText(username, "Expected a non-empty user name");
         Assert.notNull(provider, "Expected a non-null provider");
-        AccountDto account = this.userService.findOneByUserName(username, provider).orElse(null);
+        AccountDto providerAccount = this.userService.findOneByUserName(username, provider).orElse(null);
 
-        if (account == null) {
+        if (providerAccount == null) {
             if (command == null) {
                 throw new UsernameNotFoundException(username);
+            }
+            final AccountDto accountWithSameUsername = this.userService.findOneByUserName(username).orElse(null);
+            if (accountWithSameUsername != null) {
+                throw new OAuth2AccountExistsException(String.format(
+                    "Cannot create account. Username already exists [username=%s]", username
+                ));
             }
             // Create new external IdP account and start an instance of the
             // account activation workflow
@@ -50,9 +57,9 @@ public class DefaultUserDetailsService implements CustomUserDetailsService {
             if (!response.getMessages().isEmpty()) {
                 throw new OAuth2AccountCreationException(response.getMessages().get(0).getDescription());
             }
-            account = response.getResult();
+            providerAccount = response.getResult();
         }
 
-        return new User(account, account.getPassword());
+        return new User(providerAccount, providerAccount.getPassword());
     }
 }
