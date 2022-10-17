@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Controller;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.MessageCode;
 import eu.opertusmundi.common.model.ServiceException;
+import eu.opertusmundi.common.model.kyc.CustomerVerificationException;
+import eu.opertusmundi.common.model.kyc.CustomerVerificationMessageCode;
 import eu.opertusmundi.common.model.payment.PaymentException;
 import eu.opertusmundi.common.model.payment.PaymentMessageCode;
 import eu.opertusmundi.common.service.mangopay.MangoPayWebhookHandler;
@@ -24,6 +27,9 @@ import eu.opertusmundi.common.service.mangopay.PaymentService;
 public class MangoPayWebhookControllerImpl implements MangoPayWebhookController {
 
     private static final Logger logger = LoggerFactory.getLogger("WEBHOOK");
+
+    @Value("${opertusmundi.payments.mangopay.debug:false}")
+    private boolean debug;
 
     @Autowired
     private MangoPayWebhookHandler handler;
@@ -44,16 +50,25 @@ public class MangoPayWebhookControllerImpl implements MangoPayWebhookController 
             status = HttpStatus.OK;
             code   = BasicMessageCode.Success;
         } catch (final Exception ex) {
-            // Ignore errors
-            if (ex instanceof PaymentException) {
-                final PaymentException pEx = (PaymentException) ex;
-                // Ignore unregistered web hooks
-                if (pEx.getCode() == PaymentMessageCode.WEB_HOOK_NOT_SUPPORTED) {
+            if (ex instanceof final ServiceException serviceEx) {
+                code = serviceEx.getCode();
+            }
+
+            if (debug && ex instanceof final CustomerVerificationException customerEx) {
+                if (customerEx.getCode() == CustomerVerificationMessageCode.PROVIDER_USER_NOT_FOUND ||
+                    customerEx.getCode() == CustomerVerificationMessageCode.PLATFORM_CUSTOMER_NOT_FOUND
+                ) {
                     status = HttpStatus.OK;
                 }
             }
-            if (ex instanceof ServiceException) {
-                code = ((ServiceException) ex).getCode();
+
+            if (ex instanceof final PaymentException paymentEx) {
+                if (paymentEx.getCode() == PaymentMessageCode.RESOURCE_NOT_FOUND && debug) {
+                    status = HttpStatus.OK;
+                }
+                if (paymentEx.getCode() == PaymentMessageCode.WEB_HOOK_NOT_SUPPORTED) {
+                    status = HttpStatus.OK;
+                }
             }
         }
 
