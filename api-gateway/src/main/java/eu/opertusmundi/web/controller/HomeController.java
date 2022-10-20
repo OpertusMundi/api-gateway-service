@@ -85,12 +85,12 @@ public class HomeController {
         return "redirect:/account/verify-email/failure";
     }
 
-    @GetMapping("/account/registration/success")
+    @GetMapping("/account/verify-email/success")
     public String verifyTokenSuccess() {
         return "index";
     }
 
-    @GetMapping("/account/registration/failure")
+    @GetMapping("/account/verify-email/failure")
     public String verifyTokenFailure() {
         return "index";
     }
