@@ -23,6 +23,7 @@ import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.account.AccountClientCommandDto;
 import eu.opertusmundi.common.model.account.AccountClientDto;
+import eu.opertusmundi.common.model.account.EnumAccountClientStatus;
 import eu.opertusmundi.web.model.openapi.schema.AccountEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
@@ -75,7 +76,12 @@ public interface AccountClientController {
             in          = ParameterIn.PATH,
             description = "Page size"
         )
-        @RequestParam(name = "size", defaultValue = "25", required = false) @Max(100) @Min(1) Integer size
+        @RequestParam(name = "size", defaultValue = "25", required = false) @Max(100) @Min(1) Integer size,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            description = "Status"
+        )
+        @RequestParam(name = "status", defaultValue = "ALL", required = false) EnumAccountClientStatus status
     );
 
     /**

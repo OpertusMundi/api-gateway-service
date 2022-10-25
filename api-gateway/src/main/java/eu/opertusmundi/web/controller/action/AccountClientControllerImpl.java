@@ -16,6 +16,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.account.AccountClientCommandDto;
 import eu.opertusmundi.common.model.account.AccountClientDto;
+import eu.opertusmundi.common.model.account.EnumAccountClientStatus;
 import eu.opertusmundi.common.service.AccountClientService;
 
 @RestController
@@ -29,8 +30,10 @@ public class AccountClientControllerImpl extends BaseController implements Accou
     }
 
     @Override
-    public RestResponse<PageResultDto<AccountClientDto>> find(Integer page, @Max(100) @Min(1) Integer size) {
-        final PageResultDto<AccountClientDto> result = this.accountClientService.findAll(this.currentUserKey(), page, size);
+    public RestResponse<PageResultDto<AccountClientDto>> find(
+        Integer page, @Max(100) @Min(1) Integer size, EnumAccountClientStatus status
+    ) {
+        final PageResultDto<AccountClientDto> result = this.accountClientService.findAll(this.currentUserKey(), page, size, status);
 
         return RestResponse.result(result);
     }
