@@ -51,6 +51,9 @@ public class ProviderTemplateContractValidator implements Validator {
         if (template == null) {
             e.rejectValue("templateKey", EnumValidatorError.ReferenceNotFound.name());
         }
+        if (template.isDefaultContract()) {
+            e.rejectValue("templateKey", EnumValidatorError.OptionNotSupported.name());
+        }
     }
 
     private void validateSections(ProviderTemplateContractCommandDto c, MasterContractHistoryEntity template, Errors e) {
