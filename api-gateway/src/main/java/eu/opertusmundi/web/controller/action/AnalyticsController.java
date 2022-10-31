@@ -8,13 +8,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.analytics.AssetCountQuery;
 import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
 import eu.opertusmundi.common.model.analytics.AssetTypeEarningsQuery;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
+import eu.opertusmundi.common.model.analytics.BaseQuery;
 import eu.opertusmundi.common.model.analytics.CoverageQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.GoogleAnalyticsQuery;
@@ -328,10 +328,26 @@ public interface AnalyticsController {
             )
         )
     )
-    @RequestMapping(value = "/popular-terms", method=RequestMethod.GET)
+    @PostMapping(value = "/popular-terms", consumes = { "application/json" })
     @Validated
     RestResponse<?> executeFindPopularTerms(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Query to execute",
+                    content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = BaseQuery.class)
+                    ),
+                    required = true
+                )
+                @Valid
+                @RequestBody
+                BaseQuery query,
+                @Parameter(
+                    hidden = true
+                )
+                BindingResult validationResult
     );
+
     
     /**
      * Query account data

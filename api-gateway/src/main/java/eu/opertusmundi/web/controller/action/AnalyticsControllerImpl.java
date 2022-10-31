@@ -14,6 +14,7 @@ import eu.opertusmundi.common.model.analytics.AssetCountQuery;
 import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
 import eu.opertusmundi.common.model.analytics.AssetTypeEarningsQuery;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
+import eu.opertusmundi.common.model.analytics.BaseQuery;
 import eu.opertusmundi.common.model.analytics.CoverageQuery;
 import eu.opertusmundi.common.model.analytics.DataSeries;
 import eu.opertusmundi.common.model.analytics.GoogleAnalyticsQuery;
@@ -115,8 +116,12 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
     }
 
     @Override
-    public RestResponse<?> executeFindPopularTerms() {
-        final List<ImmutablePair<String, Integer>> result = this.analysisService.executePopularTerms();
+    public RestResponse<?> executeFindPopularTerms(BaseQuery query, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }        
+    	
+    	final List<ImmutablePair<String, Integer>> result = this.analysisService.executePopularTerms(query);
 
         return RestResponse.result(result);
     }
