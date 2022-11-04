@@ -36,6 +36,7 @@ import eu.opertusmundi.common.model.payment.UserPaginationCommand;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerPayInDto;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.OrderFulfillmentService;
+import eu.opertusmundi.common.service.SubscriptionBillingService;
 import eu.opertusmundi.common.service.mangopay.PaymentService;
 
 @RestController
@@ -52,8 +53,11 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
     @Autowired
     private OrderFulfillmentService orderFulfillmentService;
 
+    @Autowired
+    private SubscriptionBillingService subscriptionBillingService;
+
     @Override
-    public RestResponse<?> createBankwirePayIn(UUID orderKey, HttpSession session) {
+    public RestResponse<?> createOrderBankwirePayIn(UUID orderKey, HttpSession session) {
         final BankwirePayInCommand payInCommand = BankwirePayInCommand.builder()
             .userKey(this.currentUserKey())
             .orderKey(orderKey)
@@ -113,7 +117,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
     }
 
     @Override
-    public RestResponse<?> createCardDirectPayIn(
+    public RestResponse<?> createOrderCardDirectPayIn(
         UUID orderKey, CardDirectPayInCommandDto command, BindingResult validationResult, HttpSession session
     ) {
         if (validationResult.hasErrors()) {
@@ -122,7 +126,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
 
         final CardDirectPayInCommand payInCommand = CardDirectPayInCommand.builder()
             .userKey(this.currentUserKey())
-            .orderKey(orderKey)
+            .key(orderKey)
             .cardId(command.getCardId())
             .browserInfo(command.getBrowserInfo())
             .billing(command.getBilling())
@@ -158,7 +162,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
     }
 
     @Override
-    public RestResponse<?> createFreePayIn(UUID orderKey, HttpSession session) {
+    public RestResponse<?> createOrderFreePayIn(UUID orderKey, HttpSession session) {
         final FreePayInCommand payInCommand = FreePayInCommand.builder()
                 .userKey(this.currentUserKey())
                 .orderKey(orderKey)
@@ -169,6 +173,39 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
         // The status of a free payment is always successful. Initialize order
         // fulfillment workflow
         this.orderFulfillmentService.startOrderWithoutPayInWorkflow(result.getKey());
+
+        return RestResponse.result(result);
+    }
+
+    @Override
+    public RestResponse<?> updateSubscriptionCardDirectPayIn(
+        UUID payInKey, CardDirectPayInCommandDto command, BindingResult validationResult
+    ) {
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
+        final CardDirectPayInCommand payInCommand = CardDirectPayInCommand.builder()
+            .userKey(this.currentUserKey())
+            .key(payInKey)
+            .cardId(command.getCardId())
+            .browserInfo(command.getBrowserInfo())
+            .billing(command.getBilling())
+            .shipping(command.getShipping())
+            .ipAddress(this.getRemoteIpAddress())
+            .build();
+
+        // Update browser info with server-side data
+        //
+        // See: https://docs.mangopay.com/guide/3ds2-integration
+        payInCommand.getBrowserInfo().setAcceptHeader(this.getAcceptHeader());
+
+        final PayInDto result = this.paymentService.updatePayInCardDirectForSubscriptions(payInCommand);
+
+        // Initialize order fulfillment workflow and wait for webhook event
+        if (result.getStatus() != EnumTransactionStatus.FAILED) {
+            this.subscriptionBillingService.startPayInWorkflow(result.getKey(), result.getPayIn(), result.getStatus());
+        }
 
         return RestResponse.result(result);
     }

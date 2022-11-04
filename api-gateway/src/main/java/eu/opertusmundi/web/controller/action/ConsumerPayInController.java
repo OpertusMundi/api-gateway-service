@@ -25,6 +25,7 @@ import eu.opertusmundi.common.model.payment.CardRegistrationCommandDto;
 import eu.opertusmundi.common.model.payment.EnumPayInSortField;
 import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
 import eu.opertusmundi.common.model.payment.PayInDto;
+import eu.opertusmundi.common.model.payment.consumer.ConsumerCardDirectPayInDto;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerFreePayInDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
@@ -77,7 +78,7 @@ public interface ConsumerPayInController {
         )
     )
     @PostMapping(value = "/payins/bankwire/{orderKey}")
-    RestResponse<?> createBankwirePayIn(
+    RestResponse<?> createOrderBankwirePayIn(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -237,7 +238,7 @@ public interface ConsumerPayInController {
     )
     @PostMapping(value = "/payins/card-direct/{orderKey}", consumes = "application/json")
     @Validated
-    RestResponse<?> createCardDirectPayIn(
+    RestResponse<?> createOrderCardDirectPayIn(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -392,7 +393,7 @@ public interface ConsumerPayInController {
         )
     )
     @PostMapping(value = "/payins/free/{orderKey}")
-    RestResponse<?> createFreePayIn(
+    RestResponse<?> createOrderFreePayIn(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -400,6 +401,64 @@ public interface ConsumerPayInController {
             )
         @PathVariable UUID orderKey,
         @Parameter(hidden = true) HttpSession session
+    );
+
+    /**
+     * Creates a new card direct PayIn for a collection of subscription billing
+     * records
+     *
+     * @param command Card direct PayIn command
+     *
+     * @return A {@link RestResponse} object with a result of type
+     *         {@link ConsumerCardDirectPayInDto} if operation was successful; Otherwise an
+     *         instance of {@link BaseResponse} is returned with one or more
+     *         error messages
+     *
+     * @see <a href="https://docs.mangopay.com/endpoints/v2.01/payins#e278_create-a-card-direct-payin">Create a Card Direct PayIn</a>
+     */
+    @Operation(
+        operationId = "consumer-payin-09",
+        summary     = "Create subscription PayIn",
+        description = "Create a new card direct PayIn for a collection of subscription billing records. If the operation "
+                    + "is successful, an instance of `ConsumerCardDirectPayInResponse` is returned; Otherwise an instance of "
+                    + "`BaseResponse` is returned with one or more error messages. Required role: `ROLE_CONSUMER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.ConsumerCardDirectPayInResponse.class})
+        )
+    )
+    @PostMapping(value = "/payins/subscription-billing/card-direct/{payInKey}")
+    @Validated
+    RestResponse<?> updateSubscriptionCardDirectPayIn(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "PayIn unique key"
+            )
+        @PathVariable UUID payInKey,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description =
+               "Card direct PayIn command. "
+             + "<ul>"
+             + "<li> If both the `billing` and `shipping` properties are empty, the information from the consumer registration is sent to the issuer.</li>"
+             + "<li> If the `billing` is supplied but the `shipping` is empty, the `shipping` property is initialized with the fields supplied for `billing`.</li>"
+             + "<li> If the `shipping` is supplied but the `billing` is empty, the `billing` property is initialized with fields supplied for `shipping`.</li>"
+             + "</ul>",
+           content = @Content(
+               mediaType = "application/json",
+               schema = @Schema(implementation = CardDirectPayInCommandDto.class)
+           ),
+           required = true
+        )
+        @Valid
+        @RequestBody
+        CardDirectPayInCommandDto command,
+        @Parameter(hidden = true)
+        BindingResult validationResult
     );
 
 }

@@ -9,6 +9,7 @@ import eu.opertusmundi.common.model.order.OrderDto;
 import eu.opertusmundi.common.model.order.ProviderOrderDto;
 import eu.opertusmundi.common.model.payment.CardDto;
 import eu.opertusmundi.common.model.payment.CardRegistrationDto;
+import eu.opertusmundi.common.model.payment.PayInDto;
 import eu.opertusmundi.common.model.payment.PayOutDto;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerBankwirePayInDto;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerCardDirectPayInDto;
@@ -22,6 +23,10 @@ import eu.opertusmundi.common.model.payment.provider.ProviderPayInItemDto;
 public class PaymentEndPoints {
 
     public static class CheckoutOrderResponse extends RestResponse<OrderDto> {
+
+    }
+
+    public static class CheckoutPayInResponse extends RestResponse<PayInDto> {
 
     }
 
