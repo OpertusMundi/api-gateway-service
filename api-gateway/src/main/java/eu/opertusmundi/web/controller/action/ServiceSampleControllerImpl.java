@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.model.catalogue.client.WfsLayerSample;
 import eu.opertusmundi.common.model.catalogue.client.WmsLayerSample;
+import eu.opertusmundi.common.model.geodata.EnumGeodataWorkspace;
 import eu.opertusmundi.common.model.ingest.ResourceIngestionDataDto;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.ProviderAssetService;
@@ -86,7 +87,7 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
             }
 
             // Resolve GeoServer URL and user workspace
-            final var userGeodataConfig = userGeodataConfigurationResolver.resolveFromUserKey(currentUserParentKey());
+            final var userGeodataConfig = userGeodataConfigurationResolver.resolveFromUserKey(currentUserParentKey(), EnumGeodataWorkspace.PUBLIC);
 
             switch (type) {
                 case WMS :
@@ -98,7 +99,7 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
 
                 case WFS :
                     final List<WfsLayerSample> wfsSamples = this.client.getWfsSamples(
-                        userGeodataConfig.getUrl(), userGeodataConfig.getWorkspace(), service, Arrays.asList(this.bboxToGeometry(bbox))
+                        userGeodataConfig.getUrl(), userGeodataConfig.getEffectiveWorkspace(), service, Arrays.asList(this.bboxToGeometry(bbox))
                     );
 
                     response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
@@ -135,7 +136,7 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
             }
 
             // Resolve GeoServer URL and user workspace
-            final var userGeodataConfig = userGeodataConfigurationResolver.resolveFromUserKey(currentUserParentKey());
+            final var userGeodataConfig = userGeodataConfigurationResolver.resolveFromUserKey(currentUserParentKey(), EnumGeodataWorkspace.PUBLIC);
 
             final ResourceIngestionDataDto.ServiceEndpoint endpoint = service.getEndpointByServiceType(EnumSpatialDataServiceType.WMS);
 
