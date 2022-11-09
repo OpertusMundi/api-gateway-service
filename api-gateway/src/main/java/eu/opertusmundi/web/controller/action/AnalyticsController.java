@@ -1,6 +1,8 @@
 package eu.opertusmundi.web.controller.action;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
@@ -8,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.analytics.AssetCountQuery;
@@ -25,6 +28,7 @@ import eu.opertusmundi.common.model.openapi.schema.AnalyticsEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -215,7 +219,7 @@ public interface AnalyticsController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Query asset count data
      *
@@ -259,7 +263,7 @@ public interface AnalyticsController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Query aggregated asset views data
      *
@@ -280,13 +284,27 @@ public interface AnalyticsController {
         description = "successful operation",
         content = @Content(
             mediaType = "application/json", schema = @Schema(
-                implementation = AnalyticsEndpointTypes.ListOfImmutablePairs.class
+                implementation = AnalyticsEndpointTypes.ListOfAssetViewCounters.class
             )
         )
     )
     @PostMapping(value = "/popular-assets", consumes = { "application/json" })
     @Validated
     RestResponse<?> executeFindPopularAssetViewsAndSearches(
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "The number of items to return"
+        )
+        @Min(1)
+        @Max(10)
+        @RequestParam(required = false, defaultValue = "5") int limit,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "If `true`, asset details will be returned"
+        )
+        @RequestParam(required = false, defaultValue = "false") boolean includeAssets,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Query to execute",
             content = @Content(
@@ -303,7 +321,7 @@ public interface AnalyticsController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Query asset views data
      *
@@ -331,24 +349,24 @@ public interface AnalyticsController {
     @PostMapping(value = "/popular-terms", consumes = { "application/json" })
     @Validated
     RestResponse<?> executeFindPopularTerms(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Query to execute",
-                    content = @Content(
-                        mediaType = "application/json",
-                        schema = @Schema(implementation = BaseQuery.class)
-                    ),
-                    required = true
-                )
-                @Valid
-                @RequestBody
-                BaseQuery query,
-                @Parameter(
-                    hidden = true
-                )
-                BindingResult validationResult
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Query to execute",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = BaseQuery.class)
+            ),
+            required = true
+        )
+        @Valid
+        @RequestBody
+        BaseQuery query,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
     );
 
-    
+
     /**
      * Query account data
      *
@@ -392,7 +410,7 @@ public interface AnalyticsController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Query subscribers data
      *
@@ -437,7 +455,7 @@ public interface AnalyticsController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Query Google Analytics data
      *
@@ -482,7 +500,7 @@ public interface AnalyticsController {
         )
         BindingResult validationResult
     );
-    
+
     /**
      * Query earnings per asset type
      *

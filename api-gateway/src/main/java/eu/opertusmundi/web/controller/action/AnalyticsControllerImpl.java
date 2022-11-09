@@ -3,6 +3,7 @@ package eu.opertusmundi.web.controller.action;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.analytics.AssetCountQuery;
 import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
 import eu.opertusmundi.common.model.analytics.AssetTypeEarningsQuery;
+import eu.opertusmundi.common.model.analytics.AssetViewCounterDto;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
 import eu.opertusmundi.common.model.analytics.BaseQuery;
 import eu.opertusmundi.common.model.analytics.CoverageQuery;
@@ -21,17 +23,29 @@ import eu.opertusmundi.common.model.analytics.GoogleAnalyticsQuery;
 import eu.opertusmundi.common.model.analytics.SalesQuery;
 import eu.opertusmundi.common.model.analytics.SubscribersQuery;
 import eu.opertusmundi.common.model.analytics.VendorCountQuery;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
+import eu.opertusmundi.common.service.CatalogueService;
 import eu.opertusmundi.common.service.DataAnalysisService;
 import eu.opertusmundi.common.service.analytics.GoogleAnalyticsService;
 
 @RestController
 public class AnalyticsControllerImpl extends BaseController implements AnalyticsController {
 
-    @Autowired
-    private DataAnalysisService analysisService;
 
-    @Autowired(required = false)
-    private GoogleAnalyticsService googleAnalyticsService;
+    private final DataAnalysisService    analysisService;
+    private final CatalogueService       catalogueService;
+    private final GoogleAnalyticsService googleAnalyticsService;
+
+    @Autowired
+    public AnalyticsControllerImpl(
+        DataAnalysisService analysisService,
+        CatalogueService catalogueService,
+        Optional<GoogleAnalyticsService> googleAnalyticsService
+    ) {
+        this.analysisService        = analysisService;
+        this.catalogueService       = catalogueService;
+        this.googleAnalyticsService = googleAnalyticsService.orElse(null);
+    }
 
     @Override
     public RestResponse<?> executeSalesQuery(SalesQuery query, BindingResult validationResult) {
@@ -105,12 +119,34 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
     }
 
     @Override
-    public RestResponse<?> executeFindPopularAssetViewsAndSearches(AssetViewQuery query, BindingResult validationResult) {
+    public RestResponse<?> executeFindPopularAssetViewsAndSearches(
+        int limit, boolean includeAssets, AssetViewQuery query, BindingResult validationResult
+    ) {
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
         }
+        limit = limit < 1 ? 1 : limit > 10 ? 10 : limit;
 
-        final List<ImmutablePair<String, Integer>> result = this.analysisService.executePopularAssetViewsAndSearches(query);
+        final List<AssetViewCounterDto> result = this.analysisService.executePopularAssetViewsAndSearches(query, limit);
+        if (includeAssets) {
+            final String[] pids = result.stream().map(c -> c.getPid()).toArray(String[]::new);
+
+            if (pids.length > 0) {
+                final List<CatalogueItemDetailsDto> assets = catalogueService.findAllById(pids);
+                result.stream().forEach(c -> {
+                    final var asset = assets.stream()
+                        .filter(a -> a.getId().equals(c.getPid()))
+                        .findFirst()
+                        .orElse(null);
+                    if (asset != null) {
+                        asset.setAutomatedMetadata(null);
+                        asset.resetContract();
+                        asset.setPublisher(null);
+                        c.setAsset(asset);
+                    }
+                });
+            }
+        }
 
         return RestResponse.result(result);
     }
@@ -119,8 +155,8 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
     public RestResponse<?> executeFindPopularTerms(BaseQuery query, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
-        }        
-    	
+        }
+
     	final List<ImmutablePair<String, Integer>> result = this.analysisService.executePopularTerms(query);
 
         return RestResponse.result(result);
