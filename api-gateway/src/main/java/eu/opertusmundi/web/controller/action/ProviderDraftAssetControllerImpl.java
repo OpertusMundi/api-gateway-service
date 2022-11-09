@@ -45,6 +45,7 @@ import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
+import eu.opertusmundi.common.model.asset.ExternalUrlFileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.MetadataProperty;
 import eu.opertusmundi.common.model.asset.UserFileResourceCommandDto;
@@ -359,6 +360,30 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         }
 
         this.providerAssetService.addFileResourceFromFileSystem(command);
+
+        final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey, false);
+
+        return RestResponse.result(draft);
+    }
+
+    @Override
+    public RestResponse<?> addResourceFromExternalUrl(
+        UUID draftKey, ExternalUrlFileResourceCommandDto command, BindingResult validationResult
+    ) {
+        final UUID   ownerKey     = this.currentUserKey();
+        final UUID   publisherKey = this.currentUserParentKey();
+
+        command.setDraftKey(draftKey);
+        command.setOwnerKey(ownerKey);
+        command.setPublisherKey(publisherKey);
+
+        this.assetResourceValidator.validate(command, validationResult);
+
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
+        }
+
+        this.providerAssetService.addResource(publisherKey, draftKey, command.toResource());
 
         final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey, false);
 

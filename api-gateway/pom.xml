@@ -21,6 +21,7 @@
 		<frontend.skip>false</frontend.skip>
 		<frontend-maven-plugin.version>1.11.3</frontend-maven-plugin.version>
 		<spring-cloud.version>2021.0.3</spring-cloud.version>
+		<commons-validator.version>1.7</commons-validator.version>
 		<org.locationtech.jts.version>1.18.2</org.locationtech.jts.version>
 		<org.locationtech.jts.spatial4j.version>0.8</org.locationtech.jts.spatial4j.version>
 		<org.camunda.bpm.version>7.17.0</org.camunda.bpm.version>
@@ -256,6 +257,12 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>${commons-validator.version}</version>
 		</dependency>
 
 		<dependency>

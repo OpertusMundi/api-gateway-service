@@ -28,12 +28,13 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.asset.AssetAdditionalResourceCommandDto;
 import eu.opertusmundi.common.model.asset.AssetContractAnnexCommandDto;
 import eu.opertusmundi.common.model.asset.AssetDraftDto;
 import eu.opertusmundi.common.model.asset.AssetDraftReviewCommandDto;
-import eu.opertusmundi.common.model.asset.AssetAdditionalResourceCommandDto;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftSortField;
 import eu.opertusmundi.common.model.asset.EnumProviderAssetDraftStatus;
+import eu.opertusmundi.common.model.asset.ExternalUrlFileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.UserFileResourceCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueClientCollectionResponse;
@@ -484,6 +485,47 @@ public interface ProviderDraftAssetController {
         )
         @PathVariable UUID draftKey,
         @Valid @RequestBody UserFileResourceCommandDto command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    );
+
+    /**
+     * Add a resource file from a URL
+     *
+     * @param draftKey Draft unique key
+     * @param command The selected URL to add as a resource
+     * @param validationResult
+     */
+    @Operation(
+        operationId = "draft-asset-08c",
+        summary     = "Add external link",
+        description = "Adds an external link to the draft. When the draft is submitted, the target of the link "
+                    + "will be downloaded and added as a file resource to the draft. The file name must be unique. "
+                    + "If another file resource already exists with the same name, an error will be returned when "
+                    + "the draft is submitted. If an external URL resource already exists with the same URL, it will "
+                    + "be overwritten. On success, an updated draft is returned with the new resource registration. "
+                    + "If the record is locked by another user, the operation will fail. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CatalogueEndpointTypes.DraftItemResponse.class))
+    )
+    @PostMapping(value = "/drafts/{draftKey}/resources/url", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Validated
+    RestResponse<?> addResourceFromExternalUrl(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Draft unique key"
+        )
+        @PathVariable UUID draftKey,
+        @Valid @RequestBody ExternalUrlFileResourceCommandDto command,
         @Parameter(
             hidden = true
         )

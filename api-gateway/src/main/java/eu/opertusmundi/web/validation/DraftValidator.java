@@ -27,6 +27,7 @@ import eu.opertusmundi.common.model.asset.AssetMessageCode;
 import eu.opertusmundi.common.model.asset.BundleAssetResourceDto;
 import eu.opertusmundi.common.model.asset.EnumAssetAdditionalResource;
 import eu.opertusmundi.common.model.asset.EnumResourceType;
+import eu.opertusmundi.common.model.asset.ExternalUrlResourceDto;
 import eu.opertusmundi.common.model.asset.FileResourceDto;
 import eu.opertusmundi.common.model.asset.ResourceDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
@@ -324,6 +325,24 @@ public class DraftValidator implements Validator {
                 e.rejectValue(String.format("resources[%d].fileName", i), EnumValidatorError.FileExtensionNotSupported.name());
             }
         }
+
+        // Resource file names must be unique
+        final var fileNames = c.getResources().stream()
+            .map(r -> {
+                if (r instanceof final FileResourceDto f) {
+                    return f.getFileName();
+                }
+                if (r instanceof final ExternalUrlResourceDto u) {
+                    return u.getFileName();
+                }
+                return null;
+            })
+            .filter(f -> f != null)
+            .collect(Collectors.groupingBy(f -> f, Collectors.counting()));
+
+        fileNames.entrySet().stream().filter(p -> p.getValue() > 1).forEach(p -> {
+            e.reject(EnumValidatorError.FileNameNotUnique.name(), String.format("Resource filename %s is not unique", p.getKey()));
+        });
     }
 
     private void validateAdditionalResources(CatalogueItemCommandDto c,  Errors e) {
