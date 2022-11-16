@@ -35,7 +35,7 @@ public class ProviderTemplateContractValidator implements Validator {
     @Override
     public void validate(Object o, Errors e) {
         final ProviderTemplateContractCommandDto  c        = (ProviderTemplateContractCommandDto) o;
-        final MasterContractHistoryEntity         template = this.masterRepository.findOneByKey(c.getTemplateKey()).orElse(null);
+        final MasterContractHistoryEntity         template = this.masterRepository.findOneByKey(c.getUserKey(), c.getTemplateKey()).orElse(null);
         final ProviderTemplateContractDraftEntity draft    = draftRepository.findOneByKey(c.getUserId(), c.getDraftKey()).orElse(null);
 
         if (draft != null && !draft.getTemplate().getKey().equals(c.getTemplateKey())) {

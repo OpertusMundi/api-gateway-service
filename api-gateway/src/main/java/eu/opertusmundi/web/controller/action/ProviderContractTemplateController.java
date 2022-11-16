@@ -127,7 +127,7 @@ public interface ProviderContractTemplateController {
             required    = true,
             description = "Contract unique key"
         )
-        @PathVariable UUID key
+        @PathVariable("key") UUID contractKey
     );
 
     /**

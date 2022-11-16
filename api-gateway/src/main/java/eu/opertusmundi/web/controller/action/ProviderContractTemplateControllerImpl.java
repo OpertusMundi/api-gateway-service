@@ -36,14 +36,20 @@ import eu.opertusmundi.web.validation.ProviderTemplateContractValidator;
 @RestController
 public class ProviderContractTemplateControllerImpl extends BaseController implements ProviderContractTemplateController {
 
-    @Autowired
-    private ProviderTemplateContractValidator contractValidator;
+    private final ProviderTemplateContractValidator contractValidator;
+    private final MasterTemplateContractService     masterContractService;
+    private final ProviderTemplateContractService   templateContractService;
 
     @Autowired
-    private MasterTemplateContractService   masterContractService;
-
-    @Autowired
-    private ProviderTemplateContractService templateContractService;
+    public ProviderContractTemplateControllerImpl(
+        ProviderTemplateContractValidator contractValidator,
+        MasterTemplateContractService     masterContractService,
+        ProviderTemplateContractService   templateContractService
+    ) {
+        this.contractValidator       = contractValidator;
+        this.masterContractService   = masterContractService;
+        this.templateContractService = templateContractService;
+    }
 
     @Override
     public RestResponse<?> findAllMasterContracts(
@@ -60,7 +66,9 @@ public class ProviderContractTemplateControllerImpl extends BaseController imple
             .status(new HashSet<>(Arrays.asList(EnumContractStatus.ACTIVE)))
             .order(order)
             .orderBy(orderBy)
+            .providerKey(this.currentUserParentKey())
             .build();
+
 
         final PageResultDto<MasterContractDto> result = masterContractService.findAll(query);
 
@@ -70,8 +78,10 @@ public class ProviderContractTemplateControllerImpl extends BaseController imple
     }
 
     @Override
-    public RestResponse<?> findOneMasterContract(UUID key) {
-        final MasterContractDto result = masterContractService.findOneByKey(key).orElse(null);
+    public RestResponse<?> findOneMasterContract(UUID contractKey) {
+        final MasterContractDto result = masterContractService.findOneByKey(
+            this.currentUserParentKey(), contractKey
+        ).orElse(null);
 
         result.removeHelpdeskData();
 
@@ -106,6 +116,7 @@ public class ProviderContractTemplateControllerImpl extends BaseController imple
     public RestResponse<?> createDraft(ProviderTemplateContractCommandDto command, BindingResult validationResult) {
         try {
             command.setUserId(this.currentUserId());
+            command.setUserKey(this.currentUserParentKey());
 
             this.contractValidator.validate(command, validationResult);
 
@@ -126,6 +137,7 @@ public class ProviderContractTemplateControllerImpl extends BaseController imple
         try {
             command.setDraftKey(key);
             command.setUserId(this.currentUserId());
+            command.setUserKey(this.currentUserParentKey());
 
             this.contractValidator.validate(command, validationResult);
 
