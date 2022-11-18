@@ -61,32 +61,45 @@ public class DraftValidator implements Validator {
         ;
     }
 
-    @Autowired
-    private DataProviderManager dataProviderManager;
+    private static List<EnumAssetType> BUNDLE_ALLOWED_ASSET_TYPES = List.of(
+        EnumAssetType.NETCDF,
+        EnumAssetType.RASTER,
+        EnumAssetType.TABULAR,
+        EnumAssetType.VECTOR
+    );
+
+    private final AssetAdditionalResourceRepository  assetAdditionalResourceRepository;
+    private final AssetContractAnnexRepository       assetContractAnnexRepository;
+    private final AssetFileTypeRepository            assetFileTypeRepository;
+    private final AssetResourceRepository            assetResourceRepository;
+    private final CatalogueService                   catalogueService;
+    private final DataProviderManager                dataProviderManager;
+    private final DraftRepository                    draftRepository;
+    private final ProviderAssetService               providerAssetService;
+    private final ProviderTemplateContractRepository contractRepository;
 
     @Autowired
-    private ProviderTemplateContractRepository contractRepository;
-
-    @Autowired
-    private AssetFileTypeRepository assetFileTypeRepository;
-
-    @Autowired
-    private AssetResourceRepository assetResourceRepository;
-
-    @Autowired
-    private AssetAdditionalResourceRepository assetAdditionalResourceRepository;
-
-    @Autowired
-    private AssetContractAnnexRepository assetContractAnnexRepository;
-
-    @Autowired
-    private DraftRepository draftRepository;
-
-    @Autowired
-    private CatalogueService catalogueService;
-
-    @Autowired
-    private ProviderAssetService providerAssetService;
+    public DraftValidator(
+         AssetAdditionalResourceRepository  assetAdditionalResourceRepository,
+         AssetContractAnnexRepository       assetContractAnnexRepository,
+         AssetFileTypeRepository            assetFileTypeRepository,
+         AssetResourceRepository            assetResourceRepository,
+         CatalogueService                   catalogueService,
+         DataProviderManager                dataProviderManager,
+         DraftRepository                    draftRepository,
+         ProviderAssetService               providerAssetService,
+         ProviderTemplateContractRepository contractRepository
+    ) {
+        this.assetAdditionalResourceRepository = assetAdditionalResourceRepository;
+        this.assetContractAnnexRepository      = assetContractAnnexRepository;
+        this.assetFileTypeRepository           = assetFileTypeRepository;
+        this.assetResourceRepository           = assetResourceRepository;
+        this.catalogueService                  = catalogueService;
+        this.dataProviderManager               = dataProviderManager;
+        this.draftRepository                   = draftRepository;
+        this.providerAssetService              = providerAssetService;
+        this.contractRepository                = contractRepository;
+    }
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -259,6 +272,7 @@ public class DraftValidator implements Validator {
 
         // Check bundle resources
         if (c.getType() == EnumAssetType.BUNDLE) {
+            // Bundles allow only ASSET resources
             for (int i = 0; i < c.getResources().size(); i++) {
                 final ResourceDto r = c.getResources().get(i);
                 if (r.getType() != EnumResourceType.ASSET) {
@@ -270,14 +284,16 @@ public class DraftValidator implements Validator {
                 final List<CatalogueItemDetailsDto> assets = this.catalogueService
                     .findAllById(assetKeys.toArray(new String[assetKeys.size()]));
 
-                if (assets.size() != assetKeys.size()) {
-                    for (int i = 0; i < c.getResources().size(); i++) {
-                        final ResourceDto             r  = c.getResources().get(i);
-                        final BundleAssetResourceDto  br = (BundleAssetResourceDto) r;
-                        final CatalogueItemDetailsDto ca = assets.stream().filter(a -> a.getId().equals(br.getId())).findFirst().orElse(null);
-                        if (ca == null) {
-                            e.rejectValue(String.format("resources[%d].id", i), EnumValidatorError.ReferenceNotFound.name());
-                        }
+                for (int i = 0; i < c.getResources().size(); i++) {
+                    final ResourceDto             r  = c.getResources().get(i);
+                    final BundleAssetResourceDto  br = (BundleAssetResourceDto) r;
+                    final CatalogueItemDetailsDto ca = assets.stream().filter(a -> a.getId().equals(br.getId())).findFirst().orElse(null);
+                    if (ca == null) {
+                        e.rejectValue(String.format("resources[%d].id", i), EnumValidatorError.ReferenceNotFound.name());
+                    } else if (!ca.getPublisherId().equals(c.getPublisherKey())) {
+                        e.rejectValue(String.format("resources[%d].id", i), EnumValidatorError.NotAuthorized.name());
+                    } else if(!BUNDLE_ALLOWED_ASSET_TYPES.contains(ca.getType())) {
+                        e.rejectValue(String.format("resources[%d].id", i), EnumValidatorError.OptionNotSupported.name());
                     }
                 }
             }
