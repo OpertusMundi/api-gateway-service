@@ -306,7 +306,36 @@ public interface CatalogueController {
         )
     )
     @GetMapping(value = "/catalogue/{id}/related")
-    RestResponse<?> findAllRelated(
+    RestResponse<?> findAllRelatedAssets(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Item unique id"
+        )
+        @PathVariable String id
+    );
+
+    /**
+     * Find bundles that contain an asset
+     *
+     * @param id The asset unique id
+     * @return An instance of {@link CatalogueEndpointTypes.ItemCollectionResponse} class
+     */
+    @Operation(
+        operationId = "catalogue-07",
+        summary     = "Find related bundles",
+        description = "Find related collection of assets (bundles) that contain the specified asset identifier."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CatalogueEndpointTypes.ItemCollectionResponse.class)
+        )
+    )
+    @GetMapping(value = "/catalogue/{id}/bundles")
+    RestResponse<?> findAllRelatedBundles(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,

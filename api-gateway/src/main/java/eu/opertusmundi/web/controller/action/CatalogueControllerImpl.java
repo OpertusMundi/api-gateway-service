@@ -51,9 +51,20 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
     }
 
     @Override
-    public RestResponse<?> findAllRelated(String id) {
+    public RestResponse<?> findAllRelatedAssets(String id) {
         try {
-            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllRelated(this.createContext(), id);
+            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllRelatedAssets(this.createContext(), id);
+
+            return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
+        } catch (final CatalogueServiceException ex) {
+            return RestResponse.failure();
+        }
+    }
+
+    @Override
+    public RestResponse<?> findAllRelatedBundles(String id) {
+        try {
+            final CatalogueResult<CatalogueItemDto> result = catalogueService.findAllRelatedBundles(this.createContext(), id);
 
             return CatalogueClientCollectionResponse.of(result.getResult(), result.getPublishers());
         } catch (final CatalogueServiceException ex) {
