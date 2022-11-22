@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.common.domain.AccountEntity;
@@ -14,6 +15,7 @@ import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.message.ContactFormCommandDto;
 import eu.opertusmundi.common.model.message.EnumMessageView;
 import eu.opertusmundi.common.model.message.EnumNotificationSortField;
 import eu.opertusmundi.common.model.message.client.ClientContactDto;
@@ -24,16 +26,36 @@ import eu.opertusmundi.common.model.message.client.ClientMessageThreadDto;
 import eu.opertusmundi.common.model.message.client.ClientMessageThreadResponse;
 import eu.opertusmundi.common.model.message.client.ClientNotificationDto;
 import eu.opertusmundi.common.repository.AccountRepository;
+import eu.opertusmundi.common.service.messaging.ContactFormService;
 import eu.opertusmundi.common.service.messaging.MessageService;
 
 @RestController
 public class MessageControllerImpl extends BaseController implements MessageController {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository  accountRepository;
+    private final ContactFormService contactFormService;
+    private final MessageService     messageService;
 
     @Autowired
-    private MessageService messageService;
+    public MessageControllerImpl(
+        AccountRepository     accountRepository,
+        ContactFormService contactFormService,
+        MessageService        messageService
+    ) {
+        this.accountRepository  = accountRepository;
+        this.contactFormService = contactFormService;
+        this.messageService     = messageService;
+    }
+
+    @Override
+    public RestResponse<?> submitContactForm(ContactFormCommandDto command, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+        final var result = this.contactFormService.create(command);
+
+        return RestResponse.result(result);
+    }
 
     @Override
     public RestResponse<?> findMessages(Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageView view) {
