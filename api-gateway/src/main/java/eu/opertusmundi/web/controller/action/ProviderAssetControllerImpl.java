@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
@@ -51,7 +52,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
 
     @Override
     public RestResponse<?> findAllAssets(
-        String query, EnumAssetType type, int pageIndex, int pageSize, EnumCatalogueSortField orderBy, EnumSortingOrder order
+        String query, Set<EnumAssetType> type, int pageIndex, int pageSize, EnumCatalogueSortField orderBy, EnumSortingOrder order
     ) {
         try {
             final UUID                 publisherKey = this.currentUserKey();
@@ -59,6 +60,7 @@ public class ProviderAssetControllerImpl extends BaseController implements Provi
                 .page(pageIndex)
                 .size(pageSize)
                 .publisherKey(publisherKey.toString())
+                .type(type)
                 .order(order)
                 .orderBy(orderBy)
                 .query(query)

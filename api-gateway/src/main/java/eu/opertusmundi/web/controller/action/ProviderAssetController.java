@@ -1,6 +1,7 @@
 package eu.opertusmundi.web.controller.action;
 
 import java.io.IOException;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -76,7 +77,7 @@ public interface ProviderAssetController {
             required = true,
             description = "Asset type"
         )
-        @RequestParam(name = "type", required = false) EnumAssetType type,
+        @RequestParam(name = "type", required = false) Set<EnumAssetType> type,
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,
