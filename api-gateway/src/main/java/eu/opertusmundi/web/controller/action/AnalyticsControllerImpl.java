@@ -14,7 +14,6 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.analytics.AssetCountQuery;
 import eu.opertusmundi.common.model.analytics.AssetTotalValueQuery;
 import eu.opertusmundi.common.model.analytics.AssetTypeEarningsQuery;
-import eu.opertusmundi.common.model.analytics.AssetViewCounterDto;
 import eu.opertusmundi.common.model.analytics.AssetViewQuery;
 import eu.opertusmundi.common.model.analytics.BaseQuery;
 import eu.opertusmundi.common.model.analytics.CoverageQuery;
@@ -127,24 +126,27 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
         }
         limit = limit < 1 ? 1 : limit > 10 ? 10 : limit;
 
-        final List<AssetViewCounterDto> result = this.analysisService.executePopularAssetViewsAndSearches(query, limit);
+        var result = this.analysisService.executePopularAssetViewsAndSearches(query, limit);
         if (includeAssets) {
             final String[] pids = result.stream().map(c -> c.getPid()).toArray(String[]::new);
 
             if (pids.length > 0) {
-                final List<CatalogueItemDetailsDto> assets = catalogueService.findAllById(pids);
-                result.stream().forEach(c -> {
-                    final var asset = assets.stream()
-                        .filter(a -> a.getId().equals(c.getPid()))
-                        .findFirst()
-                        .orElse(null);
-                    if (asset != null) {
-                        asset.setAutomatedMetadata(null);
-                        asset.resetContract();
-                        asset.setPublisher(null);
-                        c.setAsset(asset);
-                    }
-                });
+                final List<CatalogueItemDetailsDto> assets = catalogueService.findAllById(pids, false /* Ignore missing assets */);
+                result = result.stream()
+                    .peek(c -> {
+                        final var asset = assets.stream()
+                            .filter(a -> a.getId().equals(c.getPid()))
+                            .findFirst()
+                            .orElse(null);
+                        if (asset != null) {
+                            asset.setAutomatedMetadata(null);
+                            asset.resetContract();
+                            asset.setPublisher(null);
+                            c.setAsset(asset);
+                        }
+                    })
+                    .filter(c-> c.getAsset()!=null)
+                    .toList();
             }
         }
 
