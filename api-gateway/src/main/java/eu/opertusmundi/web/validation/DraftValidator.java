@@ -255,7 +255,11 @@ public class DraftValidator implements Validator {
             .collect(Collectors.toList());
 
         // For submitted drafts, at least one resource must exist
-        if (mode == EnumValidationMode.SUBMIT && c.getResources().isEmpty() && resourceRequired) {
+        if (mode == EnumValidationMode.SUBMIT &&
+            c.getResources().isEmpty() &&
+            resourceRequired &&
+            c.getDeliveryMethod() != EnumDeliveryMethod.PHYSICAL_PROVIDER
+        ) {
             e.rejectValue("resources", EnumValidatorError.NotEmpty.name());
         }
 
