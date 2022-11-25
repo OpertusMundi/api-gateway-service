@@ -444,6 +444,14 @@ public class DraftValidator implements Validator {
             e.rejectValue("deliveryMethod", EnumValidatorError.NotNull.name());
         }
 
+        if (method == EnumDeliveryMethod.PHYSICAL_PROVIDER) {
+            if (c.getDeliveryMethodOptions() == null) {
+                e.rejectValue("deliveryMethodOptions", EnumValidatorError.NotNull.name());
+            }
+        } else if (c.getDeliveryMethodOptions() != null) {
+            e.rejectValue("deliveryMethodOptions", EnumValidatorError.OptionNotSupported.name());
+        }
+
         if (method == EnumDeliveryMethod.NONE || allowedMethods.isEmpty()) {
             return;
         }
