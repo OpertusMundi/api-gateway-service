@@ -195,7 +195,16 @@ runtime_profile=$(hostname | md5sum | head -c10)
         echo "opertusmundi.feign.keycloak.realm = ${keycloak_realm}"
         echo "opertusmundi.feign.keycloak.admin.refresh-token.refresh-token = ${keycloak_refresh_token}"
         echo "opertusmundi.account-client-service.keycloak.realm = ${keycloak_services_realm}"
+        if [[ -n "${KEYCLOAK_PUBLIC_URL}" ]]; then 
+            keycloak_public_url=$(echo ${KEYCLOAK_PUBLIC_URL} | _validate_http_url "KEYCLOAK_PUBLIC_URL")
+        else
+            keycloak_public_url=${keycloak_url}
+        fi
+        echo "spring.security.oauth2.resourceserver.jwt.issuer-uri = ${keycloak_public_url%/}/realms/${keycloak_realm}"
     fi 
+
+    cors_allowed_origins=${CORS_ALLOWED_ORIGINS}
+    echo "opertusmundi.web.cors.allowed-origins = ${cors_allowed_origins}"
 
 } > ./config/application-${runtime_profile}.properties
 

@@ -69,6 +69,12 @@ ENV PUBLIC_URL="" \
     DATABASE_USERNAME="spring" \
     DATABASE_PASSWORD_FILE="/secrets/database-password" \
     JWT_SECRET_FILE="/secrets/jwt-signing-key" \
+    KEYCLOAK_PUBLIC_URL="" \
+    KEYCLOAK_URL="" \
+    KEYCLOAK_REALM="Topio-Market" \
+    KEYCLOAK_SERVICES_REALM="Topio-Market-Services" \
+    KEYCLOAK_REFRESH_TOKEN_FILE="" \
+    CORS_ALLOWED_ORIGINS="http://localhost:8080" \
     OIDC_CLIENT_ID="api-gateway" \
     OIDC_CLIENT_SECRET_FILE="/secrets/openid-client-secret" \
     OIDC_SCOPE="openid,email,profile,roles" \
@@ -111,11 +117,8 @@ ENV PUBLIC_URL="" \
     SENTINELHUB_CLIENT_SECRET_FILE="/secrets/sentinelhub-client-secret" \
     CONTRACT_SIGNPDF_KEYSTORE="/secrets/signatory-keystore" \
     CONTRACT_SIGNPDF_KEYSTORE_PASSWORD_FILE="/secrets/signatory-keystore-password" \
-    CONTRACT_SIGNPDF_KEY_ALIAS="opertusmundi.eu" \
-    KEYCLOAK_URL="" \
-    KEYCLOAK_REALM="Topio-Market" \
-    KEYCLOAK_SERVICES_REALM="Topio-Market-Services" \
-    KEYCLOAK_REFRESH_TOKEN_FILE=""
+    CONTRACT_SIGNPDF_KEY_ALIAS="opertusmundi.eu"
+    
 
 ENV GIT_URL="${git_url}" \
     GIT_COMMIT="${git_commit}" \
