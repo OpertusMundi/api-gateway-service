@@ -1,4 +1,4 @@
-package eu.opertusmundi.web.config;
+package eu.opertusmundi.web.config.security;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -18,12 +18,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,9 +52,7 @@ import eu.opertusmundi.web.model.OAuth2ProviderNotSupportedException;
 import eu.opertusmundi.web.security.CustomUserDetailsService;
 
 @Configuration
-@EnableGlobalMethodSecurity(securedEnabled = true)
-@EnableWebSecurity
-public class SecurityConfiguration {
+public class MvcSecurityConfiguration {
 
     private static final Logger oauth2Logger = LoggerFactory.getLogger("OAUTH");
 
@@ -89,7 +86,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Order(2)
+    public SecurityFilterChain mvcFilterChain(HttpSecurity http) throws Exception {
         final AuthenticationManagerBuilder authManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
         authManagerBuilder.eraseCredentials(true);
@@ -98,17 +96,14 @@ public class SecurityConfiguration {
         http.authenticationManager(authenticationManager);
 
         // Configure request authentication
-        http.authorizeRequests()
-            // Restrict access to actuator endpoints (you may further restrict details via configuration)
-            .requestMatchers(EndpointRequest.toAnyEndpoint()).hasIpAddress("127.0.0.1/8")
-            // Public
-            .antMatchers(
+        http
+            .antMatcher("/**")
+            .authorizeRequests()
+                // Restrict access to actuator endpoints (you may further restrict details via configuration)
+                .requestMatchers(EndpointRequest.toAnyEndpoint()).hasIpAddress("127.0.0.1/8")
                 // Permit all endpoints. Actions are secured using
                 // annotations
-                "/**"
-             ).permitAll()
-            // Secure any other path
-            .anyRequest().authenticated();
+                .anyRequest().permitAll();
 
         http.csrf().requireCsrfProtectionMatcher((HttpServletRequest req) -> {
             // Include all state-changing methods

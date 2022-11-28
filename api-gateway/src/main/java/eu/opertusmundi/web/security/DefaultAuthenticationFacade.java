@@ -37,7 +37,13 @@ public class DefaultAuthenticationFacade implements AuthenticationFacade {
         if (authentication == null) {
             return false;
         }
-        final User details = (User) authentication.getPrincipal();
+        User details;
+
+        if (authentication instanceof final CustomJwtAuthenticationToken jwt) {
+            details = jwt.getPrincipal();
+        } else {
+            details = (User) authentication.getPrincipal();
+        }
 
         return details.getAccount().getActivationStatus() == EnumActivationStatus.COMPLETED;
     }
