@@ -1,5 +1,9 @@
 package eu.opertusmundi.web.config.security;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import com.google.common.collect.ImmutableList;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import eu.opertusmundi.web.logging.filter.MappedDiagnosticContextFilter;
 import eu.opertusmundi.web.security.CustomJwtAuthenticationConverter;
@@ -51,9 +52,9 @@ public class ResourceServerSecurityConfiguration {
         if (!StringUtils.isBlank(allowedOrigins)) {
             http.cors(cors -> {
                 final CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(ImmutableList.copyOf(allowedOrigins.split(",")));
-                configuration.setAllowedMethods(ImmutableList.of("GET"));
-                configuration.setAllowedHeaders(ImmutableList.of(
+                configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+                configuration.setAllowedMethods(List.of("GET"));
+                configuration.setAllowedHeaders(List.of(
                     "authorization",
                     "cache-control",
                     "content-type"
