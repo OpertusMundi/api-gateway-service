@@ -75,6 +75,15 @@ public class OpenApiConfiguration {
                         .name(this.sessionCookieName)
                         .description("Cookie Authentication")
                 )
+                .addSecuritySchemes(
+                    "jwt",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .in(In.HEADER)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .description("JWT token authentication")
+                )
             );
 
         api.getInfo().addExtension(
@@ -146,7 +155,11 @@ public class OpenApiConfiguration {
             new TagGroup("Misc", Arrays.asList(
                 EndpointTags.Rating,
                 EndpointTags.SpatialData
-            ))
+            )),
+            new TagGroup("API", Arrays.asList(
+                EndpointTags.API_Profile,
+                EndpointTags.API_FileSystem
+            )),
         }));
 
         if(this.sentinelHubIntegration) {
