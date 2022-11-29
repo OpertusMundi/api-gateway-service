@@ -259,7 +259,8 @@ public class DraftValidator implements Validator {
         if (mode == EnumValidationMode.SUBMIT &&
             c.getResources().isEmpty() &&
             resourceRequired &&
-            c.getDeliveryMethod() != EnumDeliveryMethod.PHYSICAL_PROVIDER
+            c.getDeliveryMethod() != EnumDeliveryMethod.PHYSICAL_PROVIDER &&
+            c.getDeliveryMethod() != EnumDeliveryMethod.DIGITAL_PROVIDER
         ) {
             e.rejectValue("resources", EnumValidatorError.NotEmpty.name());
         }
