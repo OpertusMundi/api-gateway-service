@@ -30,6 +30,7 @@ import eu.opertusmundi.common.model.asset.EnumResourceType;
 import eu.opertusmundi.common.model.asset.ExternalUrlResourceDto;
 import eu.opertusmundi.common.model.asset.FileResourceDto;
 import eu.opertusmundi.common.model.asset.ResourceDto;
+import eu.opertusmundi.common.model.catalogue.DeliveryMethodOptions;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
@@ -438,18 +439,43 @@ public class DraftValidator implements Validator {
 
     private void validateDeliveryMethods(CatalogueItemCommandDto c, Errors e, EnumValidationMode mode) {
         final EnumDeliveryMethod       method         = Optional.ofNullable(c.getDeliveryMethod()).orElse(EnumDeliveryMethod.NONE);
+        final DeliveryMethodOptions    options        = c.getDeliveryMethodOptions();
         final List<EnumDeliveryMethod> allowedMethods = c.getType().getAllowedDeliveryMethods();
 
         if (method == EnumDeliveryMethod.NONE && mode == EnumValidationMode.SUBMIT) {
             e.rejectValue("deliveryMethod", EnumValidatorError.NotNull.name());
         }
 
-        if (method == EnumDeliveryMethod.PHYSICAL_PROVIDER) {
-            if (c.getDeliveryMethodOptions() == null) {
-                e.rejectValue("deliveryMethodOptions", EnumValidatorError.NotNull.name());
-            }
-        } else if (c.getDeliveryMethodOptions() != null) {
-            e.rejectValue("deliveryMethodOptions", EnumValidatorError.OptionNotSupported.name());
+        switch (method) {
+            case PHYSICAL_PROVIDER :
+                if (options == null) {
+                    e.rejectValue("deliveryMethodOptions", EnumValidatorError.NotNull.name());
+                } else {
+                    if (StringUtils.isEmpty(options.getMediaType())) {
+                        e.rejectValue("deliveryMethodOptions.mediaType", EnumValidatorError.NotEmpty.name());
+                    }
+                    if (options.getNumberOfItems() == null) {
+                        e.rejectValue("deliveryMethodOptions.numberOfItems", EnumValidatorError.NotNull.name());
+                    } else if (options.getNumberOfItems() < 1) {
+                        e.rejectValue("deliveryMethodOptions.numberOfItems", EnumValidatorError.Min.name());
+                    }
+                }
+                break;
+
+            case DIGITAL_PLATFORM :
+            case DIGITAL_PROVIDER :
+                if (options != null) {
+                    if (!StringUtils.isEmpty(options.getMediaType())) {
+                        e.rejectValue("deliveryMethodOptions.mediaType", EnumValidatorError.OperationNotSupported.name());
+                    }
+                    if (options.getNumberOfItems() != null) {
+                        e.rejectValue("deliveryMethodOptions.numberOfItems", EnumValidatorError.OperationNotSupported.name());
+                    }
+                }
+                break;
+
+            case NONE :
+                break;
         }
 
         if (method == EnumDeliveryMethod.NONE || allowedMethods.isEmpty()) {
