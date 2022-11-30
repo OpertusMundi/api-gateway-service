@@ -1,6 +1,5 @@
 package eu.opertusmundi.web.controller.action;
 
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -20,6 +19,7 @@ import eu.opertusmundi.common.model.jupyter.server.ServerDto;
 import eu.opertusmundi.common.model.jupyter.server.UserDto;
 import eu.opertusmundi.common.model.jupyter.server.UserServerCommandDto;
 import eu.opertusmundi.web.config.JupyterHubConfiguration;
+import eu.opertusmundi.web.utils.UrlUtils;
 import feign.FeignException;
 
 @RestController
@@ -87,12 +87,7 @@ public class ConsumerNotebookControllerImpl extends BaseController implements Co
             final ServerDto server = user.getServerForDefaultName().orElse(null);
 
             if (server != null) {
-                final JupyterUserStatusDto result = JupyterUserStatusDto.builder()
-                    .ready(server.isReady())
-                    .path(Paths.get(this.jupyterConfiguration.getUrl().toString(), server.getUrlPath()).toString())
-                    .profile(user.getServerForDefaultName().map(ServerDto::getProfileName).get())
-                    .build();
-
+                final JupyterUserStatusDto result = this.getServerStatus(user, server);
                 return RestResponse.result(result);
             }
 
@@ -114,12 +109,7 @@ public class ConsumerNotebookControllerImpl extends BaseController implements Co
             final ServerDto server = user.getServerForDefaultName().orElse(null);
 
             if (server != null) {
-                final JupyterUserStatusDto result = JupyterUserStatusDto.builder()
-                    .ready(server.isReady())
-                    .path(Paths.get(this.jupyterConfiguration.getUrl().toString(), server.getUrlPath()).toString())
-                    .profile(user.getServerForDefaultName().map(ServerDto::getProfileName).get())
-                    .build();
-
+                final JupyterUserStatusDto result = this.getServerStatus(user, server);
                 return RestResponse.result(result);
             }
 
@@ -154,4 +144,17 @@ public class ConsumerNotebookControllerImpl extends BaseController implements Co
         }
     }
 
+    private JupyterUserStatusDto getServerStatus(UserDto user, ServerDto server) {
+        final var baseUrl    = this.jupyterConfiguration.getUrl().toString();
+        final var serverPath = server.getUrlPath();
+        final var serverUrl  = UrlUtils.join(baseUrl, serverPath);
+
+        final JupyterUserStatusDto result = JupyterUserStatusDto.builder()
+            .ready(server.isReady())
+            .path(serverUrl)
+            .profile(user.getServerForDefaultName().map(ServerDto::getProfileName).get())
+            .build();
+
+        return result;
+    }
 }
