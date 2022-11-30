@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,7 @@ import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.account.ExternalIdpAccountCommand;
 import eu.opertusmundi.web.logging.filter.MappedDiagnosticContextFilter;
 import eu.opertusmundi.web.model.OAuth2AccountExistsException;
+import eu.opertusmundi.web.model.OAuth2InvalidEmailException;
 import eu.opertusmundi.web.model.OAuth2ProviderNotSupportedException;
 import eu.opertusmundi.web.security.CustomUserDetailsService;
 
@@ -151,6 +153,8 @@ public class MvcSecurityConfiguration {
                     oauth2Logger.error("OAuth2 request failed", exception);
                     if (exception instanceof final OAuth2AccountExistsException e) {
                         response.sendRedirect("/signin?error=3");
+                    } else if (exception instanceof final OAuth2InvalidEmailException e) {
+                        response.sendRedirect("/signin?error=4");
                     } else {
                         response.sendRedirect("/signin?error=2");
                     }
@@ -190,8 +194,13 @@ public class MvcSecurityConfiguration {
                 throw new OAuth2AuthenticationException("Provider is not supported");
             }
 
-            final OAuth2User                oauthUser   = delegate.loadUser(userRequest);
-            final String                    email       = (String) oauthUser.getAttributes().get("email");
+            final OAuth2User oauthUser = delegate.loadUser(userRequest);
+            final String     email     = (String) oauthUser.getAttributes().get("email");
+
+            if (StringUtils.isBlank(email)) {
+                throw new OAuth2InvalidEmailException("Cannot create account. An email is required");
+            }
+
             final ExternalIdpAccountCommand command     = this.createCommand(provider, oauthUser.getAttributes());
             final UserDetails               userDetails = userDetailsService.loadUserByUsername(email, provider, command);
 
