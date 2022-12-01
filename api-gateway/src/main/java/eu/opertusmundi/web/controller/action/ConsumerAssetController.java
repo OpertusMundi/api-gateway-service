@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.account.EnumSubscriptionStatus;
 import eu.opertusmundi.common.model.asset.EnumConsumerAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumConsumerSubSortField;
 import eu.opertusmundi.common.model.catalogue.client.EnumAssetType;
@@ -134,6 +135,12 @@ public interface ConsumerAssetController {
             required = false,
             description = "Service type"
         )
+        @RequestParam(name = "status", required = false) EnumSubscriptionStatus status,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Service type"
+        )
         @RequestParam(name = "type", required = false) EnumSpatialDataServiceType type,
         @Parameter(
             in = ParameterIn.QUERY,
@@ -202,12 +209,13 @@ public interface ConsumerAssetController {
         description = "Cancel an active subscription registered to the user's account. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
-        responseCode = "204",
-        description = "successful operation"
+        responseCode = "200",
+        description  = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))
     )
     @DeleteMapping(value = "/consumer/subscriptions/{key}")
     @Secured({"ROLE_CONSUMER"})
-    ResponseEntity<Void> cancelSubscription(
+    BaseResponse cancelSubscription(
         @Parameter(
             in = ParameterIn.PATH,
             description = "Subscription key"

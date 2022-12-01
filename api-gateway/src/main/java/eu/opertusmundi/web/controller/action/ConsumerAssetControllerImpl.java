@@ -26,6 +26,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.account.AccountAssetDto;
 import eu.opertusmundi.common.model.account.AccountSubscriptionDto;
+import eu.opertusmundi.common.model.account.EnumSubscriptionStatus;
 import eu.opertusmundi.common.model.asset.EnumConsumerAssetSortField;
 import eu.opertusmundi.common.model.asset.EnumConsumerSubSortField;
 import eu.opertusmundi.common.model.asset.FileResourceDto;
@@ -61,13 +62,14 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
 
     @Override
     public RestResponse<?> findAllSubscriptions(
-        EnumSpatialDataServiceType type, int pageIndex, int pageSize, EnumConsumerSubSortField orderBy, EnumSortingOrder order
+            EnumSubscriptionStatus status, EnumSpatialDataServiceType type,
+            int pageIndex, int pageSize, EnumConsumerSubSortField orderBy, EnumSortingOrder order
     ) {
         try {
             final UUID userKey = this.currentUserKey();
 
             final PageResultDto<AccountSubscriptionDto> result = this.consumerAssetService.findAllSubscriptions(
-                userKey, type, pageIndex, pageSize, orderBy, order
+                userKey, status, type, pageIndex, pageSize, orderBy, order
             );
 
             return RestResponse.result(result);
@@ -93,12 +95,12 @@ public class ConsumerAssetControllerImpl extends BaseController implements Consu
     }
 
     @Override
-    public ResponseEntity<Void> cancelSubscription(UUID key) {
+    public BaseResponse cancelSubscription(UUID key) {
         final UUID userKey = this.currentUserKey();
 
         this.consumerAssetService.cancelSubscription(userKey, key);
 
-        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        return RestResponse.success();
     }
 
     @Override
