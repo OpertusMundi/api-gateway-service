@@ -78,6 +78,8 @@ public class HomeController {
 
             if (response.getMessages().isEmpty()) {
                 return "redirect:/account/verify-email/success";
+            } else {
+                logger.warn(String.format("Failed to verify token [token=%s, messages=%s]", token, response.getMessages()));
             }
         } catch (final Exception ex) {
             logger.error("Email address verification has failed [token={}, message={}]", token, ex.getMessage());
