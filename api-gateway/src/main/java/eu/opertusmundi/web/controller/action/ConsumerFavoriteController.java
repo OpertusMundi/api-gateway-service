@@ -38,7 +38,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "The consumer favorite API"
 )
 @RequestMapping(path = "/action/favorites", produces = "application/json")
-@Secured({ "ROLE_CONSUMER" })
+@Secured({ "ROLE_USER" })
 public interface ConsumerFavoriteController {
 
     /**
@@ -54,7 +54,7 @@ public interface ConsumerFavoriteController {
     @Operation(
         operationId = "consumer-favorites-01",
         summary     = "Find",
-        description = "Browse consumer's favorite assets and providers. Required role: `ROLE_CONSUMER`",
+        description = "Browse consumer's favorite assets and providers. Required role: `ROLE_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -117,7 +117,7 @@ public interface ConsumerFavoriteController {
         operationId = "consumer-favorites-02",
         summary     = "Add",
         description = "Adds a new favorite for an asset or provider. If a record already exists, "
-                    + "the existing record is returned. Required role: `ROLE_CONSUMER`",
+                    + "the existing record is returned. Required role: `ROLE_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
@@ -158,7 +158,7 @@ public interface ConsumerFavoriteController {
     @Operation(
         operationId = "consumer-favorites-03",
         summary     = "Remove",
-        description = "Deletes a favorite for an asset or provider. Required role: `ROLE_CONSUMER`",
+        description = "Deletes a favorite for an asset or provider. Required role: `ROLE_USER`",
         security    = {
             @SecurityRequirement(name = "cookie")
         }
