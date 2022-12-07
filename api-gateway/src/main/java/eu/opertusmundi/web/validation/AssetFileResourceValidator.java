@@ -1,8 +1,14 @@
 package eu.opertusmundi.web.validation;
 
+import java.io.IOException;
+import java.net.URL;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,7 +17,9 @@ import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
+import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumValidatorError;
+import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.asset.ExternalUrlFileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.ResourceCommandDto;
@@ -23,14 +31,26 @@ import eu.opertusmundi.common.repository.DraftRepository;
 @Component
 public class AssetFileResourceValidator implements Validator {
 
+    private final Tika tika;
+
     @Value("${opertusmundi.asset.allow-not-secure-url:false}")
     private boolean allowNotSecureUrl;
 
-    @Autowired
-    private AssetFileTypeRepository assetFileTypeRepository;
+    private final AssetFileTypeRepository assetFileTypeRepository;
+    private final DraftRepository         draftRepository;
+    private final MimeTypes               mimeTypes;
 
     @Autowired
-    private DraftRepository draftRepository;
+    public AssetFileResourceValidator(
+        AssetFileTypeRepository assetFileTypeRepository,
+        DraftRepository         draftRepository
+    ) {
+        this.assetFileTypeRepository = assetFileTypeRepository;
+        this.draftRepository         = draftRepository;
+
+        this.tika      = new Tika();
+        this.mimeTypes = MimeTypes.getDefaultMimeTypes();
+    }
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -64,7 +84,7 @@ public class AssetFileResourceValidator implements Validator {
 
     private void validate(ExternalUrlFileResourceCommandDto c, Errors e) {
         this.validateFormat(c, c.getFileName(), c.getFormat(), e);
-        this.validateUrl(c.getUrl(), e);
+        this.validateUrl(c, e);
     }
 
     private void validateFormat(ResourceCommandDto command, String fileName, String format, Errors e) {
@@ -94,15 +114,29 @@ public class AssetFileResourceValidator implements Validator {
         }
     }
 
-    private void validateUrl(String url, Errors e) {
-
+    private void validateUrl(ExternalUrlFileResourceCommandDto command, Errors e) {
         final var validator = new UrlValidator();
+        final var url       = command.getUrl();
+        final var fileName  = command.getFileName();
+
         if (!validator.isValid(url)) {
             e.rejectValue("url", EnumValidatorError.NotValid.name());
-        } else if(!url.startsWith("https") && !allowNotSecureUrl){
+        } else if (!url.startsWith("https") && !allowNotSecureUrl) {
             e.rejectValue("url", EnumValidatorError.UrlNotSecure.name());
+        } else {
+            try {
+                final var extension = FilenameUtils.getExtension(StringUtils.isBlank(fileName) ? url : fileName);
+                final var mimeType  = tika.detect(new URL(url));
+                if (mimeType != null) {
+                    final var extensions = mimeTypes.forName(mimeType).getExtensions();
+                    if (!extensions.contains("." + extension)) {
+                        e.rejectValue("url", EnumValidatorError.FileExtensionNotSupported.name());
+                    }
+                }
+            } catch (final IOException | MimeTypeException ex) {
+                throw new ServiceException(BasicMessageCode.IOError, "Failed to detect mime type from URL", ex);
+            }
         }
-
     }
 
 }

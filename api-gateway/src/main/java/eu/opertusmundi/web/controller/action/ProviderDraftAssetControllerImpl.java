@@ -376,6 +376,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         command.setDraftKey(draftKey);
         command.setOwnerKey(ownerKey);
         command.setPublisherKey(publisherKey);
+        command.setFileNameFromUrl();
 
         this.assetResourceValidator.validate(command, validationResult);
 
