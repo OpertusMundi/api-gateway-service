@@ -9,6 +9,8 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,9 +19,7 @@ import org.springframework.validation.Validator;
 
 import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
-import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumValidatorError;
-import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.asset.ExternalUrlFileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.FileResourceCommandDto;
 import eu.opertusmundi.common.model.asset.ResourceCommandDto;
@@ -30,6 +30,8 @@ import eu.opertusmundi.common.repository.DraftRepository;
 
 @Component
 public class AssetFileResourceValidator implements Validator {
+
+    private static final Logger logger = LoggerFactory.getLogger(AssetFileResourceValidator.class);
 
     private final Tika tika;
 
@@ -134,7 +136,8 @@ public class AssetFileResourceValidator implements Validator {
                     }
                 }
             } catch (final IOException | MimeTypeException ex) {
-                throw new ServiceException(BasicMessageCode.IOError, "Failed to detect mime type from URL", ex);
+                logger.warn("Failed to detect mime type from URL", ex);
+                e.rejectValue("url", EnumValidatorError.UrlNotAccessible.name());
             }
         }
     }
