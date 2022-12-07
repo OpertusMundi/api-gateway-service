@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.asset.AssetFileTypeDto;
+import eu.opertusmundi.common.model.pricing.BasePricingModelCommandDto;
 import eu.opertusmundi.common.model.pricing.PricingModelSettings;
 import eu.opertusmundi.common.model.spatial.CountryDto;
 import eu.opertusmundi.common.model.spatial.CountryEuropeDto;
@@ -113,6 +114,11 @@ public class ClientConfiguration {
         )
         @Getter
         private final List<String> domains = new ArrayList<>();
+
+        @Schema(description = "The pricing model for private OGC services")
+        @Getter
+        @Setter
+        private BasePricingModelCommandDto privateServicePricingModel;
 
     }
 

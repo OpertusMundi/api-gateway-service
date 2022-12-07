@@ -2,6 +2,7 @@ package eu.opertusmundi.web.controller.action;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.web.model.configuration.ClientConfiguration;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     name        = EndpointTags.Configuration,
     description = "The configuration API"
 )
+@RequestMapping(path = "/action", produces = "application/json")
 public interface ConfigurationController {
 
     /**
