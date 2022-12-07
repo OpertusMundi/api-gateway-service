@@ -140,7 +140,7 @@ public class DraftValidator implements Validator {
         }
         // Cannot change parent id once set
         if (draftKey != null) {
-            final ProviderAssetDraftEntity draft = draftRepository.findOneByKey(draftKey).orElse(null);
+            final var draft = draftRepository.findOneObjectByKey(draftKey);
             if (draft != null && !StringUtils.isBlank(draft.getParentId()) && !StringUtils.equals(draft.getParentId(), c.getParentId())) {
                 e.rejectValue("parentId", EnumValidatorError.NotUpdatable.name());
             }

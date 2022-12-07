@@ -288,12 +288,9 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
             command.setDraftKey(draftKey);
             command.setOwnerKey(ownerKey);
             command.setPublisherKey(publisherKey);
+            command.setReviewerKey(ownerKey);
 
-            if (command.isRejected()) {
-                this.providerAssetService.rejectProvider(command);
-            } else {
-                this.providerAssetService.acceptProvider(command);
-            }
+            this.providerAssetService.reviewProvider(command);
 
             return RestResponse.success();
         } catch (final AssetDraftException ex) {
