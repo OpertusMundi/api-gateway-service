@@ -158,7 +158,8 @@ public class OpenApiConfiguration {
             )),
             new TagGroup("API", Arrays.asList(
                 EndpointTags.API_Profile,
-                EndpointTags.API_FileSystem
+                EndpointTags.API_FileSystem,
+                EndpointTags.API_ConsumerAssets
             )),
         }));
 

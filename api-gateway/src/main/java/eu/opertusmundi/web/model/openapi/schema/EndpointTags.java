@@ -42,7 +42,9 @@ public class EndpointTags {
 
     public final static String SentinelHub = "Sentinel Hub";
 
-    public final static String API_Profile    = "Profile API";
+    public final static String API_ConsumerAssets = "Consumer Assets API";
     public final static String API_FileSystem = "File system API";
+    public final static String API_Profile    = "Profile API";
+
 
 }
