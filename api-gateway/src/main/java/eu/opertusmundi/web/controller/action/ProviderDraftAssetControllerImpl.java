@@ -106,11 +106,12 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         EnumProviderAssetDraftSortField orderBy, EnumSortingOrder order
     ) {
         try {
-            final UUID ownerKey     = this.currentUserKey();
-            final UUID publisherKey = this.currentUserParentKey();
+            final var ownerKey      = this.currentUserKey();
+            final var publisherKey  = this.currentUserParentKey();
+            final var excludeStatus = Set.of(EnumProviderAssetDraftStatus.CANCELLED);
 
             final PageResultDto<AssetDraftDto> result = this.providerAssetService.findAllDraft(
-                ownerKey, publisherKey, status, type, serviceType, pageIndex, pageSize, orderBy, order
+                ownerKey, publisherKey, status, excludeStatus, type, serviceType, pageIndex, pageSize, orderBy, order
             );
 
             return RestResponse.result(result);
@@ -176,7 +177,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     @Override
-    public BaseResponse createApiDraft(boolean lock, DraftApiCommandDto command, BindingResult validationResult) {
+    public BaseResponse createDraftForApi(boolean lock, DraftApiCommandDto command, BindingResult validationResult) {
         try {
             command.setPublisherKey(this.currentUserParentKey());
             command.setOwnerKey(this.currentUserKey());
@@ -209,7 +210,8 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
 
             final AssetDraftDto draft = this.providerAssetService.findOneDraft(ownerKey, publisherKey, draftKey, lock);
 
-            if (draft == null) {
+            // Marketplace users have no access to CANCELLED drafts
+            if (draft == null || draft.getStatus() == EnumProviderAssetDraftStatus.CANCELLED) {
                 return RestResponse.notFound();
             }
 
@@ -757,10 +759,10 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
     }
 
     private String detectMimeType(byte[] data) {
-        final Tika tika = new Tika();
-        final String mimeType  = tika.detect(data);
+        final Tika   tika     = new Tika();
+        final String mimeType = tika.detect(data);
 
-        if(!allowedMimeTypes.contains(mimeType)) {
+        if (!allowedMimeTypes.contains(mimeType)) {
             return null;
         }
 

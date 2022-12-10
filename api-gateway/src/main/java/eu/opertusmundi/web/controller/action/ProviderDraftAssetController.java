@@ -391,7 +391,15 @@ public interface ProviderDraftAssetController {
     @Operation(
         operationId = "draft-asset-07",
         summary     = "Delete draft",
-        description = "Delete a draft item. If the record is locked by another user, the operation will fail. "
+        description = "Delete a draft item. If the record is locked by another user, the operation will fail. Depending on the "
+                    + "draft status the following rules apply: "
+                    + "<ul>"
+                    + "<li> `DRAFT`: The draft is deleted.</li>"
+                    + "<li> `PUBLISHING` or `PUBLISHED`: Ready to publish or published drafts cannot be deleted. An error is returned.</li>"
+                    + "<li> `CANCELLED`: The request is ignored and a success response is returned.</li>"
+                    + "<li> For all other cases, the draft status is set to `CANCELLED` and a signal is sent to the associated workflow "
+                    + "process instance (if one exists) to end its execution.</li>"
+                    + "</ul>"
                     + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
@@ -852,7 +860,7 @@ public interface ProviderDraftAssetController {
     )
     @PostMapping(value = "/drafts/api")
     @Validated
-    BaseResponse createApiDraft(
+    BaseResponse createDraftForApi(
         @Parameter(
             in = ParameterIn.QUERY,
             required = false,
