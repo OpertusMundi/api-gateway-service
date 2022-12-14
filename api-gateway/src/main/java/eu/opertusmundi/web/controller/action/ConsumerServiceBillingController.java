@@ -16,15 +16,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.account.EnumSubscriptionBillingSortField;
-import eu.opertusmundi.common.model.account.EnumSubscriptionBillingStatus;
+import eu.opertusmundi.common.model.account.EnumPayoffStatus;
+import eu.opertusmundi.common.model.account.EnumServiceBillingRecordSortField;
 import eu.opertusmundi.common.model.payment.CardDirectPayInCommandDto;
-import eu.opertusmundi.common.model.payment.CheckoutSubscriptionBillingCommandDto;
+import eu.opertusmundi.common.model.payment.CheckoutServiceBillingCommandDto;
+import eu.opertusmundi.common.model.payment.EnumBillableServiceType;
 import eu.opertusmundi.common.model.payment.PayInDto;
-import eu.opertusmundi.common.model.payment.consumer.ConsumerSubscriptionBillingCollectionDto;
+import eu.opertusmundi.common.model.payment.consumer.ConsumerServiceBillingCollectionDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
 import eu.opertusmundi.web.model.openapi.schema.PaymentEndPoints;
-import eu.opertusmundi.web.model.openapi.schema.SubscriptionBillingEndPoints;
+import eu.opertusmundi.web.model.openapi.schema.ServiceBillingEndPoints;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -34,12 +35,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = EndpointTags.ConsumerSubscriptionBilling,
+    name        = EndpointTags.ConsumerServiceBilling,
     description = "The consumer subscription billing API"
 )
 @RequestMapping(path = "/action/consumer", produces = "application/json")
 @Secured({"ROLE_CONSUMER"})
-public interface ConsumerSubscriptionBillingController {
+public interface ConsumerServiceBillingController {
 
     /**
      * Search subscription billing records
@@ -53,31 +54,37 @@ public interface ConsumerSubscriptionBillingController {
      * @return
      */
     @Operation(
-        operationId = "consumer-subscription-billing-01",
+        operationId = "consumer-service-billing-01",
         summary     = "Find All",
-        description = "Search consumer subscription billing records. Required role: `ROLE_CONSUMER`"
+        description = "Search consumer subscription and user service billing records. Required role: `ROLE_CONSUMER`"
     )
     @ApiResponse(
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = ConsumerSubscriptionBillingCollectionDto.class)
+            mediaType = "application/json", schema = @Schema(implementation = ConsumerServiceBillingCollectionDto.class)
         )
     )
-    @GetMapping(value = "/subscription-billing")
+    @GetMapping(value = "/service-billing")
     RestResponse<?> findAll(
         @Parameter(
             in = ParameterIn.QUERY,
             required = false,
-            description = "Subscription key"
+            description = "Service key"
         )
-        @RequestParam(required = false) UUID subscriptionKey,
+        @RequestParam(required = false) UUID serviceKey,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            required = false,
+            description = "Billable service type"
+        )
+        @RequestParam(required = false) EnumBillableServiceType type,
         @Parameter(
             in = ParameterIn.QUERY,
             required = false,
             description = "Status"
         )
-        @RequestParam(name = "status", required = false) Set<EnumSubscriptionBillingStatus> status,
+        @RequestParam(name = "status", required = false) Set<EnumPayoffStatus> status,
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,
@@ -95,7 +102,7 @@ public interface ConsumerSubscriptionBillingController {
             required = false,
             description = "Order by property"
         )
-        @RequestParam(defaultValue = "CREATED_ON") EnumSubscriptionBillingSortField orderBy,
+        @RequestParam(defaultValue = "CREATED_ON") EnumServiceBillingRecordSortField orderBy,
         @Parameter(
             in = ParameterIn.QUERY,
             required = false,
@@ -111,9 +118,9 @@ public interface ConsumerSubscriptionBillingController {
      * @return
      */
     @Operation(
-        operationId = "consumer-subscription-billing-02",
+        operationId = "consumer-service-billing-02",
         summary     = "Find One",
-        description = "Get subscription billing details. If the operation is successful, an instance of `ConsumerSubscriptionBillingResponse` "
+        description = "Get service billing details. If the operation is successful, an instance of `ConsumerServiceBillingResponse` "
                     + "is returned with subscription billing details; Otherwise an instance of `BaseResponse` "
                     + "is returned with one or more error messages. Required role: `ROLE_CONSUMER`"
     )
@@ -122,10 +129,10 @@ public interface ConsumerSubscriptionBillingController {
         description = "successful operation",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = SubscriptionBillingEndPoints.ConsumerSubscriptionBillingResponse.class)
+            schema = @Schema(implementation = ServiceBillingEndPoints.ConsumerServiceBillingResponse.class)
         )
     )
-    @GetMapping(value = "/subscription-billing/{key}")
+    @GetMapping(value = "/service-billing/{key}")
     RestResponse<?> findOne(
         @Parameter(
             in          = ParameterIn.PATH,
@@ -145,7 +152,7 @@ public interface ConsumerSubscriptionBillingController {
      *         messages
      */
     @Operation(
-        operationId = "consumer-subscription-billing-03",
+        operationId = "consumer-service-billing-03",
         summary     = "Checkout",
         description = "Create a new PayIn for a list of subscription billing record keys. If the operation "
                     + "is successful, an instance of `CheckoutPayInResponse` is returned with the new PayIn; "
@@ -160,7 +167,7 @@ public interface ConsumerSubscriptionBillingController {
             schema = @Schema(oneOf = {BaseResponse.class, PaymentEndPoints.CheckoutPayInResponse.class})
         )
     )
-    @PostMapping(value = "/subscription-billing/checkout")
+    @PostMapping(value = "/service-billing/checkout")
     RestResponse<?> checkout(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description =
@@ -178,7 +185,7 @@ public interface ConsumerSubscriptionBillingController {
         )
         @Valid
         @RequestBody
-        CheckoutSubscriptionBillingCommandDto command
+        CheckoutServiceBillingCommandDto command
     );
 
 }

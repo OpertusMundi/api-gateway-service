@@ -45,7 +45,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     description = "User private service publication API"
 )
 @RequestMapping(path = "/action/user/services", produces = "application/json")
-@Secured({"ROLE_CONSUMER", "ROLE_PROVIDER", "ROLE_VENDOR_PROVIDER"})
+@Secured({"ROLE_CONSUMER", "ROLE_VENDOR_CONSUMER"})
 public interface UserServiceController {
 
     /**

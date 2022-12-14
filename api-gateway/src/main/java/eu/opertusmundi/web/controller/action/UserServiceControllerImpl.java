@@ -63,7 +63,8 @@ public class UserServiceControllerImpl extends BaseController implements UserSer
             final UUID parentKey = this.currentUserParentKey();
 
             final PageResultDto<UserServiceDto> result = this.userServiceService.findAll(
-                ownerKey, parentKey, status, serviceType, pageIndex, pageSize, orderBy, order
+                ownerKey, parentKey, status, Set.of(EnumUserServiceStatus.DELETED), serviceType,
+                pageIndex, pageSize, orderBy, order
             );
 
             return RestResponse.result(result);

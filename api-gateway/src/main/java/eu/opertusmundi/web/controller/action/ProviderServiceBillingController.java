@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.common.model.EnumSortingOrder;
 import eu.opertusmundi.common.model.RestResponse;
-import eu.opertusmundi.common.model.account.EnumSubscriptionBillingSortField;
-import eu.opertusmundi.common.model.account.EnumSubscriptionBillingStatus;
-import eu.opertusmundi.common.model.payment.provider.ProviderSubscriptionBillingCollectionDto;
+import eu.opertusmundi.common.model.account.EnumPayoffStatus;
+import eu.opertusmundi.common.model.account.EnumServiceBillingRecordSortField;
+import eu.opertusmundi.common.model.payment.provider.ProviderServiceBillingCollectionDto;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
-import eu.opertusmundi.web.model.openapi.schema.SubscriptionBillingEndPoints;
+import eu.opertusmundi.web.model.openapi.schema.ServiceBillingEndPoints;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -25,12 +25,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name        = EndpointTags.ProviderSubscriptionBilling,
+    name        = EndpointTags.ProviderServiceBilling,
     description = "The provider subscription billing API"
 )
 @RequestMapping(path = "/action/provider", produces = "application/json")
 @Secured({"ROLE_PROVIDER"})
-public interface ProviderSubscriptionBillingController {
+public interface ProviderServiceBillingController {
 
     /**
      * Search subscription billing records
@@ -52,7 +52,7 @@ public interface ProviderSubscriptionBillingController {
         responseCode = "200",
         description = "successful operation",
         content = @Content(
-            mediaType = "application/json", schema = @Schema(implementation = ProviderSubscriptionBillingCollectionDto.class)
+            mediaType = "application/json", schema = @Schema(implementation = ProviderServiceBillingCollectionDto.class)
         )
     )
     @GetMapping(value = "/subscription-billing")
@@ -68,7 +68,7 @@ public interface ProviderSubscriptionBillingController {
             required = false,
             description = "Status"
         )
-        @RequestParam(name = "status", required = false) Set<EnumSubscriptionBillingStatus> status,
+        @RequestParam(name = "status", required = false) Set<EnumPayoffStatus> status,
         @Parameter(
             in = ParameterIn.QUERY,
             required = true,
@@ -86,7 +86,7 @@ public interface ProviderSubscriptionBillingController {
             required = false,
             description = "Order by property"
         )
-        @RequestParam(defaultValue = "CREATED_ON") EnumSubscriptionBillingSortField orderBy,
+        @RequestParam(defaultValue = "CREATED_ON") EnumServiceBillingRecordSortField orderBy,
         @Parameter(
             in = ParameterIn.QUERY,
             required = false,
@@ -104,7 +104,7 @@ public interface ProviderSubscriptionBillingController {
     @Operation(
         operationId = "provider-subscription-billing-02",
         summary     = "Find One",
-        description = "Get subscription billing details. If the operation is successful, an instance of `ProviderSubscriptionBillingResponse` "
+        description = "Get subscription billing details. If the operation is successful, an instance of `ProviderServiceBillingResponse` "
                     + "is returned with subscription billing details; Otherwise an instance of `BaseResponse` "
                     + "is returned with one or more error messages. Required role: `ROLE_PROVIDER`"
     )
@@ -113,7 +113,7 @@ public interface ProviderSubscriptionBillingController {
         description = "successful operation",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = SubscriptionBillingEndPoints.ProviderSubscriptionBillingResponse.class)
+            schema = @Schema(implementation = ServiceBillingEndPoints.ProviderServiceBillingResponse.class)
         )
     )
     @GetMapping(value = "/subscription-billing/{key}")

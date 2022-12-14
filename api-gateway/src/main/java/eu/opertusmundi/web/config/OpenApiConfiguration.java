@@ -120,7 +120,7 @@ public class OpenApiConfiguration {
                 EndpointTags.PayInConsumer,
                 EndpointTags.ContractConsumer,
                 EndpointTags.ConsumerAssets,
-                EndpointTags.ConsumerSubscriptionBilling
+                EndpointTags.ConsumerServiceBilling
             )),
             new TagGroup("Providers", Arrays.asList(
                 EndpointTags.ProviderRegistration,
@@ -130,7 +130,7 @@ public class OpenApiConfiguration {
                 EndpointTags.ContractProvider,
                 EndpointTags.ContractProviderTemplates,
                 EndpointTags.ProviderAssets,
-                EndpointTags.ProviderSubscriptionBilling,
+                EndpointTags.ProviderServiceBilling,
                 EndpointTags.Analytics
             )),
             new TagGroup("Helpdesk", Arrays.asList(

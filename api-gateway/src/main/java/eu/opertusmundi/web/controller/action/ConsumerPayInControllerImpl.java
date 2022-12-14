@@ -36,7 +36,7 @@ import eu.opertusmundi.common.model.payment.UserPaginationCommand;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerPayInDto;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.OrderFulfillmentService;
-import eu.opertusmundi.common.service.SubscriptionBillingService;
+import eu.opertusmundi.common.service.ServiceBillingService;
 import eu.opertusmundi.common.service.mangopay.PaymentService;
 
 @RestController
@@ -54,7 +54,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
     private OrderFulfillmentService orderFulfillmentService;
 
     @Autowired
-    private SubscriptionBillingService subscriptionBillingService;
+    private ServiceBillingService serviceBillingService;
 
     @Override
     public RestResponse<?> createOrderBankwirePayIn(UUID orderKey, HttpSession session) {
@@ -204,7 +204,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
 
         // Initialize order fulfillment workflow and wait for webhook event
         if (result.getStatus() != EnumTransactionStatus.FAILED) {
-            this.subscriptionBillingService.startPayInWorkflow(result.getKey(), result.getPayIn(), result.getStatus());
+            this.serviceBillingService.startPayInWorkflow(result.getKey(), result.getPayIn(), result.getStatus());
         }
 
         return RestResponse.result(result);
