@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.common.model.file.FileMoveCommand;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -194,4 +196,39 @@ public interface FileSystemController {
         BindingResult validationResult
     ) throws IOException;
 
+    /**
+     * Move/Rename a file
+     *
+     * @param command Instance of {@link FileMoveCommand} with the requested operation details
+     * @return the updated file system
+     */
+    @Operation(
+        operationId = "file-system-06",
+        summary     = "Move/Rename file",
+        description = "Moves an existing file and optionally renames the target file. The following rules apply to a move operation: "
+                    + "<ul>"
+                    + "<li>If the `targetFolder` does not exist it is created</li>"
+                    + "<li>If the file already exists, the `overwrite` property must be set to true, or an error is returned</li>"
+                    + "<li>If `targetFolder` is not set, the source folder is used</li>"
+                    + "<li>If `targetFileName` is not set, the source file name is used (move operation)</li>"
+                    + "</ul>"
+                    + "Required role: `ROLE_USER`, `ROLE_VENDOR_USER`",
+        security    = {
+            @SecurityRequirement(name = "cookie")
+        }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FileSystemEndpointTypes.FileSystemResponse.class))
+    )
+    @PutMapping(value = "/file-system/files")
+    @Validated
+    RestResponse<?> moveFile(
+        @Valid @RequestBody FileMoveCommand command,
+        @Parameter(
+            hidden = true
+        )
+        BindingResult validationResult
+    ) throws IOException;
 }

@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.file.DirectoryDto;
+import eu.opertusmundi.common.model.file.FileMoveCommand;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemException;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
@@ -130,6 +131,24 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
             command.setSize(file.getSize());
 
             this.fileManager.uploadFile(input, command);
+
+            return this.browse();
+        } catch (final FileSystemException ex) {
+            return RestResponse.error(ex.getCode(), ex.getMessage());
+        }
+    }
+
+    @Override
+    public RestResponse<?> moveFile(FileMoveCommand command, BindingResult validationResult) {
+        this.ensureRegistered();
+
+        if (validationResult.hasErrors()) {
+            return RestResponse.invalid(validationResult.getFieldErrors());
+        }
+
+        try {
+            command.setUserName(this.currentUserEmail());
+            this.fileManager.moveFile(command);
 
             return this.browse();
         } catch (final FileSystemException ex) {
