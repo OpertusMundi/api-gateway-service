@@ -175,7 +175,7 @@ public interface ConsumerAssetController {
      * @return
      */
     @Operation(
-        operationId = "consumer-assets-03",
+        operationId = "consumer-assets-03a",
         summary     = "Get subscription",
         description = "Get a single subscription registered to the user's account. Required role: `ROLE_CONSUMER`"
     )
@@ -195,6 +195,35 @@ public interface ConsumerAssetController {
             description = "Subscription key"
         )
         @PathVariable(name = "key") UUID key
+    );
+
+    /**
+     * Get a single subscription record from the order key
+     *
+     * @param orderKEy
+     * @return
+     */
+    @Operation(
+        operationId = "consumer-assets-03b",
+        summary     = "Get subscription from order",
+        description = "Get a single subscription registered to the user's account from the purchase order key. Required role: `ROLE_CONSUMER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = ConsumerEndpointTypes.SubscriptionResponse.class)
+        )
+    )
+    @GetMapping(value = "/consumer/subscriptions/order/{orderKey}")
+    @Secured({"ROLE_CONSUMER"})
+    RestResponse<?> findOneSubscriptionFromOrderKEy(
+        @Parameter(
+            in = ParameterIn.PATH,
+            description = "Purchase order key"
+        )
+        @PathVariable UUID orderKey
     );
 
     /**
@@ -260,7 +289,6 @@ public interface ConsumerAssetController {
         @Parameter(hidden = true)
         HttpServletResponse response
     ) throws IOException;
-
 
     /**
      * Copy a resource file of an asset to user Topio drive
