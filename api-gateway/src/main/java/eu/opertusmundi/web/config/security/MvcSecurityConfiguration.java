@@ -27,6 +27,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -75,6 +76,18 @@ public class MvcSecurityConfiguration {
     @Qualifier("defaultUserDetailsService")
     private CustomUserDetailsService userDetailsService;
 
+    /**
+     * Create default {@link PasswordEncoder} to prevent exception
+     * {@code There is no PasswordEncoder mapped for the id "null"} when CORS is
+     * enabled
+     *
+     * @return
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
         final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> map = new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
@@ -91,7 +104,7 @@ public class MvcSecurityConfiguration {
     @Order(2)
     public SecurityFilterChain mvcFilterChain(HttpSecurity http) throws Exception {
         final AuthenticationManagerBuilder authManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
+        authManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
         authManagerBuilder.eraseCredentials(true);
         final AuthenticationManager authenticationManager = authManagerBuilder.build();
 
