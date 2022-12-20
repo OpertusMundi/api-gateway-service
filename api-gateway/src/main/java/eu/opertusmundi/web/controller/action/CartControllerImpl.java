@@ -150,7 +150,7 @@ public class CartControllerImpl extends BaseController implements CartController
             final String[] keys = cart.getItems().stream().map(i -> i.getAssetId()).toArray(String[]::new);
 
             if (keys.length != 0) {
-                final List<CatalogueItemDetailsDto> result = this.catalogueService.findAllById(keys);
+                final List<CatalogueItemDetailsDto> result = this.catalogueService.findAllPublishedById(keys);
 
                 final List<CatalogueItemDetailsDto> catalogueItems = result.stream()
                     .map(item -> {
