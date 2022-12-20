@@ -42,7 +42,7 @@ public interface FileSystemController {
     @Operation(
         operationId = "api-file-system-01",
         summary     = "Get file system",
-        description = "List (recursively) files and folders for user's directory"
+        description = "List (recursively) files and folders for user's directory."
     )
     @ApiResponse(
         responseCode = "200",
@@ -61,7 +61,7 @@ public interface FileSystemController {
     @Operation(
         operationId = "api-file-system-02",
         summary     = "Download file",
-        description = "Downloads a file from user's file system"
+        description = "Downloads a file from user's file system."
     )
     @ApiResponse(
         responseCode = "200",

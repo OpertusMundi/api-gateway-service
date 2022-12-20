@@ -148,7 +148,7 @@ public interface ProviderAssetController {
             required = false,
             description = "Order by property"
         )
-        @RequestParam(name = "orderBy", defaultValue = "TITLE") EnumProviderSubSortField orderBy,
+        @RequestParam(name = "orderBy", defaultValue = "CONSUMER") EnumProviderSubSortField orderBy,
         @Parameter(
             in = ParameterIn.QUERY,
             required = false,

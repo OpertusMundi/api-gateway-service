@@ -28,7 +28,7 @@ public interface ProfileController {
     @Operation(
         operationId = "api-profile-01",
         summary     = "Get profile",
-        description = "Get user data for the authenticated user"
+        description = "Get user data for the authenticated user."
     )
     @GetMapping(value = "/profile")
     RestResponse<AccountDto> getProfile();

@@ -53,7 +53,7 @@ public interface ConsumerAssetController {
     @Operation(
         operationId = "api-consumer-assets-01",
         summary     = "Owned Assets",
-        description = "Browse consumer's owned assets. Required role: `ROLE_CONSUMER`"
+        description = "Browse consumer's owned assets."
     )
     @ApiResponse(
         responseCode = "200",
@@ -110,7 +110,7 @@ public interface ConsumerAssetController {
     @Operation(
         operationId = "api-consumer-assets-02",
         summary     = "Registered subscriptions",
-        description = "Browse consumer's registered subscriptions. Required role: `ROLE_CONSUMER`"
+        description = "Browse consumer's registered subscriptions."
     )
     @ApiResponse(
         responseCode = "200",
@@ -163,7 +163,7 @@ public interface ConsumerAssetController {
     @Operation(
         operationId = "api-consumer-assets-03",
         summary     = "Get subscription",
-        description = "Get a single subscription registered to the user's account. Required role: `ROLE_CONSUMER`"
+        description = "Get a single subscription registered to the user's account."
     )
     @ApiResponse(
         responseCode = "200",
@@ -194,10 +194,7 @@ public interface ConsumerAssetController {
     @Operation(
         operationId = "api-consumer-assets-04",
         summary     = "Download resource",
-        description = "Downloads a resource of an asset purchased by the authenticated user or a resource of an Open Dataset.",
-        security    = {
-            @SecurityRequirement(name = "cookie")
-        }
+        description = "Downloads a resource of an asset purchased by the authenticated user or a resource of an Open Dataset."
     )
     @ApiResponse(
         responseCode = "200",
