@@ -14,15 +14,20 @@ import eu.opertusmundi.common.model.account.EnumServiceBillingRecordSortField;
 import eu.opertusmundi.common.model.payment.EnumBillableServiceType;
 import eu.opertusmundi.common.model.payment.provider.ProviderServiceBillingCollectionDto;
 import eu.opertusmundi.common.service.ServiceBillingService;
+import eu.opertusmundi.common.service.ServiceUseStatsService;
 
 @RestController
 public class ProviderServiceBillingControllerImpl extends BaseController implements ProviderServiceBillingController {
 
-    private final ServiceBillingService serviceBillingService;
+    private final ServiceUseStatsService serviceUseStatsService;
+    private final ServiceBillingService  serviceBillingService;
 
     @Autowired
-    public ProviderServiceBillingControllerImpl(ServiceBillingService serviceBillingService) {
-        this.serviceBillingService = serviceBillingService;
+    public ProviderServiceBillingControllerImpl(
+        ServiceUseStatsService serviceUseStatsService, ServiceBillingService serviceBillingService
+    ) {
+        this.serviceUseStatsService = serviceUseStatsService;
+        this.serviceBillingService  = serviceBillingService;
     }
 
     @Override
@@ -43,6 +48,15 @@ public class ProviderServiceBillingControllerImpl extends BaseController impleme
     @Override
     public RestResponse<?> findOne(UUID key) {
         final var result = this.serviceBillingService.findOneServiceBillingRecord(EnumView.PROVIDER, key);
+
+        return RestResponse.result(result);
+    }
+
+    @Override
+    public RestResponse<?> getUsageStatistics(UUID consumerKey, UUID subscriptionKey, Integer year, Integer month) {
+        final var result = serviceUseStatsService.getUseStats(
+            EnumBillableServiceType.SUBSCRIPTION, consumerKey, subscriptionKey, year, month
+        );
 
         return RestResponse.result(result);
     }

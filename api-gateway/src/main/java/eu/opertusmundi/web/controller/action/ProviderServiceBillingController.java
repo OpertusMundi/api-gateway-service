@@ -126,4 +126,53 @@ public interface ProviderServiceBillingController {
         @PathVariable UUID key
     );
 
+    /**
+     * Get subscription / private OGC service use static
+     *
+     * @param key
+     * @param year
+     * @param month
+     * @return
+     */
+    @Operation(
+        operationId = "provider-subscription-billing-03",
+        summary     = "Get usage statistics",
+        description = "Get subscription usage statistics. Required role: `ROLE_PROVIDER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ServiceBillingEndPoints.ServiceUseStats.class)
+        )
+    )
+    @GetMapping(value = "/subscription-billing/{consumerKey}/{subscriptionKey}/statistics/{year}/{month}")
+    RestResponse<?> getUsageStatistics(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Consumer key"
+            )
+        @PathVariable UUID consumerKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Subscription key"
+            )
+        @PathVariable UUID subscriptionKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Billing interval year"
+            )
+        @PathVariable Integer year,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Billing interval month"
+            )
+        @PathVariable Integer month
+    );
+
 }

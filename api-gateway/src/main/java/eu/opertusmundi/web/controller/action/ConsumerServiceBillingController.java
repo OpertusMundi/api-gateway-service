@@ -142,7 +142,6 @@ public interface ConsumerServiceBillingController {
         @PathVariable UUID key
     );
 
-
     /**
      * Creates a new PayIn for a list of subscription billing record keys
      *
@@ -186,6 +185,55 @@ public interface ConsumerServiceBillingController {
         @Valid
         @RequestBody
         CheckoutServiceBillingCommandDto command
+    );
+
+    /**
+     * Get subscription / private OGC service usage statistics
+     *
+     * @param key
+     * @param year
+     * @param month
+     * @return
+     */
+    @Operation(
+        operationId = "consumer-service-billing-04",
+        summary     = "Get usage statistics",
+        description = "Get subscription / private OGC service usage statistics. Required role: `ROLE_CONSUMER`"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ServiceBillingEndPoints.ServiceUseStats.class)
+        )
+    )
+    @GetMapping(value = "/service-billing/{serviceType}/{serviceKey}/statistics/{year}/{month}")
+    RestResponse<?> getUsageStatistics(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Service type"
+            )
+        @PathVariable EnumBillableServiceType serviceType,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Subscription / private OGC service key"
+            )
+        @PathVariable UUID serviceKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Billing interval year"
+            )
+        @PathVariable Integer year,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Billing interval month"
+            )
+        @PathVariable Integer month
     );
 
 }
