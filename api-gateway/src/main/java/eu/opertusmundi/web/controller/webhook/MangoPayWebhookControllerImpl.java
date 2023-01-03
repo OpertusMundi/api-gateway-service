@@ -21,7 +21,7 @@ import eu.opertusmundi.common.model.kyc.CustomerVerificationMessageCode;
 import eu.opertusmundi.common.model.payment.PaymentException;
 import eu.opertusmundi.common.model.payment.PaymentMessageCode;
 import eu.opertusmundi.common.service.mangopay.MangoPayWebhookHandler;
-import eu.opertusmundi.common.service.mangopay.PaymentService;
+import eu.opertusmundi.common.service.mangopay.PayInService;
 
 @Controller
 public class MangoPayWebhookControllerImpl implements MangoPayWebhookController {
@@ -35,7 +35,7 @@ public class MangoPayWebhookControllerImpl implements MangoPayWebhookController 
     private MangoPayWebhookHandler handler;
 
     @Autowired
-    private PaymentService paymentService;
+    private PayInService paymentService;
 
     @Override
     public ResponseEntity<Void> mangoPayWebhookHandler(String resourceId, Long timestamp, String eventType) {

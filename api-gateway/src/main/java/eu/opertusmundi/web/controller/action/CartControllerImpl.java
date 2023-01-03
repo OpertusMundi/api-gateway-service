@@ -29,7 +29,7 @@ import eu.opertusmundi.common.model.pricing.QuotationException;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.CatalogueService;
 import eu.opertusmundi.common.service.QuotationService;
-import eu.opertusmundi.common.service.mangopay.PaymentService;
+import eu.opertusmundi.common.service.mangopay.PayInService;
 
 @RestController
 public class CartControllerImpl extends BaseController implements CartController {
@@ -46,7 +46,7 @@ public class CartControllerImpl extends BaseController implements CartController
     private QuotationService quotationService;
 
     @Autowired
-    private PaymentService paymentService;
+    private PayInService paymentService;
 
     @Override
     public RestResponse<CartDto> getCart(HttpSession session) {

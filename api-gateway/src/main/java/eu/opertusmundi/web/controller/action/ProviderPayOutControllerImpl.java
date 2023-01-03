@@ -11,17 +11,17 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.payment.EnumPayOutSortField;
 import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
 import eu.opertusmundi.common.model.payment.PayOutDto;
-import eu.opertusmundi.common.service.mangopay.PaymentService;
+import eu.opertusmundi.common.service.mangopay.PayOutService;
 
 @RestController
 public class ProviderPayOutControllerImpl extends BaseController implements ProviderPayOutController {
 
     @Autowired
-    private PaymentService paymentService;
+    private PayOutService payOutService;
 
     @Override
     public RestResponse<?> findOnePayOut(UUID payOutKey) {
-        final PayOutDto result = this.paymentService.getProviderPayOut(this.currentUserParentId(), payOutKey);
+        final PayOutDto result = this.payOutService.getProviderPayOut(this.currentUserParentId(), payOutKey);
 
         return RestResponse.result(result);
     }
@@ -30,8 +30,8 @@ public class ProviderPayOutControllerImpl extends BaseController implements Prov
     public RestResponse<?> findAllProviderPayOuts(
         EnumTransactionStatus status, int pageIndex, int pageSize, EnumPayOutSortField orderBy, EnumSortingOrder order
     ) {
-        final UUID                    userKey = this.currentUserParentKey();
-        final PageResultDto<PayOutDto> result  = this.paymentService.findAllProviderPayOuts(
+        final UUID                     userKey = this.currentUserParentKey();
+        final PageResultDto<PayOutDto> result  = this.payOutService.findAllProviderPayOuts(
             userKey, status, pageIndex, pageSize, orderBy, order
         );
 

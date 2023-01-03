@@ -11,13 +11,13 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.payment.EnumPayInItemSortField;
 import eu.opertusmundi.common.model.payment.EnumTransactionStatus;
 import eu.opertusmundi.common.model.payment.provider.ProviderPayInItemDto;
-import eu.opertusmundi.common.service.mangopay.PaymentService;
+import eu.opertusmundi.common.service.mangopay.PayInService;
 
 @RestController
 public class ProviderPayInControllerImpl extends BaseController implements ProviderPayInController {
 
     @Autowired
-    private PaymentService paymentService;
+    private PayInService paymentService;
 
     @Override
     public RestResponse<?> findOnePayInItem(UUID payInKey, Integer index) {

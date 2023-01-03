@@ -18,18 +18,18 @@ import eu.opertusmundi.common.model.payment.EnumBillableServiceType;
 import eu.opertusmundi.common.model.payment.consumer.ConsumerServiceBillingCollectionDto;
 import eu.opertusmundi.common.service.ServiceBillingService;
 import eu.opertusmundi.common.service.ServiceUseStatsService;
-import eu.opertusmundi.common.service.mangopay.PaymentService;
+import eu.opertusmundi.common.service.mangopay.PayInService;
 
 @RestController
 public class ConsumerServiceBillingControllerImpl extends BaseController implements ConsumerServiceBillingController {
 
-    private final PaymentService         paymentService;
+    private final PayInService         paymentService;
     private final ServiceUseStatsService serviceUseStatsService;
     private final ServiceBillingService  serviceBillingService;
 
     @Autowired
     public ConsumerServiceBillingControllerImpl(
-        PaymentService paymentService,
+        PayInService paymentService,
         ServiceUseStatsService serviceUseStatsService,
         ServiceBillingService serviceBillingService
     ) {

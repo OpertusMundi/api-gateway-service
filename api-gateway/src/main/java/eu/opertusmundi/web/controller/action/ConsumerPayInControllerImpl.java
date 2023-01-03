@@ -37,7 +37,7 @@ import eu.opertusmundi.common.model.payment.consumer.ConsumerPayInDto;
 import eu.opertusmundi.common.service.CartService;
 import eu.opertusmundi.common.service.OrderFulfillmentService;
 import eu.opertusmundi.common.service.ServiceBillingService;
-import eu.opertusmundi.common.service.mangopay.PaymentService;
+import eu.opertusmundi.common.service.mangopay.PayInService;
 
 @RestController
 public class ConsumerPayInControllerImpl extends BaseController implements ConsumerPayInController {
@@ -48,7 +48,7 @@ public class ConsumerPayInControllerImpl extends BaseController implements Consu
     private CartService cartService;
 
     @Autowired
-    private PaymentService paymentService;
+    private PayInService paymentService;
 
     @Autowired
     private OrderFulfillmentService orderFulfillmentService;
