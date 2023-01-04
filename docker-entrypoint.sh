@@ -189,12 +189,11 @@ runtime_profile=$(hostname | md5sum | head -c10)
     if [[ -n "${KEYCLOAK_URL}" ]]; then
         keycloak_url=$(echo ${KEYCLOAK_URL} | _validate_http_url "KEYCLOAK_URL")
         keycloak_realm=${KEYCLOAK_REALM}
-        keycloak_services_realm=${KEYCLOAK_SERVICES_REALM}
         keycloak_refresh_token=$(cat ${KEYCLOAK_REFRESH_TOKEN_FILE} | tr -d '\n')
         echo "opertusmundi.feign.keycloak.url = ${keycloak_url}"
         echo "opertusmundi.feign.keycloak.realm = ${keycloak_realm}"
         echo "opertusmundi.feign.keycloak.admin.refresh-token.refresh-token = ${keycloak_refresh_token}"
-        echo "opertusmundi.account-client-service.keycloak.realm = ${keycloak_services_realm}"
+        echo "opertusmundi.account-client-service.keycloak.realm = ${keycloak_realm}"
         if [[ -n "${KEYCLOAK_PUBLIC_URL}" ]]; then 
             keycloak_public_url=$(echo ${KEYCLOAK_PUBLIC_URL} | _validate_http_url "KEYCLOAK_PUBLIC_URL")
         else

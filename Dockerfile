@@ -72,7 +72,6 @@ ENV PUBLIC_URL="" \
     KEYCLOAK_PUBLIC_URL="" \
     KEYCLOAK_URL="" \
     KEYCLOAK_REALM="Topio-Market" \
-    KEYCLOAK_SERVICES_REALM="Topio-Market-Services" \
     KEYCLOAK_REFRESH_TOKEN_FILE="" \
     CORS_ALLOWED_ORIGINS="http://localhost:8080" \
     OIDC_CLIENT_ID="api-gateway" \
