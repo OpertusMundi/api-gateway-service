@@ -138,11 +138,16 @@ public class DraftValidator implements Validator {
                 e.rejectValue("parentId", EnumValidatorError.NotUnique.name());
             }
         }
-        // Cannot change parent id once set
+        // Check not updatable properties
         if (draftKey != null) {
             final var draft = draftRepository.findOneObjectByKey(draftKey);
-            if (draft != null && !StringUtils.isBlank(draft.getParentId()) && !StringUtils.equals(draft.getParentId(), c.getParentId())) {
-                e.rejectValue("parentId", EnumValidatorError.NotUpdatable.name());
+            if (draft != null) {
+                if (!StringUtils.isBlank(draft.getParentId()) && !StringUtils.equals(draft.getParentId(), c.getParentId())) {
+                    e.rejectValue("parentId", EnumValidatorError.NotUpdatable.name());
+                }
+                if (draft.getType() != c.getType()) {
+                    e.rejectValue("type", EnumValidatorError.NotUpdatable.name());
+                }
             }
         }
     }
@@ -288,7 +293,7 @@ public class DraftValidator implements Validator {
             // Query catalogue service only if no errors have already found
             if (!e.hasErrors() &&  mode == EnumValidationMode.SUBMIT && !assetKeys.isEmpty()) {
                 final List<CatalogueItemDetailsDto> assets = this.catalogueService
-                    .findAllPublishedById(assetKeys.toArray(new String[assetKeys.size()]));
+                    .findAllPublishedById(assetKeys.toArray(new String[assetKeys.size()]), false);
 
                 for (int i = 0; i < c.getResources().size(); i++) {
                     final ResourceDto             r  = c.getResources().get(i);
