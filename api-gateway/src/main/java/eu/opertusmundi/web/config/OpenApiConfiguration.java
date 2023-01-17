@@ -120,7 +120,8 @@ public class OpenApiConfiguration {
                 EndpointTags.PayInConsumer,
                 EndpointTags.ContractConsumer,
                 EndpointTags.ConsumerAssets,
-                EndpointTags.ConsumerServiceBilling
+                EndpointTags.ConsumerServiceBilling,
+                EndpointTags.ConsumerTickets
             )),
             new TagGroup("Providers", Arrays.asList(
                 EndpointTags.ProviderRegistration,

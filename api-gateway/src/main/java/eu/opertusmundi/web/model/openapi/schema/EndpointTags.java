@@ -11,6 +11,7 @@ public class EndpointTags {
     public final static String ConsumerAssets            = "Consumer Assets";
     public final static String ConsumerRegistration      = "Consumer Registration";
     public final static String ConsumerServiceBilling    = "Consumer Service Billing";
+    public final static String ConsumerTickets           = "Consumer Tickets";
     public final static String ContractConsumer          = "Consumer Contracts";
     public final static String ContractProvider          = "Provider Contracts";
     public final static String ContractProviderTemplates = "Provider Contract Templates";
