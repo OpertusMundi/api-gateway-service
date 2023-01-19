@@ -155,13 +155,15 @@ public class OpenApiConfiguration {
             )),
             new TagGroup("Misc", Arrays.asList(
                 EndpointTags.Rating,
-                EndpointTags.SpatialData
+                EndpointTags.SpatialData,
+                EndpointTags.TopioMaps
             )),
             new TagGroup("API", Arrays.asList(
                 EndpointTags.API_Profile,
                 EndpointTags.API_FileSystem,
                 EndpointTags.API_ConsumerAssets,
-                EndpointTags.API_UserServices
+                EndpointTags.API_UserServices,
+                EndpointTags.API_TopioMaps
             )),
         }));
 

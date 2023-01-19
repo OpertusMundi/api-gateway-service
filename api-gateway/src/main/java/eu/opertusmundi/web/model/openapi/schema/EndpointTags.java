@@ -37,6 +37,7 @@ public class EndpointTags {
     public final static String Recommender               = "Recommender";
     public final static String Samples                   = "Samples";
     public final static String SpatialData               = "Spatial Data Source";
+    public final static String TopioMaps                 = "Topio Maps";
     public final static String UboDeclaration            = "UBO";
     public final static String UserServices              = "Private OGC services";
     public final static String VendorAccount             = "Vendor Account";
@@ -46,6 +47,7 @@ public class EndpointTags {
     public final static String API_ConsumerAssets = "Consumer Assets API";
     public final static String API_FileSystem     = "File system API";
     public final static String API_Profile        = "Profile API";
+    public final static String API_TopioMaps      = "Topio Maps API";
     public final static String API_UserServices   = "Private OGC services API";
 
 }
