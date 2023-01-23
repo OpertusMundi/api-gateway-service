@@ -43,6 +43,9 @@ public class OpenApiConfiguration {
     @Value("${opertusmundi.sentinel-hub.enabled:false}")
     private boolean sentinelHubIntegration;
 
+    @Value("${opertusmundi.feign.wigeogis.url:}")
+    private String wigeogisIntegration;
+
     /**
      * Provide configuration for OpenAPI auto-generated
      * configuration.
@@ -167,12 +170,15 @@ public class OpenApiConfiguration {
             )),
         }));
 
-        if(this.sentinelHubIntegration) {
-            tagGroups.add(
-                new TagGroup("Integration", Arrays.asList(
-                    EndpointTags.SentinelHub
-                ))
-            );
+        if (this.sentinelHubIntegration || !StringUtils.isBlank(this.wigeogisIntegration)) {
+            final var integrationTags = new ArrayList<String>();
+            if (this.sentinelHubIntegration) {
+                integrationTags.add(EndpointTags.SentinelHub);
+            }
+            if (!StringUtils.isBlank(this.wigeogisIntegration)) {
+                integrationTags.add(EndpointTags.WiGeoGIS);
+            }
+            tagGroups.add(new TagGroup("Integration", integrationTags));
         }
 
         api.addExtension("x-tagGroups", tagGroups);
