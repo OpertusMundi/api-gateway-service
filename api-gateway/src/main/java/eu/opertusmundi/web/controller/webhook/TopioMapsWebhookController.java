@@ -1,6 +1,7 @@
 package eu.opertusmundi.web.controller.webhook;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = EndpointTags.API_TopioMaps)
 @SecurityRequirement(name = "jwt")
+@Secured({"ROLE_API"})
 public interface TopioMapsWebhookController {
 
     /**

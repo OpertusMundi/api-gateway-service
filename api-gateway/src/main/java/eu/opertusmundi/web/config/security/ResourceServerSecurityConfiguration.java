@@ -53,7 +53,7 @@ public class ResourceServerSecurityConfiguration {
             http.cors(cors -> {
                 final CorsConfiguration configuration = new CorsConfiguration();
                 configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-                configuration.setAllowedMethods(List.of("GET"));
+                configuration.setAllowedMethods(List.of("GET", "POST"));
                 configuration.setAllowedHeaders(List.of(
                     "authorization",
                     "cache-control",
