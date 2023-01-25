@@ -32,6 +32,7 @@ public class EndpointTags {
     public final static String ProviderAssets            = "Provider Assets";
     public final static String ProviderRegistration      = "Provider Registration";
     public final static String ProviderServiceBilling    = "Provider Service Billing";
+    public final static String ProviderTickets           = "Provider Tickets";
     public final static String Quotation                 = "Quotation";
     public final static String Rating                    = "Rating";
     public final static String Recommender               = "Recommender";

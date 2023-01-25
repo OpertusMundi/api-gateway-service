@@ -29,9 +29,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = EndpointTags.ConsumerTickets)
-@RequestMapping(path = "/action/consumer/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
-public interface ConsumerTicketController {
+@Tag(name = EndpointTags.ProviderTickets)
+@RequestMapping(path = "/action/provider/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
+public interface ProviderTicketController {
 
     /**
      * Find tickets
@@ -42,9 +42,9 @@ public interface ConsumerTicketController {
      * @return
      */
     @Operation(
-        operationId = "consumer-ticket-01",
+        operationId = "provider-ticket-01",
         summary     = "Find tickets",
-        description = "Find the tickets of the authenticated user. Required role: `ROLE_CONSUMER`, `ROLE_VENDOR_CONSUMER`"
+        description = "Find the tickets of the authenticated user. Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -55,7 +55,7 @@ public interface ConsumerTicketController {
         )
     )
     @GetMapping(value = "")
-    @Secured({"ROLE_CONSUMER", "ROLE_VENDOR_CONSUMER"})
+    @Secured({"ROLE_PROVIDER", "ROLE_VENDOR_PROVIDER"})
     RestResponse<?> find(
         @Parameter(
             in          = ParameterIn.QUERY,
@@ -87,16 +87,15 @@ public interface ConsumerTicketController {
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
-        operationId = "consumer-ticket-02",
+        operationId = "provider-ticket-02",
         summary     = "Open a ticket to Helpdesk",
         description = "Opens a ticket to Helpdesk from the authenticated user."
                     + "<br/>"
                     + "Currently only the following ticket types are supported:"
                     + "<ul>"
                     + " <li>`ORDER`</li>"
-                    + " <li>`PAYING`</li>"
                     + " </ul>"
-                    + "Required role: `ROLE_CONSUMER`, `ROLE_VENDOR_CONSUMER`"
+                    + "Required role: `ROLE_PROVIDER`, `ROLE_VENDOR_PROVIDER`"
     )
     @ApiResponse(
         responseCode = "200",
@@ -104,7 +103,7 @@ public interface ConsumerTicketController {
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageEndpointTypes.MessageResponseDto.class))
     )
     @PostMapping(value = "")
-    @Secured({"ROLE_CONSUMER", "ROLE_VENDOR_CONSUMER"})
+    @Secured({"ROLE_PROVIDER", "ROLE_VENDOR_PROVIDER"})
     @Validated
     RestResponse<?> openTicket(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(

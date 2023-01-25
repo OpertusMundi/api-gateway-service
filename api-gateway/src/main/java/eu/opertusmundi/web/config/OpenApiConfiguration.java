@@ -135,6 +135,7 @@ public class OpenApiConfiguration {
                 EndpointTags.ContractProviderTemplates,
                 EndpointTags.ProviderAssets,
                 EndpointTags.ProviderServiceBilling,
+                EndpointTags.ProviderTickets,
                 EndpointTags.Analytics
             )),
             new TagGroup("Helpdesk", Arrays.asList(

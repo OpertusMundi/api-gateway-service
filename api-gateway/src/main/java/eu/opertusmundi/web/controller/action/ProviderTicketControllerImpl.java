@@ -14,12 +14,12 @@ import eu.opertusmundi.common.model.account.EnumTicketStatus;
 import eu.opertusmundi.common.service.TicketService;
 
 @RestController
-public class ConsumerTicketControllerImpl extends BaseController implements ConsumerTicketController {
+public class ProviderTicketControllerImpl extends BaseController implements ProviderTicketController {
 
     private final TicketService ticketService;
 
     @Autowired
-    public ConsumerTicketControllerImpl(TicketService ticketService) {
+    public ProviderTicketControllerImpl(TicketService ticketService) {
         this.ticketService = ticketService;
     }
 
@@ -33,7 +33,7 @@ public class ConsumerTicketControllerImpl extends BaseController implements Cons
     @Override
     public RestResponse<?> openTicket(AccountTicketCommandDto command, BindingResult validationResult) {
         command.setUserKey(this.currentUserKey());
-        command.setCustomerType(EnumCustomerType.CONSUMER);
+        command.setCustomerType(EnumCustomerType.PROVIDER);
 
         if (validationResult.hasErrors()) {
             return RestResponse.invalid(validationResult.getFieldErrors());
