@@ -19,7 +19,9 @@ import eu.opertusmundi.common.domain.AssetFileTypeEntity;
 import eu.opertusmundi.common.domain.AssetResourceEntity;
 import eu.opertusmundi.common.domain.ProviderAssetDraftEntity;
 import eu.opertusmundi.common.domain.ProviderTemplateContractEntity;
+import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.EnumValidatorError;
+import eu.opertusmundi.common.model.account.AccountDto;
 import eu.opertusmundi.common.model.asset.AssetAdditionalResourceDto;
 import eu.opertusmundi.common.model.asset.AssetContractAnnexDto;
 import eu.opertusmundi.common.model.asset.AssetFileAdditionalResourceDto;
@@ -112,15 +114,15 @@ public class DraftValidator implements Validator {
         throw new AssetDraftException(AssetMessageCode.VALIDATION, "Operation not supported");
     }
 
-    public void validate(Object o, Errors e, EnumValidationMode mode) {
-        this.validate(o, e, mode, null);
+    public void validate(AccountDto account, Object o, Errors e, EnumValidationMode mode) {
+        this.validate(account, o, e, mode, null);
     }
 
-    public void validate(Object o, Errors e, EnumValidationMode mode, @Nullable UUID draftKey) {
+    public void validate(AccountDto account, Object o, Errors e, EnumValidationMode mode, @Nullable UUID draftKey) {
         final CatalogueItemCommandDto c = (CatalogueItemCommandDto) o;
 
         this.validateContract(c, e, mode);
-        this.validateType(c, e);
+        this.validateType(account, c, e);
         this.validateFormat(c, e);
         this.validateResources(c, e, mode);
         this.validateAdditionalResources(c, e);
@@ -226,9 +228,14 @@ public class DraftValidator implements Validator {
         }
     }
 
-    private void validateType(CatalogueItemCommandDto c, Errors e) {
+    private void validateType(AccountDto account, CatalogueItemCommandDto c, Errors e) {
         if (c.getSpatialDataServiceType() != null && c.getType() != EnumAssetType.SERVICE) {
             e.rejectValue("spatialDataServiceType", EnumValidatorError.OperationNotSupported.name());
+        }
+        if (c.isIprProtectionEnabled()) {
+            if (!c.getType().isIprSupported() || !account.hasRole(EnumRole.ROLE_TOPIO)) {
+                e.rejectValue("iprProtectionEnabled", EnumValidatorError.OperationNotSupported.name());
+            }
         }
     }
 

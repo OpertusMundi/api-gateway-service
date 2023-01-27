@@ -108,8 +108,8 @@ public class SpatialDataSourceControllerImpl extends BaseController implements S
     }
 
     @Override
-    public RestResponse<?> findAllByCode(String codes[]) {
-        if (codes == null || codes.length == 0) {
+    public RestResponse<?> findAllByCode(String[] codes) {
+        if (ArrayUtils.isEmpty(codes)) {
             return RestResponse.success();
         }
 

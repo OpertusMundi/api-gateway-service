@@ -132,7 +132,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         this.authorizeCommand(command);
 
         try {
-            this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE);
+            this.draftValidator.validate(this.getAccount(), command, validationResult, EnumValidationMode.UPDATE);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
@@ -235,7 +235,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         this.authorizeCommand(command);
 
         try {
-            this.draftValidator.validate(command, validationResult, EnumValidationMode.UPDATE, draftKey);
+            this.draftValidator.validate(this.getAccount(), command, validationResult, EnumValidationMode.UPDATE, draftKey);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());
@@ -261,7 +261,7 @@ public class ProviderDraftAssetControllerImpl extends BaseController implements 
         this.authorizeCommand(command);
 
         try {
-            this.draftValidator.validate(command, validationResult, EnumValidationMode.SUBMIT, draftKey);
+            this.draftValidator.validate(this.getAccount(), command, validationResult, EnumValidationMode.SUBMIT, draftKey);
 
             if (validationResult.hasErrors()) {
                 return RestResponse.invalid(validationResult.getFieldErrors(), validationResult.getGlobalErrors());

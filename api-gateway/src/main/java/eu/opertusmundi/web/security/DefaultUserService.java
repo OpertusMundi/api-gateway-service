@@ -38,6 +38,7 @@ import eu.opertusmundi.common.model.BaseResponse;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.common.model.EnumRole;
+import eu.opertusmundi.common.model.EnumSetting;
 import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.ServiceResponse;
 import eu.opertusmundi.common.model.account.AccountDto;
@@ -61,6 +62,7 @@ import eu.opertusmundi.common.repository.AccountRecentSearchRepository;
 import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.common.repository.ActivationTokenRepository;
 import eu.opertusmundi.common.repository.HelpdeskAccountRepository;
+import eu.opertusmundi.common.repository.SettingRepository;
 import eu.opertusmundi.common.service.ElasticSearchService;
 import eu.opertusmundi.common.service.UserFileManager;
 import eu.opertusmundi.common.service.messaging.MailMessageHelper;
@@ -94,38 +96,47 @@ public class DefaultUserService implements UserService {
     /**
      * Activation token duration in hours
      */
-    @Value("${user.service.token-duration:360}")
+    @Value("${user.service.token-duration:48}")
     private int tokenDuration;
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository                       accountRepository;
+    private final ActivationTokenRepository               activationTokenRepository;
+    private final BpmEngineUtils                          bpmEngine;
+    private final ElasticSearchService                    elasticSearchService;
+    private final UserFileManager                         fileManager;
+    private final HelpdeskAccountRepository               helpdeskAccountRepository;
+    private final ImageUtils                              imageUtils;
+    private final ObjectProvider<EmailServiceFeignClient> mailClient;
+    private final MailMessageHelper                       messageHelper;
+    private final AccountRecentSearchRepository           recentSearchRepository;
+    private final SettingRepository                       settingRepository;
 
     @Autowired
-    private HelpdeskAccountRepository helpdeskAccountRepository;
-
-    @Autowired
-    private ActivationTokenRepository activationTokenRepository;
-
-    @Autowired
-    private AccountRecentSearchRepository recentSearchRepository;
-
-    @Autowired
-    private UserFileManager fileManager;
-
-    @Autowired
-    private BpmEngineUtils bpmEngine;
-
-    @Autowired
-    private ImageUtils imageUtils;
-
-    @Autowired(required = false)
-    private ElasticSearchService elasticSearchService;
-
-    @Autowired
-    private MailMessageHelper messageHelper;
-
-    @Autowired
-    private ObjectProvider<EmailServiceFeignClient> mailClient;
+    public DefaultUserService(
+        AccountRepository                       accountRepository,
+        ActivationTokenRepository               activationTokenRepository,
+        BpmEngineUtils                          bpmEngine,
+        Optional<ElasticSearchService>          elasticSearchService,
+        UserFileManager                         fileManager,
+        HelpdeskAccountRepository               helpdeskAccountRepository,
+        ImageUtils                              imageUtils,
+        ObjectProvider<EmailServiceFeignClient> mailClient,
+        MailMessageHelper                       messageHelper,
+        AccountRecentSearchRepository           recentSearchRepository,
+        SettingRepository                       settingRepository
+    ) {
+        this.accountRepository         = accountRepository;
+        this.activationTokenRepository = activationTokenRepository;
+        this.bpmEngine                 = bpmEngine;
+        this.elasticSearchService      = elasticSearchService.orElse(null);
+        this.fileManager               = fileManager;
+        this.helpdeskAccountRepository = helpdeskAccountRepository;
+        this.imageUtils                = imageUtils;
+        this.mailClient                = mailClient;
+        this.messageHelper             = messageHelper;
+        this.recentSearchRepository    = recentSearchRepository;
+        this.settingRepository         = settingRepository;
+    }
 
     @Override
     @Transactional
@@ -142,6 +153,12 @@ public class DefaultUserService implements UserService {
 
         if (account == null) {
             return Optional.ofNullable(null);
+        }
+
+        // Decide if the account has role ROLE_TOPIO
+        final var topioAccountId = this.settingRepository.findOne(EnumSetting.TOPIO_ACCOUNT_ID).asInteger();
+        if (account.getId().equals(topioAccountId)) {
+            account.getRoles().add(EnumRole.ROLE_TOPIO);
         }
 
         // Get user file system quota

@@ -118,7 +118,7 @@ public interface SpatialDataSourceController {
             required = true,
             description = "A comma separated lits of NUTS codes"
         )
-        @RequestParam(name = "code") String codes[]
+        @RequestParam(name = "code") String[] codes
     );
 
     /**
