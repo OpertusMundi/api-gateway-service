@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = EndpointTags.WiGeoGIS)
 @RequestMapping(path = "/action/integration/wigeogis", produces = MediaType.APPLICATION_JSON_VALUE)
-@SecurityRequirement(name = "cookie")
+@Secured({"ROLE_WIGEOGIS"})
 public interface WiGeoGisController {
 
     /**
@@ -42,7 +42,6 @@ public interface WiGeoGisController {
         )
     )
     @PostMapping(value = "/login")
-    @Secured({"ROLE_WIGEOGIS"})
     RestResponse<?> login();
 
 }
