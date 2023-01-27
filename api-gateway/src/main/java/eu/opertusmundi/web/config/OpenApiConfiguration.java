@@ -163,6 +163,7 @@ public class OpenApiConfiguration {
                 EndpointTags.TopioMaps
             )),
             new TagGroup("API", Arrays.asList(
+                EndpointTags.API_Catalogue,
                 EndpointTags.API_Profile,
                 EndpointTags.API_FileSystem,
                 EndpointTags.API_ConsumerAssets,
