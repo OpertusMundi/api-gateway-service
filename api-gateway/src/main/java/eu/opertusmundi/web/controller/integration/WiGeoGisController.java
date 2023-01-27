@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = EndpointTags.WiGeoGIS)
+@SecurityRequirement(name = "cookie")
 @RequestMapping(path = "/action/integration/wigeogis", produces = MediaType.APPLICATION_JSON_VALUE)
 @Secured({"ROLE_WIGEOGIS"})
 public interface WiGeoGisController {
