@@ -1,0 +1,19 @@
+{
+  "JoinableTables": [
+    {
+      "matches": [
+        {
+          "PK": {
+            "from_id": "value 1",
+            "to_id": "value 2"
+          },
+          "RELATED": {
+            "coma": 5
+          },
+          "explanation": "value 3"
+        }
+      ],
+      "table_name": "value 4"
+    }
+  ]
+}

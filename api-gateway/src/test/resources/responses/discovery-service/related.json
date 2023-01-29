@@ -1,0 +1,10 @@
+{
+  "RelatedTables": [
+    {
+      "links": [
+        "value 1", "value 2"
+      ],
+      "explanation": "value 3"
+    }
+  ]
+}
