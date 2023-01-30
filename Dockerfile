@@ -99,6 +99,7 @@ ENV PUBLIC_URL="" \
     MESSENGER_BASE_URL="http://messenger:8000/" \
     PROFILE_BASE_URL="http://profile:8000/" \
     PID_BASE_URL="http://pid:8000/" \
+    DISCOVERY_BASE_URL="http://discovery:8000/" \
     ELASTICSEARCH_BASE_URL="http://elasticsearch:9200" \
     ELASTICSEARCH_INDICES_ASSETS_INDEX_NAME="assets" \
     ELASTICSEARCH_INDICES_ASSETS_VIEW_INDEX_NAME="assets_view" \
