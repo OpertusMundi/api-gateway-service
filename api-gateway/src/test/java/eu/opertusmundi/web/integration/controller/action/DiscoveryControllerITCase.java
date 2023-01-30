@@ -105,7 +105,6 @@ public class DiscoveryControllerITCase extends AbstractIntegrationTest {
         final var result = response.getResult();
 
         final var joinableTables = result.getJoinableTables();
-        assertThat(joinableTables).isNotNull();
         assertThat(joinableTables).isNotEmpty();
         assertThat(joinableTables).hasSize(1);
 
@@ -113,12 +112,20 @@ public class DiscoveryControllerITCase extends AbstractIntegrationTest {
         assertThat(table.getTableName()).isEqualTo("value 4");
 
         final var matches = table.getMatches();
-        assertThat(matches).isNotNull();
         assertThat(matches).isNotEmpty();
         assertThat(matches).hasSize(1);
 
         final var match = table.getMatches().get(0);
         assertThat(match.getExplanation()).isEqualTo("value 3");
+
+        final var keys = match.getKeys();
+        assertThat(keys).isNotNull();
+        assertThat(keys.getFrom()).isEqualTo("value 1");
+        assertThat(keys.getTo()).isEqualTo("value 2");
+
+        final var related = match.getRelated();
+        assertThat(related).isNotNull();
+        assertThat(related.getComa()).isEqualTo(5);
     }
 
     @Test
