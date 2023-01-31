@@ -1,9 +1,13 @@
 package eu.opertusmundi.web.controller;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.catalina.connector.ClientAbortException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +40,8 @@ public class RestControllerAdvice {
 
     private static final String DEVELOPMENT_PROFILE = "development";
 
+    private static final String BROKEN_PIPE_ROOT_CAUSE = "Broken pipe";
+
     @Value("${spring.profiles.active:}")
     private String activeProfile;
 
@@ -49,7 +55,7 @@ public class RestControllerAdvice {
         description = "Bad Request",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
-    public @ResponseBody BaseResponse handleException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+    public @ResponseBody BaseResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
 
         logger.error(String.format("400 - Bad Request. [path=%s, message=%s]", request.getRequestURI(), ex.getMessage()), ex);
 
@@ -72,7 +78,7 @@ public class RestControllerAdvice {
         description = "Payload Too Large",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
-    public @ResponseBody BaseResponse handleException(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+    public @ResponseBody BaseResponse handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex, HttpServletRequest request) {
 
         logger.error("413 - Payload Too Large. [path={}, message={}]", request.getRequestURI(), ex.getMessage());
 
@@ -95,7 +101,7 @@ public class RestControllerAdvice {
         description = "Forbidden",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
-    public @ResponseBody BaseResponse handleException(
+    public @ResponseBody BaseResponse handleAccessDeniedException(
         AccessDeniedException ex,  HttpServletRequest request
     ) {
 
@@ -120,7 +126,7 @@ public class RestControllerAdvice {
         description = "Internal Server Error",
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = DebugRestResponse.class))
     )
-    public @ResponseBody BaseResponse handleException(ServiceException ex, HttpServletRequest request) {
+    public @ResponseBody BaseResponse handleServiceException(ServiceException ex, HttpServletRequest request) {
 
         if (ex.isLogEntryRequired()) {
             logger.error(String.format("500 - Internal Server Error. [path=%s, message=%s]", request.getRequestURI(), ex.getMessage()), ex);
@@ -148,6 +154,36 @@ public class RestControllerAdvice {
     public @ResponseBody BaseResponse handleException(Exception ex, HttpServletRequest request) {
 
         logger.error(String.format("500 - Internal Server Error. [path=%s, message=%s]", request.getRequestURI(), ex.getMessage()), ex);
+
+        final MessageCode      code        = BasicMessageCode.InternalServerError;
+        final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
+
+        final Message error = new Message(code, description, Message.EnumLevel.ERROR);
+
+        if (this.isDevelopmentProfileActive()) {
+            return new DebugRestResponse(error, ex.getMessage(), ex);
+        }
+
+        return RestResponse.error(error);
+    }
+
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    @ExceptionHandler(IOException.class)
+    @ApiResponse(
+        responseCode = "503",
+        description = "Service Unavailable"
+    )
+    public @ResponseBody BaseResponse handleIOException(IOException ex, HttpServletRequest request) {
+
+        final var message    = String.format("503 - Service Unavailable. [path=%s, message=%s]", request.getRequestURI(), ex.getMessage());
+        final var routeCause = ExceptionUtils.getRootCauseMessage(ex);
+
+        if (ex instanceof ClientAbortException || StringUtils.containsIgnoreCase(routeCause, BROKEN_PIPE_ROOT_CAUSE)) {
+            logger.warn(message, ex);
+            return null;
+        }
+
+        logger.error(message, ex);
 
         final MessageCode      code        = BasicMessageCode.InternalServerError;
         final String           description = this.messageSource.getMessage(code.key(), null, Locale.getDefault());
