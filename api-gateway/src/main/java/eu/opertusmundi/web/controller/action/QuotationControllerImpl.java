@@ -28,7 +28,7 @@ public class QuotationControllerImpl extends BaseController implements Quotation
         }
 
         try {
-            final CatalogueItemDetailsDto  asset     = catalogueService.findOne(null, command.getAssetId(), null, false);
+            final CatalogueItemDetailsDto  asset     = catalogueService.findOne(command.getAssetId());
             final EffectivePricingModelDto quotation = quotationService.createQuotation(
                 asset, command.getPricingModelKey(), command.getParameters(), false
             );

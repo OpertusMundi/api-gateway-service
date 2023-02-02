@@ -17,7 +17,6 @@ import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.ServiceException;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
-import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.order.CartAddCommandDto;
 import eu.opertusmundi.common.model.order.CartConstants;
 import eu.opertusmundi.common.model.order.CartDto;
@@ -163,7 +162,7 @@ public class CartControllerImpl extends BaseController implements CartController
 
                 // Set product and selected pricing model
                 cart.getItems().stream().forEach(cartItem -> {
-                    final CatalogueItemDto catalogueItem = catalogueItems.stream()
+                    final CatalogueItemDetailsDto catalogueItem = catalogueItems.stream()
                         .filter(i -> i.getId().equals(cartItem.getAssetId()))
                         .findFirst()
                         .orElse(null);
