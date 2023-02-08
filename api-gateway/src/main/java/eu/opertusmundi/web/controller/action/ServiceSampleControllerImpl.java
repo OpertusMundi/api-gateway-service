@@ -68,7 +68,7 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
         HttpServletRequest request, HttpServletResponse response
     ) throws IOException, OgcServiceClientException, URISyntaxException {
         try {
-            final List<ResourceIngestionDataDto> services = providerAssetService.getServices(this.currentUserParentKey(), draftKey);
+            final List<ResourceIngestionDataDto> services = providerAssetService.getServicesFromCache(this.currentUserParentKey(), draftKey);
 
             if (services == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -119,7 +119,7 @@ public class ServiceSampleControllerImpl extends BaseController implements Servi
 
     private byte[] getMap(UUID draftKey, UUID resourceKey, String bbox) throws URISyntaxException, OgcServiceClientException, MalformedURLException {
         try {
-            final List<ResourceIngestionDataDto> services = providerAssetService.getServices(currentUserParentKey(), draftKey);
+            final List<ResourceIngestionDataDto> services = providerAssetService.getServicesFromCache(currentUserParentKey(), draftKey);
             // Ingestion data must exist
             if (services == null) {
                 return null;
