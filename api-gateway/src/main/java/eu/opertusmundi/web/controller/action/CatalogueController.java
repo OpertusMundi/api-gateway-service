@@ -21,6 +21,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestImportCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueJoinableItemDto;
 import eu.opertusmundi.common.model.catalogue.elastic.ElasticAssetQuery;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.web.model.openapi.schema.EndpointTags;
@@ -156,6 +157,35 @@ public interface CatalogueController {
             description = "Item version"
         )
         @RequestParam(name = "version", required = true) String version
+    );
+
+    /**
+     * Get a single joinable catalogue item
+     *
+     * @param id The item unique id
+     * @return A response with a result of type {@link CatalogueJoinableItemDto}
+     */
+    @Operation(
+        operationId = "catalogue-03c",
+        summary     = "Get joinable asset",
+        description = "Get a single joinable catalogue item by its unique identifier."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = CatalogueEndpointTypes.JoinableItemResponse.class)
+        )
+    )
+    @GetMapping(value = "/catalogue/joinable-items/{id}")
+    RestResponse<CatalogueJoinableItemDto> findOneJoinable(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Item unique id"
+        )
+        @PathVariable String id
     );
 
     /**

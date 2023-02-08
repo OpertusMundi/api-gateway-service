@@ -27,6 +27,7 @@ public class CacheConfiguration {
         cacheManager.setCaffeine(caffeine);
         cacheManager.setCacheNames(Arrays.asList(
             "asset-statistics",
+            "catalogue-joinable-item",
             "company-number",
             "draft-services",
             "geodata-configuration",

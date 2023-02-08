@@ -15,6 +15,7 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueHarvestImportCommandDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDetailsDto;
 import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
+import eu.opertusmundi.common.model.catalogue.client.CatalogueJoinableItemDto;
 import eu.opertusmundi.common.model.catalogue.elastic.ElasticAssetQuery;
 import eu.opertusmundi.common.service.AssetDraftException;
 import eu.opertusmundi.common.service.CatalogueService;
@@ -91,6 +92,17 @@ public class CatalogueControllerImpl extends BaseController implements Catalogue
             final CatalogueItemDetailsDto item = catalogueService.findOne(
                 this.createContext(), id, version, this.currentUserParentKey(), this.isAuthenticated()
             );
+
+            return item == null ? RestResponse.notFound() : RestResponse.result(item);
+        } catch (final CatalogueServiceException ex) {
+            return RestResponse.failure();
+        }
+    }
+
+    @Override
+    public RestResponse<CatalogueJoinableItemDto> findOneJoinable(String id) {
+        try {
+            final CatalogueJoinableItemDto item = catalogueService.findOneJoinable(id);
 
             return item == null ? RestResponse.notFound() : RestResponse.result(item);
         } catch (final CatalogueServiceException ex) {
