@@ -300,7 +300,7 @@ public class DraftValidator implements Validator {
             // Query catalogue service only if no errors have already found
             if (!e.hasErrors() &&  mode == EnumValidationMode.SUBMIT && !assetKeys.isEmpty()) {
                 final List<CatalogueItemDetailsDto> assets = this.catalogueService
-                    .findAllPublishedById(assetKeys.toArray(new String[assetKeys.size()]), false);
+                    .findAllPublishedById(assetKeys.toArray(new String[assetKeys.size()]), false, false);
 
                 for (int i = 0; i < c.getResources().size(); i++) {
                     final ResourceDto             r  = c.getResources().get(i);

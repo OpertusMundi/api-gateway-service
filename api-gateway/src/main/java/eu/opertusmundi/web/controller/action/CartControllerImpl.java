@@ -2,7 +2,6 @@ package eu.opertusmundi.web.controller.action;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -149,20 +148,11 @@ public class CartControllerImpl extends BaseController implements CartController
             final String[] keys = cart.getItems().stream().map(i -> i.getAssetId()).toArray(String[]::new);
 
             if (keys.length != 0) {
-                final List<CatalogueItemDetailsDto> result = this.catalogueService.findAllPublishedById(keys);
-
-                final List<CatalogueItemDetailsDto> catalogueItems = result.stream()
-                    .map(item -> {
-                        // Do not return metadata/ingestion information
-                        item.setAutomatedMetadata(null);
-                        item.setIngestionInfo(null);
-
-                        return item;
-                    }).collect(Collectors.toList());
+                final List<CatalogueItemDetailsDto> result = this.catalogueService.findAllPublishedById(keys, true, true);
 
                 // Set product and selected pricing model
                 cart.getItems().stream().forEach(cartItem -> {
-                    final CatalogueItemDetailsDto catalogueItem = catalogueItems.stream()
+                    final CatalogueItemDetailsDto catalogueItem = result.stream()
                         .filter(i -> i.getId().equals(cartItem.getAssetId()))
                         .findFirst()
                         .orElse(null);
@@ -175,6 +165,10 @@ public class CartControllerImpl extends BaseController implements CartController
                     );
 
                     cartItem.setPricingModel(pricingModel);
+
+                    // Do not return metadata/ingestion information
+                    catalogueItem.setAutomatedMetadata(null);
+                    catalogueItem.setIngestionInfo(null);
                 });
             }
         } catch (final QuotationException ex) {

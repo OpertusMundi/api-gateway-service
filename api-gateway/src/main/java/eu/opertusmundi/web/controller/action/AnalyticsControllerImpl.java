@@ -131,7 +131,9 @@ public class AnalyticsControllerImpl extends BaseController implements Analytics
             final String[] pids = result.stream().map(c -> c.getPid()).toArray(String[]::new);
 
             if (pids.length > 0) {
-                final List<CatalogueItemDetailsDto> assets = catalogueService.findAllPublishedById(pids, false /* Ignore missing assets */);
+                final List<CatalogueItemDetailsDto> assets = catalogueService.findAllPublishedById(
+                    pids, false /* Ignore missing assets */, false /* exclude automated metadata */
+                );
                 result = result.stream()
                     .peek(c -> {
                         final var asset = assets.stream()
