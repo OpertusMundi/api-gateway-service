@@ -11,8 +11,7 @@ import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,7 +22,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -36,11 +34,10 @@ import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
 import eu.opertusmundi.test.support.utils.ResponsePayload;
 
 @SpringBootTest
-@ActiveProfiles("testing")
-@TestInstance(Lifecycle.PER_CLASS)
-public class WfsClientITCase {
+@Order(100)
+public class WfsClientITCase extends AbstractIntegrationTest {
 
-    private final static String pathTemplate = "/wfs/%d";
+    private final static String PATH_TEMPLATE = "/wfs/%d";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -70,7 +67,7 @@ public class WfsClientITCase {
             int index = 1;
 
             for (final ResponsePayload r : getCapabilities) {
-                server.stubFor(WireMock.get(urlPathEqualTo(String.format(pathTemplate, index)))
+                server.stubFor(WireMock.get(urlPathEqualTo(String.format(PATH_TEMPLATE, index)))
                     .withQueryParam("SERVICE", WireMock.equalToIgnoreCase("WFS"))
                     .withQueryParam("VERSION", WireMock.equalToIgnoreCase("2.0.0"))
                     .withQueryParam("REQUEST", WireMock.equalToIgnoreCase("GetCapabilities"))
@@ -123,7 +120,7 @@ public class WfsClientITCase {
         final ServiceResourceDto expected = this.objectMapper.readValue(data, ServiceResourceDto.class);
 
         final String  basePath     = wireMockServer.baseUrl();
-        final String  relativePath = String.format(pathTemplate, index);
+        final String  relativePath = String.format(PATH_TEMPLATE, index);
         final boolean includeSlash = !basePath.endsWith("/") && !relativePath.startsWith("/");
         final URI     uri          = new URIBuilder(basePath + (includeSlash ? "/" : "") + relativePath)
             .addParameter("SERVICE", "WFS")

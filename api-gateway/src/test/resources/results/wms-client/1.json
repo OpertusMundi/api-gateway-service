@@ -64,7 +64,7 @@
       "legendUrls": [
         {
           "image": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAABgAAAAYADwa0LPAAAAPklEQVRIx+3QMQoAIAxD0Y+3K97/Aq330KWDo0tRMA8yhpaAiPylAwMIwCoOBDAzflpqt2fZWX7uFE0kIq9aMJgId2Opeg8AAAAldEVYdGRhdGU6Y3JlYXRlADIwMjEtMTEtMjNUMTI6MDE6MTgrMDA6MDC5EezjAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIxLTExLTIzVDEyOjAxOjE4KzAwOjAwyExUXwAAAABJRU5ErkJggg==",
-          "url": "https://raw.githubusercontent.com/OpertusMundi/api-gateway-service/master/api-gateway/src/test/resources/assets/wms-legend-image.png"
+          "url": "/wms/1?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geodata.gov.gr%EF%BF%BD03c9bb-fa1c-4272-beb5-2a21204da56b"
         }
       ]
     }
