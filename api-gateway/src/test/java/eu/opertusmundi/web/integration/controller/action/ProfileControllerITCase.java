@@ -42,11 +42,10 @@ import eu.opertusmundi.common.model.account.AccountProfileDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.repository.AccountRepository;
-import eu.opertusmundi.web.integration.support.AbstractIntegrationTestWithSecurity;
-import eu.opertusmundi.web.utils.AccountCommandFactory;
+import eu.opertusmundi.test.support.integration.AbstractIntegrationTestWithSecurity;
+import eu.opertusmundi.test.support.utils.AccountCommandFactory;
 
 @SpringBootTest
-@ActiveProfiles("testing")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
 

@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.Message.EnumLevel;
-import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
+import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
 
 @SpringBootTest
 class HomeControllerITCase extends AbstractIntegrationTest {

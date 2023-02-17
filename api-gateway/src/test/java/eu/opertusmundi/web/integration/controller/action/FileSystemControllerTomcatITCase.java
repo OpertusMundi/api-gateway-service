@@ -57,7 +57,7 @@ import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.common.repository.AccountRepository;
-import eu.opertusmundi.web.utils.AccountCommandFactory;
+import eu.opertusmundi.test.support.utils.AccountCommandFactory;
 
 /**
  * Integration test for testing file upload request max size. Since the file

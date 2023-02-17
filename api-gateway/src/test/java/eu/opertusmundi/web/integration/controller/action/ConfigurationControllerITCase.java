@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
-import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
+import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
 
 @SpringBootTest
 class ConfigurationControllerITCase extends AbstractIntegrationTest {

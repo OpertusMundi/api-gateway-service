@@ -1,4 +1,4 @@
-package eu.opertusmundi.web.utils;
+package eu.opertusmundi.test.support.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

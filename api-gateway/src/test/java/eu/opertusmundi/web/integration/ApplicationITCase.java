@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
 import eu.opertusmundi.web.controller.HomeController;
-import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
 
 @SpringBootTest
 public class ApplicationITCase extends AbstractIntegrationTest {

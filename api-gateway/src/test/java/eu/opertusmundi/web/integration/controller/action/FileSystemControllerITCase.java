@@ -55,8 +55,8 @@ import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.common.repository.AccountRepository;
-import eu.opertusmundi.web.integration.support.AbstractIntegrationTestWithSecurity;
-import eu.opertusmundi.web.utils.AccountCommandFactory;
+import eu.opertusmundi.test.support.integration.AbstractIntegrationTestWithSecurity;
+import eu.opertusmundi.test.support.utils.AccountCommandFactory;
 
 @SpringBootTest(
     // By default bean definitions cannot be overridden.

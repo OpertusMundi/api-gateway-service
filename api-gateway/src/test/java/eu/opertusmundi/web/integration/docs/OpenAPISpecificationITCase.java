@@ -20,7 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
+import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
 
 @SpringBootTest
 public class OpenAPISpecificationITCase extends AbstractIntegrationTest {

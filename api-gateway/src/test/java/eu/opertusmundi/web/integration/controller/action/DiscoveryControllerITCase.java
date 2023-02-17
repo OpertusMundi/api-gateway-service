@@ -26,8 +26,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
 import eu.opertusmundi.common.model.openapi.schema.DiscoveryEndpointTypes;
-import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
-import eu.opertusmundi.web.utils.ResponsePayload;
+import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
+import eu.opertusmundi.test.support.utils.ResponsePayload;
 
 @SpringBootTest
 public class DiscoveryControllerITCase extends AbstractIntegrationTest {

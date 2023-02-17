@@ -33,7 +33,8 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import eu.opertusmundi.common.model.asset.ServiceResourceDto;
 import eu.opertusmundi.common.model.catalogue.client.EnumSpatialDataServiceType;
 import eu.opertusmundi.common.service.ogc.WmsClient;
-import eu.opertusmundi.web.utils.ResponsePayload;
+import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
+import eu.opertusmundi.test.support.utils.ResponsePayload;
 
 @SpringBootTest
 @ActiveProfiles("testing")

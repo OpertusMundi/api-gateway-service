@@ -1,4 +1,4 @@
-package eu.opertusmundi.web.utils;
+package eu.opertusmundi.test.support.utils;
 
 import eu.opertusmundi.common.model.account.AccountProfileCommandDto;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;

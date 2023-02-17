@@ -47,8 +47,8 @@ import eu.opertusmundi.common.model.catalogue.client.CatalogueItemDto;
 import eu.opertusmundi.common.model.contract.TemplateContractDto;
 import eu.opertusmundi.common.model.openapi.schema.CatalogueEndpointTypes;
 import eu.opertusmundi.common.repository.contract.ProviderTemplateContractHistoryRepository;
-import eu.opertusmundi.web.integration.support.AbstractIntegrationTest;
-import eu.opertusmundi.web.utils.ResponsePayload;
+import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
+import eu.opertusmundi.test.support.utils.ResponsePayload;
 
 @SpringBootTest
 @Sql(scripts = {

@@ -1,4 +1,4 @@
-package eu.opertusmundi.web.utils;
+package eu.opertusmundi.test.support.utils;
 
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
