@@ -22,9 +22,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -46,8 +48,16 @@ import eu.opertusmundi.test.support.integration.AbstractIntegrationTestWithSecur
 import eu.opertusmundi.test.support.utils.AccountCommandFactory;
 
 @SpringBootTest
+@Sql(
+    scripts = {"classpath:sql/truncate-tables.sql"},
+    config = @SqlConfig(separator = ScriptUtils.EOF_STATEMENT_SEPARATOR)
+)
+@Sql(scripts = {
+    "classpath:sql/initialize-settings.sql",
+    "classpath:sql/create-marketplace-account.sql"
+})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
+public class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -156,9 +166,9 @@ class ProfileControllerITCase extends AbstractIntegrationTestWithSecurity {
         assertThat(account.getEmail()).isEqualTo("user@opertusmundi.eu");
         assertThat(account.getUsername()).isEqualTo("user@opertusmundi.eu");
         assertThat(account.getActivationStatus()).isEqualTo(EnumActivationStatus.COMPLETED);
-        assertThat(account.getActivatedAt()).isNull();
-        assertThat(account.getEmailVerifiedAt()).isNull();
-        assertThat(account.isEmailVerified()).isFalse();
+        assertThat(account.getActivatedAt()).isNotNull();
+        assertThat(account.getEmailVerifiedAt()).isNotNull();
+        assertThat(account.isEmailVerified()).isTrue();
         assertThat(account.getKey()).isNotNull();
         assertThat(account.getPassword()).isNull();
         assertThat(account.getRegisteredAt()).isNotNull();

@@ -5,29 +5,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.HashSet;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.opertusmundi.common.model.EnumRole;
 import eu.opertusmundi.common.model.account.AccountDto;
 
 @JsonTest
-@ExtendWith(SpringExtension.class)
 public class AccountDtoTests {
 
     @Autowired
     private JacksonTester<AccountDto> json;
-
-    /*
-    @BeforeEach
-    public void setup() {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        JacksonTester.initFields(this, objectMapper);
-    }
-    */
 
     @Test
     void testSerialize() throws Exception {

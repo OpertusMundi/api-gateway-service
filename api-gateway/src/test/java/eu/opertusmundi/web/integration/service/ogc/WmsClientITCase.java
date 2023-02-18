@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -36,7 +35,6 @@ import eu.opertusmundi.test.support.utils.BinaryResponsePayload;
 import eu.opertusmundi.test.support.utils.ResponsePayload;
 
 @SpringBootTest
-@Order(101)
 public class WmsClientITCase extends AbstractIntegrationTest {
 
     private final static String PATH_TEMPLATE = "/wms/%d";

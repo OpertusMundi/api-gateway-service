@@ -11,12 +11,22 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 
 import eu.opertusmundi.common.model.EnumAuthProvider;
 import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
 
 @SpringBootTest
-class ConfigurationControllerITCase extends AbstractIntegrationTest {
+@Sql(
+    scripts = {"classpath:sql/truncate-tables.sql"},
+    config = @SqlConfig(separator = ScriptUtils.EOF_STATEMENT_SEPARATOR)
+)
+@Sql(scripts = {
+    "classpath:sql/initialize-settings.sql"
+})
+public class ConfigurationControllerITCase extends AbstractIntegrationTest {
 
     @Test
     @Tag(value = "Controller")

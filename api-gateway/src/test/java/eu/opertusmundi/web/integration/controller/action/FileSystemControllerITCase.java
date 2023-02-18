@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -24,44 +23,46 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.jdbc.JdbcTestUtils;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.google.common.net.HttpHeaders;
 
-import eu.opertusmundi.common.domain.AccountEntity;
 import eu.opertusmundi.common.model.BasicMessageCode;
 import eu.opertusmundi.common.model.Message.EnumLevel;
-import eu.opertusmundi.common.model.account.EnumActivationStatus;
-import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemMessageCode;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
-import eu.opertusmundi.common.repository.AccountRepository;
 import eu.opertusmundi.test.support.integration.AbstractIntegrationTestWithSecurity;
-import eu.opertusmundi.test.support.utils.AccountCommandFactory;
 
 @SpringBootTest(
     // By default bean definitions cannot be overridden.
     properties = {"spring.main.allow-bean-definition-overriding=true"}
 )
+@Sql(
+    scripts = {"classpath:sql/truncate-tables.sql"},
+    config = @SqlConfig(separator = ScriptUtils.EOF_STATEMENT_SEPARATOR)
+)
+@Sql(scripts = {
+    "classpath:sql/initialize-settings.sql",
+    "classpath:sql/create-marketplace-account.sql"
+})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecurity {
 
@@ -110,34 +111,6 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
 
     @Value("classpath:assets/file-1.zip")
     private File uploadedFile;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @BeforeAll
-    public void setupAccounts() {
-        // Reset database
-        JdbcTestUtils.deleteFromTables(this.jdbcTemplate,
-            "contract.provider_contract_history", "contract.master_contract_history", "web.account"
-        );
-
-        // Create default account with authority ROLE_USER
-        final PlatformAccountCommandDto command = AccountCommandFactory.user("user@opertusmundi.eu").build();
-
-        this.accountRepository.create(command);
-
-        // Activate account (bypass activation token request). A user must
-        // complete the registration process before accessing the remote file
-        // system.
-        final AccountEntity entity = this.accountRepository.findOneByEmail("user@opertusmundi.eu").get();
-        entity.setActivatedAt(ZonedDateTime.now());
-        entity.setActivationStatus(EnumActivationStatus.COMPLETED);
-
-        this.accountRepository.save(entity);
-    }
 
     @AfterAll
     public void teardown () {
@@ -283,7 +256,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
     @Test
     @Order(23)
     @Tag(value = "Controller")
-    @DisplayName(value = "When creating folder for authenticated user with invald path name, return error")
+    @DisplayName(value = "When creating folder for authenticated user with invalid path name, return error")
     @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
     void whenAuthenticatedUserCreateFolderWithInvalidName_returnError() throws Exception {
         final FilePathCommand command = FilePathCommand.builder()
@@ -309,7 +282,7 @@ public class FileSystemControllerITCase extends AbstractIntegrationTestWithSecur
     @Test
     @Order(24)
     @Tag(value = "Controller")
-    @DisplayName(value = "When creating folder for authenticated user with invald path length, return error")
+    @DisplayName(value = "When creating folder for authenticated user with invalid path length, return error")
     @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
     void whenAuthenticatedUserCreateFolderWithInvalidPathLength_returnError() throws Exception {
         final FilePathCommand command = FilePathCommand.builder()

@@ -22,7 +22,7 @@ import eu.opertusmundi.common.model.Message.EnumLevel;
 import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
 
 @SpringBootTest
-class HomeControllerITCase extends AbstractIntegrationTest {
+public class HomeControllerITCase extends AbstractIntegrationTest {
 
     @Value("${springdoc.api-docs.server:http://localhost:8080}")
     private String serverUrl;

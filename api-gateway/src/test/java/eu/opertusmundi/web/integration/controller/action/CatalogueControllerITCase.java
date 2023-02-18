@@ -31,7 +31,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -51,7 +53,15 @@ import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
 import eu.opertusmundi.test.support.utils.ResponsePayload;
 
 @SpringBootTest
+@Sql(
+    scripts = {"classpath:sql/truncate-tables.sql"},
+    config = @SqlConfig(separator = ScriptUtils.EOF_STATEMENT_SEPARATOR)
+)
 @Sql(scripts = {
+    "classpath:sql/initialize-settings.sql"
+})
+@Sql(scripts = {
+    "classpath:sql/create-helpdesk-account.sql",
     "classpath:sql/create-provider-account.sql",
     "classpath:sql/create-contract-templates.sql"
 })
@@ -75,9 +85,9 @@ public class CatalogueControllerITCase extends AbstractIntegrationTest {
 
             final WireMockServer server = new WireMockServer(url.getPort());
 
-            final ResponsePayload searchResponse = ResponsePayload.from("classpath:responses/catalogue-service/search.json");
-            final ResponsePayload itemResponse   = ResponsePayload.from("classpath:responses/catalogue-service/item.json");
-            final ResponsePayload notFoundResponse   = ResponsePayload.from("classpath:responses/catalogue-service/not-found.json");
+            final ResponsePayload searchResponse   = ResponsePayload.from("classpath:responses/catalogue-service/search.json");
+            final ResponsePayload itemResponse     = ResponsePayload.from("classpath:responses/catalogue-service/item.json");
+            final ResponsePayload notFoundResponse = ResponsePayload.from("classpath:responses/catalogue-service/not-found.json");
 
             server.stubFor(WireMock.get(urlPathEqualTo("/api/published/search"))
                 .atPriority(1)

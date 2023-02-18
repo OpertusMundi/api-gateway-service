@@ -1,0 +1,11 @@
+[
+  {
+    "id": "a4b329ae-d833-4b0e-ab25-c5c7308f74fa",
+    "definitionId": "account-registration",
+    "businessKey": "f885c824-b31c-47b5-bbe9-f003372ca4a0",
+    "caseInstanceId": null,
+    "ended": false,
+    "suspended": false,
+    "tenantId": null
+  }
+]

@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -34,7 +33,6 @@ import eu.opertusmundi.test.support.integration.AbstractIntegrationTest;
 import eu.opertusmundi.test.support.utils.ResponsePayload;
 
 @SpringBootTest
-@Order(100)
 public class WfsClientITCase extends AbstractIntegrationTest {
 
     private final static String PATH_TEMPLATE = "/wfs/%d";

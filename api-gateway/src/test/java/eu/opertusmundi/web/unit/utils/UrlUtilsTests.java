@@ -4,15 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.opertusmundi.web.utils.UrlUtils;
 
-@ExtendWith(SpringExtension.class)
 public class UrlUtilsTests {
 
     private static String SERVER_URL = "https://jupyterhub.beta.topio.market/user@opertusmundi.eu/sever-01";

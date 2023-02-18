@@ -84,7 +84,7 @@ public class DiscoveryControllerITCase extends AbstractIntegrationTest {
     }
 
     @Test
-    @Tag(value = "Discovery Controller")
+    @Tag(value = "Controller")
     @DisplayName(value = "When searching joinable, returns data")
     void whenSearchJoinable_returnData() throws Exception {
         final MvcResult mvcResult = this.mockMvc.perform(get("/action/discovery/joinable/1"))
@@ -129,7 +129,7 @@ public class DiscoveryControllerITCase extends AbstractIntegrationTest {
     }
 
     @Test
-    @Tag(value = "Discovery Controller")
+    @Tag(value = "Controller")
     @DisplayName(value = "When searching related, returns data")
     void whenSearchRelated_returnData() throws Exception {
         final MvcResult mvcResult = this.mockMvc.perform(get("/action/discovery/related/1?target=2&target=3"))

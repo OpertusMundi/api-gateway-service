@@ -1,5 +1,6 @@
 package eu.opertusmundi.web.integration.controller.action;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -42,6 +43,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -49,7 +51,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -72,14 +74,15 @@ import eu.opertusmundi.common.model.account.ActivationTokenDto;
 import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.EnumActivationTokenType;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
+import eu.opertusmundi.common.model.workflow.EnumWorkflow;
 import eu.opertusmundi.test.support.integration.AbstractIntegrationTestWithSecurity;
+import eu.opertusmundi.test.support.utils.ResponsePayload;
 import eu.opertusmundi.test.support.utils.ReturnValueCaptor;
 import eu.opertusmundi.web.model.security.PasswordChangeCommandDto;
 import eu.opertusmundi.web.security.UserService;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Sql(scripts = {"classpath:sql/create-helpdesk-account.sql"})
 public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity {
 
     @Autowired
@@ -119,6 +122,26 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
             server.stubFor(WireMock.post(urlPathEqualTo("/engine-rest/message"))
                 .willReturn(WireMock.aResponse()
                     .withStatus(HttpStatus.OK.value())
+                ));
+
+            server.stubFor(WireMock
+                .post(urlPathEqualTo(String.format(
+                    "/engine-rest/process-definition/key/%s/start", EnumWorkflow.ACCOUNT_REGISTRATION.getKey()
+                )))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                ));
+
+            final ResponsePayload processInstancesResponse = ResponsePayload.from("classpath:responses/bpm-engine-service/get-process-instance.json");
+            server.stubFor(WireMock
+                .get(urlPathEqualTo(String.format(
+                    "/engine-rest/process-instance", EnumWorkflow.ACCOUNT_REGISTRATION.getKey()
+                )))
+                .withQueryParam("businessKey", matching("(.+)"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withBody(processInstancesResponse.getData())
                 ));
 
             return server;
@@ -165,6 +188,13 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Tag(value = "Controller")
     @Order(10)
     @DisplayName(value = "When register account with invalid request, return errors")
+    @Sql(
+        scripts = {"classpath:sql/truncate-tables.sql"},
+        config = @SqlConfig(separator = ScriptUtils.EOF_STATEMENT_SEPARATOR)
+    )
+    @Sql(scripts = {
+        "classpath:sql/initialize-settings.sql"
+    })
     void whenRegisterAccountWithErrors_returnErrors() throws Exception {
         final String code = BasicMessageCode.Validation.key();
 
@@ -203,7 +233,6 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Tag(value = "Controller")
     @Order(11)
     @DisplayName(value = "When register account, return account")
-    @Sql(scripts = {"classpath:sql/reset-database.sql"}, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
     @Commit
     void whenRegisterAccount_returnNewAccount() throws Exception {
         // Create command
@@ -506,6 +535,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @DisplayName(value = "When changing password for authenticated user with invalid credentials, return error")
     @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
     @Order(61)
+    @Disabled(value = "Requires IDP integration")
     void whenAuthenticatedUserChangePasswordWithInvalidCurrentPassword_returnError() throws Exception {
         // Create command
         final PasswordChangeCommandDto command = new PasswordChangeCommandDto();

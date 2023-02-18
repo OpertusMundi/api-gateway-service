@@ -19,6 +19,7 @@ public class ApplicationITCase extends AbstractIntegrationTest {
     @Test
     @DisplayName(value = "Context Loads")
     public void contextLoads() throws Exception {
+        assertThat(postgisContainer.isRunning()).isTrue();
         assertThat(this.controller).isNotNull();
     }
 

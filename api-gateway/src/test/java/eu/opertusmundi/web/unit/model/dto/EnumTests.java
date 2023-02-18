@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.opertusmundi.common.model.EnumExternalDataProviderRole;
 import eu.opertusmundi.common.model.EnumRole;
@@ -16,7 +14,6 @@ import eu.opertusmundi.common.model.EnumVendorRole;
 import eu.opertusmundi.common.model.pricing.EnumExternalDataProviderPricingModel;
 import eu.opertusmundi.common.model.pricing.EnumPricingModel;
 
-@ExtendWith(SpringExtension.class)
 public class EnumTests {
 
     @Test

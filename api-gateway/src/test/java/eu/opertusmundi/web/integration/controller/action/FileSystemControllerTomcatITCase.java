@@ -19,8 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,7 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.unit.DataSize;
@@ -57,6 +55,7 @@ import eu.opertusmundi.common.model.account.EnumActivationStatus;
 import eu.opertusmundi.common.model.account.PlatformAccountCommandDto;
 import eu.opertusmundi.common.model.file.FileUploadCommand;
 import eu.opertusmundi.common.repository.AccountRepository;
+import eu.opertusmundi.test.support.integration.BaseIntegrationTest;
 import eu.opertusmundi.test.support.utils.AccountCommandFactory;
 
 /**
@@ -77,9 +76,10 @@ import eu.opertusmundi.test.support.utils.AccountCommandFactory;
     // By default bean definitions cannot be overridden.
     properties = {"spring.main.allow-bean-definition-overriding=true"}
 )
-@ActiveProfiles("testing")
-@TestInstance(Lifecycle.PER_CLASS)
-public class FileSystemControllerTomcatITCase {
+@Sql(scripts = {
+    "classpath:sql/initialize-settings.sql",
+})
+public class FileSystemControllerTomcatITCase extends BaseIntegrationTest {
 
     @TestConfiguration
     public static class FileSystemConfiguration {
