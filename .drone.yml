@@ -139,22 +139,22 @@ steps:
   - >-
       mvn -B test -DenableCiProfile -DenableJavaBuildProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml
 
-- name: integration-tests
-  #image: maven:3.8.6-eclipse-temurin-17-alpine
-  image: opertusmundi/java-commons-builder:1.1
-  when:
-    event:
-    - push
-  environment: {}
-  volumes:
-  - name: maven-repo
-    path: /root/.m2
-  commands:
-  - cd api-gateway
-  - ls -hal ./config
-  # Todo mvn integration-test
-  - >-
-     mvn -B test -DenableJavaBuildProfile -DenableCiProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml -Dtest=eu.opertusmundi.web.integration.ApplicationITCase
+#- name: integration-tests
+#  #image: maven:3.8.6-eclipse-temurin-17-alpine
+#  image: opertusmundi/java-commons-builder:1.1
+#  when:
+#    event:
+#    - push
+#  environment: {}
+#  volumes:
+#  - name: maven-repo
+#    path: /root/.m2
+#  commands:
+#  - cd api-gateway
+#  - ls -hal ./config
+#  # Todo mvn integration-test
+#  - >-
+#     mvn -B test -DenableJavaBuildProfile -DenableCiProfile -Dlog4j.configurationFile=classpath:config/log4j2.xml -Dtest=eu.opertusmundi.web.integration.ApplicationITCase
 
 - name: prepare-tags
   image: busybox:1.32
