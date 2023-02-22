@@ -236,7 +236,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Commit
     void whenRegisterAccount_returnNewAccount() throws Exception {
         // Create command
-        final String email = "user@opertusmundi.eu";
+        final String email = TOPIO_USERNAME;
 
         final AccountProfileCommandDto profileCommand = new AccountProfileCommandDto();
         profileCommand.setFirstName("Demo");
@@ -246,7 +246,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
 
         final PlatformAccountCommandDto command = new PlatformAccountCommandDto();
         command.setEmail(email);
-        command.setPassword("password");
+        command.setPassword(TOPIO_PASSWORD);
         command.setProfile(profileCommand);
 
         // Capture return value (arguments will be captured in verify)
@@ -312,7 +312,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
         final String code = BasicMessageCode.Validation.key();
 
         // Create command
-        final String email = "user@opertusmundi.eu";
+        final String email = TOPIO_USERNAME;
 
         final AccountProfileCommandDto profileCommand = new AccountProfileCommandDto();
         profileCommand.setFirstName("Demo");
@@ -403,7 +403,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @DisplayName(value = "When request activation token, return empty response")
     @Commit
     void whenRequestActivationToken_returnToken() throws Exception {
-        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of("user@opertusmundi.eu");
+        final ActivationTokenCommandDto command = ActivationTokenCommandDto.of(TOPIO_USERNAME);
 
         // Capture return value (arguments will be captured in verify)
         doAnswer(this.activationTokenResponse)
@@ -442,7 +442,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Order(50)
     @DisplayName(value = "When login failure, redirect")
     void whenLoginFailure_thenRedirect() throws Exception {
-        this.mockMvc.perform(formLogin("/login").user("user@opertusmundi.eu").password("invalid"))
+        this.mockMvc.perform(formLogin("/login").user(TOPIO_USERNAME).password("invalid"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/signin?error=1"));
     }
@@ -453,7 +453,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @DisplayName(value = "When login success, redirect")
     @Disabled(value = "Requires IDP integration")
     void whenLoginSuccess_thenRedirect() throws Exception {
-        this.mockMvc.perform(formLogin("/login").user("user@opertusmundi.eu").password("password"))
+        this.mockMvc.perform(formLogin("/login").user(TOPIO_USERNAME).password(TOPIO_PASSWORD))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/logged-in"));
     }
@@ -462,7 +462,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Order(52)
     @Tag(value = "Controller")
     @DisplayName(value = "When login success, return new CSRF token")
-    @WithMockUser(username = "user@opertusmundi.eu", roles = { "USER" })
+    @WithMockUser(username = TOPIO_USERNAME, roles = { "USER" })
     void whenLoginSuccess_thenReturnCsrfToken() throws Exception {
         this.mockMvc.perform(get("/logged-in"))
             .andExpect(status().isOk())
@@ -510,7 +510,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     void whenAnonymousUserChangePassword_return403() throws Exception {
         // Create command
         final PasswordChangeCommandDto command = new PasswordChangeCommandDto();
-        command.setCurrentPassword("password");
+        command.setCurrentPassword(TOPIO_PASSWORD);
         command.setNewPassword("new-password");
         command.setVerifyNewPassword("new-password");
 
@@ -533,7 +533,7 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Test
     @Tag(value = "Controller")
     @DisplayName(value = "When changing password for authenticated user with invalid credentials, return error")
-    @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
+    @WithUserDetails(value = TOPIO_USERNAME, userDetailsServiceBeanName = "defaultUserDetailsService")
     @Order(61)
     @Disabled(value = "Requires IDP integration")
     void whenAuthenticatedUserChangePasswordWithInvalidCurrentPassword_returnError() throws Exception {
@@ -562,16 +562,16 @@ public class AccountControllerITCase extends AbstractIntegrationTestWithSecurity
     @Test
     @Tag(value = "Controller")
     @DisplayName(value = "When changing password for authenticated user with valid credentials, return 200")
-    @WithUserDetails(value = "user@opertusmundi.eu", userDetailsServiceBeanName = "defaultUserDetailsService")
+    @WithUserDetails(value = TOPIO_USERNAME, userDetailsServiceBeanName = "defaultUserDetailsService")
     @Order(62)
     @Disabled(value = "Requires IDP integration")
     void whenAuthenticatedUserChangePasswordWithValidCurrentPassword_return200() throws Exception {
         // Create command
-        final String                   email    = "user@opertusmundi.eu";
+        final String                   email    = TOPIO_USERNAME;
         final String                   password = "new-password";
         final PasswordChangeCommandDto command  = new PasswordChangeCommandDto();
 
-        command.setCurrentPassword("password");
+        command.setCurrentPassword(TOPIO_PASSWORD);
         command.setNewPassword("new-password");
         command.setVerifyNewPassword("new-password");
 

@@ -9,6 +9,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.StreamUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -29,6 +34,10 @@ public class ResponsePayload {
         try (InputStream in = resource.getInputStream()) {
             return new ResponsePayload(StreamUtils.copyToString(in, StandardCharsets.UTF_8));
         }
+    }
+
+    public JsonNode asJson() throws JsonMappingException, JsonProcessingException {
+        return (new ObjectMapper()).readTree(this.data);
     }
 
 }
