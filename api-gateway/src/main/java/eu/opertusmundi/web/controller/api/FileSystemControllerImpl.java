@@ -20,6 +20,7 @@ import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.common.model.file.DirectoryDto;
 import eu.opertusmundi.common.model.file.FilePathCommand;
 import eu.opertusmundi.common.model.file.FileSystemException;
+import eu.opertusmundi.common.model.file.FileSystemMessageCode;
 import eu.opertusmundi.common.service.UserFileManager;
 import eu.opertusmundi.web.controller.action.BaseController;
 
@@ -68,6 +69,9 @@ public class FileSystemControllerImpl extends BaseController implements FileSyst
 
             return new ResponseEntity<StreamingResponseBody>(stream, HttpStatus.OK);
         } catch (final FileSystemException ex) {
+            if (ex.getCode() == FileSystemMessageCode.PATH_NOT_FOUND) {
+                return new ResponseEntity<StreamingResponseBody>((StreamingResponseBody) null, HttpStatus.NOT_FOUND);
+            }
             throw ex;
         }
     }
