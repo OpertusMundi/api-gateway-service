@@ -110,6 +110,7 @@ public class DiscoveryControllerITCase extends AbstractIntegrationTest {
 
         final var table = joinableTables.get(0);
         assertThat(table.getTableName()).isEqualTo("value 4");
+        assertThat(table.getTablePath()).isEqualTo("value 5");
 
         final var matches = table.getMatches();
         assertThat(matches).isNotEmpty();

@@ -13,7 +13,8 @@
           "explanation": "value 3"
         }
       ],
-      "table_name": "value 4"
+      "table_name": "value 4",
+      "table_path": "value 5"
     }
   ]
 }
