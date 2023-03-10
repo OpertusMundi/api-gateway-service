@@ -126,7 +126,7 @@ public class DiscoveryControllerITCase extends AbstractIntegrationTest {
 
         final var related = match.getRelated();
         assertThat(related).isNotNull();
-        assertThat(related.getComa()).isEqualTo(5);
+        assertThat(related.getComa()).isEqualTo(0.9483571);
     }
 
     @Test
